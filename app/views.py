@@ -8,7 +8,8 @@ from forms import *
 
 @app.route('/')
 def index():
-    return render_template('wrapper.html', content='Home page')
+    content = '<p>To add content, modify <code>views.py</code>.<p>'
+    return render_template('wrapper.html', content=content)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

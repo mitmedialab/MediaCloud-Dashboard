@@ -1,26 +1,23 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Attention Plotter</title>
-        <link rel="stylesheet" type="text/css" href="static/css/bootstrap.css"/>
-        <script type="text/javascript" src="static/js/jquery-2.0.3.min.js"></script>
-        <script type="text/javascript" src="static/js/bootstrap.js"></script>
+        <title>Media Cloud Dashboard</title>
+        <link rel="stylesheet" type="text/css" href="static/lib/bootstrap/css/bootstrap.min.css"/>
+        <link rel="stylesheet" type="text/css" href="static/style.css"/>
+        <script type="text/javascript" src="static/lib/jquery/js/jquery-2.0.3.min.js"></script>
+        <script type="text/javascript" src="static/lib/bootstrap/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="static/script.js"></script>
     </head>
     <body>
         <div class="container">
-            <h1>Attention Plotter</h1>
-            <hr/>
-            <ul>
-                <li><a href="/projects">All projects</a></li>
-                {% if current_user.is_authenticated() %}
-                    <li><a href="projects/{{ current_user.name }}">My projects</a></li>
-                {% endif %}
-                {% if current_user.is_authenticated() %}
-                    <li><a href="/logout">Log out</a></li>
-                {% else %}
-                    <li><a href="/login">Log in</a></li>
-                {% endif %}
-            </ul>
+            <div class="header">
+            {% block header %}
+                <h1>Media Cloud Dashboard</h1>
+            {% endblock %}
+            </div>
+            <div class="nav">
+            </div>
+            <div class="messages">
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
                     <ul class="flashes">
@@ -30,9 +27,20 @@
                     </ul>
                 {% endif %}
             {% endwith %}
+            </div>
+            <div class="content">
             {% block content %}
-            {{ content }}
+                {{ content |safe }}
             {% endblock %}
+            </div>
+            <div class="footer">
+            {% block footer %}
+                <p>
+                    <img class="logo" src="static/img/logo.gif"/>
+                </p>
+                <p>&copy; Copyright 2014 MIT Center for Civic Media</p>
+            {% endblock %}
+            </div>
         </div>
     </body>
 </html>
