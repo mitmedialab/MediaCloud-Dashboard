@@ -1,20 +1,26 @@
-from flask import Flask
-from flask_login import LoginManager
-from pymongo import Connection
 
-# Settings
-config_host = 'localhost'
-config_db = 'attention'
+import ConfigParser
+
+import flask
+import flask_login
+import pymongo
+
+# Load configuration
+config = ConfigParser.ConfigParser()
+config.read('app.config')
 
 # Flask app
-app = Flask(__name__)
+app = flask.Flask(__name__)
 app.secret_key = 'put secret key here'
 
 # Create user login manager
-login_manager = LoginManager()
+login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 
 # Connect to db
-db = Connection(config_host)[config_db]
+host = config.get('database', 'host')
+database = config.get('database', 'database')
+db = pymongo.Connection(host)[database]
 
+# Set up routes and content
 from app import views
