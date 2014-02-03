@@ -1,5 +1,7 @@
-from flask import Flask, flash, redirect, render_template, request, url_for
-from flask_login import current_user, login_required, login_user, logout_user
+import json
+
+import flask
+import flask_login
 import pymongo
 
 from app import app, login_manager
@@ -9,25 +11,32 @@ from forms import *
 @app.route('/')
 def index():
     content = '<p>To add content, modify <code>views.py</code>.<p>'
-    return render_template('wrapper.html', content=content)
+    return flask.render_template('wrapper.html', content=content)
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['POST'])
 def login():
-    print 'in login';
-    form = LoginForm(request.form)
-    if form.validate_on_submit():
-        user = authenticate_user(form.email.data, form.password.data)
-        if not user.is_authenticated():
-            return redirect(url_for('login'))
-        login_user(user)
-        return redirect(request.args.get('next') or url_for('index'))
-    return render_template('login.html', form=form)
+    username = flask.request.form['username']
+    password = flask.request.form['password']
+    user = authenticate_user(username, password)
+    if not user.is_authenticated():
+        flask.flash('Invalid username/password combination.')
+        flask.abort(401)
+    flask_login.login_user(user)
+    response = {
+        'username': flask.request.form['username']
+        , 'authenticated': True
+    }
+    return json.dumps(response)
 
-@app.route('/logout')
-@login_required
+@app.route('/logout', methods=['POST'])
+@flask_login.login_required
 def logout():
-    logout_user()
-    return redirect(url_for('index'))
+    flask_login.logout_user()
+    response = {
+        'username': ''
+        , 'authenticated': False
+    }
+    return json.dumps(response)
 
 # Callback for flask-login
 @login_manager.user_loader

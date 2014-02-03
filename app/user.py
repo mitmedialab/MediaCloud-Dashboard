@@ -20,12 +20,11 @@ class User(UserMixin):
     def is_authenticated(self):
         return True
 
-def authenticate_user(email, password):
+def authenticate_user(username, password):
     global db
-    hash = hashlib.sha1(password).hexdigest()
-    result = db.users.find_one({u'email': email, u'hash': hash})
+    hashword = hashlib.sha1(password).hexdigest()
+    result = db.users.find_one({u'username': username, u'password': hashword})
     if (result):
-        return User(result['username'], result['email'])
-    flash('Invalid username/password combination.')
+        return User(result['username'], result['username'])
     return AnonymousUserMixin()
 
