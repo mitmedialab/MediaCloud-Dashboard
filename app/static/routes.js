@@ -6,13 +6,15 @@ App.Router = Backbone.Router.extend({
     
     initialize: function (options) {
         App.debug('App.Router.initialize()');
+        this.userModel = new App.UserModel();
+        this.appView = new App.AppView({
+            userModel: this.userModel
+        })
     },
     
     home: function () {
         App.debug('Route: home');
-        user = new App.UserModel();
-        loginView = new App.LoginView({ model: user });
-        $('.content').html(loginView.el)
+        $('.content').html(this.appView.el)
     },
     
     defaultRoute: function (routeId) {

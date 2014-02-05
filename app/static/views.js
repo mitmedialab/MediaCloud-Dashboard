@@ -1,15 +1,42 @@
 
 /**
+ * Main application view.
+ */
+App.AppView = Backbone.View.extend({
+    
+    initialize: function (options) {
+        App.debug('App.AppView.initialize()');
+        this.options = options || {};
+        this.userModel = options.userModel;
+        _.bindAll(this, 'render');
+        options.userModel.on('change', this.render);
+        this.loginView = new App.LoginView({ model: options.userModel });
+        this.render();
+    },
+    
+    render: function () {
+        if (this.options.userModel.get('authenticated')) {
+            $(this.el).html('Hello, ' + this.userModel.get('username'))
+        } else {
+            $(this.el).html(this.loginView.el);
+        }
+        return this;
+    }
+})
+
+/**
  * Login form.
  */
 App.LoginView = Backbone.View.extend({
     
     template: _.template($('#tpl-login-view').html()),
     
-    initialize: function () {
+    initialize: function (options) {
         App.debug('App.LoginView.initialize()');
+        this.options = options || {};
+        _.bindAll(this, 'render');
+        _.bindAll(this, 'login');
         this.render();
-        this.model.on('change', this.render, this);
     },
     
     events: {
@@ -17,12 +44,7 @@ App.LoginView = Backbone.View.extend({
     },
     
     render: function () {
-        App.debug('App.LoginView.initialize()');
-        if (this.model.get('authenticated')) {
-            $(this.el).html('Hello, ' + this.model.get('username'))
-        } else {
-            $(this.el).html(this.template())
-        }
+        $(this.el).html(this.template())
         return this;
     },
     

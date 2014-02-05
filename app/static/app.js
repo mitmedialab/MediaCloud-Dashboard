@@ -6,6 +6,7 @@ App = {
     
     initialize: function () {
         App.debug('App.initialize()');
+        App.instance = this;
         this.router = new App.Router()
         this.router.navigate('');
         Backbone.history.start();
