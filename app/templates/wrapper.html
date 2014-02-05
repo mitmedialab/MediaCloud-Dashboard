@@ -4,21 +4,35 @@
         <title>Media Cloud Dashboard</title>
         <link rel="stylesheet" type="text/css" href="static/lib/bootstrap/css/bootstrap.min.css"/>
         <link rel="stylesheet" type="text/css" href="static/style.css"/>
-        <script type="text/javascript" src="static/lib/underscore/underscore-1.5.2-min.js"></script>
-        <script type="text/javascript" src="static/lib/backbone/backbone-1.1.0-min.js"></script>
-        <script type="text/javascript" src="static/lib/jquery/js/jquery-2.0.3.min.js"></script>
-        <script type="text/javascript" src="static/lib/bootstrap/js/bootstrap.min.js"></script>
-        <script type="text/javascript" src="static/script.js"></script>
-        <script type="text/javascript" src="static/config.js"></script>
-        <script type="text/javascript" src="static/app.js"></script>
-        <script type="text/javascript" src="static/models.js"></script>
-        <script type="text/javascript" src="static/views.js"></script>
+        <script id="tpl-login-view" type="text/template">
+            <div class="row">
+                <div class="col-sm-6 center-block">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Sign in</h2>
+                        </div>
+                        <div class="panel-body">
+                            <form class="form-inline" role="form">
+                                <div class="form-group">
+                                    <input name="username" placeholder="Username" class="form-control" size="16"/>
+                                    <input type="password" name="password" placeholder="Password" class="form-control" size="16"/>
+                                </div>
+                                <div class="form-group">
+                                    <button type="submit" class="form-control btn btn-primary">Sign in</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </script>
     </head>
     <body>
         <div class="container">
             <div class="header">
             {% block header %}
                 <h1>Media Cloud Dashboard</h1>
+                <hr/>
             {% endblock %}
             </div>
             <div class="nav">
@@ -41,13 +55,28 @@
             </div>
             <div class="footer">
             {% block footer %}
-                <p>
-                    <img class="logo" src="static/img/logo.gif"/>
-                </p>
-                <p>&copy; Copyright 2014 MIT Center for Civic Media</p>
+                <hr/>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <p>
+                            <img class="logo" src="static/img/logo.gif"/>
+                        </p>
+                        <p>&copy; Copyright 2014 MIT Center for Civic Media</p>
+                    </div>
+                </div>
             {% endblock %}
             </div>
         </div>
+        <script type="text/javascript" src="static/lib/jquery/js/jquery-2.0.3.min.js"></script>
+        <script type="text/javascript" src="static/lib/underscore/underscore-1.5.2-min.js"></script>
+        <script type="text/javascript" src="static/lib/backbone/backbone-1.1.0-min.js"></script>
+        <script type="text/javascript" src="static/lib/bootstrap/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="static/app.js"></script>
+        <script type="text/javascript" src="static/models.js"></script>
+        <script type="text/javascript" src="static/views.js"></script>
+        <script type="text/javascript" src="static/routes.js"></script>
+        <script type="text/javascript" src="static/script.js"></script>
+        <script type="text/javascript">$(function(){ App.initialize(); });</script>
     </body>
 </html>
 
