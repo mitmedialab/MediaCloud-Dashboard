@@ -32,4 +32,4 @@ To change the password for user `alice` to `bettersecret`:
     
 To remove user `alice`:
 
-    $ ./userconfig remove `alice`
+    $ ./userconfig remove alice
