@@ -11,7 +11,7 @@ from forms import *
 @app.route('/')
 def index():
     content = '<p>To add content, modify <code>views.py</code>.<p>'
-    return flask.render_template('wrapper.html', content=content)
+    return flask.render_template('main.html', content=content)
 
 @app.route('/api/login', methods=['POST'])
 def login():

@@ -4,57 +4,36 @@
         <title>Media Cloud Dashboard</title>
         <link rel="stylesheet" type="text/css" href="static/lib/bootstrap/css/bootstrap.min.css"/>
         <link rel="stylesheet" type="text/css" href="static/style.css"/>
-        <script id="tpl-login-view" type="text/template">
-            <div class="row">
-                <div class="col-sm-6 center-block">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h2 class="panel-title">Sign in</h2>
-                        </div>
-                        <div class="panel-body">
-                            <form class="form-inline" role="form">
-                                <div class="form-group">
-                                    <input name="username" placeholder="Username" class="form-control" size="16"/>
-                                    <input type="password" name="password" placeholder="Password" class="form-control" size="16"/>
-                                </div>
-                                <div class="form-group">
-                                    <button type="submit" class="form-control btn btn-primary">Sign in</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </script>
+        {% block backbone_templates %}{% endblock %}
     </head>
     <body>
         <div class="container">
             <div class="header">
-            {% block header %}
+                {% block header %}
                 <h1>Media Cloud Dashboard</h1>
                 <hr/>
-            {% endblock %}
+                {% endblock %}
             </div>
             <div class="nav">
             </div>
             <div class="messages">
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <ul class="flashes">
-                    {% for message in messages %}
-                        <li>{{ message }}</li>
-                    {% endfor %}
-                    </ul>
-                {% endif %}
-            {% endwith %}
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <ul class="flashes">
+                        {% for message in messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endwith %}
             </div>
             <div class="content">
-            {% block content %}
+                {% block content %}
                 {{ content |safe }}
-            {% endblock %}
+                {% endblock %}
             </div>
             <div class="footer">
-            {% block footer %}
+                {% block footer %}
                 <hr/>
                 <div class="row">
                     <div class="col-sm-12">
@@ -64,7 +43,7 @@
                         <p>&copy; Copyright 2014 MIT Center for Civic Media</p>
                     </div>
                 </div>
-            {% endblock %}
+                {% endblock %}
             </div>
         </div>
         <script type="text/javascript" src="static/lib/jquery/js/jquery-2.0.3.min.js"></script>

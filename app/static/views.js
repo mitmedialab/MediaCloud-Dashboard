@@ -31,7 +31,6 @@ App.LoginView = Backbone.View.extend({
         App.debug('Login clicked');
         username = $('input[name=username]', this.$el).val();
         password = $('input[name=password]', this.$el).val();
-        this.model.set('id', username);
         this.model.fetch({
             type: 'post',
             data: {'username': username, 'password': password},
