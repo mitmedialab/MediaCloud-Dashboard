@@ -15,6 +15,7 @@ The Media Cloud Dashboard provides a common front-end interface for the Media Cl
 The command line tool `userconfig` can be used to add, modify, and remove users.
 
 To see usage, just run `userconfig` with no arguments:
+
     $ ./userconfig
     Usage:
       userconfig add <username> <password>
@@ -22,10 +23,13 @@ To see usage, just run `userconfig` with no arguments:
       userconfig password <username> <password>
 
 To add a user named `alice` with password `topsecret`:
+
     $ ./userconfig add alice topsecret
     
 To change the password for user `alice` to `bettersecret`:
+
     $ ./userconfig password alice bettersecret
     
 To remove user `alice`:
+
     $ ./userconfig remove `alice`
