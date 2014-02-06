@@ -11,6 +11,7 @@ App.UserModel = Backbone.Model.extend({
     initialize: function () {
         App.debug('App.UserModel.initialize()')
         _.bindAll(this, 'signIn');
+        _.bindAll(this, 'signInError');
         _.bindAll(this, 'signOut');
         this.signIn();
         this.fetch({ type: 'post' });
@@ -22,10 +23,18 @@ App.UserModel = Backbone.Model.extend({
         this.fetch({
           type: 'post',
           data: {'username': username, 'password': password},
-          success: function () {
+          success: function (model, response, options) {
             App.debug('Signed in');
-          }
+          },
+          error: this.signInError
         });
+    },
+    
+    signInError: function (model, response, options) {
+        App.debug('Error signing in');
+        if (response.status == 401) {
+            this.trigger('unauthorized', 'Invalid username/password');
+        }
     },
     
     signOut: function () {

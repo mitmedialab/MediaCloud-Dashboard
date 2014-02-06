@@ -22,9 +22,9 @@ App.AppView = Backbone.View.extend({
         this.$el.html('');
         this.$el.append(this.controlsView.el);
         if (this.options.userModel.get('authenticated')) {
-            $(this.el).append('Hello, ' + this.userModel.get('username'))
+            this.$el.append('Hello, ' + this.userModel.get('username'))
         } else {
-            $(this.el).append(this.loginView.el);
+            this.$el.append(this.loginView.el);
         }
         return this;
     }
@@ -42,6 +42,8 @@ App.LoginView = Backbone.View.extend({
         this.options = options || {};
         _.bindAll(this, 'render');
         _.bindAll(this, 'login');
+        _.bindAll(this, 'error');
+        this.model.on('unauthorized', this.error)
         this.render();
     },
     
@@ -51,7 +53,11 @@ App.LoginView = Backbone.View.extend({
     
     render: function () {
         App.debug('App.LoginView.render()');
-        $(this.el).html(this.template());
+        this.$el.html(this.template());
+        var $el = this.$el;
+        _.defer(function () {
+            $('input[name=username]', $el).focus();
+        });
         return this;
     },
     
@@ -60,7 +66,14 @@ App.LoginView = Backbone.View.extend({
         event.preventDefault();
         username = $('input[name=username]', this.$el).val();
         password = $('input[name=password]', this.$el).val();
+        $('input[name=username]', this.$el).val('');
+        $('input[name=password]', this.$el).val('');
         this.model.signIn(username, password);
+    },
+    
+    error: function (message) {
+        $('.message', this.$el).html(message);
+        $('input[name=username]', this.$el).focus();
     }
 });
 
