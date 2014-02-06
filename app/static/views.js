@@ -104,9 +104,6 @@ App.ControlsView = Backbone.View.extend({
         }
         if (disabled) {
             $('button', this.$el).attr('disabled', 'disabled');
-            console.log('disabled');
-        } else {
-            console.log('enabled');
         }
         return this;
     }
