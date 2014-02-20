@@ -1,6 +1,15 @@
 {% extends 'base.html' %}
+{% block page_title %}
+    Media Cloud Dashboard
+{% endblock %}
+{% block header_title %}
+    Media Cloud Dashboard
+{% endblock %}
 {% block backbone_templates %}
     {% include 'login_view.html' %}
     {% include 'controls_view.html' %}
     {% include 'controls_sign_out_view.html' %}
+    {% include 'query_view.html' %}
+    {% include 'media_select_view.html' %}
+    {% include 'media_list_view.html' %}
 {% endblock %}

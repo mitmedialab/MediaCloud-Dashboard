@@ -7,9 +7,16 @@ App = {
     initialize: function () {
         App.debug('App.initialize()');
         App.instance = this;
-        this.router = new App.Router()
-        this.router.navigate('');
-        Backbone.history.start();
+        App.router = new App.Router()
+    },
+    
+    // Take a Collection and return a map using the specified key
+    makeMap: function (col, key) {
+        dataMap = {};
+        _.each(col.toArray(), function (datum) {
+            dataMap[datum.get(key)] = _.clone(datum);
+        });
+        return dataMap;
     },
     
     debug: function (message) {

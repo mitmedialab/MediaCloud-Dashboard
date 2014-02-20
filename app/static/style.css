@@ -11,3 +11,14 @@
 .footer {
     text-align: center;
 }
+
+/* Replace empty tables with a message */
+.empty-notice {
+    display: none;
+}
+.empty .empty-notice {
+    display: block;
+}
+.empty table {
+    display: none;
+}

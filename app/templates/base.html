@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Media Cloud Dashboard</title>
+        <title>{% block page_title %}CFCM App{% endblock %}</title>
         <link rel="stylesheet" type="text/css" href="static/lib/bootstrap/css/bootstrap.min.css"/>
+        <link rel="stylesheet" type="text/css" href="static/lib/typeahead.js-bootstrap/typeahead.css">
         <link rel="stylesheet" type="text/css" href="static/style.css"/>
         {% block backbone_templates %}{% endblock %}
     </head>
@@ -10,9 +11,11 @@
         <div class="container">
             <div class="header">
                 {% block header %}
-                <h1>Media Cloud Dashboard</h1>
+                <h1>{% block header_title %}CFCM App{% endblock %}</h1>
                 <hr/>
                 {% endblock %}
+            </div>
+            <div class="controls">
             </div>
             <div class="nav"></div>
             <div class="messages">
@@ -49,6 +52,8 @@
         <script type="text/javascript" src="static/lib/underscore/underscore-1.5.2-min.js"></script>
         <script type="text/javascript" src="static/lib/backbone/backbone-1.1.0-min.js"></script>
         <script type="text/javascript" src="static/lib/bootstrap/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="static/lib/typeahead/typeahead.bundle.min.js"></script>
+        <script type="text/javascript" src="static/lib/d3/js/d3-3.4.1-min.js"></script>
         <script type="text/javascript" src="static/app.js"></script>
         <script type="text/javascript" src="static/models.js"></script>
         <script type="text/javascript" src="static/views.js"></script>
