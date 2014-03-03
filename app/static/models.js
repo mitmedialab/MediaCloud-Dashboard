@@ -81,7 +81,10 @@ App.MediaSourceModel = Backbone.Model.extend({
     url: function () {
         return this.get('media_id');
     },
-    idAttribute: 'media_id'
+    idAttribute: 'media_id',
+    initialize: function (options) {
+        this.set('type', 'media source');
+    }
 });
 
 App.MediaSourceCollection = Backbone.Collection.extend({
@@ -117,6 +120,9 @@ App.MediaSetModel = Backbone.Model.extend({
     , defaults: {
         name: ''
         , media_ids: []
+    },
+    initialize: function (options) {
+        this.set('type', 'media set');
     }
 });
 

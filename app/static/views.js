@@ -250,30 +250,55 @@ App.MediaSelectView = App.NestedView.extend({
     },
 });
 
+App.MediaListItemView = Backbone.View.extend({
+    tagName: 'tr',
+    events: {
+        'click .remove': 'onClickRemove'
+    },
+    initialize: function (options) {
+        this.render();
+        _.bindAll(this, 'onClickRemove');
+    },
+    render: function () {
+        this.template = _.template(
+            $('#tpl-media-list-item-view').html(),
+            this.model.attributes);
+        this.$el.html(this.template);
+    },
+    onClickRemove: function (event) {
+        event.preventDefault();
+        this.trigger('removeClick', this.model);
+        this.remove();
+    }
+});
+
 App.MediaListView = App.NestedView.extend({
     template: _.template($('#tpl-media-list-view').html()),
     initialize: function (options) {
+        App.debug('App.MediaListView.initialize()');
         this.render();
         // Add listeners
-        this.model.get('sources').on('add', this.onAdd);
+        this.model.get('sources').on('add', this.onAdd, this);
         this.model.get('sources').on('remove', this.onRemove);
-        this.model.get('sets').on('add', this.onAdd);
-        this.model.get('sets').on('remove', this.onRemove);
+        this.model.get('sets').on('add', this.onAdd, this);
         // Set listener context
         _.bindAll(this, 'onAdd');
-        _.bindAll(this, 'onRemove');
+        _.bindAll(this, 'onRemoveClick');
     },
     render: function () {
         this.$el.html(this.template());
     },
     onAdd: function (model, collection, options) {
         App.debug('App.MediaListView.onAdd()');
-        var row = $('<tr>');
-        row.append($('<td>').html(model.get('name')));
-        $('tbody', this.$el).append(row);
+        var itemView = new App.MediaListItemView({model: model});
+        that = this;
+        itemView.on('removeClick', this.onRemoveClick);
+        $('tbody', this.$el).append(itemView.el);
         $('.media-list-view').removeClass('empty');
     },
-    onRemove: function (source) {
-        
-    },
+    onRemoveClick: function (model) {
+        App.debug('App.MediaListView.onRemoveClick()');
+        this.model.get('sources').remove(model);
+        this.model.get('sets').remove(model);
+    }
 });
