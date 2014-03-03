@@ -1,3 +1,23 @@
+
+/**
+ * Base class for nested models, uses the scheme described here:
+ * http://stackoverflow.com/questions/6535948/nested-models-in-backbone-js-how-to-approach
+ */
+App.NestedModel = Backbone.Model.extend({
+    attributeModels: {},
+    parse: function (response) {
+        App.debug('NestedModel.parse');
+        for (var key in this.attributeModels) {
+            var subModel = this.attributeModels[key];
+            var subData = response[key];
+            response[key] = new subModel(subData)
+            // Notify children that they have been updated
+            response[key].trigger('parentSync');
+        }
+        return response;
+    }
+})
+
 App.UserModel = Backbone.Model.extend({
     
     id: 'user',
@@ -57,7 +77,7 @@ App.UserModel = Backbone.Model.extend({
 })
 
 App.MediaSourceModel = Backbone.Model.extend({
-    urlRoot: '/api/sources',
+    urlRoot: '/api/media/sources',
     url: function () {
         return this.get('media_id');
     },
@@ -66,19 +86,20 @@ App.MediaSourceModel = Backbone.Model.extend({
 
 App.MediaSourceCollection = Backbone.Collection.extend({
     model: App.MediaSourceModel,
-    url: '/api/sources',
-    initialize: function (options) {
-        _.bindAll(this, 'onSync');
+    url: '/api/media/sources',
+    initialize: function () {
+        App.debug('App.MediaSourceCollection.initialize()');
+        this.nameToSource = {}
         this.on('sync', this.onSync);
+        this.on('parentSync', this.onSync);
+        _.bindAll(this, 'onSync');
     },
-    onSync: function() {
-        App.debug('Source collection changed')
+    onSync: function () {
+        App.debug('App.MediaSourceCollection.onSync()');
         this.nameToSource = App.makeMap(this, 'name');
-        App.debug('Triggering syncComplete');
-        this.trigger('syncComplete');
     },
     getSuggestions: function () {
-        App.debug('Creating new media source suggestion engine');
+        App.debug('MediaSourceCollection.getSuggestions()');
         var suggest = new Bloodhound({
             datumTokenizer: function (d) {
                 return Bloodhound.tokenizers.whitespace(d.name);
@@ -91,8 +112,62 @@ App.MediaSourceCollection = Backbone.Collection.extend({
     }
 })
 
+App.MediaSetModel = Backbone.Model.extend({
+    urlRoot: '/api/media/sets'
+    , defaults: {
+        name: ''
+        , media_ids: []
+    }
+});
+
+App.MediaSetCollection = Backbone.Collection.extend({
+    model: App.MediaSetModel,
+    url: '/api/media/sets',
+    initialize: function () {
+        App.debug('App.MediaSetCollection.initialize()');
+        this.nameToSet = {}
+        this.on('sync', this.onSync);
+        this.on('parentSync', this.onSync);
+        _.bindAll(this, 'onSync');
+    },
+    onSync: function () {
+        App.debug('MediaSetCollection.onSync()');
+        this.nameToSet = App.makeMap(this, 'name');
+    },
+    getSuggestions: function () {
+        App.debug('MediaSetCollection.getSuggestions()');
+        var suggest = new Bloodhound({
+            datumTokenizer: function (d) {
+                return Bloodhound.tokenizers.whitespace(d.name);
+            },
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            local: this.toJSON()
+        });
+        suggest.initialize();
+        return suggest;
+    }
+});
+
+App.MediaModel = App.NestedModel.extend({
+    urlRoot: '/api/media',
+    attributeModels: {
+        sources: App.MediaSourceCollection
+        , sets: App.MediaSetCollection
+    },
+    initialize: function () {
+        App.debug('App.MediaModel.initialize()');
+        this.set('sources', new App.MediaSourceCollection());
+        this.set('sets', new App.MediaSetCollection());
+        this.deferred = $.Deferred();
+        this.on('sync', function () {
+            App.debug('App.MediaModel:sync');
+            this.deferred.resolve();
+        }, this);
+    }
+})
+
 App.QueryModel = Backbone.Model.extend({
     initialize: function () {
-        this.set('sources', new App.MediaSourceCollection());
+        this.set('media', new App.MediaModel());
     }
 });

@@ -10,8 +10,6 @@ App.Router = Backbone.Router.extend({
         App.debug('App.Router.initialize()');
         // Create models
         this.userModel = new App.UserModel();
-        this.queryModel = new App.QueryModel();
-        this.sources = new App.MediaSourceCollection();
         // Add listeners
         _.bindAll(this, 'onSignIn');
         _.bindAll(this, 'onSignOut');
@@ -25,15 +23,8 @@ App.Router = Backbone.Router.extend({
         _.defer(function () {
             that.userModel.fetch({
                 type: 'post'
-                , success: function () {
-                    App.debug('Starting history');
-                    Backbone.history.start();
-                    _.defer(function () { that.fetchSources(); })
-                }
-                , error: function () {
-                    App.debug('Starting history');
-                    Backbone.history.start();
-                }
+                , success: function () { Backbone.history.start(); }
+                , error: function () { Backbone.history.start(); }
             });
         });
     },
@@ -50,10 +41,11 @@ App.Router = Backbone.Router.extend({
             this.navigate('login', true);
             return;
         }
+        this.queryModel = new App.QueryModel();
         this.homeView = new App.HomeView({
             userModel: this.userModel,
             queryModel: this.queryModel,
-            sources: this.sources
+            mediaSources: App.mediaSources
         });
         this.showView(this.homeView);
     },
@@ -62,23 +54,9 @@ App.Router = Backbone.Router.extend({
         App.debug('Default route');
     },
     
-    fetchSources: function () {
-        // TODO prevent subsequent loads after first
-        this.sources.fetch({
-            success: function (collection, response, options) {
-                App.debug('Fetched media sources.');
-            },
-            error: function (collection, response, options) {
-                App.debug('Unable to fetch media sources.')
-                App.debug(response);
-            }
-        });
-    },
-    
     onSignIn: function () {
         App.debug('App.Router.onSignIn()');
         this.navigate('', true);
-        this.fetchSources();
     },
     
     onSignOut: function () {

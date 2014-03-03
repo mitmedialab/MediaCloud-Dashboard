@@ -66,14 +66,22 @@ def logout():
     }
     return json.dumps(response)
 
-@app.route('/api/sources')
+@app.route('/api/media')
 @flask_login.login_required
-def sources():
+def media():
+    return json.dumps({
+        'sources': list(mcmedia.all_sources())
+        , 'sets': list(mcmedia.all_sets())
+    });
+
+@app.route('/api/media/sources')
+@flask_login.login_required
+def media_sources():
     return json.dumps(list(mcmedia.all_sources()))
 
-@app.route('/api/sets')
+@app.route('/api/media/sets')
 @flask_login.login_required
-def sets():
+def media_sets():
     return json.dumps(list(mcmedia.all_sets()))
     
 # Callback for flask-login

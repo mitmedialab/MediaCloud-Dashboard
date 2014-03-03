@@ -7,14 +7,21 @@ App = {
     initialize: function () {
         App.debug('App.initialize()');
         App.instance = this;
-        App.router = new App.Router()
+        App.loadData();
+        App.router = new App.Router();
+    },
+    
+    loadData: function () {
+        App.mediaSources = new App.MediaModel({parse:true});
+        App.debug('App.loadData()');
+        App.mediaSources.fetch();
     },
     
     // Take a Collection and return a map using the specified key
     makeMap: function (col, key) {
         dataMap = {};
-        _.each(col.toArray(), function (datum) {
-            dataMap[datum.get(key)] = _.clone(datum);
+        col.each(function (datum) {
+            dataMap[datum.get(key)] = datum;
         });
         return dataMap;
     },

@@ -33,7 +33,7 @@ App.HomeView = App.NestedView.extend({
         this.options = options || {};
         this.userModel = options.userModel;
         this.queryModel = options.queryModel;
-        this.sources = options.sources;
+        this.mediaSources = options.mediaSources;
         _.bindAll(this, 'render');
         // Create models
         options.userModel.on('change:authenticated', this.render);
@@ -50,7 +50,7 @@ App.HomeView = App.NestedView.extend({
         if (this.options.userModel.get('authenticated')) {
             this.queryView = new App.QueryView({
                 model: this.queryModel
-                , sources: this.sources
+                , mediaSources: this.mediaSources
             });
             this.addSubView(this.queryView);
             this.$el.append(this.queryView.el);
@@ -172,13 +172,14 @@ App.ControlsSignOutView = App.NestedView.extend({
 App.QueryView = App.NestedView.extend({
     template: _.template($('#tpl-query-view').html()),
     initialize: function (options) {
-        this.sources = options.sources;
+        App.debug('App.QueryView.initialize()');
+        this.mediaSources = options.mediaSources;
         this.mediaSelectView = new App.MediaSelectView({
-            collection: this.model.get('sources')
-            , sources: this.sources
+            model: this.model.get('media')
+            , mediaSources: this.mediaSources
         });
         this.mediaListView = new App.MediaListView({
-            collection: this.model.get('sources')
+            model: this.model.get('media')
         });
         this.addSubView(this.mediaSelectView);
         this.addSubView(this.mediaListView);
@@ -199,13 +200,29 @@ App.MediaSelectView = App.NestedView.extend({
     },
     initialize: function (options) {
         App.debug('App.MediaSelectView.initialize()');
-        this.render();
-        this.sources = options.sources;
-        // Add listeners
+        this.mediaSources = options.mediaSources;
+        // Set deferred callbacks
+        var that = this;
+        this.mediaSources.deferred.done(function () {
+            that.render();
+            App.debug('Creating typeahead');
+            $('.media-input', that.$el).typeahead(null, {
+                templates: { header:'<h3>Media Sets</h3>' },
+                name: 'sets',
+                displayKey: 'name',
+                source: that.mediaSources.get('sets').getSuggestions().ttAdapter()
+            }, {
+                templates: { header: '<h3>Media Sources</h3>' },
+                name: 'sources',
+                displayKey: 'name',
+                source: that.mediaSources.get('sources').getSuggestions().ttAdapter()
+            });
+            _.defer(function () {
+                $('.media-input', that.$el).focus();
+            });
+        });
+        // Set listener context
         _.bindAll(this, 'onTextEntered');
-        _.bindAll(this, 'onSourceSync');
-        App.debug('Binding MediaSelectView ');
-        this.sources.on('syncComplete', this.onSourceSync);
     },
     render: function () {
         this.$el.html(this.template());
@@ -214,11 +231,8 @@ App.MediaSelectView = App.NestedView.extend({
             $('.media-input', $el).focus();
         });
     },
-    onClose: function () {
-        App.debug('Unbinding MediaSelectView');
-        this.sources.unbind('syncComplete', this.onSourceSync);
-    },
     onTextEntered: function (event) {
+        App.debug('App.MediaSelectView.textEntered()');
         event.preventDefault();
         var name = $('.media-input.tt-input', this.$el).typeahead('val');
         $('.media-input.tt-input', this.$el).typeahead('val', '');
@@ -226,42 +240,40 @@ App.MediaSelectView = App.NestedView.extend({
         _.defer(function () {
             $('.media-input', $el).focus();
         });
-        this.collection.add(this.sources.nameToSource[name].attributes);
-        App.debug('Added source: ' + name);
+        source = this.mediaSources.get('sources').nameToSource[name]
+        set = this.mediaSources.get('sets').nameToSet[name]
+        if (source) {
+            this.model.get('sources').add(source);
+        } else if (set) {
+            this.model.get('sets').add(set);
+        }
     },
-    onSourceSync: function (event) {
-        console.log('App.MediaSelectView.onSourceSync()');
-        $el = this.$el;
-        App.debug('Creating typeahead');
-        $('.media-input', this.$el).typeahead(null, {
-            displayKey: 'name',
-            source: this.sources.getSuggestions().ttAdapter()
-        });
-        _.defer(function () {
-            $('.media-input', $el).focus();
-        });
-    }
 });
 
 App.MediaListView = App.NestedView.extend({
     template: _.template($('#tpl-media-list-view').html()),
-    initialize: function () {
+    initialize: function (options) {
         this.render();
-        _.bindAll(this, 'add');
-        _.bindAll(this, 'remove');
-        this.collection.on('add', this.add);
-        this.collection.on('remove', this.remove);
+        // Add listeners
+        this.model.get('sources').on('add', this.onAdd);
+        this.model.get('sources').on('remove', this.onRemove);
+        this.model.get('sets').on('add', this.onAdd);
+        this.model.get('sets').on('remove', this.onRemove);
+        // Set listener context
+        _.bindAll(this, 'onAdd');
+        _.bindAll(this, 'onRemove');
     },
     render: function () {
         this.$el.html(this.template());
     },
-    add: function (source) {
+    onAdd: function (model, collection, options) {
+        App.debug('App.MediaListView.onAdd()');
         var row = $('<tr>');
-        row.append($('<td>').html(source.get('name')));
+        row.append($('<td>').html(model.get('name')));
         $('tbody', this.$el).append(row);
         $('.media-list-view').removeClass('empty');
     },
-    remove: function (source) {
+    onRemove: function (source) {
         
     },
 });
