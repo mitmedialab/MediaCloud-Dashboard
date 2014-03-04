@@ -10,7 +10,9 @@ App.NestedView = Backbone.View.extend({
     },
     closeSubViews: function () {
         _.each(this.subViews, function (view) {
-            view.close();
+            if (typeof(view.close) !== 'undefined') {
+                view.close();
+            }
         });
     },
     onClose: function () {
@@ -182,6 +184,7 @@ App.QueryView = App.NestedView.extend({
             model: this.model.get('media')
         });
         this.dateRangeView = new App.DateRangeView();
+        this.keywordView = new App.KeywordView();
         this.addSubView(this.mediaSelectView);
         this.addSubView(this.mediaListView);
         this.addSubView(this.dateRangeView);
@@ -201,6 +204,8 @@ App.QueryView = App.NestedView.extend({
                 .append(that.mediaListView.el);
             that.$('.date-range-view')
                 .html(that.dateRangeView.el);
+            that.$('.keyword-view')
+                .html(that.keywordView.el);
         });
     }
 });
@@ -321,7 +326,17 @@ App.DateRangeView = Backbone.View.extend({
         this.render();
     },
     render: function () {
-        this.$el.html(this.template(this.model))
+        this.$el.html(this.template())
         this.$('.datepicker').datepicker(App.config.datepickerOptions);
+    }
+});
+
+App.KeywordView = Backbone.View.extend({
+    template: _.template($('#tpl-keyword-view').html()),
+    initialize: function (options) {
+        this.render();
+    },
+    render: function () {
+        this.$el.html(this.template());
     }
 });
