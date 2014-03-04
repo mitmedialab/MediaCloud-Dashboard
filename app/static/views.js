@@ -191,14 +191,14 @@ App.QueryView = App.NestedView.extend({
         this.render();
     },
     render: function () {
-        this.$el.html(this.template());
         // Show loading
+        this.$el.html(this.template());
         progress = _.template($('#tpl-progress').html());
-        this.$('.media-query-view').html(progress);
+        this.$('.query-view-content').html(progress);
         var that = this;
         this.mediaSources.deferred.done(function () {
+            that.$el.html(that.template());
             // Replace loading with sub views
-            
             that.$('.media-query-view')
                 .html(that.mediaSelectView.el)
                 .append(that.mediaListView.el);
