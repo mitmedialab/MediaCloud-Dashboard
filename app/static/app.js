@@ -2,6 +2,9 @@ App = {
     
     config: {
         debug: true
+        , datepickerOptions: {
+            format: 'yyyy-mm-dd'
+        }
     },
     
     initialize: function () {
