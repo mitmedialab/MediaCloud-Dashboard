@@ -7,26 +7,12 @@ App.Router = Backbone.Router.extend({
     
     initialize: function (options) {
         var that = this;
+        this.userModel = options.userModel;
+        this.mediaSources = options.mediaSources;
         App.debug('App.Router.initialize()');
-        // Create models
-        this.userModel = new App.UserModel();
-        // Add listeners
-        _.bindAll(this, 'onSignIn');
-        _.bindAll(this, 'onSignOut');
-        this.userModel.on('signin', this.onSignIn);
-        this.userModel.on('signout', this.onSignOut);
-        this.userModel.on('unauthorized', this.onSignOut);
         // Create application-level views
         this.controlsView = new App.ControlsView({ userModel: this.userModel });
         $('.controls').append(this.controlsView.el);
-        // Start navigation and log user in
-        _.defer(function () {
-            that.userModel.fetch({
-                type: 'post'
-                , success: function () { Backbone.history.start(); }
-                , error: function () { Backbone.history.start(); }
-            });
-        });
     },
     
     login: function () {
@@ -45,23 +31,13 @@ App.Router = Backbone.Router.extend({
         this.homeView = new App.HomeView({
             userModel: this.userModel,
             queryModel: this.queryModel,
-            mediaSources: App.mediaSources
+            mediaSources: this.mediaSources
         });
         this.showView(this.homeView);
     },
     
     defaultRoute: function (routeId) {
         App.debug('Default route');
-    },
-    
-    onSignIn: function () {
-        App.debug('App.Router.onSignIn()');
-        this.navigate('', true);
-    },
-    
-    onSignOut: function () {
-        App.debug('App.Router.onSignOut()');
-        this.navigate('login', true);
     },
     
     showView: function (view) {

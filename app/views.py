@@ -12,7 +12,7 @@ from forms import *
 
 @app.route('/')
 def index():
-    content = '<p>To add content, modify <code>views.py</code>.<p>'
+    content = flask.render_template('progress.html')
     return flask.render_template('main.html', content=content)
 
 @app.route('/api/login', methods=['POST'])

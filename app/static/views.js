@@ -187,9 +187,17 @@ App.QueryView = App.NestedView.extend({
     },
     render: function () {
         this.$el.html(this.template());
-        $('.media-query-view', this.el)
-            .append(this.mediaSelectView.el)
-            .append(this.mediaListView.el);
+        // Show loading
+        progress = _.template($('#tpl-progress').html());
+        this.$('.media-query-view').html(progress);
+        var that = this;
+        this.mediaSources.deferred.done(function () {
+            // Replace loading with sub views
+            
+            that.$('.media-query-view')
+                .html(that.mediaSelectView.el)
+                .append(that.mediaListView.el);
+        });
     }
 });
 

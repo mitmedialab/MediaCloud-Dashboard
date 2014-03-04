@@ -31,9 +31,41 @@ App.UserModel = Backbone.Model.extend({
     
     initialize: function () {
         App.debug('App.UserModel.initialize()')
+        _.bindAll(this, 'onSync');
+        _.bindAll(this, 'onSignIn');
+        _.bindAll(this, 'onSignInError');
+        _.bindAll(this, 'onSignOut');
         _.bindAll(this, 'signIn');
-        _.bindAll(this, 'signInError');
         _.bindAll(this, 'signOut');
+        this.on('sync', this.onSync);
+        this.on('error', this.onSignInError);
+    },
+    
+    onSync: function () {
+        App.debug('App.UserModel.onSync()');
+        if (this.get('authenticated')) {
+            this.onSignIn();
+        } else {
+            this.onSignOut();
+        }
+    },
+    
+    onSignIn: function () {
+        App.debug('App.UserModel.onSignIn()');
+        this.trigger('signin');
+    },
+    
+    onSignInError: function (model, response, options) {
+        App.debug('Error signing in: ' + response.status);
+        this.set('error', 'Invalid username/password');
+        if (response.status == 401) {
+            this.trigger('unauthorized', 'Invalid username/password');
+        }
+    },
+    
+    onSignOut: function () {
+        App.debug('App.UserModel.onSignOut()');
+        this.trigger('signout');
     },
     
     signIn: function (username, password) {
@@ -46,33 +78,13 @@ App.UserModel = Backbone.Model.extend({
         this.fetch({
           type: 'post',
           data: {'username': username, 'password': password},
-          success: function (model, response, options) {
-            App.debug('Signed in');
-            that.trigger('signin');
-          },
-          error: this.signInError
         });
-    },
-    
-    signInError: function (model, response, options) {
-        App.debug('Error signing in: ' + response.status);
-        this.set('error', 'Invalid username/password');
-        if (response.status == 401) {
-            this.trigger('unauthorized', 'Invalid username/password');
-        }
     },
     
     signOut: function () {
         App.debug('App.UserModel.signOut()')
-        that = this;
         this.set('id', 'logout');
-        this.fetch({
-            type: 'post',
-            success: function () {
-                App.debug('Signed out');
-                that.trigger('signout');
-            }
-        });
+        this.fetch({type: 'post'});
     }
 })
 
