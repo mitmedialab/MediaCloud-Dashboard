@@ -33,6 +33,10 @@ App.Router = Backbone.Router.extend({
             queryModel: this.queryModel,
             mediaSources: this.mediaSources
         });
+        var that = this;
+        this.queryModel.on('execute', function (qm) {
+            that.navigate('query/' + qm.path(), true);
+        });
         this.showView(this.homeView);
     },
     

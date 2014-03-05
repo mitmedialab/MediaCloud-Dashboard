@@ -173,6 +173,17 @@ App.ControlsSignOutView = App.NestedView.extend({
 
 App.QueryView = App.NestedView.extend({
     template: _.template($('#tpl-query-view').html()),
+    events: {
+        "click .btn-primary": 'onQuery'
+    },
+    onQuery: function () {
+        App.debug('App.QueryView.onQuery()');
+        // Assemble data
+        this.model.set('start', this.$('#date-range-start').val());
+        this.model.set('end', this.$('#date-range-end').val());
+        this.model.set('keywords', this.$('#keyword-view-keywords').val())
+        this.model.execute();
+    },
     initialize: function (options) {
         App.debug('App.QueryView.initialize()');
         this.mediaSources = options.mediaSources;

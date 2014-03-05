@@ -187,5 +187,24 @@ App.MediaModel = App.NestedModel.extend({
 App.QueryModel = Backbone.Model.extend({
     initialize: function () {
         this.set('media', new App.MediaModel());
+    },
+    execute: function () {
+        this.trigger('execute', this);
+    },
+    path: function () {
+        sets = this.get('media').get('sets').map(function (m) {
+            return m.get('id');
+        });
+        sources = this.get('media').get('sources').map(function (m) {
+            return m.get('media_id');
+        });
+        path = [
+            this.get('start')
+            , this.get('end')
+            , sets.join('&')
+            , sources.join('&')
+            , this.get('keywords')
+        ].join('/');
+        return path;
     }
 });
