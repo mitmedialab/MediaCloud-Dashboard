@@ -64,11 +64,14 @@ App.LoginView = App.NestedView.extend({
         $('input[name=username]', this.$el).val('');
         $('input[name=password]', this.$el).val('');
         this.model.signIn(username, password);
+        this.$('.message').html(_.template($('#tpl-progress').html()));
+        this.$('form').hide();
     },
     
     error: function (message) {
-        $('.message', this.$el).html(message);
-        $('input[name=username]', this.$el).focus();
+        this.$('.message').html('<p class="text-danger">' + message + '</p>');
+        this.$('form').show()
+        this.$('input[name=username]').focus();
     }
 });
 
