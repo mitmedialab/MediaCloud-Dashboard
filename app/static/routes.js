@@ -94,6 +94,7 @@ App.Router = Backbone.Router.extend({
      * constructor or create one if none exists.
      */
     getView: function (type, options) {
+        App.debug('App.Router.getView()');
         // Ensure the view lookup exits 
         if (!this.viewsByType) {
             this.viewsByType = {}
@@ -103,8 +104,11 @@ App.Router = Backbone.Router.extend({
             type.prototype.viewLookupKey = _.uniqueId()
         }
         if (this.viewsByType[type.prototype.viewLookupKey]) {
+            App.debug('  returning existing view');
             return this.viewsByType[type.prototype.viewLookupKey];
         }
+        // Create a new view
+        App.debug('  creating new view');
         v = new type(options);
         this.viewsByType[v.viewLookupKey] = v;
         return v;
@@ -137,6 +141,7 @@ App.Router = Backbone.Router.extend({
                     oldView.close();
                 }
                 oldView.remove();
+                delete that.viewsByType[oldView.viewLookupKey];
                 delete that.viewMap[oldView.cid];
             }
         });
