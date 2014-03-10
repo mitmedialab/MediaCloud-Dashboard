@@ -26,43 +26,6 @@ App.NestedView = Backbone.View.extend({
 });
 
 /**
- * Main application view.
- */
-App.HomeView = App.NestedView.extend({
-    
-    initialize: function (options) {
-        App.debug('App.HomeView.initialize()');
-        this.options = options || {};
-        this.userModel = options.userModel;
-        this.queryModel = options.queryModel;
-        this.mediaSources = options.mediaSources;
-        _.bindAll(this, 'render');
-        // Create models
-        options.userModel.on('change:authenticated', this.render);
-        // Render
-        this.render();
-    },
-    onClose: function () {
-        this.userModel.unbind('change:authenticated', this.render);
-    },
-    render: function () {
-        App.debug('App.HomeView.render()')
-        this.$el.html('');
-        // Render from scratch
-        if (this.options.userModel.get('authenticated')) {
-            this.queryView = new App.QueryView({
-                model: this.queryModel
-                , mediaSources: this.mediaSources
-            });
-            this.addSubView(this.queryView);
-            this.$el.append(this.queryView.el);
-        } else {
-        }
-        return this;
-    }
-})
-
-/**
  * Login form.
  */
 App.LoginView = App.NestedView.extend({
@@ -179,9 +142,9 @@ App.QueryView = App.NestedView.extend({
     onQuery: function () {
         App.debug('App.QueryView.onQuery()');
         // Assemble data
+        this.model.set('keywords', this.$('#keyword-view-keywords').val());
         this.model.set('start', this.$('#date-range-start').val());
         this.model.set('end', this.$('#date-range-end').val());
-        this.model.set('keywords', this.$('#keyword-view-keywords').val())
         this.model.execute();
     },
     initialize: function (options) {
@@ -254,7 +217,7 @@ App.MediaSelectView = App.NestedView.extend({
     },
     render: function () {
         this.$el.html(this.template());
-        $el = this.$el;
+        var $el = this.$el;
         _.defer(function () {
             $('.media-input', $el).focus();
         });
@@ -264,7 +227,7 @@ App.MediaSelectView = App.NestedView.extend({
         event.preventDefault();
         var name = $('.media-input.tt-input', this.$el).typeahead('val');
         $('.media-input.tt-input', this.$el).typeahead('val', '');
-        $el = this.$el;
+        var $el = this.$el;
         _.defer(function () {
             $('.media-input', $el).focus();
         });
@@ -349,5 +312,27 @@ App.KeywordView = Backbone.View.extend({
     },
     render: function () {
         this.$el.html(this.template());
+    }
+});
+
+App.SentenceView = Backbone.View.extend({
+    template: _.template($('#tpl-sentence-view').html()),
+    initialize: function (options) {
+        this.render();
+    },
+    render: function () {
+        console.log('App.SentenceView.render()');
+        this.$el.html(this.template());
+        var $el = this.$('.sentence-view-content');
+        progress = _.template($('#tpl-progress').html());
+        $el.html(progress);
+        this.collection.on('sync', function () {
+            App.debug('App.SentenceView.collection: sync');
+            $el.html('');
+            this.collection.each(function (m) {
+                var p = $('<p>').html(m.escape('sentence'));
+                $el.append(p);
+            });
+        }, this);
     }
 });

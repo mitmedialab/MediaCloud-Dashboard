@@ -1,3 +1,7 @@
 [database]
 host = localhost
 database = my_db
+
+[mediacloud]
+user = mediacloud-user
+password = mediacloud-password
