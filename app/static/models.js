@@ -191,20 +191,42 @@ App.QueryModel = Backbone.Model.extend({
     execute: function () {
         this.trigger('execute', this);
     },
-    path: function () {
+    solr: function () {
         sets = this.get('media').get('sets').map(function (m) {
-            return m.get('id');
+            return 'media_sets_id:' + m.get('id');
         });
         sources = this.get('media').get('sources').map(function (m) {
-            return m.get('media_id');
+            return 'media_id:' + m.get('media_id');
         });
-        path = [
-            this.get('start')
-            , this.get('end')
-            , sets.join('&')
-            , sources.join('&')
-            , this.get('keywords')
-        ].join('/');
-        return path;
+        var solr = ['+publish_date:['
+                    , this.get('start')
+                    , 'T00:00:00Z'
+                    , ' TO '
+                    , this.get('end')
+                    , 'T00:00:00Z'
+                    , ']'].join('');
+        if (sets.length > 0 || sources.length > 0) {
+            solr += ' AND (';
+            solr += sets.concat(sources).join(' OR ');
+            solr += ')';
+        }
+        return solr;
+    }
+});
+
+App.SentenceModel = Backbone.Model.extend({
+});
+
+App.SentenceCollection = Backbone.Collection.extend({
+    model: App.SentenceModel,
+    initialize: function (options) {
+        this.keywords = options.keywords;
+        this.solr = options.solr;
+    },
+    url: function () {
+        var url = '/api/sentences/';
+        url += encodeURIComponent(this.keywords);
+        url += '/' + encodeURIComponent(this.solr);
+        return url;
     }
 });

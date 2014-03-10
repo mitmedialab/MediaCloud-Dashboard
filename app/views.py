@@ -1,12 +1,14 @@
+import datetime
 import json
 
 import flask
 import flask_login
-import mediacloud as mc
+import mediacloud
+import mediacloud.api as mcapi
 import mediacloud.media as mcmedia
 import pymongo
 
-from app import app, login_manager
+from app import app, login_manager, mc
 from user import User, authenticate_user
 from forms import *
 
@@ -83,6 +85,12 @@ def media_sources():
 @flask_login.login_required
 def media_sets():
     return json.dumps(list(mcmedia.all_sets()))
+    
+@app.route('/api/sentences/<keywords>/<query>')
+@flask_login.login_required
+def sentences(keywords, query):
+    res = mc.sentencesMatching(keywords , query)
+    return json.dumps(res['response']['docs'])
     
 # Callback for flask-login
 @login_manager.user_loader
