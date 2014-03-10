@@ -8,7 +8,8 @@ App.Router = Backbone.Router.extend({
     
     initialize: function (options) {
         var that = this;
-        this.initViews();
+        this.vm = App.ViewManager;
+        this.vm.initialize();
         this.userModel = options.userModel;
         this.mediaSources = options.mediaSources;
         App.debug('App.Router.initialize()');
@@ -20,7 +21,7 @@ App.Router = Backbone.Router.extend({
     login: function () {
         App.debug('Route: login');
         this.loginView = new App.LoginView({ model: this.userModel });
-        this.showView(this.loginView);
+        this.vm.showView(this.loginView);
     },
     
     home: function () {
@@ -30,7 +31,7 @@ App.Router = Backbone.Router.extend({
             return;
         }
         this.queryModel = new App.QueryModel();
-        this.queryView = this.getView(
+        this.queryView = this.vm.getView(
             App.QueryView
             , {
                 model: this.queryModel
@@ -38,7 +39,7 @@ App.Router = Backbone.Router.extend({
             }
         );
         this.queryModel.on('execute', this.onQuery, this);
-        this.showView(this.queryView);
+        this.vm.showView(this.queryView);
     },
     
     query: function (keywords, solr) {
@@ -50,7 +51,7 @@ App.Router = Backbone.Router.extend({
             return;
         }
         this.queryModel = new App.QueryModel();
-        this.queryView = this.getView(
+        this.queryView = this.vm.getView(
             App.QueryView
             , {
                 model: this.queryModel
@@ -66,8 +67,7 @@ App.Router = Backbone.Router.extend({
             collection: this.sentences
         });
         this.sentences.fetch();
-        this.showView(this.queryView);
-        this.addView(this.sentenceView);
+        this.vm.showViews([this.queryView, this.sentenceView]);
     },
     
     defaultRoute: function (routeId) {
@@ -84,93 +84,10 @@ App.Router = Backbone.Router.extend({
         var sentenceView = new App.SentenceView({
             collection: this.sentences
         });
-        this.showViews([this.queryView, sentenceView]);
+        this.vm.showViews([this.queryView, sentenceView]);
         // Populate with data
         this.sentences.fetch();
     },
     
-    /*
-     * Given a view constructor and options, get the instance of that view
-     * constructor or create one if none exists.
-     */
-    getView: function (type, options) {
-        App.debug('App.Router.getView()');
-        // Ensure the view lookup exits 
-        if (!this.viewsByType) {
-            this.viewsByType = {}
-        }
-        // Ensure the type has a unique lookup key
-        if (!type.prototype.viewLookupKey) {
-            type.prototype.viewLookupKey = _.uniqueId()
-        }
-        if (this.viewsByType[type.prototype.viewLookupKey]) {
-            App.debug('  returning existing view');
-            return this.viewsByType[type.prototype.viewLookupKey];
-        }
-        // Create a new view
-        App.debug('  creating new view');
-        v = new type(options);
-        this.viewsByType[v.viewLookupKey] = v;
-        return v;
-    },
-
-    initViews: function () {
-        this.views = [];
-        this.viewMap = {};
-    },
-    closeView: function (view) {
-    },
-    showViews: function (views) {
-        var that = this;
-        newIds = _.pluck(views, 'cid');
-        oldIds = _.pluck(this.views, 'cid');
-        App.debug('New view ids:');
-        App.debug(newIds);
-        App.debug('Old view ids:');
-        App.debug(oldIds);
-        newViews = [];
-        // Determine whether to keep old views
-        _.each(this.views, function (oldView) {
-            if (_.contains(newIds, oldView.cid)) {
-                // Keep the view
-                newViews.push(oldView);
-            } else {
-                // Remove the view
-                App.debug('Cleaning up view: ' + oldView.cid);
-                if (oldView.close) {
-                    oldView.close();
-                }
-                oldView.remove();
-                delete that.viewsByType[oldView.viewLookupKey];
-                delete that.viewMap[oldView.cid];
-            }
-        });
-        // Add new views that doen't already exist
-        _.each(views, function (newView) {
-            if (!_.contains(oldIds, newView.cid)) {
-                App.debug('Attaching view: ' + newView.cid);
-                newViews.push(newView);
-                that.viewMap[newView.cid] = newView;
-            }
-        });
-        // Replace active view list
-        $('.content').html();
-        this.views = newViews;
-        _.each(this.views, function (v) {
-            $('.content').append(v.el);
-        })
-    },
-    showView: function (view) {
-        App.debug('Showing view: ' + view.cid)
-        this.showViews([view]);
-    },
-    addView: function (view) {
-        App.debug('Adding view: ' + view.cid);
-        if (!this.viewMap[view.cid]) {
-            this.views.push(view);
-            this.viewMap[view.cid] = view;
-        }
-        $('.content').append(view.el);
-    }
-
 })
+
