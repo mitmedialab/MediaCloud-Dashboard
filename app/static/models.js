@@ -203,7 +203,7 @@ App.QueryModel = Backbone.Model.extend({
                     , 'T00:00:00Z'
                     , ' TO '
                     , this.get('end')
-                    , 'T00:00:00Z'
+                    , 'T23:59:59Z'
                     , ']'].join('');
         if (sets.length > 0 || sources.length > 0) {
             solr += ' AND (';

@@ -86,11 +86,35 @@ def media_sources():
 def media_sets():
     return json.dumps(list(mcmedia.all_sets()))
     
-@app.route('/api/sentences/docs/<keywords>/<query>')
+@app.route('/api/sentences/<keywords>/<query>')
 @flask_login.login_required
 def sentences(keywords, query):
     res = mc.sentencesMatching(keywords , query)
+    return json.dumps(res)
+    
+@app.route('/api/sentences/docs/<keywords>/<query>')
+@flask_login.login_required
+def sentence_docs(keywords, query):
+    res = mc.sentencesMatching(keywords , query)
     return json.dumps(res['response']['docs'])
+    
+@app.route('/api/sentences/numfound/<keywords>/<media>/<start>/<end>')
+@flask_login.login_required
+def sentence_numfound(keywords, media, start, end):
+    startdate = datetime.datetime.strptime(start, '%Y-%m-%d').date()
+    enddate = datetime.datetime.strptime(end, '%Y-%m-%d').date()
+    num_days = (enddate - startdate).days + 1
+    dates = [startdate + datetime.timedelta(x) for x in range(num_days)]
+    dates = [date.strftime('%Y-%m-%d') for date in dates]
+    results = []
+    for date in dates:
+        query = "+publish_date:[%sT00:00:00Z TO %sT23:59:59Z] AND %s" % (date, date, media)
+        res = mc.sentencesMatching(keywords, query)
+        results.append({
+            'date': date
+            , 'numFound': res['response']['numFound']
+        })
+    return json.dumps(results)
     
 @app.route('/api/wordcount/<keywords>/<query>')
 @flask_login.login_required
