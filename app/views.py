@@ -92,6 +92,12 @@ def sentences(keywords, query):
     res = mc.sentencesMatching(keywords , query)
     return json.dumps(res['response']['docs'])
     
+@app.route('/api/wordcount/<keywords>/<query>')
+@flask_login.login_required
+def wordcount(keywords, query):
+    res = mc.wordCount(keywords , query)
+    return json.dumps(res)
+    
 # Callback for flask-login
 @login_manager.user_loader
 def load_user(userid):

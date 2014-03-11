@@ -230,3 +230,18 @@ App.SentenceCollection = Backbone.Collection.extend({
         return url;
     }
 });
+
+App.WordCountModel = Backbone.Model.extend({});
+App.WordCountCollection = Backbone.Collection.extend({
+    model: App.WordCountModel,
+    initialize: function (options) {
+        this.keywords = options.keywords;
+        this.solr = options.solr;
+    },
+    url: function () {
+        var url = '/api/wordcount/';
+        url += encodeURIComponent(this.keywords) + '/';
+        url += encodeURIComponent(this.solr);
+        return url;
+    }
+});

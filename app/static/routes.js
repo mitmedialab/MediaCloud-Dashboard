@@ -59,14 +59,18 @@ App.Router = Backbone.Router.extend({
             }
         );
         this.queryModel.on('execute', this.onQuery, this);
-        this.sentences = new App.SentenceCollection({
-            keywords: keywords
-            , solr: solr
-        });
+        var opts = {keywords:keywords,solr:solr};
+        this.sentences = new App.SentenceCollection(opts);
+        this.wordcounts = new App.WordCountCollection(opts)
         this.sentenceView = new App.SentenceView({
             collection: this.sentences
         });
         this.sentences.fetch();
+        this.wordcounts.on('sync', function () {
+            App.debug('Word Counts fetched:')
+            App.debug(this.wordcounts);
+        }, this);
+        this.wordcounts.fetch();
         this.vm.showViews([this.queryView, this.sentenceView]);
     },
     
