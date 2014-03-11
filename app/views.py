@@ -8,7 +8,7 @@ import mediacloud.api as mcapi
 import mediacloud.media as mcmedia
 import pymongo
 
-from app import app, login_manager, mc
+from app import app, login_manager, mc, util
 from user import User, authenticate_user
 from forms import *
 
@@ -86,28 +86,26 @@ def media_sources():
 def media_sets():
     return json.dumps(list(mcmedia.all_sets()))
     
-@app.route('/api/sentences/<keywords>/<query>')
+@app.route('/api/sentences/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
-def sentences(keywords, query):
+def sentences(keywords, media, start, end):
+    query = util.solr_query(media, start, end)
     res = mc.sentencesMatching(keywords , query)
     return json.dumps(res)
     
-@app.route('/api/sentences/docs/<keywords>/<query>')
+@app.route('/api/sentences/docs/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
-def sentence_docs(keywords, query):
+def sentence_docs(keywords, media, start, end):
+    query = util.solr_query(media, start, end)
     res = mc.sentencesMatching(keywords , query)
     return json.dumps(res['response']['docs'])
     
 @app.route('/api/sentences/numfound/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def sentence_numfound(keywords, media, start, end):
-    startdate = datetime.datetime.strptime(start, '%Y-%m-%d').date()
-    enddate = datetime.datetime.strptime(end, '%Y-%m-%d').date()
-    num_days = (enddate - startdate).days + 1
-    dates = [startdate + datetime.timedelta(x) for x in range(num_days)]
-    dates = [date.strftime('%Y-%m-%d') for date in dates]
+    queries = util.solr_date_queries(media, start, end)
     results = []
-    for date in dates:
+    for query in queries:
         query = "+publish_date:[%sT00:00:00Z TO %sT23:59:59Z] AND %s" % (date, date, media)
         res = mc.sentencesMatching(keywords, query)
         results.append({
@@ -116,9 +114,10 @@ def sentence_numfound(keywords, media, start, end):
         })
     return json.dumps(results)
     
-@app.route('/api/wordcount/<keywords>/<query>')
+@app.route('/api/wordcount/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
-def wordcount(keywords, query):
+def wordcount(keywords, media, start, end):
+    query = util.solr_query(media, start, end)
     res = mc.wordCount(keywords , query)
     return json.dumps(res)
     

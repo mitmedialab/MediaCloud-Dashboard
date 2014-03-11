@@ -347,3 +347,13 @@ App.SentenceView = Backbone.View.extend({
         }, this);
     }
 });
+
+App.HistogramView = Backbone.View.extend({
+    template: _.template($('#tpl-histogram-view').html()),
+    initialize: function (options) {
+        this.render();
+    },
+    render: function () {
+        this.$el.html(this.template());
+    }
+});

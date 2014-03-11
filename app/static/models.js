@@ -191,26 +191,20 @@ App.QueryModel = Backbone.Model.extend({
     execute: function () {
         this.trigger('execute', this);
     },
-    solr: function () {
+    media: function () {
         sets = this.get('media').get('sets').map(function (m) {
             return 'media_sets_id:' + m.get('id');
         });
         sources = this.get('media').get('sources').map(function (m) {
             return 'media_id:' + m.get('media_id');
         });
-        var solr = ['+publish_date:['
-                    , this.get('start')
-                    , 'T00:00:00Z'
-                    , ' TO '
-                    , this.get('end')
-                    , 'T23:59:59Z'
-                    , ']'].join('');
+        var media = '1';
         if (sets.length > 0 || sources.length > 0) {
-            solr += ' AND (';
-            solr += sets.concat(sources).join(' OR ');
-            solr += ')';
+            media = '(';
+            media += sets.concat(sources).join(' OR ');
+            media += ')';
         }
-        return solr;
+        return media;
     }
 });
 
@@ -221,12 +215,16 @@ App.SentenceCollection = Backbone.Collection.extend({
     model: App.SentenceModel,
     initialize: function (options) {
         this.keywords = options.keywords;
-        this.solr = options.solr;
+        this.media = options.media;
+        this.start = options.start;
+        this.end = options.end;
     },
     url: function () {
         var url = '/api/sentences/docs/';
         url += encodeURIComponent(this.keywords);
-        url += '/' + encodeURIComponent(this.solr);
+        url += '/' + encodeURIComponent(this.media);
+        url += '/' + encodeURIComponent(this.start);
+        url += '/' + encodeURIComponent(this.end);
         return url;
     }
 });
@@ -236,12 +234,34 @@ App.WordCountCollection = Backbone.Collection.extend({
     model: App.WordCountModel,
     initialize: function (options) {
         this.keywords = options.keywords;
-        this.solr = options.solr;
+        this.media = options.media;
+        this.start = options.start;
+        this.end = options.end;
     },
     url: function () {
         var url = '/api/wordcount/';
-        url += encodeURIComponent(this.keywords) + '/';
-        url += encodeURIComponent(this.solr);
+        url += encodeURIComponent(this.keywords);
+        url += '/' + encodeURIComponent(this.media);
+        url += '/' + encodeURIComponent(this.start);
+        url += '/' + encodeURIComponent(this.end);
         return url;
     }
 });
+
+App.DateCountModel = Backbone.Model.extend({});
+App.DateCountCollection = Backbone.Collection.extend({
+    model: App.DateCountModel,
+    initialize: function (options) {
+        this.keywords = options.keywords;
+        this.media = options.media;
+        this.start = options.start;
+        this.end = options.end;
+    },
+    url: function () {
+        var url = '/api/sentences/numfound/';
+        url += this.keywords + '/';
+        url += this.media + '/';
+        url += this.start + '/' + this.end;
+        return url;
+    }
+})

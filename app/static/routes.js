@@ -3,7 +3,7 @@ App.Router = Backbone.Router.extend({
         '': 'home'
         , '/': 'home'
         , 'login': 'login'
-        , 'query/:keywords/:solr': 'query'
+        , 'query/:keywords/:media/:start/:end': 'query'
     },
     
     initialize: function (options) {
@@ -42,10 +42,9 @@ App.Router = Backbone.Router.extend({
         this.vm.showView(this.queryView);
     },
     
-    query: function (keywords, solr) {
+    query: function (keywords, media, start, end) {
         App.debug('Route: query');
-        App.debug(keywords);
-        App.debug(solr);
+        App.debug([keywords, media, start, end]);
         if (!this.userModel.get('authenticated')) {
             this.navigate('login', true);
             return;
@@ -59,9 +58,15 @@ App.Router = Backbone.Router.extend({
             }
         );
         this.queryModel.on('execute', this.onQuery, this);
-        var opts = {keywords:keywords,solr:solr};
+        var opts = {
+            keywords: keywords
+            , media: media
+            , start: start
+            , end: end
+        };
         this.sentences = new App.SentenceCollection(opts);
-        this.wordcounts = new App.WordCountCollection(opts)
+        this.wordcounts = new App.WordCountCollection(opts);
+        this.histogramView = new App.HistogramView({});
         this.sentenceView = new App.SentenceView({
             collection: this.sentences
         });
@@ -71,7 +76,11 @@ App.Router = Backbone.Router.extend({
             App.debug(this.wordcounts);
         }, this);
         this.wordcounts.fetch();
-        this.vm.showViews([this.queryView, this.sentenceView]);
+        this.vm.showViews([
+            this.queryView
+            , this.histogramView
+            , this.sentenceView
+        ]);
     },
     
     defaultRoute: function (routeId) {
@@ -79,16 +88,28 @@ App.Router = Backbone.Router.extend({
     },
     
     onQuery: function (qm) {
-        this.navigate('query/' + qm.get('keywords') + '/' + qm.solr());
+        this.navigate([
+            'query'
+            , qm.get('keywords')
+            , qm.media()
+            , qm.get('start')
+            , qm.get('end')].join('/'));
         this.sentences = new App.SentenceCollection({
             keywords: qm.get('keywords')
-            , solr: qm.solr()
+            , media: qm.media()
+            , start: qm.get('start')
+            , end: qm.get('end')
         });
-        // Create new sentence view, replace old one if necessary
+        // Create new results views, replace old ones if necessary
+        var histogramView = new App.HistogramView({});
         var sentenceView = new App.SentenceView({
             collection: this.sentences
         });
-        this.vm.showViews([this.queryView, sentenceView]);
+        this.vm.showViews([
+            this.queryView
+            , histogramView
+            , sentenceView
+        ]);
         // Populate with data
         this.sentences.fetch();
     },
