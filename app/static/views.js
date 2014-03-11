@@ -142,8 +142,9 @@ App.QueryView = App.NestedView.extend({
     events: {
         "click .btn-primary": 'onQuery'
     },
-    onQuery: function () {
+    onQuery: function (event) {
         App.debug('App.QueryView.onQuery()');
+        event.preventDefault();
         // Assemble data
         this.model.set('keywords', this.$('#keyword-view-keywords').val());
         this.model.set('start', this.$('#date-range-start').val());
@@ -211,6 +212,13 @@ App.MediaSelectView = App.NestedView.extend({
                 displayKey: 'name',
                 source: that.mediaSources.get('sources').getSuggestions().ttAdapter()
             });
+            // Listen to custom typeahead events
+            that.$('.media-input').bind(
+                'typeahead:selected',
+                function () { that.onTextEntered(); });
+            that.$('.media-input').bind(
+                'typeahead:autocompleted',
+                function () { that.onTextEntered(); });
             _.defer(function () {
                 $('.media-input', that.$el).focus();
             });
@@ -227,7 +235,7 @@ App.MediaSelectView = App.NestedView.extend({
     },
     onTextEntered: function (event) {
         App.debug('App.MediaSelectView.textEntered()');
-        event.preventDefault();
+        if (event) { event.preventDefault(); }
         var name = $('.media-input.tt-input', this.$el).typeahead('val');
         $('.media-input.tt-input', this.$el).typeahead('val', '');
         var $el = this.$el;
