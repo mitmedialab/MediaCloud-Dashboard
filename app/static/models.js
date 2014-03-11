@@ -224,7 +224,7 @@ App.SentenceCollection = Backbone.Collection.extend({
         this.solr = options.solr;
     },
     url: function () {
-        var url = '/api/sentences/';
+        var url = '/api/sentences/docs/';
         url += encodeURIComponent(this.keywords);
         url += '/' + encodeURIComponent(this.solr);
         return url;

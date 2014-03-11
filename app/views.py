@@ -86,7 +86,7 @@ def media_sources():
 def media_sets():
     return json.dumps(list(mcmedia.all_sets()))
     
-@app.route('/api/sentences/<keywords>/<query>')
+@app.route('/api/sentences/docs/<keywords>/<query>')
 @flask_login.login_required
 def sentences(keywords, query):
     res = mc.sentencesMatching(keywords , query)
