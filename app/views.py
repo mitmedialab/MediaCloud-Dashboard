@@ -105,8 +105,7 @@ def sentence_docs(keywords, media, start, end):
 def sentence_numfound(keywords, media, start, end):
     queries = util.solr_date_queries(media, start, end)
     results = []
-    for query in queries:
-        query = "+publish_date:[%sT00:00:00Z TO %sT23:59:59Z] AND %s" % (date, date, media)
+    for date, query in queries:
         res = mc.sentencesMatching(keywords, query)
         results.append({
             'date': date

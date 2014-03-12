@@ -20,5 +20,5 @@ def solr_date_queries(media, start, end):
     dates = [startdate + datetime.timedelta(x) for x in range(num_days)]
     dates = [date.strftime('%Y-%m-%d') for date in dates]
     query_format = "+publish_date:[%sT00:00:00Z TO %sT23:59:59Z] AND %s"
-    queries = [query_format % (date, date, media) for date in dates]
+    queries = [(date, query_format % (date, date, media)) for date in dates]
     return queries

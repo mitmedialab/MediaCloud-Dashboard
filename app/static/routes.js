@@ -66,15 +66,19 @@ App.Router = Backbone.Router.extend({
         };
         this.sentences = new App.SentenceCollection(opts);
         this.wordcounts = new App.WordCountCollection(opts);
-        this.histogramView = new App.HistogramView({});
+        this.datecounts = new App.DateCountCollection(opts);
+        this.histogramView = new App.HistogramView({
+            collection: this.datecounts
+        });
         this.sentenceView = new App.SentenceView({
             collection: this.sentences
         });
-        this.sentences.fetch();
         this.wordcounts.on('sync', function () {
             App.debug('Word Counts fetched:')
             App.debug(this.wordcounts);
         }, this);
+        this.sentences.fetch();
+        this.datecounts.fetch();
         this.wordcounts.fetch();
         this.vm.showViews([
             this.queryView

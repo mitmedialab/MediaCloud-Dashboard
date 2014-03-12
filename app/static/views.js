@@ -349,11 +349,52 @@ App.SentenceView = Backbone.View.extend({
 });
 
 App.HistogramView = Backbone.View.extend({
+    margin: {
+        top: 10
+        , right: 10
+        , bottom: 10
+        , left: 10
+    },
     template: _.template($('#tpl-histogram-view').html()),
     initialize: function (options) {
         this.render();
     },
     render: function () {
         this.$el.html(this.template());
+        this.$('.panel-body').html(_.template($('#tpl-progress').html())());
+        this.collection.on('sync', this.renderD3, this);
+    },
+    renderD3: function () {
+        App.debug('App.HistogramView.renderD3()');
+        this.$el.html(this.template());
+        var width = this.$('.histogram-view-content').width();
+        var height = 100;
+        var chartWidth = width - this.margin.left - this.margin.right;
+        var chartHeight = height - this.margin.top - this.margin.bottom;
+        var svg = d3.select('.histogram-view-content').append('svg')
+            .attr('width', width).attr('height', height);
+        // Convert collection to d3 data layer
+        var allLayersData = [this.collection.toJSON()];
+        // TODO - for multiple layers call d3.layout.stack
+        // Create axes
+        var x = d3.scale.ordinal()
+            .domain(_.pluck(allLayersData[0], 'date'))
+            .rangePoints([0, chartWidth]);
+        var y = d3.scale.linear()
+            .domain([0, d3.max(_.pluck(allLayersData[0], 'numFound'))])
+            .range([chartHeight, 0]);
+        // Create area chart
+        var area = d3.svg.area()
+            .x(function(d) { return x(d.date); })
+            .y0(chartHeight) // TODO - multiple layers
+            .y1(function(d) { return y(d.numFound); });
+        var chart = svg.append('g')
+            .classed('chart', true)
+            .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
+        chart.selectAll('path').data(allLayersData)
+            .enter().append('path')
+                .attr('width', chartWidth)
+                .attr('d', area)
+                .style('fill', 'red');
     }
 });
