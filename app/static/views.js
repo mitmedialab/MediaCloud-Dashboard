@@ -348,6 +348,42 @@ App.SentenceView = Backbone.View.extend({
     }
 });
 
+App.WordCountView = Backbone.View.extend({
+    config: {
+        minSize: 4
+        , maxSize: 32
+    },
+    template: _.template($('#tpl-wordcount-view').html()),
+    initialize: function (options) {
+        this.render();
+    },
+    render: function () {
+        var that = this;
+        this.$el.html(this.template());
+        var $el = this.$('.panel-body');
+        $el.html(_.template($('#tpl-progress').html())());
+        this.collection.on('sync', function () {
+            var topWords = _.first(this.collection.toJSON(), 100);
+            var counts = _.pluck(topWords, 'count');
+            var min = d3.min(counts);
+            var max = d3.max(counts);
+            var slope = this.config.maxSize / Math.log(max);
+            $el.html('');
+            _.each(topWords, function (m) {
+                console.log([that.config.minSize, slope, m['count'], Math.log(m['count'])]);
+                var size = slope * Math.log(m['count']);
+                if (size >= that.config.minSize) {
+                    var word = $('<span>')
+                        .css('font-size', size + 'pt')
+                        .html(m['term']);
+                    $el.append(word);
+                    $el.append(' ');
+                }
+            });
+        }, this);
+    },
+});
+
 App.HistogramView = Backbone.View.extend({
     margin: {
         top: 10

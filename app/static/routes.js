@@ -73,16 +73,16 @@ App.Router = Backbone.Router.extend({
         this.sentenceView = new App.SentenceView({
             collection: this.sentences
         });
-        this.wordcounts.on('sync', function () {
-            App.debug('Word Counts fetched:')
-            App.debug(this.wordcounts);
-        }, this);
+        this.wordcountView = new App.WordCountView({
+            collection: this.wordcounts
+        });
         this.sentences.fetch();
         this.datecounts.fetch();
         this.wordcounts.fetch();
         this.vm.showViews([
             this.queryView
             , this.histogramView
+            , this.wordcountView
             , this.sentenceView
         ]);
     },
@@ -114,9 +114,13 @@ App.Router = Backbone.Router.extend({
         var sentenceView = new App.SentenceView({
             collection: this.sentences
         });
+        var wordcountView = new App.WordCountView({
+            collection: this.wordcounts
+        })
         this.vm.showViews([
             this.queryView
             , histogramView
+            , wordcountView
             , sentenceView
         ]);
         // Populate with data
