@@ -332,6 +332,7 @@ App.SentenceView = Backbone.View.extend({
         this.render();
     },
     render: function () {
+        var that = this;
         console.log('App.SentenceView.render()');
         this.$el.html(this.template());
         var $el = this.$('.sentence-view-content');
@@ -339,8 +340,9 @@ App.SentenceView = Backbone.View.extend({
         $el.html(progress);
         this.collection.on('sync', function () {
             App.debug('App.SentenceView.collection: sync');
+            that.$('.count').html('(' + that.collection.length + ' found)');
             $el.html('');
-            this.collection.each(function (m) {
+            _.each(this.collection.first(10), function (m) {
                 var p = $('<p>').html(m.escape('sentence'));
                 $el.append(p);
             });
