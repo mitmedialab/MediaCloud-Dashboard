@@ -333,7 +333,7 @@ App.SentenceView = Backbone.View.extend({
     },
     render: function () {
         var that = this;
-        console.log('App.SentenceView.render()');
+        App.debug('App.SentenceView.render()');
         this.$el.html(this.template());
         var $el = this.$('.sentence-view-content');
         progress = _.template($('#tpl-progress').html());
@@ -372,7 +372,6 @@ App.WordCountView = Backbone.View.extend({
             var slope = this.config.maxSize / Math.log(max);
             $el.html('');
             _.each(topWords, function (m) {
-                console.log([that.config.minSize, slope, m['count'], Math.log(m['count'])]);
                 var size = slope * Math.log(m['count']);
                 if (size >= that.config.minSize) {
                     var word = $('<span>')
@@ -383,15 +382,15 @@ App.WordCountView = Backbone.View.extend({
                 }
             });
         }, this);
-    },
+    }
 });
 
 App.HistogramView = Backbone.View.extend({
     margin: {
-        top: 10
-        , right: 10
-        , bottom: 10
-        , left: 10
+        top: 0
+        , right: 0
+        , bottom: 0
+        , left: 0
     },
     template: _.template($('#tpl-histogram-view').html()),
     initialize: function (options) {
@@ -404,7 +403,9 @@ App.HistogramView = Backbone.View.extend({
     },
     renderD3: function () {
         App.debug('App.HistogramView.renderD3()');
-        this.$el.html(this.template());
+        this.$('.histogram-view-content')
+            .html('')
+            .css('padding', '0');
         var width = this.$('.histogram-view-content').width();
         var height = 100;
         var chartWidth = width - this.margin.left - this.margin.right;
@@ -421,18 +422,45 @@ App.HistogramView = Backbone.View.extend({
         var y = d3.scale.linear()
             .domain([0, d3.max(_.pluck(allLayersData[0], 'numFound'))])
             .range([chartHeight, 0]);
-        // Create area chart
-        var area = d3.svg.area()
-            .x(function(d) { return x(d.date); })
-            .y0(chartHeight) // TODO - multiple layers
-            .y1(function(d) { return y(d.numFound); });
+        // Create chart content
         var chart = svg.append('g')
             .classed('chart', true)
             .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
+        // Draw background lines for each month
+        var dateLines = chart.append('g');
+        dateLines.selectAll('.date-line').data(allLayersData[0])
+            .enter()
+                .append('line').classed('date-line', true)
+                    .attr('x1', function (d) { return Math.round(x(d.date)) - 0.5; })
+                    .attr('x2', function (d) { return Math.round(x(d.date)) - 0.5; })
+                    .attr('y1', y.range()[0])
+                    .attr('y2', y.range()[1])
+                    .attr('stroke', '#ccc')
+                    .attr('opacity', function(d) {
+                        return d.date.substring(8,10) == '01' ? '1' : '0'
+                    });
+        dateLines.selectAll('.date-text').data(allLayersData[0])
+            .enter()
+                .append('text')
+                    .text(function (d) { return d.date.substring(0,7); })
+                    .attr('text-anchor', 'end')
+                    .attr('x', '-2')
+                    .attr('y', function (d) { return Math.round(x(d.date)) - 0.5 })
+                    .attr('dy', 13)
+                    .attr('transform', 'rotate(270)')
+                    .attr('fill', '#ccc')
+                    .attr('opacity', function(d) {
+                        return d.date.substring(8,10) == '01' ? '1' : '0'
+                    });
+        // Create line chart
+        var path = d3.svg.line()
+            .x(function(d) { return x(d.date); })
+            .y(function(d) { return y(d.numFound); });
         chart.selectAll('path').data(allLayersData)
             .enter().append('path')
                 .attr('width', chartWidth)
-                .attr('d', area)
-                .style('fill', 'red');
+                .attr('d', path)
+                .style('stroke', 'red')
+                .style('fill', 'none');
     }
 });
