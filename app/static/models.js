@@ -115,15 +115,17 @@ App.MediaSourceCollection = Backbone.Collection.extend({
     },
     getSuggestions: function () {
         App.debug('MediaSourceCollection.getSuggestions()');
-        var suggest = new Bloodhound({
-            datumTokenizer: function (d) {
-                return Bloodhound.tokenizers.whitespace(d.name);
-            },
-            queryTokenizer: Bloodhound.tokenizers.whitespace,
-            local: this.toJSON()
-        });
-        suggest.initialize();
-        return suggest;
+        if (!this.suggest) {
+            this.suggest = new Bloodhound({
+                datumTokenizer: function (d) {
+                    return Bloodhound.tokenizers.whitespace(d.name);
+                },
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                local: this.toJSON()
+            });
+            this.suggest.initialize();
+        }
+        return this.suggest;
     }
 })
 
