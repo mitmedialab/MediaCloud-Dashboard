@@ -34,8 +34,17 @@ App = {
     
     onSignIn: function () {
         App.debug('App.onSignIn()');
+        var that = this;
         if (this.mediaSources.get('sources').length == 0) {
-            this.mediaSources.fetch();
+            $.ajax('/static/data/media.json', {
+                "dataType": "json",
+                "success": function (data) {
+                    App.debug('Received media json');
+                    that.mediaSources.set(that.mediaSources.parse(data));
+                    that.mediaSources.trigger('sync');
+                    that.mediaSourceData = data;
+                }
+            })
         }
         this.router.navigate('', true);
     },

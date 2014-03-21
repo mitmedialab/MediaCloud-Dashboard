@@ -74,31 +74,31 @@ def media():
     return json.dumps({
         'sources': list(mcmedia.all_sources())
         , 'sets': list(mcmedia.all_sets())
-    });
+    }, separators=(',',':'));
 
 @app.route('/api/media/sources')
 @flask_login.login_required
 def media_sources():
-    return json.dumps(list(mcmedia.all_sources()))
+    return json.dumps(list(mcmedia.all_sources()), separators=(',',':'))
 
 @app.route('/api/media/sets')
 @flask_login.login_required
 def media_sets():
-    return json.dumps(list(mcmedia.all_sets()))
+    return json.dumps(list(mcmedia.all_sets()), separators=(',',':'))
     
 @app.route('/api/sentences/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def sentences(keywords, media, start, end):
     query = util.solr_query(media, start, end)
     res = mc.sentencesMatching(keywords , query)
-    return json.dumps(res)
+    return json.dumps(res, separators=(',',':'))
     
 @app.route('/api/sentences/docs/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def sentence_docs(keywords, media, start, end):
     query = util.solr_query(media, start, end)
     res = mc.sentencesMatching(keywords , query)
-    return json.dumps(res['response']['docs'])
+    return json.dumps(res['response']['docs'], separators=(',',':'))
     
 @app.route('/api/sentences/numfound/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
@@ -111,14 +111,14 @@ def sentence_numfound(keywords, media, start, end):
             'date': date
             , 'numFound': res['response']['numFound']
         })
-    return json.dumps(results)
+    return json.dumps(results, separators=(',',':'))
     
 @app.route('/api/wordcount/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def wordcount(keywords, media, start, end):
     query = util.solr_query(media, start, end)
     res = mc.wordCount(keywords , query)
-    return json.dumps(res)
+    return json.dumps(res, separators=(',',':'))
     
 # Callback for flask-login
 @login_manager.user_loader
