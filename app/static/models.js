@@ -209,6 +209,15 @@ App.QueryModel = Backbone.Model.extend({
 });
 
 App.SentenceModel = Backbone.Model.extend({
+    date: function () {
+        var date = this.get('publish_date');
+        date = new Date(date.substring(0, date.indexOf('T')));
+        return date.toLocaleDateString();
+    },
+    media: function () {
+        var sources = this.collection.mediaSources.get('sources');
+        return sources.get(this.get('media_id')).get('name');
+    }
 });
 
 App.SentenceCollection = Backbone.Collection.extend({
@@ -218,6 +227,7 @@ App.SentenceCollection = Backbone.Collection.extend({
         this.media = options.media;
         this.start = options.start;
         this.end = options.end;
+        this.mediaSources = options.mediaSources;
     },
     url: function () {
         var url = '/api/sentences/docs/';

@@ -342,8 +342,8 @@ App.SentenceView = Backbone.View.extend({
             App.debug('App.SentenceView.collection: sync');
             that.$('.count').html('(' + that.collection.length + ' found)');
             $el.html('');
-            _.each(this.collection.first(10), function (m) {
-                var p = $('<p>').html(m.escape('sentence'));
+            _.each(this.collection.last(10), function (m) {
+                var p = $('<p>').html('<em>' + m.media() + '</em> - ' + m.date() + ': ' + m.escape('sentence'));
                 $el.append(p);
             });
         }, this);
@@ -360,11 +360,13 @@ App.WordCountView = Backbone.View.extend({
         this.render();
     },
     render: function () {
+        App.debug('App.WordCountView.render()');
         var that = this;
         this.$el.html(this.template());
         var $el = this.$('.panel-body');
         $el.html(_.template($('#tpl-progress').html())());
         this.collection.on('sync', function () {
+            App.debug('App.WordCountView.collection:sync');
             var topWords = _.first(this.collection.toJSON(), 100);
             var counts = _.pluck(topWords, 'count');
             var min = d3.min(counts);
@@ -387,7 +389,7 @@ App.WordCountView = Backbone.View.extend({
 
 App.HistogramView = Backbone.View.extend({
     margin: {
-        top: 0
+        top: 10
         , right: 0
         , bottom: 0
         , left: 0

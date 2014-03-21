@@ -63,6 +63,7 @@ App.Router = Backbone.Router.extend({
             , media: media
             , start: start
             , end: end
+            , mediaSources: this.mediaSources
         };
         this.sentences = new App.SentenceCollection(opts);
         this.wordcounts = new App.WordCountCollection(opts);
@@ -103,6 +104,7 @@ App.Router = Backbone.Router.extend({
             , media: qm.media()
             , start: qm.get('start')
             , end: qm.get('end')
+            , mediaSources: this.mediaSources
         };
         this.sentences = new App.SentenceCollection(opts);
         this.wordcounts = new App.WordCountCollection(opts);
