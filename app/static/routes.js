@@ -49,7 +49,14 @@ App.Router = Backbone.Router.extend({
             this.navigate('login', true);
             return;
         }
-        this.queryModel = new App.QueryModel();
+        var opts = {
+            keywords: keywords
+            , media: media
+            , start: start
+            , end: end
+            , mediaSources: this.mediaSources
+        };
+        this.queryModel = new App.QueryModel(opts);
         this.queryView = this.vm.getView(
             App.QueryView
             , {
@@ -58,13 +65,6 @@ App.Router = Backbone.Router.extend({
             }
         );
         this.queryModel.on('execute', this.onQuery, this);
-        var opts = {
-            keywords: keywords
-            , media: media
-            , start: start
-            , end: end
-            , mediaSources: this.mediaSources
-        };
         this.sentences = new App.SentenceCollection(opts);
         this.wordcounts = new App.WordCountCollection(opts);
         this.datecounts = new App.DateCountCollection(opts);

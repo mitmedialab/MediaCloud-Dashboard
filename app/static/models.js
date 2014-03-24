@@ -187,7 +187,7 @@ App.MediaModel = App.NestedModel.extend({
 })
 
 App.QueryModel = Backbone.Model.extend({
-    initialize: function () {
+    initialize: function (options) {
         this.set('media', new App.MediaModel());
     },
     execute: function () {

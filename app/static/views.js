@@ -147,12 +147,13 @@ App.QueryView = App.NestedView.extend({
         event.preventDefault();
         // Assemble data
         this.model.set('keywords', this.$('#keyword-view-keywords').val());
-        this.model.set('start', this.$('#date-range-start').val());
-        this.model.set('end', this.$('#date-range-end').val());
+        this.model.set('start', this.$('.date-range-start').val());
+        this.model.set('end', this.$('.date-range-end').val());
         this.model.execute();
     },
     initialize: function (options) {
         App.debug('App.QueryView.initialize()');
+        App.debug(options);
         this.mediaSources = options.mediaSources;
         this.mediaSelectView = new App.MediaSelectView({
             model: this.model.get('media')
@@ -161,8 +162,8 @@ App.QueryView = App.NestedView.extend({
         this.mediaListView = new App.MediaListView({
             model: this.model.get('media')
         });
-        this.dateRangeView = new App.DateRangeView();
-        this.keywordView = new App.KeywordView();
+        this.dateRangeView = new App.DateRangeView({ model: this.model });
+        this.keywordView = new App.KeywordView({"keywords":this.model.get('keywords')});
         this.addSubView(this.mediaSelectView);
         this.addSubView(this.mediaListView);
         this.addSubView(this.dateRangeView);
@@ -278,6 +279,8 @@ App.MediaListView = App.NestedView.extend({
     template: _.template($('#tpl-media-list-view').html()),
     initialize: function (options) {
         App.debug('App.MediaListView.initialize()');
+        App.debug(options);
+        App.debug(this.model);
         this.render();
         // Add listeners
         this.model.get('sources').on('add', this.onAdd, this);
@@ -308,21 +311,30 @@ App.MediaListView = App.NestedView.extend({
 App.DateRangeView = Backbone.View.extend({
     template: _.template($('#tpl-date-range-view').html()),
     initialize: function (options) {
+        App.debug('App.DateRangeView.initialize()');
+        App.debug(options);
         this.render();
     },
     render: function () {
+        App.debug('App.DateRangeView.render()');
         this.$el.html(this.template())
         this.$('.datepicker').datepicker(App.config.datepickerOptions);
+        this.$('.date-range-start').val(this.model.get('start'));
+        this.$('.date-range-end').val(this.model.get('end'));
     }
 });
 
 App.KeywordView = Backbone.View.extend({
     template: _.template($('#tpl-keyword-view').html()),
     initialize: function (options) {
+        App.debug('App.KeywordView.initialize()');
+        App.debug(options);
+        this.keywords = options.keywords;
         this.render();
     },
     render: function () {
         this.$el.html(this.template());
+        this.$('input').val(this.keywords);
     }
 });
 
