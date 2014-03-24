@@ -89,21 +89,21 @@ def media_sets():
 @app.route('/api/sentences/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def sentences(keywords, media, start, end):
-    query = util.solr_query(media, start, end)
+    query = util.solr_query(util.media_to_solr(media), start, end)
     res = mc.sentencesMatching(keywords , query)
     return json.dumps(res, separators=(',',':'))
     
 @app.route('/api/sentences/docs/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def sentence_docs(keywords, media, start, end):
-    query = util.solr_query(media, start, end)
+    query = util.solr_query(util.media_to_solr(media), start, end)
     res = mc.sentencesMatching(keywords , query)
     return json.dumps(res['response']['docs'], separators=(',',':'))
     
 @app.route('/api/sentences/numfound/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def sentence_numfound(keywords, media, start, end):
-    queries = util.solr_date_queries(media, start, end)
+    queries = util.solr_date_queries(util.media_to_solr(media), start, end)
     results = []
     for date, query in queries:
         res = mc.sentencesMatching(keywords, query)
@@ -116,7 +116,7 @@ def sentence_numfound(keywords, media, start, end):
 @app.route('/api/wordcount/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def wordcount(keywords, media, start, end):
-    query = util.solr_query(media, start, end)
+    query = util.solr_query(util.media_to_solr(media), start, end)
     res = mc.wordCount(keywords , query)
     return json.dumps(res, separators=(',',':'))
     

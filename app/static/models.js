@@ -194,19 +194,9 @@ App.QueryModel = Backbone.Model.extend({
         this.trigger('execute', this);
     },
     media: function () {
-        sets = this.get('media').get('sets').map(function (m) {
-            return 'media_sets_id:' + m.get('id');
-        });
-        sources = this.get('media').get('sources').map(function (m) {
-            return 'media_id:' + m.get('media_id');
-        });
-        var media = '1';
-        if (sets.length > 0 || sources.length > 0) {
-            media = '(';
-            media += sets.concat(sources).join(' OR ');
-            media += ')';
-        }
-        return media;
+        sets = this.get('media').get('sets').pluck('id');
+        sources = this.get('media').get('sources').pluck('media_id');
+        return 'sets:[' + sets.join(',') + '],sources:[' + sources.join(',') + ']';
     }
 });
 

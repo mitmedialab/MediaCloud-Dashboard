@@ -1,4 +1,5 @@
 import datetime
+import re
 
 def solr_query(media, start, end):
     '''Convert a media query, start and end date into a solr query string.'''
@@ -22,3 +23,13 @@ def solr_date_queries(media, start, end):
     query_format = "+publish_date:[%sT00:00:00Z TO %sT23:59:59Z] AND %s"
     queries = [(date, query_format % (date, date, media)) for date in dates]
     return queries
+
+def media_to_solr(media):
+    d = { 'sets':[], 'sources':[] }
+    for m in media.split(','):
+        match = re.search(r'(.*):\[(.*)\]', m)
+        d[match.group(1)] = match.group(2).split(',')
+    solr = ['media_id:%d' % int(i) for i in d['sources'] if len(i)]
+    solr += ['media_sets_id:%d' % int(i) for i in d['sets'] if len(i)]
+    return ' AND '.join(solr)
+    
