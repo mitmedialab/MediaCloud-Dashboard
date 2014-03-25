@@ -26,11 +26,17 @@ App.Router = Backbone.Router.extend({
     
     home: function () {
         App.debug('Route: home');
+        var that = this;
         if (!this.userModel.get('authenticated')) {
             this.navigate('login', true);
             return;
         }
-        // Defaults
+        // Defaults media
+        this.mediaModel = new App.MediaModel();
+        this.mediaSources.deferred.then(function () {
+            that.mediaModel.get('sets').add(that.mediaSources.get('sets').get('1'));
+        });
+        // Defaults dates
         var weekMs = 7 * 24 * 60 * 60 * 1000;
         var ts = new Date().getTime();
         var start = new Date(ts - 2*weekMs);
@@ -38,6 +44,7 @@ App.Router = Backbone.Router.extend({
         var attributes = {
             start: start.getFullYear() + '-' + (start.getMonth()+1) + '-' + start.getDate()
             , end: end.getFullYear() + '-' + (end.getMonth()+1) + '-' + end.getDate()
+            , mediaModel: this.mediaModel
         };
         this.queryModel = new App.QueryModel(attributes);
         this.queryView = this.vm.getView(
