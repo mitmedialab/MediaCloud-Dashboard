@@ -30,7 +30,16 @@ App.Router = Backbone.Router.extend({
             this.navigate('login', true);
             return;
         }
-        this.queryModel = new App.QueryModel();
+        // Defaults
+        var weekMs = 7 * 24 * 60 * 60 * 1000;
+        var ts = new Date().getTime();
+        var start = new Date(ts - 2*weekMs);
+        var end = new Date(ts - weekMs);
+        var attributes = {
+            start: start.getFullYear() + '-' + (start.getMonth()+1) + '-' + start.getDate()
+            , end: end.getFullYear() + '-' + (end.getMonth()+1) + '-' + end.getDate()
+        };
+        this.queryModel = new App.QueryModel(attributes);
         this.queryView = this.vm.getView(
             App.QueryView
             , {
