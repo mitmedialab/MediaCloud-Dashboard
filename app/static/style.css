@@ -28,6 +28,10 @@
     display: none;
 }
 
+.form-help {
+    color: #999;
+}
+
 /* Template styles ************************************************************/
 
 .media-list-view a.remove {

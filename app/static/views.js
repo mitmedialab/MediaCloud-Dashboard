@@ -348,7 +348,10 @@ App.KeywordView = Backbone.View.extend({
     },
     render: function () {
         this.$el.html(this.template());
-        this.$('input').val(this.keywords);
+        // Use default from template if there are no keywords
+        if (this.keywords) {
+            this.$('input').val(this.keywords);
+        }
     }
 });
 

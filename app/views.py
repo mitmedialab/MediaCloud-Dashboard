@@ -90,6 +90,7 @@ def media_sets():
 @flask_login.login_required
 def sentences(keywords, media, start, end):
     query = util.solr_query(util.media_to_solr(media), start, end)
+    print query
     res = mc.sentencesMatching(keywords , query)
     return json.dumps(res, separators=(',',':'))
     
