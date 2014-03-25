@@ -332,9 +332,27 @@ App.DateRangeView = Backbone.View.extend({
     render: function () {
         App.debug('App.DateRangeView.render()');
         this.$el.html(this.template())
-        this.$('.datepicker').datepicker(App.config.datepickerOptions);
         this.$('.date-range-start').val(this.model.get('start'));
         this.$('.date-range-end').val(this.model.get('end'));
+        // Create the datepickers and hide on selection / tab-out
+        var start = this.$('.date-range-start').datepicker(
+            App.config.datepickerOptions
+        ).on('changeDate', function (event) {
+            start.hide();
+        }).on('keydown', function (event) {
+            if (e.keyCode == 9) {
+                start.hide();
+            }
+        }).data('datepicker');
+        var end = this.$('.date-range-end').datepicker(
+            App.config.datepickerOptions
+        ).on('changeDate', function (event) {
+            end.hide();
+        }).on('keydown', function (event) {
+            if (e.keyCode == 9) {
+                end.hide();
+            }
+        }).data('datepicker');
     }
 });
 
