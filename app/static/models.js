@@ -77,7 +77,7 @@ App.UserModel = Backbone.Model.extend({
         this.set('id', 'login');
         this.fetch({
           type: 'post',
-          data: {'username': username, 'password': password},
+          data: {'username': username, 'password': password}
         });
     },
     
@@ -176,6 +176,7 @@ App.MediaModel = App.NestedModel.extend({
     },
     initialize: function () {
         App.debug('App.MediaModel.initialize()');
+        var that = this;
         this.set('sources', new App.MediaSourceCollection());
         this.set('sets', new App.MediaSetCollection());
         this.deferred = $.Deferred();
@@ -183,24 +184,48 @@ App.MediaModel = App.NestedModel.extend({
             App.debug('App.MediaModel:sync');
             this.deferred.resolve();
         }, this);
+    },
+    subset: function (s) {
+        // Return a copy of this media model containing a subset of the
+        // sources and sets according to a string like:
+        // sets:[7125],sources:[1]
+        App.debug('App.MediaModel.subset()')
+        App.debug(s);
+        var that = this;
+        media = new App.MediaModel();
+        var o = $.parseJSON(s);
+            // Copy the source/set from this MediaModel to a new one
+        _.each(o.sets, function (id) {
+            var m = that.get('sets').get(id);
+            media.get('sets').add(m);
+        });
+        _.each(o.sources, function (id) {
+            var m = that.get('sources').get({id:id})
+            media.get('sources').add(m);
+        });
+        return media;
     }
 })
 
 App.QueryModel = Backbone.Model.extend({
     initialize: function (options) {
-        this.set('media', new App.MediaModel());
+        if (!this.get('mediaModel')) {
+            this.set('mediaModel', new App.MediaModel());
+        }
     },
     execute: function () {
         this.trigger('execute', this);
     },
     media: function () {
-        sets = this.get('media').get('sets').pluck('id');
-        sources = this.get('media').get('sources').pluck('media_id');
-        return 'sets:[' + sets.join(',') + '],sources:[' + sources.join(',') + ']';
+        sets = this.get('mediaModel').get('sets').pluck('id');
+        sources = this.get('mediaModel').get('sources').pluck('media_id');
+        return '{"sets":[' + sets.join(',') + '],"sources":[' + sources.join(',') + ']}';
     }
 });
 
 App.SentenceModel = Backbone.Model.extend({
+    initialize: function (options) {
+    },
     date: function () {
         var date = this.get('publish_date');
         date = new Date(date.substring(0, date.indexOf('T')));
@@ -208,7 +233,9 @@ App.SentenceModel = Backbone.Model.extend({
     },
     media: function () {
         var sources = this.collection.mediaSources.get('sources');
-        return sources.get(this.get('media_id')).get('name');
+        var media_id = this.get('media_id');
+        var source = sources.get(media_id);
+        return source.get('name');
     }
 });
 
@@ -220,6 +247,8 @@ App.SentenceCollection = Backbone.Collection.extend({
         this.start = options.start;
         this.end = options.end;
         this.mediaSources = options.mediaSources;
+        this.waitForLoad = $.Deferred();
+        this.on('sync', function () { this.waitForLoad.resolve(); }, this);
     },
     url: function () {
         var url = '/api/sentences/docs/';

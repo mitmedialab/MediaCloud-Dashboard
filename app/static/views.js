@@ -156,11 +156,11 @@ App.QueryView = App.NestedView.extend({
         App.debug(options);
         this.mediaSources = options.mediaSources;
         this.mediaSelectView = new App.MediaSelectView({
-            model: this.model.get('media')
+            model: this.model.get('mediaModel')
             , mediaSources: this.mediaSources
         });
         this.mediaListView = new App.MediaListView({
-            model: this.model.get('media')
+            model: this.model.get('mediaModel')
         });
         this.dateRangeView = new App.DateRangeView({ model: this.model });
         this.keywordView = new App.KeywordView({"keywords":this.model.get('keywords')});
@@ -250,7 +250,7 @@ App.MediaSelectView = App.NestedView.extend({
         } else if (set) {
             this.model.get('sets').add(set);
         }
-    },
+    }
 });
 
 App.MediaListItemView = Backbone.View.extend({
@@ -291,20 +291,34 @@ App.MediaListView = App.NestedView.extend({
         _.bindAll(this, 'onRemoveClick');
     },
     render: function () {
+        App.debug('App.MediaListView.render()');
+        App.debug(this.model);
+        var that = this;
         this.$el.html(this.template());
+        this.model.get('sets').each(function (m) {
+            that.onAdd(m, that.model.get('sets'), {});
+        });
+        this.model.get('sources').each(function (m) {
+            that.onAdd(m, that.model.get('sets'), {});
+        });
     },
     onAdd: function (model, collection, options) {
         App.debug('App.MediaListView.onAdd()');
+        App.debug(model);
         var itemView = new App.MediaListItemView({model: model});
-        that = this;
         itemView.on('removeClick', this.onRemoveClick);
-        $('tbody', this.$el).append(itemView.el);
-        $('.media-list-view').removeClass('empty');
+        this.$('tbody').append(itemView.el);
+        this.$('.media-list-view').removeClass('empty');
     },
     onRemoveClick: function (model) {
         App.debug('App.MediaListView.onRemoveClick()');
-        this.model.get('sources').remove(model);
-        this.model.get('sets').remove(model);
+        // Figure out which collection to remove from,
+        // otherwise we might remove the wrong thing.
+        if (model.get('media_id')) {
+            this.model.get('sources').remove(model);
+        } else {
+            this.model.get('sets').remove(model);
+        }
     }
 });
 

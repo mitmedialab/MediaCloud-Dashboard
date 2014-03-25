@@ -1,4 +1,5 @@
 import datetime
+import json
 import re
 
 def solr_query(media, start, end):
@@ -25,11 +26,9 @@ def solr_date_queries(media, start, end):
     return queries
 
 def media_to_solr(media):
-    d = { 'sets':[], 'sources':[] }
-    for m in media.split(','):
-        match = re.search(r'(.*):\[(.*)\]', m)
-        d[match.group(1)] = match.group(2).split(',')
-    solr = ['media_id:%d' % int(i) for i in d['sources'] if len(i)]
-    solr += ['media_sets_id:%d' % int(i) for i in d['sets'] if len(i)]
-    return ' AND '.join(solr)
+    d = json.loads(media)
+    solr = ['media_id:%d' % i for i in d['sources']]
+    solr += ['media_sets_id:%d' % i for i in d['sets']]
+    query = ' OR '.join(solr)
+    return query
     

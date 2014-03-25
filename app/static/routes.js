@@ -45,13 +45,27 @@ App.Router = Backbone.Router.extend({
     query: function (keywords, media, start, end) {
         App.debug('Route: query');
         App.debug([keywords, media, start, end]);
+        var that = this;
         if (!this.userModel.get('authenticated')) {
             this.navigate('login', true);
             return;
         }
+        // Create media model for the query
+        var mediaModel = new App.MediaModel();
+        // When sources are loaded, populate the media model from the url
+        this.mediaSources.deferred.then(function() {
+            var subset = that.mediaSources.subset(media);
+            subset.get('sources').each(function (m) {
+                mediaModel.get('sources').add(m);
+            });
+            subset.get('sets').each(function (m) {
+                mediaModel.get('sets').add(m);
+            });
+        });
         var opts = {
             keywords: keywords
             , media: media
+            , mediaModel: mediaModel
             , start: start
             , end: end
             , mediaSources: this.mediaSources
