@@ -1,0 +1,19 @@
+[
+    , {"term": "citizen", "count": 11}
+    , {"term": "schudson", "count": 7}
+    , {"term": "change", "count": 5}
+    , {"term": "monitor", "count": 4}
+    , {"term": "opinion", "count": 4}
+    , {"term": "code", "count": 3}
+    , {"term": "lessig", "count": 3}
+    , {"term": "lippmann", "count": 3}
+    , {"term": "public", "count": 3}
+    , {"term": "architectures", "count": 2}
+    , {"term": "civic", "count": 2}
+    , {"term": "book", "count": 2}
+    , {"term": "democracy", "count": 2}
+    , {"term": "contemporary", "count": 2}
+    , {"term": "information", "count": 2}
+    , {"term": "laws", "count": 2}
+    , {"term": "norms", "count": 2}
+]
