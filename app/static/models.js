@@ -219,9 +219,31 @@ App.QueryModel = Backbone.Model.extend({
     media: function () {
         sets = this.get('mediaModel').get('sets').pluck('id');
         sources = this.get('mediaModel').get('sources').pluck('media_id');
-        return '{"sets":[' + sets.join(',') + '],"sources":[' + sources.join(',') + ']}';
+        return { sets: sets.join(','), "sources": sources.join(',') };
     }
 });
+
+App.QueryCollection = Backbone.Collection.extend({
+    model: App.QueryModel,
+    execute: function () {
+        this.trigger('execute', this);
+    },
+    keywords: function () { return JSON.stringify(this.pluck('keywords')); },
+    start: function () { return JSON.stringify(this.pluck('start')); },
+    end: function () { return JSON.stringify(this.pluck('end')); },
+    media: function () {
+        var allMedia = this.map(function (m) { return m.media(); });
+        return JSON.stringify(allMedia);
+    },
+    dashboardUrl: function () {
+        return [
+            this.keywords()
+            , this.media()
+            , this.start()
+            , this.end()
+        ].join('/');
+    }
+})
 
 App.SentenceModel = Backbone.Model.extend({
     initialize: function (options) {

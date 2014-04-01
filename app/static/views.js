@@ -139,18 +139,6 @@ App.ControlsSignOutView = App.NestedView.extend({
 
 App.QueryView = App.NestedView.extend({
     template: _.template($('#tpl-query-view').html()),
-    events: {
-        "click .btn-primary": 'onQuery'
-    },
-    onQuery: function (event) {
-        App.debug('App.QueryView.onQuery()');
-        event.preventDefault();
-        // Assemble data
-        this.model.set('keywords', this.$('#keyword-view-keywords').val());
-        this.model.set('start', this.$('.date-range-start').val());
-        this.model.set('end', this.$('.date-range-end').val());
-        this.model.execute();
-    },
     initialize: function (options) {
         App.debug('App.QueryView.initialize()');
         App.debug(options);
@@ -163,7 +151,7 @@ App.QueryView = App.NestedView.extend({
             model: this.model.get('mediaModel')
         });
         this.dateRangeView = new App.DateRangeView({ model: this.model });
-        this.keywordView = new App.KeywordView({"keywords":this.model.get('keywords')});
+        this.keywordView = new App.KeywordView({model: this.model});
         this.addSubView(this.mediaSelectView);
         this.addSubView(this.mediaListView);
         this.addSubView(this.dateRangeView);
@@ -186,6 +174,50 @@ App.QueryView = App.NestedView.extend({
             that.$('.keyword-view')
                 .html(that.keywordView.el);
         });
+    },
+    onQuery: function (event) {
+        App.debug('App.QueryView.onQuery()');
+        event.preventDefault();
+        // Assemble data
+        this.model.set('keywords', this.$('#keyword-view-keywords').val());
+        this.model.set('start', this.$('.date-range-start').val());
+        this.model.set('end', this.$('.date-range-end').val());
+        this.model.execute();
+    }
+});
+
+App.QueryListView = App.NestedView.extend({
+    template: _.template($('#tpl-query-list-view').html()),
+    events: {
+        "click .btn-primary": 'onQuery'
+    },
+    initialize: function (options) {
+        App.debug('App.QueryListView.initialize()');
+        this.mediaSources = options.mediaSources;
+        this.render();
+    },
+    render: function () {
+        // Show loading
+        this.$el.html(this.template());
+        progress = _.template($('#tpl-progress').html());
+        this.$('.query-list-view-content').html(progress);
+        var that = this;
+        this.mediaSources.deferred.done(function () {
+            that.$el.html(that.template());
+            // Replace loading with queries
+            that.collection.each(function (m) {
+                var queryView = new App.QueryView({
+                    model: m,
+                    mediaSources: that.mediaSources
+                });
+                that.addSubView(queryView);
+                that.$('.query-views').append(queryView.$el);
+            });
+        });
+    },
+    onQuery: function (ev) {
+        ev.preventDefault();
+        this.collection.execute();
     }
 });
 
@@ -358,18 +390,25 @@ App.DateRangeView = Backbone.View.extend({
 
 App.KeywordView = Backbone.View.extend({
     template: _.template($('#tpl-keyword-view').html()),
+    events: {
+        "change input": "contentChanged"
+    },
     initialize: function (options) {
         App.debug('App.KeywordView.initialize()');
         App.debug(options);
-        this.keywords = options.keywords;
+        _.bindAll(this, 'contentChanged');
         this.render();
     },
     render: function () {
         this.$el.html(this.template());
         // Use default from template if there are no keywords
-        if (this.keywords) {
-            this.$('input').val(this.keywords);
+        this.$input = this.$('input');
+        if (this.model.get('keywords')) {
+            this.$input.val(this.model.get('keywords'));
         }
+    },
+    contentChanged: function () {
+        this.model.set('keywords', this.$input.val());
     }
 });
 

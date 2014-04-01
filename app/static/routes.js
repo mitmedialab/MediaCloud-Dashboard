@@ -45,17 +45,20 @@ App.Router = Backbone.Router.extend({
             start: start.getFullYear() + '-' + (start.getMonth()+1) + '-' + start.getDate()
             , end: end.getFullYear() + '-' + (end.getMonth()+1) + '-' + end.getDate()
             , mediaModel: this.mediaModel
+            , keywords: 'boston'
         };
+        this.queryCollection = new App.QueryCollection();
         this.queryModel = new App.QueryModel(attributes);
-        this.queryView = this.vm.getView(
-            App.QueryView
+        this.queryCollection.add(this.queryModel);
+        this.queryListView = this.vm.getView(
+            App.QueryListView
             , {
-                model: this.queryModel
+                collection: this.queryCollection
                 , mediaSources: this.mediaSources
             }
         );
-        this.queryModel.on('execute', this.onQuery, this);
-        this.vm.showView(this.queryView);
+        this.queryCollection.on('execute', this.onQuery, this);
+        this.vm.showView(this.queryListView);
     },
     
     query: function (keywords, media, start, end) {
@@ -122,13 +125,9 @@ App.Router = Backbone.Router.extend({
         App.debug('Default route');
     },
     
-    onQuery: function (qm) {
-        this.navigate([
-            'query'
-            , qm.get('keywords')
-            , qm.media()
-            , qm.get('start')
-            , qm.get('end')].join('/'));
+    onQuery: function (qc) {
+        this.navigate(qc.dashboardUrl());
+        /*
         var opts = {
             keywords: qm.get('keywords')
             , media: qm.media()
@@ -159,7 +158,7 @@ App.Router = Backbone.Router.extend({
         this.wordcounts.fetch();
         this.datecounts.fetch();
         this.sentences.fetch();
-    },
-    
-})
+        */
+    }
+}); 
 
