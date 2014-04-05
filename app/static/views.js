@@ -174,15 +174,6 @@ App.QueryView = App.NestedView.extend({
             that.$('.keyword-view')
                 .html(that.keywordView.el);
         });
-    },
-    onQuery: function (event) {
-        App.debug('App.QueryView.onQuery()');
-        event.preventDefault();
-        // Assemble data
-        this.model.set('keywords', this.$('#keyword-view-keywords').val());
-        this.model.set('start', this.$('.date-range-start').val());
-        this.model.set('end', this.$('.date-range-end').val());
-        this.model.execute();
     }
 });
 
@@ -424,11 +415,13 @@ App.SentenceView = Backbone.View.extend({
         var $el = this.$('.sentence-view-content');
         progress = _.template($('#tpl-progress').html());
         $el.html(progress);
-        this.collection.on('sync', function () {
-            App.debug('App.SentenceView.collection: sync');
-            that.$('.count').html('(' + that.collection.length + ' found)');
+        // TODO split into two views, one for the QueryColleciton and one for SentenceColleciton
+        var sentenceCollection = this.collection.first(1)[0].get('results').get('sentences');
+        sentenceCollection.on('sync', function () {
+            App.debug('App.SentenceView.sentenceCollection: sync');
+            that.$('.count').html('(' + sentenceCollection.length + ' found)');
             $el.html('');
-            _.each(this.collection.last(10), function (m) {
+            _.each(sentenceCollection.last(10), function (m) {
                 var p = $('<p>').html('<em>' + m.media() + '</em> - ' + m.date() + ': ' + m.escape('sentence'));
                 $el.append(p);
             });
@@ -451,9 +444,11 @@ App.WordCountView = Backbone.View.extend({
         this.$el.html(this.template());
         var $el = this.$('.panel-body');
         $el.html(_.template($('#tpl-progress').html())());
-        this.collection.on('sync', function () {
+        // TODO support multiple queries
+        var wordcounts = this.collection.first(1)[0].get('results').get('wordcounts');
+        wordcounts.on('sync', function () {
             App.debug('App.WordCountView.collection:sync');
-            var topWords = _.first(this.collection.toJSON(), 100);
+            var topWords = _.first(wordcounts.toJSON(), 100);
             var counts = _.pluck(topWords, 'count');
             var min = d3.min(counts);
             var max = d3.max(counts);
@@ -487,9 +482,11 @@ App.HistogramView = Backbone.View.extend({
     render: function () {
         this.$el.html(this.template());
         this.$('.panel-body').html(_.template($('#tpl-progress').html())());
-        this.collection.on('sync', this.renderD3, this);
+        // TODO allow for multiple results
+        var datecounts = this.collection.first(1)[0].get('results').get('datecounts');
+        datecounts.on('sync', this.renderD3, this);
     },
-    renderD3: function () {
+    renderD3: function (datecounts) {
         App.debug('App.HistogramView.renderD3()');
         this.$('.histogram-view-content')
             .html('')
@@ -501,7 +498,7 @@ App.HistogramView = Backbone.View.extend({
         var svg = d3.select('.histogram-view-content').append('svg')
             .attr('width', width).attr('height', height);
         // Convert collection to d3 data layer
-        var allLayersData = [this.collection.toJSON()];
+        var allLayersData = [datecounts.toJSON()];
         // TODO - for multiple layers call d3.layout.stack
         // Create axes
         var x = d3.scale.ordinal()
@@ -550,5 +547,24 @@ App.HistogramView = Backbone.View.extend({
                 .attr('d', path)
                 .style('stroke', 'red')
                 .style('fill', 'none');
+    }
+});
+
+App.QueryResultView = App.NestedView.extend({
+    initialize: function (options) {
+        this.histogramView = new App.HistogramView(options);
+        this.wordCountView = new App.WordCountView(options);
+        this.sentenceView = new App.SentenceView(options);
+        this.addSubView(this.histogramView);
+        this.addSubView(this.wordCountView);
+        this.addSubView(this.sentenceView);
+        this.render();
+    },
+    render: function () {
+        // Reset and render views
+        this.$el.html('');
+        this.$el.append(this.histogramView.$el);
+        this.$el.append(this.wordCountView.$el);
+        this.$el.append(this.sentenceView.$el);
     }
 });

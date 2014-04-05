@@ -46,9 +46,11 @@ App.Router = Backbone.Router.extend({
             , end: end.getFullYear() + '-' + (end.getMonth()+1) + '-' + end.getDate()
             , mediaModel: this.mediaModel
             , keywords: 'boston'
+            , mediaSources: this.mediaSources
         };
+        var options = { mediaSources: this.mediaSources, parse: true };
         this.queryCollection = new App.QueryCollection();
-        this.queryModel = new App.QueryModel(attributes);
+        this.queryModel = new App.QueryModel(attributes, options);
         this.queryCollection.add(this.queryModel);
         this.queryListView = this.vm.getView(
             App.QueryListView
@@ -97,10 +99,7 @@ App.Router = Backbone.Router.extend({
                 , mediaSources: this.mediaSources
             }
         );
-        this.queryModel.on('execute', this.onQuery, this);
-        this.sentences = new App.SentenceCollection(opts);
-        this.wordcounts = new App.WordCountCollection(opts);
-        this.datecounts = new App.DateCountCollection(opts);
+        this.queryCollection.on('execute', this.onQuery, this);
         this.histogramView = new App.HistogramView({
             collection: this.datecounts
         });
@@ -126,39 +125,17 @@ App.Router = Backbone.Router.extend({
     },
     
     onQuery: function (qc) {
+        App.debug('App.Router.onQuery()');
+        App.debug(qc);
         this.navigate(qc.dashboardUrl());
-        /*
-        var opts = {
-            keywords: qm.get('keywords')
-            , media: qm.media()
-            , start: qm.get('start')
-            , end: qm.get('end')
-            , mediaSources: this.mediaSources
-        };
-        this.sentences = new App.SentenceCollection(opts);
-        this.wordcounts = new App.WordCountCollection(opts);
-        this.datecounts = new App.DateCountCollection(opts);
-        // Create new results views, replace old ones if necessary
-        var histogramView = new App.HistogramView({
-            collection: this.datecounts
+        // Create new results view
+        var resultView = new App.QueryResultView({
+            collection: qc
         });
-        var sentenceView = new App.SentenceView({
-            collection: this.sentences
-        });
-        var wordcountView = new App.WordCountView({
-            collection: this.wordcounts
-        })
         this.vm.showViews([
-            this.queryView
-            , histogramView
-            , wordcountView
-            , sentenceView
+            this.queryListView
+            , resultView
         ]);
-        // Populate with data
-        this.wordcounts.fetch();
-        this.datecounts.fetch();
-        this.sentences.fetch();
-        */
     }
 }); 
 

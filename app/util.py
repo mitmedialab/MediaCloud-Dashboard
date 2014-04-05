@@ -27,8 +27,8 @@ def solr_date_queries(media, start, end):
 
 def media_to_solr(media):
     d = json.loads(media)
-    solr = ['media_id:%d' % i for i in d['sources']]
-    solr += ['media_sets_id:%d' % i for i in d['sets']]
+    solr = ['media_id:%s' % i for i in d['sources']]
+    solr += ['media_sets_id:%s' % i for i in d['sets']]
     query = ' OR '.join(solr)
     return query
     
