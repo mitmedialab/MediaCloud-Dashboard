@@ -189,11 +189,10 @@ App.MediaModel = App.NestedModel.extend({
         // Return a copy of this media model containing a subset of the
         // sources and sets according to a string like:
         // sets:[7125],sources:[1]
-        App.debug('App.MediaModel.subset()')
-        App.debug(s);
+        App.debug('App.MediaModel.subset()');
         var that = this;
         media = new App.MediaModel();
-        var o = $.parseJSON(s);
+        var o = s;
             // Copy the source/set from this MediaModel to a new one
         _.each(o.sets, function (id) {
             var m = that.get('sets').get(id);
@@ -206,19 +205,25 @@ App.MediaModel = App.NestedModel.extend({
         return media;
     },
     queryParam: function () {
-        sets = this.get('sets').pluck('id');
-        sources = this.get('sources').pluck('media_id');
-        var qp = { sets: sets.join(','), "sources": sources.join(',') };
+        var qp = {
+            sets: this.get('sets').pluck('id')
+            , "sources": sources = this.get('sources').pluck('media_id')
+        }
         return qp
     }
 })
 
 App.QueryModel = Backbone.Model.extend({
     initialize: function (attributes, options) {
+        App.debug('App.QueryModel.initialize()');
+        App.debug(attributes);
+        App.debug(this.get('mediaModel'));
         this.mediaSources = options.mediaSources
-        if (!this.get('mediaModel')) {
-            this.set('mediaModel', new App.MediaModel());
-        }
+        var opts = {
+            mediaSources: this.mediaSources,
+            params: this.get('params')
+        };
+        this.set('results', new App.ResultModel({}, opts));
     },
     parse: function (response, options) {
         response.params = new Backbone.Model({
@@ -235,19 +240,29 @@ App.QueryModel = Backbone.Model.extend({
     },
     execute: function () {
         App.debug('App.QueryModel.execute()');
-        // Create result model
-        var opts = {
-            mediaSources: this.mediaSources,
-            params: this.get('params')
-        };
-        this.set('results', new App.ResultModel({}, opts));
-        App.debug('Trigger App.QueryModel:execute');
+        this.get('results').fetch();
         this.trigger('model:execute', this);
     }
 });
 
 App.QueryCollection = Backbone.Collection.extend({
     model: App.QueryModel,
+    initialize: function () {
+        this.resources = new ResourceListener();
+        this.each(function (m) {
+            this.onAdd(m, this);
+        }, this);
+        this.on('add', this.onAdd, this);
+        this.on('remove', this.onRemove, this);
+    },
+    onAdd: function (model, collection, options) {
+        // When adding a QueryModel, listen to it's ResultModel
+        this.resources.listen(model.get('results'));
+    },
+    onRemove: function (model, collection, options) {
+        // Unlisten when we remove
+        this.resources.unlisten(model.get('results'));
+    },
     execute: function () {
         App.debug('App.QueryCollection.execute()');
         // Execute each Query
@@ -260,7 +275,7 @@ App.QueryCollection = Backbone.Collection.extend({
         return JSON.stringify(allKeywords);
     },
     start: function () {
-        var allStart = this.map(function(m) { return m.get('params').get('end'); });
+        var allStart = this.map(function(m) { return m.get('params').get('start'); });
         return JSON.stringify(allStart);
     },
     end: function () {
@@ -273,7 +288,8 @@ App.QueryCollection = Backbone.Collection.extend({
     },
     dashboardUrl: function () {
         return [
-            this.keywords()
+            'query'
+            , this.keywords()
             , this.media()
             , this.start()
             , this.end()
@@ -298,6 +314,7 @@ App.SentenceModel = Backbone.Model.extend({
 });
 
 App.SentenceCollection = Backbone.Collection.extend({
+    resourceType: 'sentence',
     model: App.SentenceModel,
     initialize: function (models, options) {
         this.params = options.params;
@@ -317,6 +334,7 @@ App.SentenceCollection = Backbone.Collection.extend({
 
 App.WordCountModel = Backbone.Model.extend({});
 App.WordCountCollection = Backbone.Collection.extend({
+    resourceType: 'wordcount',
     model: App.WordCountModel,
     initialize: function (models, options) {
         this.params = options.params;
@@ -333,6 +351,7 @@ App.WordCountCollection = Backbone.Collection.extend({
 
 App.DateCountModel = Backbone.Model.extend({});
 App.DateCountCollection = Backbone.Collection.extend({
+    resourceType: 'datecount',
     model: App.DateCountModel,
     initialize: function (models, options) {
         this.params = options.params;
@@ -349,11 +368,31 @@ App.DateCountCollection = Backbone.Collection.extend({
 App.ResultModel = Backbone.Model.extend({
     initialize: function (attributes, options) {
         App.debug('App.ResultModel.initialize()');
-        this.set('sentences', new App.SentenceCollection([], options));
+        var sentences = new App.SentenceCollection([], options);
+        var wordcounts = new App.WordCountCollection([], options);
+        var datecounts = new App.DateCountCollection([], options);
+        this.set('sentences', sentences);
+        this.set('wordcounts', wordcounts);
+        this.set('datecounts', datecounts);
+        // Bubble-up events sent by the individual collections
+        _.each([sentences, wordcounts, datecounts], function (m) {
+            m.on('request', this.onRequest, this);
+            m.on('error', this.onError, this);
+            m.on('sync', this.onSync, this);
+        }, this);
+    },
+    fetch: function () {
         this.get('sentences').fetch();
-        this.set('wordcounts', new App.WordCountCollection([], options));
         this.get('wordcounts').fetch();
-        this.set('datecounts', new App.DateCountCollection([], options));
         this.get('datecounts').fetch();
+    },
+    onRequest: function (model_or_controller, request, options) {
+        this.trigger('request', model_or_controller, request, options);
+    },
+    onError: function (model_or_controller, request, options) {
+        this.trigger('error', model_or_controller, request, options);
+    },
+    onSync: function (model_or_controller, request, options) {
+        this.trigger('sync', model_or_controller, request, options);
     }
 });

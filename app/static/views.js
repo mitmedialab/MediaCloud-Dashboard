@@ -64,7 +64,8 @@ App.LoginView = App.NestedView.extend({
         $('input[name=username]', this.$el).val('');
         $('input[name=password]', this.$el).val('');
         this.model.signIn(username, password);
-        this.$('.message').html(_.template($('#tpl-progress').html()));
+        var progress = _.template($('#tpl-progress').html());
+        this.$('.message').html(progress());
         this.$('form').hide();
     },
     
@@ -144,11 +145,11 @@ App.QueryView = App.NestedView.extend({
         App.debug(options);
         this.mediaSources = options.mediaSources;
         this.mediaSelectView = new App.MediaSelectView({
-            model: this.model.get('mediaModel')
+            model: this.model.get('params').get('mediaModel')
             , mediaSources: this.mediaSources
         });
         this.mediaListView = new App.MediaListView({
-            model: this.model.get('mediaModel')
+            model: this.model.get('params').get('mediaModel')
         });
         this.dateRangeView = new App.DateRangeView({ model: this.model });
         this.keywordView = new App.KeywordView({model: this.model});
@@ -161,7 +162,7 @@ App.QueryView = App.NestedView.extend({
         // Show loading
         this.$el.html(this.template());
         progress = _.template($('#tpl-progress').html());
-        this.$('.query-view-content').html(progress);
+        this.$('.query-view-content').html(progress());
         var that = this;
         this.mediaSources.deferred.done(function () {
             that.$el.html(that.template());
@@ -191,7 +192,7 @@ App.QueryListView = App.NestedView.extend({
         // Show loading
         this.$el.html(this.template());
         progress = _.template($('#tpl-progress').html());
-        this.$('.query-list-view-content').html(progress);
+        this.$('.query-list-view-content').html(progress());
         var that = this;
         this.mediaSources.deferred.done(function () {
             that.$el.html(that.template());
@@ -222,6 +223,7 @@ App.MediaSelectView = App.NestedView.extend({
         this.mediaSources = options.mediaSources;
         // Set deferred callbacks
         var that = this;
+        _.bindAll(this, 'onTextEntered');
         this.mediaSources.deferred.done(function () {
             that.render();
             App.debug('Creating typeahead');
@@ -247,8 +249,6 @@ App.MediaSelectView = App.NestedView.extend({
                 $('.media-input', that.$el).focus();
             });
         });
-        // Set listener context
-        _.bindAll(this, 'onTextEntered');
     },
     render: function () {
         this.$el.html(this.template());
@@ -266,8 +266,8 @@ App.MediaSelectView = App.NestedView.extend({
         _.defer(function () {
             $('.media-input', $el).focus();
         });
-        source = this.mediaSources.get('sources').nameToSource[name]
-        set = this.mediaSources.get('sets').nameToSet[name]
+        source = this.mediaSources.get('sources').nameToSource[name];
+        set = this.mediaSources.get('sets').nameToSet[name];
         if (source) {
             this.model.get('sources').add(source);
         } else if (set) {
@@ -304,14 +304,13 @@ App.MediaListView = App.NestedView.extend({
         App.debug('App.MediaListView.initialize()');
         App.debug(options);
         App.debug(this.model);
+        _.bindAll(this, 'onAdd');
+        _.bindAll(this, 'onRemoveClick');
         this.render();
         // Add listeners
         this.model.get('sources').on('add', this.onAdd, this);
-        this.model.get('sources').on('remove', this.onRemove);
         this.model.get('sets').on('add', this.onAdd, this);
         // Set listener context
-        _.bindAll(this, 'onAdd');
-        _.bindAll(this, 'onRemoveClick');
     },
     render: function () {
         App.debug('App.MediaListView.render()');
@@ -347,20 +346,26 @@ App.MediaListView = App.NestedView.extend({
 
 App.DateRangeView = Backbone.View.extend({
     template: _.template($('#tpl-date-range-view').html()),
+    events: {
+        "change input": "onContentChange"
+    },
     initialize: function (options) {
         App.debug('App.DateRangeView.initialize()');
         App.debug(options);
+        _.bindAll(this, "onContentChange");
         this.render();
     },
     render: function () {
         App.debug('App.DateRangeView.render()');
+        var that = this;
         this.$el.html(this.template())
-        this.$('.date-range-start').val(this.model.get('start'));
-        this.$('.date-range-end').val(this.model.get('end'));
+        this.$('.date-range-start').val(this.model.get('params').get('start'));
+        this.$('.date-range-end').val(this.model.get('params').get('end'));
         // Create the datepickers and hide on selection / tab-out
         var start = this.$('.date-range-start').datepicker(
             App.config.datepickerOptions
         ).on('changeDate', function (event) {
+            that.onContentChange();
             start.hide();
         }).on('keydown', function (event) {
             if (e.keyCode == 9) {
@@ -370,12 +375,18 @@ App.DateRangeView = Backbone.View.extend({
         var end = this.$('.date-range-end').datepicker(
             App.config.datepickerOptions
         ).on('changeDate', function (event) {
+            that.onContentChange();
             end.hide();
         }).on('keydown', function (event) {
             if (e.keyCode == 9) {
                 end.hide();
             }
         }).data('datepicker');
+    },
+    onContentChange: function () {
+        App.debug('App.DateRangeView.onContentChange()');
+        this.model.get('params').set('start', this.$('.date-range-start').val());
+        this.model.get('params').set('end', this.$('.date-range-end').val());
     }
 });
 
@@ -394,12 +405,12 @@ App.KeywordView = Backbone.View.extend({
         this.$el.html(this.template());
         // Use default from template if there are no keywords
         this.$input = this.$('input');
-        if (this.model.get('keywords')) {
-            this.$input.val(this.model.get('keywords'));
+        if (this.model.get('params').get('keywords')) {
+            this.$input.val(this.model.get('params').get('keywords'));
         }
     },
     contentChanged: function () {
-        this.model.set('keywords', this.$input.val());
+        this.model.get('params').set('keywords', this.$input.val());
     }
 });
 
@@ -414,14 +425,13 @@ App.SentenceView = Backbone.View.extend({
         this.$el.html(this.template());
         var $el = this.$('.sentence-view-content');
         progress = _.template($('#tpl-progress').html());
-        $el.html(progress);
+        $el.html(progress());
         // TODO split into two views, one for the QueryColleciton and one for SentenceColleciton
-        var sentenceCollection = this.collection.first(1)[0].get('results').get('sentences');
-        sentenceCollection.on('sync', function () {
+        this.collection.resources.on('sync:sentence', function (sentences) {
             App.debug('App.SentenceView.sentenceCollection: sync');
-            that.$('.count').html('(' + sentenceCollection.length + ' found)');
+            that.$('.count').html('(' + sentences.length + ' found)');
             $el.html('');
-            _.each(sentenceCollection.last(10), function (m) {
+            _.each(sentences.last(10), function (m) {
                 var p = $('<p>').html('<em>' + m.media() + '</em> - ' + m.date() + ': ' + m.escape('sentence'));
                 $el.append(p);
             });
@@ -445,8 +455,7 @@ App.WordCountView = Backbone.View.extend({
         var $el = this.$('.panel-body');
         $el.html(_.template($('#tpl-progress').html())());
         // TODO support multiple queries
-        var wordcounts = this.collection.first(1)[0].get('results').get('wordcounts');
-        wordcounts.on('sync', function () {
+        this.collection.resources.on('sync:wordcount', function (wordcounts) {
             App.debug('App.WordCountView.collection:sync');
             var topWords = _.first(wordcounts.toJSON(), 100);
             var counts = _.pluck(topWords, 'count');
@@ -481,10 +490,10 @@ App.HistogramView = Backbone.View.extend({
     },
     render: function () {
         this.$el.html(this.template());
-        this.$('.panel-body').html(_.template($('#tpl-progress').html())());
+        progress = _.template($('#tpl-progress').html());
+        this.$('.panel-body').html(progress());
         // TODO allow for multiple results
-        var datecounts = this.collection.first(1)[0].get('results').get('datecounts');
-        datecounts.on('sync', this.renderD3, this);
+        this.collection.resources.on('sync:datecount', this.renderD3, this);
     },
     renderD3: function (datecounts) {
         App.debug('App.HistogramView.renderD3()');

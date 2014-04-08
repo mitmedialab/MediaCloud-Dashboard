@@ -96,6 +96,10 @@ def sentences(keywords, media, start, end):
 @app.route('/api/sentences/docs/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def sentence_docs(keywords, media, start, end):
+    print keywords
+    print media
+    print start
+    print end
     query = util.solr_query(util.media_to_solr(media), start, end)
     res = mc.sentencesMatching(keywords , query)
     return json.dumps(res['response']['docs'], separators=(',',':'))

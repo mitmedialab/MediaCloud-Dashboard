@@ -6,7 +6,7 @@ def solr_query(media, start, end):
     '''Convert a media query, start and end date into a solr query string.'''
     startdate = datetime.datetime.strptime(start, '%Y-%m-%d').date()
     enddate = datetime.datetime.strptime(end, '%Y-%m-%d').date()
-    query = '+publish_date:[%sT00:00:00Z TO %sT23:59:59Z] AND %s' % (
+    query = '+publish_date:[%sT00:00:00Z TO %sT23:59:59Z] AND (%s)' % (
         startdate.strftime('%Y-%m-%d')
         , enddate.strftime('%Y-%m-%d')
         , media

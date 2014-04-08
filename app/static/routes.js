@@ -34,7 +34,8 @@ App.Router = Backbone.Router.extend({
         // Defaults media
         this.mediaModel = new App.MediaModel();
         this.mediaSources.deferred.then(function () {
-            that.mediaModel.get('sets').add(that.mediaSources.get('sets').get('1'));
+            App.debug('Adding default media');
+            that.mediaModel.get('sets').add(that.mediaSources.get('sets').get(1));
         });
         // Defaults dates
         var weekMs = 7 * 24 * 60 * 60 * 1000;
@@ -65,72 +66,69 @@ App.Router = Backbone.Router.extend({
     
     query: function (keywords, media, start, end) {
         App.debug('Route: query');
-        App.debug([keywords, media, start, end]);
         var that = this;
+        keywordList = $.parseJSON(keywords);
+        startList = $.parseJSON(start);
+        endList = $.parseJSON(end);
         if (!this.userModel.get('authenticated')) {
             this.navigate('login', true);
             return;
         }
-        // Create media model for the query
-        var mediaModel = new App.MediaModel();
-        // When sources are loaded, populate the media model from the url
+        // Create query collection
+        this.queryCollection = new App.QueryCollection();
+        // When sources are loaded, populate the media models from the url
         this.mediaSources.deferred.then(function() {
-            var subset = that.mediaSources.subset(media);
-            subset.get('sources').each(function (m) {
-                mediaModel.get('sources').add(m);
+            // Add a media model for each query
+            // TODO this should really happen in MediaCollection/MediaModel
+            _.each($.parseJSON(media), function (d, i) {
+                var mediaModel = new App.MediaModel();
+                var queryModel = new App.QueryModel({
+                    keywords: keywordList[i]
+                    , mediaModel: mediaModel
+                    , start: startList[i]
+                    , end: endList[i]
+                }, {
+                    mediaSources: that.mediaSources
+                    , parse: true
+                });
+                that.queryCollection.add(queryModel);
+                var subset = that.mediaSources.subset(d);
+                subset.get('sources').each(function (m) {
+                    mediaModel.get('sources').add(m);
+                });
+                subset.get('sets').each(function (m) {
+                    mediaModel.get('sets').add(m);
+                });
             });
-            subset.get('sets').each(function (m) {
-                mediaModel.get('sets').add(m);
-            });
+            that.queryCollection.execute();
         });
-        var opts = {
-            keywords: keywords
-            , media: media
-            , mediaModel: mediaModel
-            , start: start
-            , end: end
-            , mediaSources: this.mediaSources
-        };
-        this.queryModel = new App.QueryModel(opts);
-        this.queryView = this.vm.getView(
-            App.QueryView
+        this.queryListView = this.vm.getView(
+            App.QueryListView
             , {
-                model: this.queryModel
+                collection: this.queryCollection
                 , mediaSources: this.mediaSources
             }
         );
         this.queryCollection.on('execute', this.onQuery, this);
-        this.histogramView = new App.HistogramView({
-            collection: this.datecounts
-        });
-        this.sentenceView = new App.SentenceView({
-            collection: this.sentences
-        });
-        this.wordcountView = new App.WordCountView({
-            collection: this.wordcounts
-        });
-        this.sentences.fetch();
-        this.datecounts.fetch();
-        this.wordcounts.fetch();
-        this.vm.showViews([
-            this.queryView
-            , this.histogramView
-            , this.wordcountView
-            , this.sentenceView
-        ]);
+        this.showResults(this.queryCollection);
     },
     
     defaultRoute: function (routeId) {
         App.debug('Default route');
     },
     
-    onQuery: function (qc) {
+    onQuery: function (queryCollection) {
         App.debug('App.Router.onQuery()');
-        App.debug(qc);
-        this.navigate(qc.dashboardUrl());
+        App.debug(queryCollection);
+        var path = queryCollection.dashboardUrl();
+        this.navigate(path);
+        this.showResults(queryCollection);
+    },
+    
+    showResults: function (queryCollection) {
         // Create new results view
         var resultView = new App.QueryResultView({
-            collection: qc
+            collection: queryCollection
         });
         this.vm.showViews([
             this.queryListView
