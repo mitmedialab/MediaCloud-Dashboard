@@ -478,15 +478,24 @@ App.WordCountView = Backbone.View.extend({
 });
 
 App.HistogramView = Backbone.View.extend({
-    margin: {
-        top: 10
-        , right: 0
-        , bottom: 0
-        , left: 0
+    config: {
+        margin: {
+            top: 10
+            , right: 0
+            , bottom: 0
+            , left: 0
+        },
+        colors: [
+            // Month A colors
+            ['#77efff', '#bbf7ff']
+            // Month B colors
+            , ['#6ce8d8', '#b6f4ec'] 
+        ]
     },
     template: _.template($('#tpl-histogram-view').html()),
     initialize: function (options) {
         App.debug('App.HistogramView.initialize()');
+        _.bindAll(this, 'dayFillColor');
         this.render();
     },
     render: function () {
@@ -499,65 +508,94 @@ App.HistogramView = Backbone.View.extend({
     },
     renderD3: function (datecounts) {
         App.debug('App.HistogramView.renderD3()');
+        var that = this;
+        // Prepare javascript object and date array
+        this.allLayersData = [datecounts.toJSON()];
+        this.dayData = _.map(_.pluck(this.allLayersData[0], 'date'), this.toDate);
+        // Layout
         this.$('.histogram-view-content')
             .html('')
             .css('padding', '0');
-        var width = this.$('.histogram-view-content').width();
-        var height = 100;
-        var chartWidth = width - this.margin.left - this.margin.right;
-        var chartHeight = height - this.margin.top - this.margin.bottom;
-        var svg = d3.select('.histogram-view-content').append('svg')
-            .attr('width', width).attr('height', height);
-        // Convert collection to d3 data layer
-        var allLayersData = [datecounts.toJSON()];
+        this.width = this.$('.histogram-view-content').width();
+        this.height = 100;
+        this.chartWidth = this.width - this.config.margin.left - this.config.margin.right;
+        this.chartHeight = this.height - this.config.margin.top - this.config.margin.bottom;
+        this.svg = d3.select('.histogram-view-content').append('svg')
+            .attr('width', this.width).attr('height', this.height);
         // TODO - for multiple layers call d3.layout.stack
         // Create axes
-        var x = d3.scale.ordinal()
-            .domain(_.pluck(allLayersData[0], 'date'))
-            .rangePoints([0, chartWidth]);
-        var y = d3.scale.linear()
-            .domain([0, d3.max(_.pluck(allLayersData[0], 'numFound'))])
-            .range([chartHeight, 0]);
+        this.dayScale = d3.scale.ordinal()
+            .domain(this.dayData)
+            .rangeBands([0, this.chartWidth], 0, 0);
+        this.x = d3.scale.ordinal()
+            .domain(_.pluck(this.allLayersData[0], 'date'))
+            .rangePoints([this.dayScale.rangeBand()/2.0, this.chartWidth - this.dayScale.rangeBand()/2.0]);
+        this.y = d3.scale.linear()
+            .domain([0, d3.max(_.pluck(this.allLayersData[0], 'numFound'))])
+            .range([this.chartHeight, 0]);
         // Create chart content
-        var chart = svg.append('g')
+        this.chart = this.svg.append('g')
             .classed('chart', true)
-            .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
+            .attr('transform', 'translate(' + this.config.margin.left + ',' + this.config.margin.top + ')');
+        this.renderD3Bg();
+        // Create line chart
+        var path = d3.svg.line()
+            .x(function(d) { return that.x(d.date); })
+            .y(function(d) { return that.y(d.numFound); });
+        this.chart.selectAll('path').data(this.allLayersData)
+            .enter().append('path')
+                .attr('width', that.chartWidth)
+                .attr('d', path)
+                .style('stroke', 'red')
+                .style('fill', 'none');
+    },
+    renderD3Bg: function () {
+        var that = this;
+        // Draw background days
+        var days = this.chart.append('g');
+        days.selectAll('.day').data(this.dayData)
+            .enter()
+                .append('rect').classed('day', true)
+                    .attr('x', this.dayScale)
+                    .attr('width', this.dayScale.rangeBand())
+                    .attr('y', 0)
+                    .attr('height', this.chartHeight)
+                    .attr('fill', this.dayFillColor);
         // Draw background lines for each month
-        var dateLines = chart.append('g');
-        dateLines.selectAll('.date-line').data(allLayersData[0])
+        var dateLines = this.chart.append('g');
+        dateLines.selectAll('.date-line').data(this.allLayersData[0])
             .enter()
                 .append('line').classed('date-line', true)
-                    .attr('x1', function (d) { return Math.round(x(d.date)) - 0.5; })
-                    .attr('x2', function (d) { return Math.round(x(d.date)) - 0.5; })
-                    .attr('y1', y.range()[0])
-                    .attr('y2', y.range()[1])
+                    .attr('x1', function (d) { return Math.round(that.x(d.date)) - 0.5; })
+                    .attr('x2', function (d) { return Math.round(that.x(d.date)) - 0.5; })
+                    .attr('y1', this.y.range()[0])
+                    .attr('y2', this.y.range()[1])
                     .attr('stroke', '#ccc')
                     .attr('opacity', function(d) {
                         return d.date.substring(8,10) == '01' ? '1' : '0'
                     });
-        dateLines.selectAll('.date-text').data(allLayersData[0])
+        dateLines.selectAll('.date-text').data(this.allLayersData[0])
             .enter()
                 .append('text')
                     .text(function (d) { return d.date.substring(0,7); })
                     .attr('text-anchor', 'end')
                     .attr('x', '-2')
-                    .attr('y', function (d) { return Math.round(x(d.date)) - 0.5 })
+                    .attr('y', function (d) { return Math.round(that.x(d.date)) - 0.5 })
                     .attr('dy', 13)
                     .attr('transform', 'rotate(270)')
                     .attr('fill', '#ccc')
                     .attr('opacity', function(d) {
-                        return d.date.substring(8,10) == '01' ? '1' : '0'
+                        return d.date.split('-')[2] == 1 ? 1 : 0
                     });
-        // Create line chart
-        var path = d3.svg.line()
-            .x(function(d) { return x(d.date); })
-            .y(function(d) { return y(d.numFound); });
-        chart.selectAll('path').data(allLayersData)
-            .enter().append('path')
-                .attr('width', chartWidth)
-                .attr('d', path)
-                .style('stroke', 'red')
-                .style('fill', 'none');
+    },
+    dayFillColor: function (date) {
+        console.log(date.getTime());
+        days = Math.round(date.getTime() / 86400000.0);
+        return this.config.colors[date.getUTCMonth() % 2][days % 2];
+    },
+    toDate: function (dateString) {
+        var ymd = dateString.split('-');
+        return new Date(Date.UTC(ymd[0], ymd[1]-1, ymd[2]));
     }
 });
 

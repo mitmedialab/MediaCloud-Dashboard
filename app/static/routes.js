@@ -125,10 +125,7 @@ App.Router = Backbone.Router.extend({
         queryCollection.add(queryModel);
         var datecounts = queryModel.get('results').get('datecounts')
         datecounts.url = '/static/data/test/datecounts.json';
-        datecounts.fetch({
-            parse:true
-            , success:function (collection) { console.log(collection); }
-        });
+        datecounts.fetch({ parse:true });
         var histogramView = new App.HistogramView({collection:queryCollection});
         this.vm.showViews([
             histogramView
