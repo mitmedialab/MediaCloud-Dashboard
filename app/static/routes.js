@@ -4,6 +4,7 @@ App.Router = Backbone.Router.extend({
         , '/': 'home'
         , 'login': 'login'
         , 'query/:keywords/:media/:start/:end': 'query'
+        , 'debug/histogram': 'debugHistogram'
     },
     
     initialize: function (options) {
@@ -47,7 +48,6 @@ App.Router = Backbone.Router.extend({
             , end: end.getFullYear() + '-' + (end.getMonth()+1) + '-' + end.getDate()
             , mediaModel: this.mediaModel
             , keywords: 'boston'
-            , mediaSources: this.mediaSources
         };
         var options = { mediaSources: this.mediaSources, parse: true };
         this.queryCollection = new App.QueryCollection();
@@ -113,6 +113,28 @@ App.Router = Backbone.Router.extend({
         this.showResults(this.queryCollection);
     },
     
+    debugHistogram: function () {
+        App.debug('Route: query');
+        var that = this;
+        // Create query collection and add a model
+        var opts = {
+            mediaSources: this.mediaSources
+        };
+        var queryCollection = new App.QueryCollection({}, opts);
+        var queryModel = new App.QueryModel({}, opts);
+        queryCollection.add(queryModel);
+        var datecounts = queryModel.get('results').get('datecounts')
+        datecounts.url = '/static/data/test/datecounts.json';
+        datecounts.fetch({
+            parse:true
+            , success:function (collection) { console.log(collection); }
+        });
+        var histogramView = new App.HistogramView({collection:queryCollection});
+        this.vm.showViews([
+            histogramView
+        ]);
+    },
+    
     defaultRoute: function (routeId) {
         App.debug('Default route');
     },
@@ -136,4 +158,3 @@ App.Router = Backbone.Router.extend({
         ]);
     }
 }); 
-

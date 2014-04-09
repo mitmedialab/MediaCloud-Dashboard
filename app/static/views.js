@@ -486,9 +486,11 @@ App.HistogramView = Backbone.View.extend({
     },
     template: _.template($('#tpl-histogram-view').html()),
     initialize: function (options) {
+        App.debug('App.HistogramView.initialize()');
         this.render();
     },
     render: function () {
+        App.debug('App.HistogramView.render()');
         this.$el.html(this.template());
         progress = _.template($('#tpl-progress').html());
         this.$('.panel-body').html(progress());
