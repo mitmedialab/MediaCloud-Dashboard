@@ -550,17 +550,21 @@ App.DebugWordCountView = Backbone.View.extend({
 App.HistogramView = Backbone.View.extend({
     config: {
         margin: {
-            top: 10
+            top: 20
             , right: 0
-            , bottom: 0
+            , bottom: 20
             , left: 0
         },
-        colors: [
+        stripeColors: [
             // Month A colors
-            ['#77efff', '#bbf7ff']
+            ["#77efff", "#bbf7ff"]
             // Month B colors
-            , ['#6ce8d8', '#b6f4ec'] 
-        ]
+            , ["#6ce8d8", "#b6f4ec"] 
+        ],
+        yearColor: "#aaa",
+        yearSize: 20,
+        monthColor: '#aaa',
+        monthSize: 20
     },
     template: _.template($('#tpl-histogram-view').html()),
     initialize: function (options) {
@@ -587,7 +591,7 @@ App.HistogramView = Backbone.View.extend({
             .html('')
             .css('padding', '0');
         this.width = this.$('.histogram-view-content').width();
-        this.height = 100;
+        this.height = 120;
         this.chartWidth = this.width - this.config.margin.left - this.config.margin.right;
         this.chartHeight = this.height - this.config.margin.top - this.config.margin.bottom;
         this.svg = d3.select('.histogram-view-content').append('svg')
@@ -600,6 +604,9 @@ App.HistogramView = Backbone.View.extend({
         this.x = d3.scale.ordinal()
             .domain(_.pluck(this.allLayersData[0], 'date'))
             .rangePoints([this.dayScale.rangeBand()/2.0, this.chartWidth - this.dayScale.rangeBand()/2.0]);
+        this.dateX = d3.scale.ordinal()
+            .domain(this.dayData)
+            .rangePoints([this.dayScale.rangeBand()/2.0, this.chartWidth - this.dayScale.rangeBand()/2.0]);
         this.y = d3.scale.linear()
             .domain([0, d3.max(_.pluck(this.allLayersData[0], 'numFound'))])
             .range([this.chartHeight, 0]);
@@ -608,6 +615,7 @@ App.HistogramView = Backbone.View.extend({
             .classed('chart', true)
             .attr('transform', 'translate(' + this.config.margin.left + ',' + this.config.margin.top + ')');
         this.renderD3Bg();
+        this.renderD3Labels();
         // Create line chart
         var path = d3.svg.line()
             .x(function(d) { return that.x(d.date); })
@@ -622,7 +630,7 @@ App.HistogramView = Backbone.View.extend({
     renderD3Bg: function () {
         var that = this;
         // Draw background days
-        var days = this.chart.append('g');
+        var days = this.chart.append('g').classed('bg', true);
         days.selectAll('.day').data(this.dayData)
             .enter()
                 .append('rect').classed('day', true)
@@ -631,37 +639,35 @@ App.HistogramView = Backbone.View.extend({
                     .attr('y', 0)
                     .attr('height', this.chartHeight)
                     .attr('fill', this.dayFillColor);
-        // Draw background lines for each month
-        var dateLines = this.chart.append('g');
-        dateLines.selectAll('.date-line').data(this.allLayersData[0])
+    },
+    renderD3Labels: function () {
+        var labelData = App.dateLabels(this.dayData);
+        console.log(labelData);
+        var yearLabels = this.chart.append('g').classed('labels-year', true);
+        yearLabels.selectAll('.label-year').data(labelData.year)
             .enter()
-                .append('line').classed('date-line', true)
-                    .attr('x1', function (d) { return Math.round(that.x(d.date)) - 0.5; })
-                    .attr('x2', function (d) { return Math.round(that.x(d.date)) - 0.5; })
-                    .attr('y1', this.y.range()[0])
-                    .attr('y2', this.y.range()[1])
-                    .attr('stroke', '#ccc')
-                    .attr('opacity', function(d) {
-                        return d.date.substring(8,10) == '01' ? '1' : '0'
-                    });
-        dateLines.selectAll('.date-text').data(this.allLayersData[0])
+                .append('text').classed('label-year', true)
+                    .text(function (d) { return d.getUTCFullYear(); })
+                    .attr('x', this.dateX)
+                    .attr('y', this.chartHeight - this.config.yearSize)
+                    .attr('dy', '1em')
+                    .attr('font-size', this.config.yearSize)
+                    .attr('fill', this.config.yearColor)
+                    .attr('font-weight', 'bold');
+        var monthLabels = this.chart.append('g').classed('labels-month', true);
+        monthLabels.selectAll('.label-month').data(labelData.month)
             .enter()
-                .append('text')
-                    .text(function (d) { return d.date.substring(0,7); })
-                    .attr('text-anchor', 'end')
-                    .attr('x', '-2')
-                    .attr('y', function (d) { return Math.round(that.x(d.date)) - 0.5 })
-                    .attr('dy', 13)
-                    .attr('transform', 'rotate(270)')
-                    .attr('fill', '#ccc')
-                    .attr('opacity', function(d) {
-                        return d.date.split('-')[2] == 1 ? 1 : 0
-                    });
+                .append('text').classed('label-month', true)
+                    .text(function (d) { return App.monthName(d.getUTCMonth()); })
+                    .attr('x', this.dateX)
+                    .attr('y', this.config.monthSize)
+                    .attr('font-size', this.config.monthSize)
+                    .attr('fill', this.config.monthColor)
+                    .attr('font-weight', 'bold');
     },
     dayFillColor: function (date) {
-        console.log(date.getTime());
         days = Math.round(date.getTime() / 86400000.0);
-        return this.config.colors[date.getUTCMonth() % 2][days % 2];
+        return this.config.stripeColors[date.getUTCMonth() % 2][days % 2];
     },
     toDate: function (dateString) {
         var ymd = dateString.split('-');
