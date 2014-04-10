@@ -40,10 +40,10 @@ App.Router = Backbone.Router.extend({
             that.mediaModel.get('sets').add(that.mediaSources.get('sets').get(1));
         });
         // Defaults dates
-        var weekMs = 7 * 24 * 60 * 60 * 1000;
+        var dayMs = 24 * 60 * 60 * 1000;
         var ts = new Date().getTime();
-        var start = new Date(ts - 2*weekMs);
-        var end = new Date(ts - weekMs);
+        var start = new Date(ts - 97*dayMs);
+        var end = new Date(ts - 7*dayMs);
         var attributes = {
             start: start.getFullYear() + '-' + (start.getMonth()+1) + '-' + start.getDate()
             , end: end.getFullYear() + '-' + (end.getMonth()+1) + '-' + end.getDate()

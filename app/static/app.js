@@ -87,7 +87,7 @@ App = {
     },
     
     monthName: function (m) {
-        return App.shortMonthNames[m];
+        return App.config.shortMonthNames[m];
     },
     
     debug: function (message) {
