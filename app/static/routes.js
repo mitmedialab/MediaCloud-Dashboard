@@ -5,6 +5,7 @@ App.Router = Backbone.Router.extend({
         , 'login': 'login'
         , 'query/:keywords/:media/:start/:end': 'query'
         , 'debug/histogram': 'debugHistogram'
+        , 'debug/wordCount': 'debugWordCount'
     },
     
     initialize: function (options) {
@@ -134,6 +135,32 @@ App.Router = Backbone.Router.extend({
             histogramView
         ]);
     },
+
+
+    debugWordCount: function () {
+        App.debug('Route: query');
+        var that = this;
+        // Create query collection and add a model
+        var opts = {
+            mediaSources: this.mediaSources
+        };
+        var queryCollection = new App.QueryCollection({}, opts);
+        var queryModel = new App.QueryModel({}, opts);
+        queryCollection.add(queryModel);
+
+        var wordcounts = queryModel.get('results').get('wordcounts')
+        wordcounts.url = '/static/data/test/wordcounts.json';
+
+        wordcounts.fetch({
+            parse:true
+            , success:function (collection) { console.log(collection); }
+        });
+        var wordCountView = new App.DebugWordCountView({collection:queryCollection});
+        this.vm.showViews([
+            wordCountView
+        ]);
+    },
+
     
     defaultRoute: function (routeId) {
         App.debug('Default route');
