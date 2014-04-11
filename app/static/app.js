@@ -75,10 +75,11 @@ App = {
        results = { year: [], month:[] };
        // Find indeces of first occurence of each month
        var monthIndeces = _.map(dates, function (d) { return d.getUTCMonth(); });
-       var monthUnique = _.uniq(monthIndeces, true);
-       var monthFirstIndex = _.map(monthUnique, function (m) { return _.indexOf(monthIndeces, m, true); });
+       var monthUnique = _.uniq(monthIndeces);
+       var monthFirstIndex = _.map(monthUnique, function (m) { return _.indexOf(monthIndeces, m); });
        results.month = _.map(monthFirstIndex, function (i) { return dates[i]; });
        // Find indeces of first occurence of each year
+       // Years are ordered and increasing so we can use sorted=true
        var yearIndeces = _.map(dates, function (d) { return d.getUTCFullYear(); });
        var yearUnique = _.uniq(yearIndeces, true);
        var yearFirstIndex = _.map(yearUnique, function (y) { return _.indexOf(yearIndeces, y, true); });

@@ -642,7 +642,6 @@ App.HistogramView = Backbone.View.extend({
     },
     renderD3Labels: function () {
         var labelData = App.dateLabels(this.dayData);
-        console.log(labelData);
         var yearLabels = this.chart.append('g').classed('labels-year', true);
         yearLabels.selectAll('.label-year').data(labelData.year)
             .enter()
