@@ -103,6 +103,36 @@ def sentence_docs(keywords, media, start, end):
     query = util.solr_query(util.media_to_solr(media), start, end)
     res = mc.sentencesMatching(keywords , query)
     return json.dumps(res['response']['docs'], separators=(',',':'))
+
+@app.route('/api/sentences/docs/<keywords>/<media>/<start>/<end>.csv')
+@flask_login.login_required
+def sentence_docs_csv(keywords, media, start, end):
+    print keywords
+    print media
+    print start
+    print end
+    query = util.solr_query(util.media_to_solr(media), start, end)
+    all_sentences = []
+    row = 0
+    more_sentences = True
+    while more_sentences:
+        res = mc.sentencesMatching(keywords, query, row)
+        result_count = len(res['response']['docs'])
+        row+= result_count
+        if result_count > 0:
+            all_sentences = all_sentences + res['response']['docs']
+            more_sentences = True
+        else:
+            more_sentences = False
+    def stream_csv(sentenceList):
+        yield ','.join(['language','media_id','media_name','publish_date','stories_id','story_sentences_id','sentence']) + '\n'
+        for s in sentenceList:
+            # language,media_id,media_name,publish_date,stories_id,story_sentences_id,sentence
+            media_name = mcmedia.source(s['media_id'])['name']
+            info = [ s['language'], str(s['media_id']), media_name, s['publish_date'], str(s['stories_id']), str(s['story_sentences_id']), s['sentence'] ]
+            yield ','.join(info) + '\n'
+    return flask.Response(stream_csv(all_sentences), mimetype='text/csv', 
+                headers={"Content-Disposition":"attachment;filename=mediacloud-results.csv"})
     
 @app.route('/api/sentences/numfound/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
