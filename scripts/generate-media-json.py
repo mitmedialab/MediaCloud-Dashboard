@@ -33,8 +33,7 @@ def main():
         [ sources.append( {'media_id': m['media_id'], 'name': m['name'], 'url': m['url']} ) 
             for m in collection ]
         current = current + len(collection)
-        #more_rows = True if len(collection)>0 else False
-        more_rows = False
+        more_rows = True if len(collection)>0 else False
     
     # page through sets
     print "Fetching Sets:"
@@ -47,8 +46,7 @@ def main():
         [ sets.append( {'id': m['media_sets_id'], 'name': m['name']} ) 
             for m in collection ]
         current = current + len(collection)
-        #more_rows = True if len(collection)>0 else False
-        more_rows = False
+        more_rows = True if len(collection)>0 else False
 
     # stitch it together and output it
     print "Writing Output"
