@@ -3,9 +3,6 @@ import json
 
 import flask
 import flask_login
-import mediacloud
-import mediacloud.api as mcapi
-import mediacloud.media as mcmedia
 import pymongo
 
 from app import app, login_manager, mc, util
@@ -71,26 +68,23 @@ def logout():
 @app.route('/api/media')
 @flask_login.login_required
 def media():
-    return json.dumps({
-        'sources': list(mcmedia.all_sources())
-        , 'sets': list(mcmedia.all_sets())
-    }, separators=(',',':'));
+    return json.dumps(util.all_media(), separators=(',',':'));
 
 @app.route('/api/media/sources')
 @flask_login.login_required
 def media_sources():
-    return json.dumps(list(mcmedia.all_sources()), separators=(',',':'))
+    return json.dumps(list(util.all_media_sources()), separators=(',',':'))
 
 @app.route('/api/media/sets')
 @flask_login.login_required
 def media_sets():
-    return json.dumps(list(mcmedia.all_sets()), separators=(',',':'))
+    return json.dumps(list(util.all_media_sets()), separators=(',',':'))
     
 @app.route('/api/sentences/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def sentences(keywords, media, start, end):
     query = util.solr_query(util.media_to_solr(media), start, end)
-    res = mc.sentencesMatching(keywords , query)
+    res = mc.sentenceList(keywords , query)
     return json.dumps(res, separators=(',',':'))
     
 @app.route('/api/sentences/docs/<keywords>/<media>/<start>/<end>')
@@ -101,7 +95,7 @@ def sentence_docs(keywords, media, start, end):
     print start
     print end
     query = util.solr_query(util.media_to_solr(media), start, end)
-    res = mc.sentencesMatching(keywords , query)
+    res = mc.sentenceList(keywords , query)
     return json.dumps(res['response']['docs'], separators=(',',':'))
 
 @app.route('/api/sentences/docs/<keywords>/<media>/<start>/<end>.csv')
@@ -116,7 +110,7 @@ def sentence_docs_csv(keywords, media, start, end):
     row = 0
     more_sentences = True
     while more_sentences:
-        res = mc.sentencesMatching(keywords, query, row)
+        res = mc.sentenceList(keywords, query, row)
         result_count = len(res['response']['docs'])
         row+= result_count
         if result_count > 0:
@@ -127,9 +121,8 @@ def sentence_docs_csv(keywords, media, start, end):
     def stream_csv(sentenceList):
         yield ','.join(['language','media_id','media_name','publish_date','stories_id','story_sentences_id','sentence']) + '\n'
         for s in sentenceList:
-            # language,media_id,media_name,publish_date,stories_id,story_sentences_id,sentence
-            media_name = mcmedia.source(s['media_id'])['name']
-            info = [ s['language'], str(s['media_id']), media_name, s['publish_date'], str(s['stories_id']), str(s['story_sentences_id']), s['sentence'] ]
+            # language,media_id,publish_date,stories_id,story_sentences_id,sentence
+            info = [ s['language'], str(s['media_id']), s['publish_date'], str(s['stories_id']), str(s['story_sentences_id']), s['sentence'] ]
             yield ','.join(info) + '\n'
     return flask.Response(stream_csv(all_sentences), mimetype='text/csv', 
                 headers={"Content-Disposition":"attachment;filename=mediacloud-results.csv"})
@@ -140,7 +133,7 @@ def sentence_numfound(keywords, media, start, end):
     queries = util.solr_date_queries(util.media_to_solr(media), start, end)
     results = []
     for date, query in queries:
-        res = mc.sentencesMatching(keywords, query)
+        res = mc.sentenceList(keywords, query)
         results.append({
             'date': date
             , 'numFound': res['response']['numFound']

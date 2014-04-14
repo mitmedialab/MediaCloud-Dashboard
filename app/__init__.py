@@ -5,7 +5,6 @@ import flask
 import flask_login
 import mediacloud
 import mediacloud.api as mcapi
-import mediacloud.media as mcmedia
 import pymongo
 
 # Load configuration
@@ -26,9 +25,7 @@ database = config.get('database', 'database')
 db = pymongo.Connection(host)[database]
 
 # Create media cloud api
-mc_user = config.get('mediacloud', 'user')
-mc_pass = config.get('mediacloud', 'password')
-mc = mcapi.MediaCloud(mc_user, mc_pass)
+mc = mcapi.MediaCloud(config.get('mediacloud','key'))
 
 # Set up routes and content
 from app import views

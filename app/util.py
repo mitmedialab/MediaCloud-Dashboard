@@ -1,6 +1,13 @@
-import datetime
-import json
-import re
+import datetime, os, json, re
+
+def load_media_info_json():
+    static_data_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)),'static','data')
+    json_data=open(os.path.join(static_data_dir,'media.json'))
+    data = json.load(json_data)
+    media_info = data
+    json_data.close()
+    return media_info
+_media_info = load_media_info_json()
 
 def solr_query(media, start, end):
     '''Convert a media query, start and end date into a solr query string.'''
@@ -32,3 +39,11 @@ def media_to_solr(media):
     query = ' OR '.join(solr)
     return query
     
+def all_media():
+    return _media_info
+
+def all_media_sources():
+    return _media_info['sources']
+
+def all_media_sets():
+    return _media_info['sets']
