@@ -2,3 +2,5 @@
 .DS_Store
 app.config
 mediacloud-api.log
+venv
+.Python
