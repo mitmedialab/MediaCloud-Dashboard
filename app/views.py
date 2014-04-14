@@ -95,8 +95,11 @@ def sentence_docs(keywords, media, start, end):
     print start
     print end
     query = util.solr_query(util.media_to_solr(media), start, end)
-    res = mc.sentenceList(keywords , query)
-    return json.dumps(res['response']['docs'], separators=(',',':'))
+    res = mc.sentenceList(keywords, query, 0, 10)
+    sentences = res['response']['docs']
+    for s in sentences:
+        s['totalSentences'] = res['response']['numFound']
+    return json.dumps(sentences, separators=(',',':'))
 
 @app.route('/api/sentences/docs/<keywords>/<media>/<start>/<end>.csv')
 @flask_login.login_required
@@ -133,7 +136,7 @@ def sentence_numfound(keywords, media, start, end):
     queries = util.solr_date_queries(util.media_to_solr(media), start, end)
     results = []
     for date, query in queries:
-        res = mc.sentenceList(keywords, query)
+        res = mc.sentenceList(keywords, query, 0, 0)
         results.append({
             'date': date
             , 'numFound': res['response']['numFound']

@@ -429,8 +429,11 @@ App.SentenceView = Backbone.View.extend({
         // TODO split into two views, one for the QueryColleciton and one for SentenceColleciton
         this.collection.resources.on('sync:sentence', function (sentences) {
             App.debug('App.SentenceView.sentenceCollection: sync');
-            that.$('.count').html('(' + sentences.length + ' found)');
+            // figure out the total sentence count
+            totalSentences = sentences.last(1)[0].get('totalSentences');
+            that.$('.count').html('(' + totalSentences + ' found)');
             $el.html('');
+            // now list some of the sentences
             _.each(sentences.last(10), function (m) {
                 var p = $('<p>').html('<em>' + m.media() + '</em> - ' + m.date() + ': ' + m.escape('sentence'));
                 $el.append(p);
@@ -557,9 +560,9 @@ App.HistogramView = Backbone.View.extend({
         },
         stripeColors: [
             // Month A colors
-            ["#77efff", "#bbf7ff"]
+            ["#ffffff", "#fafafa"]
             // Month B colors
-            , ["#6ce8d8", "#b6f4ec"] 
+            , ["#ffffff", "#fafafa"] 
         ],
         yearColor: "#aaa",
         yearSize: 20,
