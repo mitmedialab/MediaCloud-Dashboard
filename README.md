@@ -12,11 +12,11 @@ The Media Cloud Dashboard provides a common front-end interface for the Media Cl
 * pymongo
 
 ## Managing Users
-The command line tool `userconfig` can be used to add, modify, and remove users.
+The command line tool `userconfig.py` can be used to add, modify, and remove users.
 
-To see usage, just run `userconfig` with no arguments:
+To see usage, just run `userconfig.py` with no arguments:
 
-    $ ./userconfig
+    $ python userconfig.py
     Usage:
       userconfig add <username> <password>
       userconfig remove <username>
@@ -24,12 +24,12 @@ To see usage, just run `userconfig` with no arguments:
 
 To add a user named `alice` with password `topsecret`:
 
-    $ ./userconfig add alice topsecret
+    $ python userconfig.py add alice topsecret
     
 To change the password for user `alice` to `bettersecret`:
 
-    $ ./userconfig password alice bettersecret
+    $ python userconfig.py password alice bettersecret
     
 To remove user `alice`:
 
-    $ ./userconfig remove alice
+    $ python userconfig.py remove alice
