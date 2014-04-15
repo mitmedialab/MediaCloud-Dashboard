@@ -564,10 +564,16 @@ App.HistogramView = Backbone.View.extend({
             // Month B colors
             , ["#ffffff", "#fafafa"] 
         ],
-        yearColor: "#aaa",
+        yearColor: "#000",
+        yearOpacity: 0.33,
         yearSize: 20,
-        monthColor: '#aaa',
-        monthSize: 20
+        monthColor: '#000',
+        monthOpacity: 0.33,
+        monthSize: 20,
+        labelColor: '#000',
+        labelOpacity: 0.33,
+        labelWidth: 30,
+        labelPadding: 5
     },
     template: _.template($('#tpl-histogram-view').html()),
     initialize: function (options) {
@@ -629,6 +635,7 @@ App.HistogramView = Backbone.View.extend({
                 .attr('d', path)
                 .style('stroke', 'red')
                 .style('fill', 'none');
+        this.renderD3MinMax();
     },
     renderD3Bg: function () {
         var that = this;
@@ -655,6 +662,7 @@ App.HistogramView = Backbone.View.extend({
                     .attr('dy', '1em')
                     .attr('font-size', this.config.yearSize)
                     .attr('fill', this.config.yearColor)
+                    .attr('fill-opacity', this.config.yearOpacity)
                     .attr('font-weight', 'bold');
         var monthLabels = this.chart.append('g').classed('labels-month', true);
         monthLabels.selectAll('.label-month').data(labelData.month)
@@ -665,7 +673,61 @@ App.HistogramView = Backbone.View.extend({
                     .attr('y', this.config.monthSize)
                     .attr('font-size', this.config.monthSize)
                     .attr('fill', this.config.monthColor)
+                    .attr('fill-opacity', this.config.monthOpacity)
                     .attr('font-weight', 'bold');
+    },
+    renderD3MinMax: function () {
+        var that = this;
+        var extents = _.map(this.allLayersData, function (wordcounts) {
+            var counts = _.pluck(wordcounts, 'numFound');
+            var maxIndex = _.indexOf(counts, d3.max(counts));
+            var minIndex = _.indexOf(counts, d3.min(counts));
+            return {
+                min: wordcounts[minIndex]
+                , max: wordcounts[maxIndex]
+            }
+        }, this);
+        var extrema = this.chart.append('g').classed('extrema', true);
+        var layer = extrema.selectAll('layer-extrema').data(extents)
+            .enter().append('g').classed('layer-extrema', true);
+        // TODO Scale text and add a line
+        /*
+        layer.append('line')
+            .attr('x1', function (d) { return that.minMaxX(d.min); })
+            .attr('y1', function (d) { return App.halfint(that.y(d.min.numFound)); })
+            .attr('x2', function (d) {
+                return that.minMaxX(d.min) + that.config.labelWidth;
+            })
+            .attr('y2', function (d) { return App.halfint(that.y(d.min.numFound)); })
+            .attr('stroke', this.config.labelColor)
+            .attr('stroke-opacity', this.config.labelOpacity);
+        layer.append('line')
+            .attr('x1', function (d) { return that.minMaxX(d.max); })
+            .attr('y1', function (d) { return App.halfint(that.y(d.max.numFound)); })
+            .attr('x2', function (d) {
+                return that.minMaxX(d.max) + that.config.labelWidth;
+            })
+            .attr('y2', function (d) { return App.halfint(that.y(d.max.numFound)); })
+            .attr('stroke', this.config.labelColor)
+            .attr('stroke-opacity', this.config.labelOpacity);
+        */
+        layer.append('text').classed('min', true)
+            .text(function (d) { return d.min.numFound; })
+            .attr('x', function (d) { return that.x(d.min.date); })
+            .attr('y', function (d) { return App.halfint(that.y(d.min.numFound)) + 2; })
+            .attr('dy', '0.8em')
+            .attr('text-anchor', function(d) { return that.labelAnchor(d.min); })
+            .attr('font-weight', 'bold')
+            .attr('fill', this.config.labelColor)
+            .attr('fill-opacity', this.config.labelOpacity);
+        layer.append('text').classed('max', true)
+            .text(function (d) { return d.max.numFound; })
+            .attr('x', function (d) { return that.x(d.max.date); })
+            .attr('y', function (d) { return App.halfint(that.y(d.max.numFound)) - 2; })
+            .attr('text-anchor', function(d) { return that.labelAnchor(d.max); })
+            .attr('font-weight', 'bold')
+            .attr('fill', this.config.labelColor)
+            .attr('fill-opacity', this.config.labelOpacity);
     },
     dayFillColor: function (date) {
         days = Math.round(date.getTime() / 86400000.0);
@@ -674,6 +736,14 @@ App.HistogramView = Backbone.View.extend({
     toDate: function (dateString) {
         var ymd = dateString.split('-');
         return new Date(Date.UTC(ymd[0], ymd[1]-1, ymd[2]));
+    },
+    minMaxX: function (d) {
+        var x = this.x(d.date);
+        return x < this.chartWidth / 2.0 ? x : x - this.config.labelWidth;
+    },
+    labelAnchor: function (d) {
+        var x = this.x(d.date);
+        return x < this.chartWidth / 2.0 ? 'beginning' : 'end';
     }
 });
 

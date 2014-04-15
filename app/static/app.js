@@ -91,6 +91,11 @@ App = {
         return App.config.shortMonthNames[m];
     },
     
+    // Round n to nearest half-integer
+    halfint: function (n) {
+        return Math.round(n + 0.5) - 0.5;
+    },
+    
     debug: function (message) {
         if (App.config.debug) {
             console.log(message);
