@@ -98,7 +98,9 @@ def sentence_docs(keywords, media, start, end):
     res = mc.sentenceList(keywords, query, 0, 10)
     sentences = res['response']['docs']
     for s in sentences:
-        s['totalSentences'] = res['response']['numFound']
+        s['totalSentences'] = res['response']['numFound'] # hack to get total sentences count to Backbone.js
+        story = mc.story(s['stories_id'])
+        s['storyUrl'] = story['url'] # so you can click on the sentence
     return json.dumps(sentences, separators=(',',':'))
 
 @app.route('/api/stories/docs/<keywords>/<media>/<start>/<end>.csv')

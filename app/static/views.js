@@ -435,7 +435,9 @@ App.SentenceView = Backbone.View.extend({
             $el.html('');
             // now list some of the sentences
             _.each(sentences.last(10), function (m) {
-                var p = $('<p>').html('<em>' + m.media() + '</em> - ' + m.date() + ': ' + m.escape('sentence'));
+                var p = $('<p>').html('<em>' + m.media() + '</em> - ' + m.date() + ': ' 
+                    + '<a href="' + m.get('storyUrl') + '">' + m.escape('sentence') + '</a>'
+                    );
                 $el.append(p);
             });
         }, this);
