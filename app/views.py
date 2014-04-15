@@ -101,34 +101,34 @@ def sentence_docs(keywords, media, start, end):
         s['totalSentences'] = res['response']['numFound']
     return json.dumps(sentences, separators=(',',':'))
 
-@app.route('/api/sentences/docs/<keywords>/<media>/<start>/<end>.csv')
+@app.route('/api/stories/docs/<keywords>/<media>/<start>/<end>.csv')
 @flask_login.login_required
-def sentence_docs_csv(keywords, media, start, end):
+def story_docs_csv(keywords, media, start, end):
     print keywords
     print media
     print start
     print end
     query = util.solr_query(util.media_to_solr(media), start, end)
-    all_sentences = []
-    row = 0
-    more_sentences = True
-    while more_sentences:
-        res = mc.sentenceList(keywords, query, row)
-        result_count = len(res['response']['docs'])
-        row+= result_count
-        if result_count > 0:
-            all_sentences = all_sentences + res['response']['docs']
-            more_sentences = True
+    all_stories = []
+    last_processed_stories_id = 0
+    more_stories = True
+    while more_stories:
+        res = mc.storyList(keywords, query, last_processed_stories_id, 1000)
+        if len(res) > 0:
+            stories = [ [str(s['stories_id']),s['language'],s['title'],s['url'],s['publish_date']]
+                for s in res]
+            last_processed_stories_id = res[len(res)-1]['processed_stories_id']
+            all_stories = all_stories + stories
+            more_stories = True
         else:
-            more_sentences = False
-    def stream_csv(sentenceList):
-        yield ','.join(['language','media_id','media_name','publish_date','stories_id','story_sentences_id','sentence']) + '\n'
-        for s in sentenceList:
-            # language,media_id,publish_date,stories_id,story_sentences_id,sentence
-            info = [ s['language'], str(s['media_id']), s['publish_date'], str(s['stories_id']), str(s['story_sentences_id']), s['sentence'] ]
-            yield ','.join(info) + '\n'
-    return flask.Response(stream_csv(all_sentences), mimetype='text/csv', 
-                headers={"Content-Disposition":"attachment;filename=mediacloud-results.csv"})
+            more_stories = False
+    def stream_csv(story_list):
+        yield ','.join(['stories_id','language','title','url','publish_date']) + '\n'
+        for story in story_list:
+            yield ','.join(story) + '\n'
+    download_filename = 'mediacloud-results-'+datetime.datetime.now().strftime('%Y%m%d%H%M%S')+'.csv'
+    return flask.Response(stream_csv(all_stories), mimetype='text/csv', 
+                headers={"Content-Disposition":"attachment;filename="+download_filename})
     
 @app.route('/api/sentences/numfound/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
