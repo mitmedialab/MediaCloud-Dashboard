@@ -167,13 +167,15 @@ App.QueryView = App.NestedView.extend({
         this.mediaSources.deferred.done(function () {
             that.$el.html(that.template());
             // Replace loading with sub views
-            that.$('.media-query-view')
-                .html(that.mediaSelectView.el)
+            var topRow = $('<div>').addClass('row')
+                .append(that.mediaSelectView.el)
+                .append(that.dateRangeView.el)
+                .append(that.keywordView.el);
+            var bottomRow = $('<div>').addClass('row')
                 .append(that.mediaListView.el);
-            that.$('.date-range-view')
-                .html(that.dateRangeView.el);
-            that.$('.keyword-view')
-                .html(that.keywordView.el);
+            that.$('.query-view-content').html()
+                .append(topRow)
+                .append(bottomRow);
         });
     }
 });
