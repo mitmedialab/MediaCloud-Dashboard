@@ -52,7 +52,7 @@ def main():
     print "Writing Output"
     results = {'sources':sources,'sets':sets}
     with open(json_file_path, 'w') as outfile:
-        json.dump(results, outfile)
+        json.dump(results, outfile, separators=(',',':'))
     print "Done"
 
 if __name__ == '__main__':
