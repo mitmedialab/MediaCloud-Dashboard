@@ -168,12 +168,12 @@ App.QueryView = App.NestedView.extend({
             that.$el.html(that.template());
             // Replace loading with sub views
             var topRow = $('<div>').addClass('row')
-                .append(that.mediaSelectView.el)
-                .append(that.dateRangeView.el)
-                .append(that.keywordView.el);
+                .append(that.keywordView.el)
+                .append(that.dateRangeView.el);
             var bottomRow = $('<div>').addClass('row')
+                .append(that.mediaSelectView.el)
                 .append(that.mediaListView.el);
-            that.$('.query-view-content').html()
+            that.$('.query-view-content').html('')
                 .append(topRow)
                 .append(bottomRow);
         });
@@ -248,7 +248,7 @@ App.MediaSelectView = App.NestedView.extend({
                 'typeahead:autocompleted',
                 function () { that.onTextEntered(); });
             _.defer(function () {
-                $('.media-input', that.$el).focus();
+                $('.keyword-view-keywords', that.$el).focus();
             });
         });
     },
@@ -256,7 +256,7 @@ App.MediaSelectView = App.NestedView.extend({
         this.$el.html(this.template());
         var $el = this.$el;
         _.defer(function () {
-            $('.media-input', $el).focus();
+            $('.keyword-view-keywords', $el).focus();
         });
     },
     onTextEntered: function (event) {
@@ -279,7 +279,7 @@ App.MediaSelectView = App.NestedView.extend({
 });
 
 App.MediaListItemView = Backbone.View.extend({
-    tagName: 'tr',
+    tagName: 'span',
     events: {
         'click .remove': 'onClickRemove'
     },
@@ -288,6 +288,8 @@ App.MediaListItemView = Backbone.View.extend({
         _.bindAll(this, 'onClickRemove');
     },
     render: function () {
+        this.$el.addClass('label');
+        this.$el.addClass('label-default');
         this.template = _.template(
             $('#tpl-media-list-item-view').html(),
             this.model.attributes);
@@ -331,8 +333,7 @@ App.MediaListView = App.NestedView.extend({
         App.debug(model);
         var itemView = new App.MediaListItemView({model: model});
         itemView.on('removeClick', this.onRemoveClick);
-        this.$('tbody').append(itemView.el);
-        this.$('.media-list-view').removeClass('empty');
+        this.$('.media-list-view-content').append(itemView.el);
     },
     onRemoveClick: function (model) {
         App.debug('App.MediaListView.onRemoveClick()');
