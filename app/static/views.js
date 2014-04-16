@@ -247,17 +247,11 @@ App.MediaSelectView = App.NestedView.extend({
             that.$('.media-input').bind(
                 'typeahead:autocompleted',
                 function () { that.onTextEntered(); });
-            _.defer(function () {
-                $('.keyword-view-keywords', that.$el).focus();
-            });
         });
     },
     render: function () {
         this.$el.html(this.template());
         var $el = this.$el;
-        _.defer(function () {
-            $('.keyword-view-keywords', $el).focus();
-        });
     },
     onTextEntered: function (event) {
         App.debug('App.MediaSelectView.textEntered()');
@@ -411,6 +405,10 @@ App.KeywordView = Backbone.View.extend({
         if (this.model.get('params').get('keywords')) {
             this.$input.val(this.model.get('params').get('keywords'));
         }
+        var $el = this.$el;
+        _.defer(function () {
+            $('.keyword-view-keywords', $el).focus();
+        });
     },
     contentChanged: function () {
         this.model.get('params').set('keywords', this.$input.val());
