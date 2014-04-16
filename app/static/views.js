@@ -712,10 +712,12 @@ App.HistogramView = Backbone.View.extend({
             .text(function (d) { return d.min.numFound; })
             .attr('x', function (d) { return that.x(d.min.date) - 1; })
             .attr('y', function (d) {
-                if (d.min.numFound > 0) {
+                console.log('numFound');
+                console.log(d.min.numFound);
+                if (d.min.numFound != 0) {
                     return App.halfint(that.y(d.min.numFound)) + 1;
                 }
-                return that.chartHeight - that.config.labelSize - 3;
+                return that.chartHeight - that.config.padding.bottom - that.config.labelSize - 3;
             })
             .attr('dy', '0.8em')
             .attr('text-anchor', function(d) { return that.labelAnchor(d.min); })
@@ -729,10 +731,10 @@ App.HistogramView = Backbone.View.extend({
             .text(function (d) { return d.min.numFound; })
             .attr('x', function (d) { return that.x(d.min.date); })
             .attr('y', function (d) {
-                if (d.min.numFound > 0) {
+                if (d.min.numFound != 0) {
                     return App.halfint(that.y(d.min.numFound)) + 2;
                 }
-                return that.chartHeight - that.config.labelSize - 2;
+                return that.chartHeight - that.config.padding.bottom - that.config.labelSize - 2;
             })
             .attr('dy', '0.8em')
             .attr('text-anchor', function(d) { return that.labelAnchor(d.min); })
