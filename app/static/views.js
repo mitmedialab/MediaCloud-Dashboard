@@ -577,8 +577,10 @@ App.HistogramView = Backbone.View.extend({
         monthColor: '#000',
         monthOpacity: 0.33,
         monthSize: 20,
-        labelColor: '#000',
-        labelOpacity: 0.33,
+        labelSize: 14,
+        labelFill: '#aaa',
+        labelStroke: '#fff',
+        labelOpacity: 1,
         labelWidth: 30,
         labelPadding: 5,
         axisColor: '#ddd'
@@ -705,43 +707,57 @@ App.HistogramView = Backbone.View.extend({
         var extrema = this.chart.append('g').classed('extrema', true);
         var layer = extrema.selectAll('layer-extrema').data(extents)
             .enter().append('g').classed('layer-extrema', true);
-        // TODO Scale text and add a line
-        /*
-        layer.append('line')
-            .attr('x1', function (d) { return that.minMaxX(d.min); })
-            .attr('y1', function (d) { return App.halfint(that.y(d.min.numFound)); })
-            .attr('x2', function (d) {
-                return that.minMaxX(d.min) + that.config.labelWidth;
+        // Draw two elements: shadow and text
+        layer.append('text').classed('min', true)
+            .text(function (d) { return d.min.numFound; })
+            .attr('x', function (d) { return that.x(d.min.date) - 1; })
+            .attr('y', function (d) {
+                if (d.min.numFound > 0) {
+                    return App.halfint(that.y(d.min.numFound)) + 1;
+                }
+                return that.chartHeight - that.config.labelSize - 3;
             })
-            .attr('y2', function (d) { return App.halfint(that.y(d.min.numFound)); })
-            .attr('stroke', this.config.labelColor)
-            .attr('stroke-opacity', this.config.labelOpacity);
-        layer.append('line')
-            .attr('x1', function (d) { return that.minMaxX(d.max); })
-            .attr('y1', function (d) { return App.halfint(that.y(d.max.numFound)); })
-            .attr('x2', function (d) {
-                return that.minMaxX(d.max) + that.config.labelWidth;
-            })
-            .attr('y2', function (d) { return App.halfint(that.y(d.max.numFound)); })
-            .attr('stroke', this.config.labelColor)
-            .attr('stroke-opacity', this.config.labelOpacity);
-        */
+            .attr('dy', '0.8em')
+            .attr('text-anchor', function(d) { return that.labelAnchor(d.min); })
+            .attr('font-size', this.config.labelSize)
+            .attr('font-weight', 'bold')
+            .attr('fill', this.config.labelStroke)
+            .attr('stroke', this.config.labelStroke)
+            .attr('stroke-width', '2')
+            .attr('fill-opacity', this.config.labelOpacity);
         layer.append('text').classed('min', true)
             .text(function (d) { return d.min.numFound; })
             .attr('x', function (d) { return that.x(d.min.date); })
-            .attr('y', function (d) { return App.halfint(that.y(d.min.numFound)) + 2; })
+            .attr('y', function (d) {
+                if (d.min.numFound > 0) {
+                    return App.halfint(that.y(d.min.numFound)) + 2;
+                }
+                return that.chartHeight - that.config.labelSize - 2;
+            })
             .attr('dy', '0.8em')
             .attr('text-anchor', function(d) { return that.labelAnchor(d.min); })
+            .attr('font-size', this.config.labelSize)
+            .attr('fill', this.config.labelFill)
+            .attr('fill-opacity', this.config.labelOpacity);
+        // Draw two elements: shadow and text
+        layer.append('text').classed('max', true)
+            .text(function (d) { return d.max.numFound; })
+            .attr('x', function (d) { return that.x(d.max.date) - 1; })
+            .attr('y', function (d) { return App.halfint(that.y(d.max.numFound)) - 3; })
+            .attr('text-anchor', function(d) { return that.labelAnchor(d.max); })
+            .attr('font-size', this.config.labelSize)
             .attr('font-weight', 'bold')
-            .attr('fill', this.config.labelColor)
+            .attr('fill', this.config.labelStroke)
+            .attr('stroke', this.config.labelStroke)
+            .attr('stroke-width', 2)
             .attr('fill-opacity', this.config.labelOpacity);
         layer.append('text').classed('max', true)
             .text(function (d) { return d.max.numFound; })
             .attr('x', function (d) { return that.x(d.max.date); })
             .attr('y', function (d) { return App.halfint(that.y(d.max.numFound)) - 2; })
             .attr('text-anchor', function(d) { return that.labelAnchor(d.max); })
-            .attr('font-weight', 'bold')
-            .attr('fill', this.config.labelColor)
+            .attr('font-size', this.config.labelSize)
+            .attr('fill', this.config.labelFill)
             .attr('fill-opacity', this.config.labelOpacity);
     },
     dayFillColor: function (date) {
