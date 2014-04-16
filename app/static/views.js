@@ -712,8 +712,6 @@ App.HistogramView = Backbone.View.extend({
             .text(function (d) { return d.min.numFound; })
             .attr('x', function (d) { return that.x(d.min.date) - 1; })
             .attr('y', function (d) {
-                console.log('numFound');
-                console.log(d.min.numFound);
                 if (d.min.numFound != 0) {
                     return App.halfint(that.y(d.min.numFound)) + 1;
                 }
