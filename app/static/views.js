@@ -565,7 +565,7 @@ App.HistogramView = Backbone.View.extend({
         },
         padding: {
             top: 20
-            , bottom: 15
+            , bottom: 20
         },
         stripeColors: [
             // Month A colors
@@ -582,7 +582,8 @@ App.HistogramView = Backbone.View.extend({
         labelColor: '#000',
         labelOpacity: 0.33,
         labelWidth: 30,
-        labelPadding: 5
+        labelPadding: 5,
+        axisColor: '#ddd'
     },
     template: _.template($('#tpl-histogram-view').html()),
     initialize: function (options) {
@@ -664,7 +665,7 @@ App.HistogramView = Backbone.View.extend({
             .attr('x2', this.chartWidth + this.config.margin.left)
             .attr('y1', App.halfint(this.config.margin.top + this.chartHeight - this.config.padding.bottom))
             .attr('y2', App.halfint(this.config.margin.top + this.chartHeight - this.config.padding.bottom))
-            .attr('stroke', '#eee');
+            .attr('stroke', this.config.axisColor);
     },
     renderD3Labels: function () {
         var labelData = App.dateLabels(this.dayData);
@@ -674,7 +675,7 @@ App.HistogramView = Backbone.View.extend({
                 .append('text').classed('label-year', true)
                     .text(function (d) { return d.getUTCFullYear(); })
                     .attr('x', this.dateX)
-                    .attr('y', this.chartHeight - this.config.yearSize - this.config.padding.bottom - 2)
+                    .attr('y', this.chartHeight - this.config.yearSize - 1)
                     .attr('dy', '1em')
                     .attr('font-size', this.config.yearSize)
                     .attr('fill', this.config.yearColor)
