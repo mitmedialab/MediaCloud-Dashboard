@@ -34,8 +34,8 @@ def solr_date_queries(media, start, end):
 
 def media_to_solr(media):
     d = json.loads(media)
-    solr = ['media_id:%s' % i for i in d['sources']]
-    solr += ['media_sets_id:%s' % i for i in d['sets']]
+    solr = ['media_id:%s' % i for i in d.get('sources', [])]
+    solr += ['media_sets_id:%s' % i for i in d.get('sets', [])]
     query = ' OR '.join(solr)
     return query
     
@@ -43,10 +43,10 @@ def all_media():
     return _media_info
 
 def all_media_sources():
-    return _media_info['sources']
+    return _media_info.get('sources', [])
 
 def all_media_sets():
-    return _media_info['sets']
+    return _media_info.get('sets', [])
 
 class NumFound:
     def __init__(self, mc, keywords, media, start, end):

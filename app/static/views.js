@@ -230,15 +230,9 @@ App.MediaSelectView = App.NestedView.extend({
             that.render();
             App.debug('Creating typeahead');
             $('.media-input', that.$el).typeahead(null, {
-                templates: { header:'<h3>Media Sets</h3>' },
                 name: 'sets',
                 displayKey: 'name',
                 source: that.mediaSources.get('sets').getSuggestions().ttAdapter()
-            }, {
-                templates: { header: '<h3>Media Sources</h3>' },
-                name: 'sources',
-                displayKey: 'name',
-                source: that.mediaSources.get('sources').getSuggestions().ttAdapter()
             });
             // Listen to custom typeahead events
             that.$('.media-input').bind(

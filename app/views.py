@@ -68,7 +68,7 @@ def logout():
 @app.route('/api/media')
 @flask_login.login_required
 def media():
-    return json.dumps(util.all_media(), separators=(',',':'));
+    return json.dumps({'sets':util.all_media_sets()}, separators=(',',':'));
 
 @app.route('/api/media/sources')
 @flask_login.login_required
@@ -91,6 +91,7 @@ def sentences(keywords, media, start, end):
 @flask_login.login_required
 def sentence_docs(keywords, media, start, end):
     query = util.solr_query(util.media_to_solr(media), start, end)
+    print query
     res = mc.sentenceList(keywords, query, 0, 10)
     sentences = res['response']['docs']
     for s in sentences:
