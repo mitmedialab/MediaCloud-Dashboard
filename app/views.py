@@ -90,10 +90,6 @@ def sentences(keywords, media, start, end):
 @app.route('/api/sentences/docs/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def sentence_docs(keywords, media, start, end):
-    print keywords
-    print media
-    print start
-    print end
     query = util.solr_query(util.media_to_solr(media), start, end)
     res = mc.sentenceList(keywords, query, 0, 10)
     sentences = res['response']['docs']
@@ -106,10 +102,6 @@ def sentence_docs(keywords, media, start, end):
 @app.route('/api/stories/docs/<keywords>/<media>/<start>/<end>.csv')
 @flask_login.login_required
 def story_docs_csv(keywords, media, start, end):
-    print keywords
-    print media
-    print start
-    print end
     query = util.solr_query(util.media_to_solr(media), start, end)
     all_stories = []
     last_processed_stories_id = 0
@@ -135,14 +127,8 @@ def story_docs_csv(keywords, media, start, end):
 @app.route('/api/sentences/numfound/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def sentence_numfound(keywords, media, start, end):
-    queries = util.solr_date_queries(util.media_to_solr(media), start, end)
-    results = []
-    for date, query in queries:
-        res = mc.sentenceList(keywords, query, 0, 0)
-        results.append({
-            'date': date
-            , 'numFound': res['response']['numFound']
-        })
+    nf = util.NumFound(mc, keywords, media, start, end)
+    results = nf.results()
     return json.dumps(results, separators=(',',':'))
     
 @app.route('/api/wordcount/<keywords>/<media>/<start>/<end>')

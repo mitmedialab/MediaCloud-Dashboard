@@ -1,4 +1,4 @@
-import datetime, os, json, re
+import datetime, os, json, threading, Queue, re
 
 def load_media_info_json():
     static_data_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)),'static','data')
@@ -47,3 +47,33 @@ def all_media_sources():
 
 def all_media_sets():
     return _media_info['sets']
+
+class NumFound:
+    def __init__(self, mc, keywords, media, start, end):
+        self.mc = mc
+        self.keywords = keywords
+        queries = solr_date_queries(media_to_solr(media), start, end)
+        self.__results = [{}] * len(queries)
+        self.queue = Queue.Queue()
+        for i, q in enumerate(queries):
+            date, query = q
+            self.queue.put((i, date, query))
+            
+    def results(self):
+        num_workers = 31
+        for i in range(num_workers):
+            t = threading.Thread(target=self.worker)
+            t.daemon = True
+            t.start()
+        self.queue.join()
+        return self.__results
+        
+    def worker(self):
+        while True:
+            i, date, query = self.queue.get()
+            res = self.mc.sentenceList(self.keywords, query, 0, 0)
+            self.__results[i] = {
+                'date': date
+                , 'numFound': res['response']['numFound']
+            }
+            self.queue.task_done()
