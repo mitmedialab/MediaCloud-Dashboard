@@ -500,8 +500,8 @@ App.DebugWordCountView = App.NestedView.extend({
         this.$('.panel-body').html(progress());
         var that = this;
         this.listenTo(this.collection.resources, 'sync:wordcount', this.renderD3);
-        this.listenTo(this.collection.resources, 'resource:complete', function (type) {
-            App.debug('App.DebugWordCountView() resource:complete ' + type + ' ' + that.cid);
+        this.listenTo(this.collection.resources, 'resource:complete:wordcount', function () {
+            App.debug('App.DebugWordCountView() resource:complete ' + that.cid);
             App.debug(that.collection);
         });
     },
