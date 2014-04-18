@@ -4,21 +4,43 @@
         <title>{% block page_title %}CFCM App{% endblock %}</title>
         <link rel="stylesheet" type="text/css" href="static/lib/bootstrap/css/bootstrap.min.css"/>
         <link rel="stylesheet" type="text/css" href="static/lib/typeahead.js-bootstrap/typeahead.css">
+        <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:300,700" type="text/css">
+        <link rel="stylesheet" type="text/css" href="static/mediameter.css"/>
         <link rel="stylesheet" type="text/css" href="static/style.css"/>
         {% block backbone_templates %}{% endblock %}
     </head>
     <body>
-        <div class="container">
-            <div class="header">
-                {% block header %}
-                <h1>{% block header_title %}CFCM App{% endblock %}</h1>
-                <hr/>
-                {% endblock %}
+        <div class="header">
+            <div class="brand-toolbar">
+                <div class="container">
+                    {% block brand_toolbar %}
+                    <div class="row">
+                        <div class="col-sm-8 links"></div>
+                        <div class="col-sm-4 controls"></div>
+                    </div>
+                    {% endblock %}
+                </div>
             </div>
-            <div class="controls">
+            <div class="branding">
+                <div class="container">
+                    {% block branding %}
+                    <h1><strong>Media Meter</strong> {% block branding_tool_name %}Dashboard{% endblock %}</h1>
+                    {% endblock %}
+                </div>
             </div>
-            <div class="nav"></div>
-            <div class="messages">
+            <div class="app-toolbar">
+                <div class="container">
+                    {% block app_toolbar %}{% endblock %}
+                </div>
+            </div>
+        </div>
+        <div class="drawer">
+            <div class="container">
+                {% block drawer %}{% endblock %}
+            </div>
+        </div>
+        <div class="messages">
+            <div class="container">
                 {% with messages = get_flashed_messages() %}
                     {% if messages %}
                         <ul class="flashes">
@@ -29,20 +51,38 @@
                     {% endif %}
                 {% endwith %}
             </div>
-            <div class="content">
+        </div>
+        <div class="content">
+            <div class="container">
                 {% block content %}
                 {{ content |safe }}
                 {% endblock %}
             </div>
-            <div class="footer">
+        </div>
+        <div class="footer">
+            <div class="container">
                 {% block footer %}
-                <hr/>
                 <div class="row">
-                    <div class="col-sm-12">
+                    <div class="col-sm-4">
+                        <h3>About Media Meter</h3>
                         <p>
-                            <a href="http://cyber.law.harvard.edu"><img class="logo" src="static/img/berkman.png"/></a>
-                            <a href="http://civic.mit.edu"><img class="logo" src="static/img/civic.png"/></a>
+What have you seen in the news this week? And what did you miss? Are you getting
+the blend of local, international, political, and sports stories you desire?
+We’re building a media-tracking platform to empower you, the individual, and
+news providers themselves, to see what you’re getting and what you’re missing in
+your daily consumption and production of media. The first round of modules
+developed for the platform allow you to compare the breakdown of news topics and
+byline gender across multiple news sources.
                         </p>
+                    </div>
+                    <div class="col-sm-2 col-sm-offset-1">
+                        <h3>Contact</h3>
+                        <p>
+We'd love contact to make our tool better.
+                        </p>
+                    </div>
+                    <div class="col-sm-4 col-sm-offset-1">
+                        <h3><a href="http://civic.mit.edu"><img class="logo" src="static/img/civic.png"/></a></h3>
                     </div>
                 </div>
                 {% endblock %}

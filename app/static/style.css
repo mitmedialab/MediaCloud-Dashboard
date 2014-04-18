@@ -1,19 +1,6 @@
 
 /* Global layout **************************************************************/
 
-.container {
-    position: relative;
-}
-
-.controls {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-}
-
-.footer {
-    text-align: center;
-}
 
 /* Global styles **************************************************************/
 

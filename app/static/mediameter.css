@@ -1,0 +1,98 @@
+
+/* Global Style ***************************************************************/
+
+body {
+    font-family: 'Lato', sans-serif;
+    font-weight: light;
+}
+
+h3 {
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: inherit;
+}
+
+/* Brand Style ****************************************************************/
+
+.brand-toolbar {
+    background: #e1650c;
+    color: #fff;
+}
+.branding {
+    background: #e14c11;
+    color: #fff;
+}
+.app-toolbar {
+    background: #813f1f;
+    color: #e14c11;
+}
+
+/* Layout *********************************************************************/
+
+body {
+    z-index: 0;
+}
+
+.header {
+    position: relative;
+    z-index: 500;
+    box-shadow: 0px -17px 20px 20px #afafaf;
+}
+.brand-toolbar {
+}
+.branding {
+}
+.app-toolbar {
+}
+.drawer {
+    position: relative;
+    z-index: 400;
+    background: #dfdfdf;
+    color: #5f5f5f;
+    box-shadow: 0px -17px 20px 20px #b4b4b4;
+}
+.messages {
+    position: relative;
+    z-index: 300;
+}
+.content {
+    position: relative;
+    z-index: 200;
+    padding-top: 20px;
+    background: #f2f2f2;
+    box-shadow: 0px -17px 20px 20px #b4b4b4;
+}
+.footer {
+    font-size: small;
+    position: relative;
+    z-index: 100;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    background: #dfdfdf;
+    color: #6f6f6f;
+}
+
+.controls ul {
+    list-style: none;
+    margin: 0;
+    float: right;
+    color: white;
+}
+.controls ul a {
+    color: white;
+    text-decoration: none;
+}
+/* Bootstrap customization ****************************************************/
+
+.panel-default {
+    border-radius: 0;
+    border-color: #777;
+    box-shadow: 2px 2px 2px 0px #b4b4b4;
+}
+.panel-default > .panel-heading {
+    background: #fff;
+    border-color: #777;
+}
+.panel-default > .panel-body {
+    background: #f2f2f2;
+}

@@ -84,9 +84,7 @@ App.LoginView = App.NestedView.extend({
  * Controls drop-down menu
  */
 App.ControlsView = App.NestedView.extend({
-    
-    template: _.template($('#tpl-controls-view').html()),
-    
+    tagName: 'ul',
     initialize: function (options) {
         App.debug('App.ControlsView.initialize()');
         this.options = options || {};
@@ -99,20 +97,14 @@ App.ControlsView = App.NestedView.extend({
     },
     render: function () {
         App.debug('App.ControlsView.render()');
-        var disabled = true;
         // Reset sub-views
         this.closeSubViews();
         // Recreate sub-views
-        this.$el.html(this.template());
         if (this.userModel.get('authenticated')) {
-            disabled = false;
             // Create sub-views
             this.controlsSignOutView = new App.ControlsSignOutView({ userModel: this.userModel });
             this.addSubView(this.controlsSignOutView);
-            $('ul', this.$el).append(this.controlsSignOutView.el);
-        }
-        if (disabled) {
-            $('button', this.$el).attr('disabled', 'disabled');
+            this.$el.append(this.controlsSignOutView.el);
         }
         return this;
     }
@@ -132,9 +124,7 @@ App.ControlsSignOutView = App.NestedView.extend({
     },
     render: function () {
         App.debug('App.ControlSignoutView.render()');
-        this.$el.html(this.template());
-        $('span', this.$el).html(this.options.userModel.get('username'));
-        return this;
+        this.$el.html(this.template(this.options.userModel.get('username')));
     },
     signOut: function () {
         App.debug('App.ControlsSignOutView.signOut()');
