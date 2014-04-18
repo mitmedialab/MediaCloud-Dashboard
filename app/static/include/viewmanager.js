@@ -26,9 +26,13 @@
  */
 
 App.ViewManager = {
+    options: {
+        selector: '.content'
+    },
     initialize: function (options) {
         this.views = [];
         this.viewMap = {};
+        this.options = _.extend(this.options, options);
     },
     closeView: function (view) {
         App.debug('Cleaning up view: ' + view.cid);
@@ -98,8 +102,8 @@ App.ViewManager = {
         $('.content').html();
         this.views = newViews;
         _.each(this.views, function (v) {
-            $('.content').append(v.el);
-        })
+            $(this.options.selector).append(v.el);
+        }, this);
     },
     showView: function (view) {
         App.debug('Showing view: ' + view.cid)

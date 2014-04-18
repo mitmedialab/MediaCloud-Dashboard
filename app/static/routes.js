@@ -11,7 +11,9 @@ App.Router = Backbone.Router.extend({
     initialize: function (options) {
         var that = this;
         this.vm = App.ViewManager;
-        this.vm.initialize();
+        this.vm.initialize({
+            "selector": '.content .container'
+        });
         this.userModel = options.userModel;
         this.mediaSources = options.mediaSources;
         App.debug('App.Router.initialize()');
