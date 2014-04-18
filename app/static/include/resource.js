@@ -1,8 +1,10 @@
 /**
- * resource.js - Classes to manage the loading of multiple resources of
- * different types.
+ * backbone-resource.js
+ * Classe to manage the loading of multiple resources of different types.
  *
- * Version 1.0.0 2014-04-08
+ * Version 1.0-beta.2 2014-04-18
+ * Copyright (c) 2014 MIT Center for Civic Media
+ * All rights reserved.
  * License: BSD 3-clause, see resource.license for more info.
  *
  * Dependencies:
@@ -18,11 +20,11 @@
  * request (model_or_collection, request, options)
  *   - A resource has been requested
  * sync (model_or_collection, request, options)
- * sync:type (model_or_collection, request, options)
+ * sync:<type> (model_or_collection, request, options)
  *   - Triggered when a single resource is loaded
  * error (model_or_collection, request, options)
  *   - The resource failed to load
- * resource:complete (type)
+ * resource:complete:<type>
  *   - Triggered when all requested resources of the given type have been loaded.
  * resource:allComplete
  *   - Triggered when all requested resources are loaded.
@@ -108,7 +110,7 @@ _.extend(ResourceListener.prototype, {
     },
     checkComplete: function (type) {
         if (this.isComplete(type)) {
-            this.trigger('resource:complete', type);
+            this.trigger('resource:complete:' + type);
         }
     },
     checkAllComplete: function () {
