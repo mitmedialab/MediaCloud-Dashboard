@@ -31,12 +31,19 @@ App.ViewManager = {
         this.viewMap = {};
     },
     closeView: function (view) {
+        App.debug('Cleaning up view: ' + view.cid);
+        if (view.close) {
+            view.close();
+        }
+        view.remove();
+        delete this.viewsByType[view.viewLookupKey];
+        delete this.viewMap[view.cid];
     },
     /*
      * Given a view constructor and options, get the instance of that view
      * constructor or create one if none exists.
      */
-    getView: function (type, options) {
+    getView: function (type, options, reuse) {
         App.debug('App.Router.getView()');
         // Ensure the view lookup exits 
         if (!this.viewsByType) {
@@ -47,8 +54,13 @@ App.ViewManager = {
             type.prototype.viewLookupKey = _.uniqueId()
         }
         if (this.viewsByType[type.prototype.viewLookupKey]) {
-            App.debug('  returning existing view');
-            return this.viewsByType[type.prototype.viewLookupKey];
+            if (reuse) {
+                App.debug('  returning existing view');
+                return this.viewsByType[type.prototype.viewLookupKey];
+            } else {
+                App.debug('  closing old view');
+                this.closeView(this.viewsByType[type.prototype.viewLookupKey]);
+            }
         }
         // Create a new view
         App.debug('  creating new view');
@@ -71,14 +83,7 @@ App.ViewManager = {
                 // Keep the view
                 newViews.push(oldView);
             } else {
-                // Remove the view
-                App.debug('Cleaning up view: ' + oldView.cid);
-                if (oldView.close) {
-                    oldView.close();
-                }
-                oldView.remove();
-                delete that.viewsByType[oldView.viewLookupKey];
-                delete that.viewMap[oldView.cid];
+                that.closeView(oldView);
             }
         });
         // Add new views that doen't already exist

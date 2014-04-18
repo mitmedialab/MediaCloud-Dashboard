@@ -3,8 +3,12 @@
  */
 App.NestedView = Backbone.View.extend({
     close: function () {
+        App.debug('Closing ' + this.cid);
         this.remove();
+        // Unbind any objects listening to this
         this.unbind();
+        // Unbind any objects this is listening to
+        this.stopListening();
         this.closeSubViews();
         this.onClose();
     },
@@ -478,7 +482,7 @@ App.WordCountView = Backbone.View.extend({
 });
 
 // First pass of single wordcloud
-App.DebugWordCountView = Backbone.View.extend({
+App.DebugWordCountView = App.NestedView.extend({
     config: {
         minSize: 4,
         maxSize: 48
@@ -494,7 +498,12 @@ App.DebugWordCountView = Backbone.View.extend({
         this.$el.html(this.template());
         progress = _.template($('#tpl-progress').html());
         this.$('.panel-body').html(progress());
-        this.collection.resources.on('sync:wordcount', this.renderD3, this);
+        var that = this;
+        this.listenTo(this.collection.resources, 'sync:wordcount', this.renderD3);
+        this.listenTo(this.collection.resources, 'resource:complete', function (type) {
+            App.debug('App.DebugWordCountView() resource:complete ' + type + ' ' + that.cid);
+            App.debug(that.collection);
+        });
     },
 
     renderD3: function (wordcounts) {
@@ -774,6 +783,7 @@ App.HistogramView = Backbone.View.extend({
 
 App.QueryResultView = App.NestedView.extend({
     initialize: function (options) {
+        App.debug('App.QueryResultView.initialize():' + this.cid);
         this.histogramView = new App.HistogramView(options);
         // this.wordCountView = new App.WordCountView(options);
         // Use new WordCount view

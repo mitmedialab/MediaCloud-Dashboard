@@ -51,7 +51,11 @@ App.Router = Backbone.Router.extend({
             , keywords: 'boston'
         };
         var options = { mediaSources: this.mediaSources, parse: true };
-        this.queryCollection = new App.QueryCollection();
+        if (!this.queryCollection) {
+            this.queryCollection = new App.QueryCollection();
+        } else {
+            this.queryCollection.reset();
+        }
         this.queryModel = new App.QueryModel(attributes, options);
         this.queryCollection.add(this.queryModel);
         this.queryListView = this.vm.getView(
@@ -76,7 +80,11 @@ App.Router = Backbone.Router.extend({
             return;
         }
         // Create query collection
-        this.queryCollection = new App.QueryCollection();
+        if (!this.queryCollection) {
+            this.queryCollection = new App.QueryCollection();
+        } else {
+            this.queryCollection.reset();
+        }
         // When sources are loaded, populate the media models from the url
         this.mediaSources.deferred.then(function() {
             // Add a media model for each query
@@ -173,9 +181,11 @@ App.Router = Backbone.Router.extend({
     
     showResults: function (queryCollection) {
         // Create new results view
-        var resultView = new App.QueryResultView({
-            collection: queryCollection
-        });
+        var resultView = this.vm.getView(
+            App.QueryResultView,
+            { collection: queryCollection },
+            true
+        );
         this.vm.showViews([
             this.queryListView
             , resultView
