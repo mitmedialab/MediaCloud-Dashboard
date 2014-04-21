@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 import ConfigParser
 import hashlib
 import sys

@@ -1,13 +1,52 @@
-.container {
+
+/* Global layout **************************************************************/
+
+
+/* Global styles **************************************************************/
+
+/* Replace empty tables with a message */
+.empty-notice {
+    display: none;
+}
+.empty .empty-notice {
+    display: block;
+}
+.empty table {
+    display: none;
+}
+
+.form-help {
+    color: #999;
+}
+
+.media-list-view label {
+    display: block;
+    color: #000;
+}
+.media-list-view .label {
+    font-size: 100%;
+    font-weight: normal;
+    margin-right: 1em;
+    margin-top: 0.45em;
+    display: block;
+    float: left;
+}
+.media-list-item-view .glyphicon {
     position: relative;
+    top: 3px !important;
 }
 
-.controls {
-    position: absolute;
-    top: 10px;
-    right: 15px;
+/* Template styles ************************************************************/
+
+.media-list-view a.remove {
+    color: red;
 }
 
-.footer {
-    text-align: center;
+/* Plugin styles **************************************************************/
+
+/* Typeahead styling */
+.tt-dropdown-menu h3 {
+    font-size: 1em;
+    margin: 10px 20px 0;
+    border-bottom: solid 1px #ccc;
 }

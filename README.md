@@ -43,11 +43,11 @@ To configure, copy the sample configuration file and fill it in with your info.
     $ cp app.config.sample app.config
 
 ## Managing Users
-The command line tool `userconfig` can be used to add, modify, and remove users.
+The command line tool `userconfig.py` can be used to add, modify, and remove users.
 
-To see usage, just run `userconfig` with no arguments:
+To see usage, just run `userconfig.py` with no arguments:
 
-    $ ./userconfig
+    $ python userconfig.py
     Usage:
       userconfig add <username> <password>
       userconfig remove <username>
@@ -55,19 +55,12 @@ To see usage, just run `userconfig` with no arguments:
 
 To add a user named `alice` with password `topsecret`:
 
-    $ ./userconfig add alice topsecret
+    $ python userconfig.py add alice topsecret
     
 To change the password for user `alice` to `bettersecret`:
 
-    $ ./userconfig password alice bettersecret
+    $ python userconfig.py password alice bettersecret
     
 To remove user `alice`:
 
-    $ ./userconfig remove alice
-
-## Running
-
-To run the app locally, just run `server.py`:
-
-    $ python server.py
-
+    $ python userconfig.py remove alice

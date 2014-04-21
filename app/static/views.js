@@ -1,39 +1,38 @@
-
 /**
- * Main application view.
+ * View base class that automatically cleans up its sub-views.
  */
-App.AppView = Backbone.View.extend({
-    
-    initialize: function (options) {
-        App.debug('App.AppView.initialize()');
-        this.options = options || {};
-        this.userModel = options.userModel;
-        _.bindAll(this, 'render');
-        // Create models
-        options.userModel.on('change:authenticated', this.render);
-        // Create sub-views
-        this.render();
+App.NestedView = Backbone.View.extend({
+    close: function () {
+        App.debug('Closing ' + this.cid);
+        this.remove();
+        // Unbind any objects listening to this
+        this.unbind();
+        // Unbind any objects this is listening to
+        this.stopListening();
+        this.closeSubViews();
+        this.onClose();
     },
-    
-    render: function () {
-        App.debug('App.AppView.render()')
-        this.loginView = new App.LoginView({ model: this.userModel });
-        this.controlsView = new App.ControlsView({ userModel: this.userModel });
-        this.$el.html('');
-        this.$el.append(this.controlsView.el);
-        if (this.options.userModel.get('authenticated')) {
-            this.$el.append('Hello, ' + this.userModel.get('username'))
-        } else {
-            this.$el.append(this.loginView.el);
+    closeSubViews: function () {
+        _.each(this.subViews, function (view) {
+            if (typeof(view.close) !== 'undefined') {
+                view.close();
+            }
+        });
+    },
+    onClose: function () {
+    },
+    addSubView: function (subView) {
+        if (!this.subViews) {
+            this.subViews = [];
         }
-        return this;
+        this.subViews.push(subView);
     }
-})
+});
 
 /**
  * Login form.
  */
-App.LoginView = Backbone.View.extend({
+App.LoginView = App.NestedView.extend({
     
     template: _.template($('#tpl-login-view').html()),
     
@@ -69,47 +68,49 @@ App.LoginView = Backbone.View.extend({
         $('input[name=username]', this.$el).val('');
         $('input[name=password]', this.$el).val('');
         this.model.signIn(username, password);
+        var progress = _.template($('#tpl-progress').html());
+        this.$('.message').html(progress());
+        this.$('form').hide();
     },
     
     error: function (message) {
-        $('.message', this.$el).html(message);
-        $('input[name=username]', this.$el).focus();
+        this.$('.message').html('<p class="text-danger">' + message + '</p>');
+        this.$('form').show()
+        this.$('input[name=username]').focus();
     }
 });
 
 /**
  * Controls drop-down menu
  */
-App.ControlsView = Backbone.View.extend({
-    
-    template: _.template($('#tpl-controls-view').html()),
-    
+App.ControlsView = App.NestedView.extend({
+    tagName: 'ul',
     initialize: function (options) {
         App.debug('App.ControlsView.initialize()');
         this.options = options || {};
         this.userModel = options.userModel;
         _.bindAll(this, 'render');
-        this.controlsSignOutView = new App.ControlsSignOutView({ userModel: this.userModel });
+        // Add listeners
+        this.userModel.on('change:authenticated', this.render);
+        // Render
         this.render();
     },
-    
     render: function () {
         App.debug('App.ControlsView.render()');
-        this.$el.addClass('controls');
-        var disabled = true;
-        this.$el.html(this.template());
+        // Reset sub-views
+        this.closeSubViews();
+        // Recreate sub-views
         if (this.userModel.get('authenticated')) {
-            disabled = false;
-            $('ul', this.$el).append(this.controlsSignOutView.el);
-        }
-        if (disabled) {
-            $('button', this.$el).attr('disabled', 'disabled');
+            // Create sub-views
+            this.controlsSignOutView = new App.ControlsSignOutView({ userModel: this.userModel });
+            this.addSubView(this.controlsSignOutView);
+            this.$el.append(this.controlsSignOutView.el);
         }
         return this;
     }
 });
 
-App.ControlsSignOutView = Backbone.View.extend({
+App.ControlsSignOutView = App.NestedView.extend({
     tagName: 'li',
     template: _.template($('#tpl-controls-sign-out-view').html()),
     events: {
@@ -123,9 +124,7 @@ App.ControlsSignOutView = Backbone.View.extend({
     },
     render: function () {
         App.debug('App.ControlSignoutView.render()');
-        this.$el.html(this.template());
-        $('span', this.$el).html(this.options.userModel.get('username'));
-        return this;
+        this.$el.html(this.template(this.options.userModel.get('username')));
     },
     signOut: function () {
         App.debug('App.ControlsSignOutView.signOut()');
