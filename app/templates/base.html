@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>{% block page_title %}CFCM App{% endblock %}</title>
+        <title>{% block branding_tool_name %}App{% endblock %} - MediaMeter</title>
         <link rel="stylesheet" type="text/css" href="static/lib/bootstrap/css/bootstrap.min.css"/>
         <link rel="stylesheet" type="text/css" href="static/lib/typeahead.js-bootstrap/typeahead.css">
         <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:300,700" type="text/css">
         <link rel="stylesheet" type="text/css" href="static/mediameter.css"/>
         <link rel="stylesheet" type="text/css" href="static/style.css"/>
+        {% block stylesheets %}{% endblock %}
+        {% include 'progress.html' %}
+        {% include 'login_view.html' %}
+        {% include 'controls_view.html' %}
+        {% include 'controls_signout_view.html' %}
         {% block backbone_templates %}{% endblock %}
     </head>
     <body>
@@ -24,7 +29,7 @@
             <div class="branding">
                 <div class="container">
                     {% block branding %}
-                    <h1><strong>Media Meter</strong> {% block branding_tool_name %}App{% endblock %}</h1>
+                    <h1><strong>Media Meter</strong> {{ self.branding_tool_name() }}</h1>
                     {% endblock %}
                 </div>
             </div>
@@ -101,5 +106,6 @@ We'd love contact to make our tool better.
         <script type="text/javascript" src="static/routes.js"></script>
         <script type="text/javascript" src="static/script.js"></script>
         <script type="text/javascript">$(function(){ App.initialize(); });</script>
+        {% block scripts %}{% endblock %}
     </body>
 </html>
