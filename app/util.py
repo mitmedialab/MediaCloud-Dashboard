@@ -49,7 +49,6 @@ def all_media_sets():
     return _media_info.get('sets', [])
 
 class NumFound:
-    thread_pool = multiprocessing.Pool(processes=31)
     def __init__(self, mc, keywords, media, start, end):
         self.mc = mc
         self.to_query = []
@@ -59,11 +58,16 @@ class NumFound:
             self.to_query.append((self, keywords, date, query))
             
     def results(self):
-        return NumFound.thread_pool.map(self.worker, self.to_query)
-        
-    def worker(self, keywords, date, query):
-        res = self.mc.sentenceList(keywords, query, 0, 0)
-        return {
-            'date': date
-            , 'numFound': res['response']['numFound']
-        }
+        return NumFound.thread_pool.map(num_found_worker, self.to_query)
+
+# This should be an instancemethod of NumFound, but Pool.map() requires it
+# to be pickle-able, so this is a quick hack to work around that.
+def num_found_worker(arg):
+    nf, keywords, date, query = arg
+    res = nf.mc.sentenceList(keywords, query, 0, 0)
+    return {
+        'date': date
+        , 'numFound': res['response']['numFound']
+    }
+
+NumFound.thread_pool = multiprocessing.Pool(processes=31)
