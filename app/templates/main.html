@@ -1,10 +1,15 @@
 {% extends 'base.html' %}
-{% block page_title %}
-    Media Cloud Dashboard
+
+{% block branding_tool_name %}Dashboard{% endblock %}
+
+{% block stylesheets %}
 {% endblock %}
-{% block header_title %}
-    Media Cloud Dashboard
+
+{% block scripts %}
+    <script type="text/javascript" src="static/lib/d3/js/d3-3.4.1-min.js"></script>
+    <script type="text/javascript" src="static/lib/d3-cloud/js/d3-cloud.js"></script>
 {% endblock %}
+
 {% block backbone_templates %}
     {% include 'progress.html' %}
     {% include 'login_view.html' %}
