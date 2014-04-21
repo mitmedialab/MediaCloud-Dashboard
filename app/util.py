@@ -1,4 +1,4 @@
-import datetime, os, json, threading, Queue, re
+import datetime, os, json, multiprocessing
 
 def load_media_info_json():
     static_data_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)),'static','data')
@@ -49,31 +49,21 @@ def all_media_sets():
     return _media_info.get('sets', [])
 
 class NumFound:
+    thread_pool = multiprocessing.Pool(processes=31)
     def __init__(self, mc, keywords, media, start, end):
         self.mc = mc
-        self.keywords = keywords
+        self.to_query = []
         queries = solr_date_queries(media_to_solr(media), start, end)
-        self.__results = [{}] * len(queries)
-        self.queue = Queue.Queue()
-        for i, q in enumerate(queries):
+        for q in queries:
             date, query = q
-            self.queue.put((i, date, query))
+            self.to_query.append((self, keywords, date, query))
             
     def results(self):
-        num_workers = 31
-        for i in range(num_workers):
-            t = threading.Thread(target=self.worker)
-            t.daemon = True
-            t.start()
-        self.queue.join()
-        return self.__results
+        return NumFound.thread_pool.map(self.worker, self.to_query)
         
-    def worker(self):
-        while True:
-            i, date, query = self.queue.get()
-            res = self.mc.sentenceList(self.keywords, query, 0, 0)
-            self.__results[i] = {
-                'date': date
-                , 'numFound': res['response']['numFound']
-            }
-            self.queue.task_done()
+    def worker(self, keywords, date, query):
+        res = self.mc.sentenceList(keywords, query, 0, 0)
+        return {
+            'date': date
+            , 'numFound': res['response']['numFound']
+        }
