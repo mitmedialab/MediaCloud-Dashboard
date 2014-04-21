@@ -32,7 +32,8 @@ App.Router = Backbone.Router.extend({
             this.navigate('login', true);
             return;
         }
-        $('.content .container').html('<p>Hello, civic technology!</p>');
+        var demoView = this.vm.getView(App.DemoView);
+        this.vm.showView(demoView);
     },
     
     defaultRoute: function (routeId) {

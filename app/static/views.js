@@ -131,3 +131,13 @@ App.ControlsSignOutView = App.NestedView.extend({
         this.options.userModel.signOut();
     }
 });
+
+App.DemoView = App.NestedView.extend({
+    template: _.template($('#tpl-demo-view').html()),
+    initialize: function (options) {
+        this.render();
+    },
+    render: function () {
+        this.$el.html(this.template());
+    }
+})
