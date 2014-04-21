@@ -12,8 +12,7 @@ App.Router = Backbone.Router.extend({
         var that = this;
         this.vm = App.ViewManager;
         this.vm.initialize({
-            //"selector": '.content .container'
-            "selector": '.container'
+            "selector": '.content .container'
         });
         this.userModel = options.userModel;
         this.mediaSources = options.mediaSources;
@@ -25,7 +24,7 @@ App.Router = Backbone.Router.extend({
     
     login: function () {
         App.debug('Route: login');
-        this.loginView = new App.LoginView({ model: this.userModel });
+        this.loginView = this.vm.getView(App.LoginView, { model: this.userModel });
         this.vm.showView(this.loginView);
     },
     

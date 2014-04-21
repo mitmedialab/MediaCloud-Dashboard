@@ -65,6 +65,11 @@ def logout():
     }
     return json.dumps(response)
 
+# Callback for flask-login
+@login_manager.user_loader
+def load_user(userid):
+    return User(userid, userid)
+
 @app.route('/api/media')
 @flask_login.login_required
 def media():
@@ -138,8 +143,3 @@ def wordcount(keywords, media, start, end):
     query = util.solr_query(util.media_to_solr(media), start, end)
     res = mc.wordCount(keywords , query)
     return json.dumps(res, separators=(',',':'))
-    
-# Callback for flask-login
-@login_manager.user_loader
-def load_user(userid):
-    return User(userid, userid)

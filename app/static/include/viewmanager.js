@@ -73,6 +73,7 @@ App.ViewManager = {
         return v;
     },
     showViews: function (views) {
+        App.debug('App.ViewManager.showViews()');
         var that = this;
         newIds = _.pluck(views, 'cid');
         oldIds = _.pluck(this.views, 'cid');
