@@ -24,6 +24,10 @@ h6 {
     font-size: x-small;
 }
 
+svg {
+    background: #fff;
+}
+
 /* Brand Style ****************************************************************/
 
 .brand-toolbar {
@@ -85,7 +89,7 @@ body {
     padding-top: 20px;
     padding-bottom: 20px;
     background: #dfdfdf;
-    color: #6f6f6f;
+    color: #777;
 }
 
 .controls ul {
@@ -115,12 +119,15 @@ body {
 
 .btn {
     margin-bottom: 20px;
+    border-radius: 0;
+    font-weight: bold;
+    color: #777;
 }
 .btn-primary {
-    font-weight: bold;
     border: none;
     border-radius: 0;
     box-shadow: 2px 2px 2px 0px #b4b4b4;
+    color: #fff;
 }
 input.form-control, select.form-control, textarea.form-control {
     border-radius: 0;
@@ -131,4 +138,31 @@ input.form-control, select.form-control, textarea.form-control {
 .form-group label {
     text-transform: uppercase;
     font-weight: 300;
+}
+.label {
+    display: block;
+    float: left;
+    border-radius: 0;
+    font-size: small;
+    font-weight: 300;
+    box-shadow: 2px 2px 2px 0px #b4b4b4;
+    font-size: 14px;
+    padding: 6px 12px 8px 12px;
+    margin-right: 1em;
+}
+.label-default {
+    background: #fff;
+    color: #000;
+    border: solid 1px #ccc;
+}
+.label-default a .glyphicon {
+    color: #777;
+}
+
+/* Bootstrap typeahead customization ******************************************/
+
+.input-group .twitter-typeahead:first-child .tt-input,
+.input-group .twitter-typeahead:first-child .tt-hint {
+    background: #fff;
+    border-radius: 0;
 }
