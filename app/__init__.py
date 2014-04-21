@@ -24,8 +24,5 @@ host = config.get('database', 'host')
 database = config.get('database', 'database')
 db = pymongo.Connection(host)[database]
 
-# Create media cloud api
-mc = mcapi.MediaCloud(config.get('mediacloud','key'))
-
 # Set up routes and content
 from app import views
