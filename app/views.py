@@ -9,6 +9,8 @@ from app import app, login_manager
 from user import User, authenticate_user
 from forms import *
 
+from app import app_views
+
 @app.route('/')
 def index():
     content = flask.render_template('progress.html')
