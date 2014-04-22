@@ -29,6 +29,14 @@
 .query-views > div:first-child .query-controls button.remove {
     display: none;
 }
+.keyword-view label {
+    display: block;
+    float: left;
+}
+.keyword-view .form-help {
+    display: block;
+    float: right;
+}
 
 /* Plugin styles **************************************************************/
 

@@ -120,6 +120,7 @@ App.Router = Backbone.Router.extend({
             }
         );
         this.queryCollection.on('execute', this.onQuery, this);
+        this.queryCollection.on('add', this.onQueryAdd, this);
         this.showResults(this.queryCollection);
     },
     

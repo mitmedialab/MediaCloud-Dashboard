@@ -134,9 +134,13 @@ App.ControlsSignOutView = App.NestedView.extend({
 
 App.QueryView = App.NestedView.extend({
     template: _.template($('#tpl-query-view').html()),
+    events: {
+        'click button.copy': 'onCopy'
+    },
     initialize: function (options) {
         App.debug('App.QueryView.initialize()');
         App.debug(options);
+        _.bindAll(this, 'onCopy');
         this.mediaSources = options.mediaSources;
         this.mediaSelectView = new App.MediaSelectView({
             model: this.model.get('params').get('mediaModel')
@@ -174,6 +178,23 @@ App.QueryView = App.NestedView.extend({
                 .append(topRow)
                 .append(bottomRow);
         });
+    },
+    onCopy: function (evt) {
+        App.debug('App.QueryView.onCopy()');
+        evt.preventDefault();
+        var newMedia = this.model.get('params').get('mediaModel');
+        var attr = {
+            start: this.model.get('params').get('start'),
+            end: this.model.get('params').get('end'),
+            keywords: this.model.get('params').get('keywords'),
+            mediaModel: newMedia.clone()
+        };
+        var opts = {
+            mediaSources: this.mediaSources
+            , parse: true
+        };
+        var newModel = new App.QueryModel(attr, opts);
+        this.model.collection.add(newModel);
     }
 });
 
@@ -184,7 +205,9 @@ App.QueryListView = App.NestedView.extend({
     },
     initialize: function (options) {
         App.debug('App.QueryListView.initialize()');
+        _.bindAll(this, 'onAdd');
         this.mediaSources = options.mediaSources;
+        this.collection.on('add', this.onAdd);
         this.render();
     },
     render: function () {
@@ -196,19 +219,21 @@ App.QueryListView = App.NestedView.extend({
         this.mediaSources.deferred.done(function () {
             that.$el.html(that.template());
             // Replace loading with queries
-            that.collection.each(function (m) {
-                var queryView = new App.QueryView({
-                    model: m,
-                    mediaSources: that.mediaSources
-                });
-                that.addSubView(queryView);
-                that.$('.query-views').append(queryView.$el);
-            });
+            that.collection.each(that.onAdd);
         });
     },
     onQuery: function (ev) {
         ev.preventDefault();
         this.collection.execute();
+    },
+    onAdd: function (model, collection, options) {
+        App.debug('App.QueryListView.onAdd()');
+        var queryView = new App.QueryView({
+            model: model,
+            mediaSources: this.mediaSources
+        });
+        this.addSubView(queryView);
+        this.$('.query-views').append(queryView.$el);
     }
 });
 
