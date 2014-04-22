@@ -2,7 +2,7 @@
  * backbone-resource.js
  * Classe to manage the loading of multiple resources of different types.
  *
- * Version 1.0-beta.2 2014-04-18
+ * Version 1.0-beta.3 2014-04-21
  * Copyright (c) 2014 MIT Center for Civic Media
  * All rights reserved.
  * License: BSD 3-clause, see resource.license for more info.
@@ -53,9 +53,9 @@ _.extend(ResourceListener.prototype, {
         model_or_collection.off('sync', this.onSync, this);
         model_or_collection.off('error', this.onError, this);
         delete this.subjects[rid];
-        delete this.pending[type][rid];
-        delete this.errored[type][rid];
-        delete this.synced[type][rid];
+        if (this.pending[type]) { delete this.pending[type][rid]; }
+        if (this.errored[type]) { delete this.errored[type][rid]; }
+        if (this.synced[type]) { delete this.synced[type][rid]; }
         // This might have been the last request, check if others are complete
         if (!wasCopmlete) {
             checkComplete(type);
