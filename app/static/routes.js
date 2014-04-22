@@ -10,8 +10,7 @@ App.Router = Backbone.Router.extend({
     
     initialize: function (options) {
         var that = this;
-        this.vm = App.ViewManager;
-        this.vm.initialize({
+        this.vm = new App.ViewManager({
             "selector": '.content .container'
         });
         this.userModel = options.userModel;
