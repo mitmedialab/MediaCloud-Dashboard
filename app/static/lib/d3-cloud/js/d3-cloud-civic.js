@@ -4,12 +4,16 @@
 // https://github.com/jasondavies/d3-cloud
 // License: https://github.com/jasondavies/d3-cloud/blob/master/LICENSE
 
+// Modified to support individual colors for each word (April 21, 2014)
+
 (function(exports) {
   function cloud() {
     var size = [256, 256],
         text = cloudText,
         font = cloudFont,
         fontSize = cloudFontSize,
+        // add color for each word
+        fontColor = cloudFontColor,
         rotate = cloudRotate,
         padding = cloudPadding,
         spiral = archimedeanSpiral,
@@ -29,6 +33,8 @@
         return {
           text: text.call(this, d, i),
           font: font.call(this, d, i),
+          // add font color
+          fontColor: fontColor.call(this, d, i),
           rotate: rotate.call(this, d, i),
           size: ~~fontSize.call(this, d, i),
           padding: cloudPadding.call(this, d, i)
@@ -148,6 +154,13 @@
       return cloud;
     };
 
+
+    cloud.fontColor = function(x) {
+      if (!arguments.length) return fontColor;
+      fontColor = d3.functor(x);
+      return cloud;
+    };
+
     cloud.rotate = function(x) {
       if (!arguments.length) return rotate;
       rotate = d3.functor(x);
@@ -189,6 +202,11 @@
     return "serif";
   }
 
+  function cloudFontColor(){
+    return "blue";
+  }
+
+  // default font color
   function cloudFontSize(d) {
     return Math.sqrt(d.value);
   }
