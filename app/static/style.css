@@ -3,23 +3,12 @@
 
 .container {
     position: relative;
+}
     
 .form-help {
     color: #999;
 }
 
-.media-list-view label {
-    display: block;
-    color: #000;
-}
-.media-list-view .label {
-    font-size: 100%;
-    font-weight: normal;
-    margin-right: 1em;
-    margin-top: 0.45em;
-    display: block;
-    float: left;
-}
 .media-list-item-view .glyphicon {
     position: relative;
     top: 3px !important;
@@ -29,6 +18,16 @@
 
 .media-list-view a.remove {
     color: red;
+}
+
+.query-controls div {
+    text-align: right;
+}
+.query-controls label {
+    visibility: hidden;
+}
+.query-views > div:first-child .query-controls button.remove {
+    display: none;
 }
 
 /* Plugin styles **************************************************************/

@@ -147,9 +147,11 @@ App.QueryView = App.NestedView.extend({
         });
         this.dateRangeView = new App.DateRangeView({ model: this.model });
         this.keywordView = new App.KeywordView({model: this.model});
+        this.controlsView = new App.QueryControlsView();
         this.addSubView(this.mediaSelectView);
         this.addSubView(this.mediaListView);
         this.addSubView(this.dateRangeView);
+        this.addSubView(this.controlsView);
         this.render();
     },
     render: function () {
@@ -163,7 +165,8 @@ App.QueryView = App.NestedView.extend({
             // Replace loading with sub views
             var topRow = $('<div>').addClass('row')
                 .append(that.keywordView.el)
-                .append(that.dateRangeView.el);
+                .append(that.dateRangeView.el)
+                .append(that.controlsView.el);
             var bottomRow = $('<div>').addClass('row')
                 .append(that.mediaSelectView.el)
                 .append(that.mediaListView.el);
@@ -400,6 +403,16 @@ App.KeywordView = Backbone.View.extend({
     },
     contentChanged: function () {
         this.model.get('params').set('keywords', this.$input.val());
+    }
+});
+
+App.QueryControlsView = App.NestedView.extend({
+    template: _.template($('#tpl-query-controls-view').html()),
+    initialize: function (options) {
+        this.render();
+    },
+    render: function () {
+        this.$el.html(this.template());
     }
 });
 
