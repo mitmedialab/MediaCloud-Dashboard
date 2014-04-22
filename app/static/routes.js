@@ -6,6 +6,8 @@ App.Router = Backbone.Router.extend({
         , 'query/:keywords/:media/:start/:end': 'query'
         , 'debug/histogram': 'debugHistogram'
         , 'debug/wordCount': 'debugWordCount'
+        , 'debug/wordCountComparison': 'debugWordCountComparison'
+
     },
     
     initialize: function (options) {
@@ -167,7 +169,43 @@ App.Router = Backbone.Router.extend({
             wordCountView
         ]);
     },
+    // First pass at Comparison word cloud, based on static json data
+    debugWordCountComparison: function () {
+        App.debug('Route: query');
+        var that = this;
+        // Create query collection and add a model
+        var opts = {
+            mediaSources: this.mediaSources,
+            query1Words: this.query1Words,
+            query2Words: this.query2Words
+        };
 
+        var queryModel = new App.QueryModel({}, opts);
+        var queryCollection = new App.QueryCollection(queryModel, opts);
+        var wordcounts = queryModel.get('results').get('wordcounts');
+        query1Words = queryModel.get('results').get('wordcounts');
+        wordcounts.url = '/static/data/test/wordcounts.json';
+        wordcounts.fetch({
+            parse:true
+            , success:function (collection) { console.log(collection); }
+        });
+        var queryModel2 = new App.QueryModel({}, opts);
+        queryCollection.add(queryModel2);
+        var wordcounts2 = queryModel2.get('results').get('wordcounts');
+        query2Words = queryModel2.get('results').get('wordcounts');
+        wordcounts2.url = '/static/data/test/wordcounts2.json';
+
+        wordcounts2.fetch({
+            parse:true
+            , success:function (collection) { console.log(collection); }
+        });
+
+        var wordCountView = new App.DebugWordCountComparisonView({collection:queryCollection
+        });
+        this.vm.showViews([
+            wordCountView
+        ]);
+    },
     
     defaultRoute: function (routeId) {
         App.debug('Default route');

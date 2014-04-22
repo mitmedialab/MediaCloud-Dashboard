@@ -490,6 +490,8 @@ App.DebugWordCountView = App.NestedView.extend({
         this.$('.panel-body').html(progress());
         var that = this;
         this.listenTo(this.collection.resources, 'sync:wordcount', this.renderD3);
+        // this.listenTo(this.collection.resources, 'resource:complete:wordcount', this.renderD3);
+
         this.listenTo(this.collection.resources, 'resource:complete:wordcount', function () {
             App.debug('App.DebugWordCountView() resource:complete ' + that.cid);
             App.debug(that.collection);
@@ -546,6 +548,145 @@ App.DebugWordCountView = App.NestedView.extend({
     }
 });
 
+
+App.DebugWordCountComparisonView = Backbone.View.extend({
+    config: {
+        fontSize: {
+            minSize: 4
+            , maxSize: 32
+        }
+    },
+
+    template: _.template($('#tpl-wordcount-view').html()),
+    
+    initialize: function (options) {
+        this.render();
+    },
+
+    render: function () {
+        App.debug('App.WordCountView.render()');
+        this.$el.html(this.template());
+        progress = _.template($('#tpl-progress').html());
+        this.$('.panel-body').html(progress());
+        var that = this;
+        // this.listenTo(this.collection.resources, 'sync:wordcount', this.renderD3);
+        this.listenTo(this.collection.resources, 'resource:complete:wordcount', function () {
+            this.renderD3(that.collection);
+            App.debug('App.DebugWordCountView() resource:complete ' + that.cid);
+            App.debug(that.collection);
+        });
+    },
+
+    renderD3: function (collection) {
+        console.log('blargh');
+        console.log(collection);
+        App.debug('App.DebugWordCountView.renderD3()');
+        this.$('.wordcount-view-content')
+            .html('')
+            .css('padding', '0');
+        var width = this.$('.wordcount-view-content').width();
+        var height = 400;
+
+        // supports two queries
+        // TODO: Iterate through collections instead
+        var query1Words = collection.models[0].get('results').get('wordcounts');
+        var query2Words = collection.models[1].get('results').get('wordcounts');
+
+        var topWordsQuery1 = _.first(query1Words.toJSON(), 100);
+        var topWordsQuery2 = _.first(query2Words.toJSON(), 100);
+
+        var countsQuery1 = _.pluck(topWordsQuery1, 'count');
+        var countsQuery2 = _.pluck(topWordsQuery2, 'count');
+
+        var maxQuery1 = d3.max(countsQuery1);
+        var maxQuery2 = d3.max(countsQuery2);
+
+        var maxQuery = d3.max([maxQuery1,maxQuery2]);
+        var slope = this.config.fontSize.maxSize / Math.log(maxQuery);
+
+        // get list of all words and sizes
+        wordList1 = [];
+        wordList2 = [];
+        intersectionWordList = [];
+
+        var intersection = _.filter(topWordsQuery1, function(m){
+            return _.contains(_.pluck(topWordsQuery2, 'term'), m['term']); 
+        });
+
+        _.each(intersection, function (m) {
+            intersectionWordList.push({text: m['term'], color: 'orange', query1Count: 0, query2Count: 0, size: 0});
+        });
+
+        _.each(topWordsQuery1, function (m) {
+            // if in the intersection, add to intersectionList
+            if (_.contains(_.pluck(intersection, 'term'), m['term'])){
+                wordObject = _.findWhere(intersectionWordList, {text: m['term']});
+                wordObject.query1Count = m['count'];
+                wordObject.size = slope * Math.log(wordObject.query1Count + wordObject.query2Count);
+            }
+            else{
+                // add to wordList1
+                wordList1.push({text: m['term'], color: 'blue', query1Count: m['count'], query2Count: 0, size: slope * Math.log(m['count'])});
+            }
+        });
+
+        _.each(topWordsQuery2, function (m) {
+            // if in the intersection, add to intersectionList
+            if (_.contains(_.pluck(intersection, 'term'), m['term'])){
+                wordObject = _.findWhere(intersectionWordList, {text: m['term']});
+                wordObject.query2Count = m['count'];
+                wordObject.size = slope * Math.log(wordObject.query1Count + wordObject.query2Count);
+            }
+            else{
+                // add to wordList2
+                wordList2.push({text: m['term'], color: 'green', query1Count: 0, query2Count: m['count'], size: slope * Math.log(m['count'])});
+            }
+        });
+
+        wordsList = wordList1.concat(wordList2).concat(intersectionWordList)
+
+        function getColor(d){
+            var total = d.query1Count + d.query2Count;
+            colorFill = -1*d.query1Count/total + 1*d.query2Count/total;
+            return colorFill;
+        }
+
+        var fill = d3.scale.linear()
+                .domain([-1, 1])
+                .range(["orange", "orchid"]);  
+        d3.layout.cloud().size([1000, 350])
+        .words(wordsList)
+        .rotate(function() { return ~~(Math.random() * 1) * 90; })
+        .font("Arial")
+        .fontSize(function(d) {return d.size; })
+        // Gradient color
+        // .fontColor(function(d) {return fill(getColor(d)); })
+        // Separate colors
+        .fontColor(function(d) {return d.color; })
+        .on("end", draw)
+        .start();
+
+        function draw(words) {
+            // var fill = d3.scale.category20();
+            var svg = d3.select('.wordcount-view-content').append('svg')
+            .attr('width', width).attr('height', height)    
+            .append("g")
+            .attr("transform", "translate(575,200)")
+            .selectAll("text")
+            .data(words)
+            .enter().append("text")
+            .style("font-size", function(d) { return d.size + "px"; })
+            .style("fill", function(d) { return d.fontColor; })
+            .attr("text-anchor", "middle")
+            .attr("transform", function(d) {
+                return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+            })
+            .text(function(d) { return d.text; });
+        }     
+    }
+});
+
+
 App.HistogramView = Backbone.View.extend({
     config: {
         margin: {
@@ -567,7 +708,7 @@ App.HistogramView = Backbone.View.extend({
         yearColor: "#000",
         yearOpacity: 0.33,
         yearSize: 20,
-        monthColor: '#000',
+        monthColor: '#000', 
         monthOpacity: 0.33,
         monthSize: 20,
         labelSize: 14,
@@ -773,11 +914,16 @@ App.HistogramView = Backbone.View.extend({
 
 App.QueryResultView = App.NestedView.extend({
     initialize: function (options) {
+        console.log('options is');
+        console.log(options);
         App.debug('App.QueryResultView.initialize():' + this.cid);
         this.histogramView = new App.HistogramView(options);
-        // this.wordCountView = new App.WordCountView(options);
-        // Use new WordCount view
-        this.wordCountView = new App.DebugWordCountView(options);
+
+        // use comparison cloud for multiple queries
+        this.wordCountView = new App.DebugWordCountComparisonView(options);
+
+        // use single topic word cloud for single query
+        // this.wordCountView = new App.DebugWordCountView(options);
         this.sentenceView = new App.SentenceView(options);
         this.addSubView(this.histogramView);
         this.addSubView(this.wordCountView);
