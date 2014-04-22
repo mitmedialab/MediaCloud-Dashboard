@@ -135,12 +135,14 @@ App.ControlsSignOutView = App.NestedView.extend({
 App.QueryView = App.NestedView.extend({
     template: _.template($('#tpl-query-view').html()),
     events: {
-        'click button.copy': 'onCopy'
+        'click button.copy': 'onCopyInput',
+        'click button.remove': 'onRemoveInput'
     },
     initialize: function (options) {
         App.debug('App.QueryView.initialize()');
         App.debug(options);
-        _.bindAll(this, 'onCopy');
+        _.bindAll(this, 'onCopyInput');
+        _.bindAll(this, 'onRemoveInput');
         this.mediaSources = options.mediaSources;
         this.mediaSelectView = new App.MediaSelectView({
             model: this.model.get('params').get('mediaModel')
@@ -152,6 +154,7 @@ App.QueryView = App.NestedView.extend({
         this.dateRangeView = new App.DateRangeView({ model: this.model });
         this.keywordView = new App.KeywordView({model: this.model});
         this.controlsView = new App.QueryControlsView();
+        this.model.on('remove', this.close, this);
         this.addSubView(this.mediaSelectView);
         this.addSubView(this.mediaListView);
         this.addSubView(this.dateRangeView);
@@ -179,8 +182,8 @@ App.QueryView = App.NestedView.extend({
                 .append(bottomRow);
         });
     },
-    onCopy: function (evt) {
-        App.debug('App.QueryView.onCopy()');
+    onCopyInput: function (evt) {
+        App.debug('App.QueryView.onCopyInput()');
         evt.preventDefault();
         var newMedia = this.model.get('params').get('mediaModel');
         var attr = {
@@ -195,6 +198,10 @@ App.QueryView = App.NestedView.extend({
         };
         var newModel = new App.QueryModel(attr, opts);
         this.model.collection.add(newModel);
+    },
+    onRemoveInput: function (evt) {
+        evt.preventDefault();
+        this.model.collection.remove(this.model);
     }
 });
 
@@ -207,7 +214,8 @@ App.QueryListView = App.NestedView.extend({
         App.debug('App.QueryListView.initialize()');
         _.bindAll(this, 'onAdd');
         this.mediaSources = options.mediaSources;
-        this.collection.on('add', this.onAdd);
+        this.collection.on('add', this.onAdd, this);
+        this.collection.on('remove', this.onRemove, this);
         this.render();
     },
     render: function () {
@@ -219,7 +227,9 @@ App.QueryListView = App.NestedView.extend({
         this.mediaSources.deferred.done(function () {
             that.$el.html(that.template());
             // Replace loading with queries
-            that.collection.each(that.onAdd);
+            that.collection.each(function (m) {
+                that.onAdd(m, that.collection)
+            });
         });
     },
     onQuery: function (ev) {
@@ -234,6 +244,24 @@ App.QueryListView = App.NestedView.extend({
         });
         this.addSubView(queryView);
         this.$('.query-views').append(queryView.$el);
+        // TODO this is a hack to only allow two queries, but we can get data
+        // for more once the viz can handle it.
+        if (collection.length == 1) {
+            this.$('.query-views').addClass('one');
+            this.$('.query-views').removeClass('two');
+        } else {
+            this.$('.query-views').addClass('two');
+            this.$('.query-views').removeClass('one');
+        }
+    },
+    onRemove: function (model, collection, options) {
+        if (collection.length == 1) {
+            this.$('.query-views').addClass('one');
+            this.$('.query-views').removeClass('two');
+        } else {
+            this.$('.query-views').addClass('two');
+            this.$('.query-views').removeClass('one');
+        }
     }
 });
 
