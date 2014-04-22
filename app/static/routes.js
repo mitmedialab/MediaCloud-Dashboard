@@ -12,8 +12,7 @@ App.Router = Backbone.Router.extend({
     
     initialize: function (options) {
         var that = this;
-        this.vm = App.ViewManager;
-        this.vm.initialize({
+        this.vm = new App.ViewManager({
             "selector": '.content .container'
         });
         this.userModel = options.userModel;
@@ -123,6 +122,7 @@ App.Router = Backbone.Router.extend({
             }
         );
         this.queryCollection.on('execute', this.onQuery, this);
+        this.queryCollection.on('add', this.onQueryAdd, this);
         this.showResults(this.queryCollection);
     },
     

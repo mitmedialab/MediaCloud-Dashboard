@@ -3,13 +3,29 @@
 
 body {
     font-family: 'Lato', sans-serif;
-    font-weight: light;
+    font-weight: 300;
+    background: #dfdfdf;
 }
 
+h3, h4, h5, h6 {
+    font-weight: bold;
+}
 h3 {
     text-transform: uppercase;
-    font-weight: bold;
     font-size: inherit;
+}
+h4 {
+    font-size: inherit;
+}
+h5 {
+    font-size: small;
+}
+h6 {
+    font-size: x-small;
+}
+
+svg {
+    background: #fff;
 }
 
 /* Brand Style ****************************************************************/
@@ -25,6 +41,10 @@ h3 {
 .app-toolbar {
     background: #813f1f;
     color: #e14c11;
+}
+.btn-primary {
+    background: #e14c11;
+    color: #fff;
 }
 
 /* Layout *********************************************************************/
@@ -42,7 +62,10 @@ body {
 }
 .branding {
 }
-.app-toolbar {
+.branding h1 img {
+    vertical-align: middle;
+    position: relative;
+    top: -0.33ex;
 }
 .drawer {
     position: relative;
@@ -69,7 +92,7 @@ body {
     padding-top: 20px;
     padding-bottom: 20px;
     background: #dfdfdf;
-    color: #6f6f6f;
+    color: #777;
 }
 
 .controls ul {
@@ -95,4 +118,54 @@ body {
 }
 .panel-default > .panel-body {
     background: #f2f2f2;
+}
+
+.btn {
+    margin-bottom: 20px;
+    border-radius: 0;
+    font-weight: bold;
+    color: #777;
+}
+.btn-primary {
+    border: none;
+    border-radius: 0;
+    box-shadow: 2px 2px 2px 0px #b4b4b4;
+    color: #fff;
+}
+input.form-control, select.form-control, textarea.form-control {
+    border-radius: 0;
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+}
+.form-group label {
+    text-transform: uppercase;
+    font-weight: 300;
+}
+.label {
+    display: block;
+    float: left;
+    border-radius: 0;
+    font-size: small;
+    font-weight: 300;
+    box-shadow: 2px 2px 2px 0px #b4b4b4;
+    font-size: 14px;
+    padding: 6px 12px 8px 12px;
+    margin-right: 1em;
+}
+.label-default {
+    background: #fff;
+    color: #000;
+    border: solid 1px #ccc;
+}
+.label-default a .glyphicon {
+    color: #777;
+}
+
+/* Bootstrap typeahead customization ******************************************/
+
+.input-group .twitter-typeahead:first-child .tt-input,
+.input-group .twitter-typeahead:first-child .tt-hint {
+    background: #fff;
+    border-radius: 0;
 }

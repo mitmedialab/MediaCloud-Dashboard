@@ -25,7 +25,10 @@
  *
  */
 
-App.ViewManager = {
+App.ViewManager = function (options) {
+    this.initialize(options);
+};
+App.ViewManager.prototype = {
     options: {
         selector: '.content'
     },
