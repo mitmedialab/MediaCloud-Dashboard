@@ -62,7 +62,10 @@ body {
 }
 .branding {
 }
-.app-toolbar {
+.branding h1 img {
+    vertical-align: middle;
+    position: relative;
+    top: -0.33ex;
 }
 .drawer {
     position: relative;

@@ -30,7 +30,11 @@
             <div class="branding">
                 <div class="container">
                     {% block branding %}
-                    <h1><strong>Media Meter</strong> {{ self.branding_tool_name() }}</h1>
+                    <h1>
+                        {% block logo %}<img src="/static/img/mm-logo-65-orange.png" />{% endblock %}
+                        <strong>Media Meter</strong>
+                        {{ self.branding_tool_name() }}
+                    </h1>
                     {% endblock %}
                 </div>
             </div>
