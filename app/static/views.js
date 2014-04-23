@@ -798,27 +798,26 @@ App.HistogramView = Backbone.View.extend({
         this.allLayersData = this.collection.map(function (queryModel) {
             return queryModel.get('results').get('datecounts').toJSON();
         });
-        this.allDayData = _.map(this.allLayersData, function (layerData) {
-            return _.map(_.pluck(layerData, 'date'), that.toDate);
-        });
+        // TODO: move into DateCountCollection
         // Get min/max count/date
         var maxCount = d3.max(this.allLayersData, function (layerData) {
             return d3.max(_.pluck(layerData, 'numFound'));
         });
-        console.log(this.allDayData);
-        var minDate = d3.min(_.map(this.allDayData, function (dayData) {
-            return _.first(dayData);
+        var minDate = d3.min(_.map(this.allLayersData, function (layerData) {
+            return _.first(layerData).dateObj;
         }));
-        var maxDate = d3.max(_.map(this.allDayData, function (dayData) {
-            return _.last(dayData);
+        var maxDate = d3.max(_.map(this.allLayersData, function (layerData) {
+            return _.last(layerData).dateObj;
         }));
-        var days = Math.round((maxDate.getTime() - minDate.getTime()) / (1000*60*60*24));
-        var domain = _.map(_.range(days), function (d) {
-            var next = new Date(minDate);
-            next.setDate(next.getDate() + d);
-            return next;
+        var days = 1 + Math.round((maxDate.getTime() - minDate.getTime()) / (1000*60*60*24));
+        this.domain = [this.toDateString(minDate)];
+        this.domainDates = [minDate];
+        _.each(_.range(days - 1), function () {
+            var nextDate = new Date(_.last(that.domainDates));
+            nextDate.setUTCDate(nextDate.getUTCDate() + 1);
+            that.domainDates.push(nextDate);
+            that.domain.push(that.toDateString(nextDate));
         });
-        this.dayData = this.allDayData[0];
         // Layout
         this.$('.histogram-view-content')
             .html('')
@@ -832,16 +831,13 @@ App.HistogramView = Backbone.View.extend({
         // TODO - for multiple layers call d3.layout.stack
         // Create axes
         this.dayScale = d3.scale.ordinal()
-            .domain(this.dayData)
+            .domain(this.domain)
             .rangeBands([0, this.chartWidth], 0, 0);
         this.x = d3.scale.ordinal()
-            .domain(_.pluck(this.allLayersData[0], 'date'))
-            .rangePoints([this.dayScale.rangeBand()/2.0, this.chartWidth - this.dayScale.rangeBand()/2.0]);
-        this.dateX = d3.scale.ordinal()
-            .domain(this.dayData)
+            .domain(this.domain)
             .rangePoints([this.dayScale.rangeBand()/2.0, this.chartWidth - this.dayScale.rangeBand()/2.0]);
         this.y = d3.scale.linear()
-            .domain([0, d3.max(_.pluck(this.allLayersData[0], 'numFound'))])
+            .domain([0, maxCount])
             .range([this.chartHeight - this.config.padding.bottom, this.config.padding.top]);
         // Create chart content
         this.chart = this.svg.append('g')
@@ -865,7 +861,7 @@ App.HistogramView = Backbone.View.extend({
         var that = this;
         // Draw background days
         var days = this.chart.append('g').classed('bg', true);
-        days.selectAll('.day').data(this.dayData)
+        days.selectAll('.day').data(this.domain)
             .enter()
                 .append('rect').classed('day', true)
                     .attr('x', this.dayScale)
@@ -888,7 +884,7 @@ App.HistogramView = Backbone.View.extend({
             .enter()
                 .append('text').classed('label-year', true)
                     .text(function (d) { return d.getUTCFullYear(); })
-                    .attr('x', this.dateX)
+                    .attr('x', this.x)
                     .attr('y', this.chartHeight - this.config.yearSize - 1)
                     .attr('dy', '1em')
                     .attr('font-size', this.config.yearSize)
@@ -900,7 +896,7 @@ App.HistogramView = Backbone.View.extend({
             .enter()
                 .append('text').classed('label-month', true)
                     .text(function (d) { return App.monthName(d.getUTCMonth()); })
-                    .attr('x', this.dateX)
+                    .attr('x', this.x)
                     .attr('y', this.config.monthSize)
                     .attr('font-size', this.config.monthSize)
                     .attr('fill', this.config.monthColor)
@@ -975,12 +971,19 @@ App.HistogramView = Backbone.View.extend({
             .attr('fill-opacity', this.config.labelOpacity);
     },
     dayFillColor: function (date) {
-        days = Math.round(date.getTime() / 86400000.0);
-        return this.config.stripeColors[date.getUTCMonth() % 2][days % 2];
+        return this.config.stripeColors[0][date.substr(8,10) % 2]
     },
     toDate: function (dateString) {
         var ymd = dateString.split('-');
         return new Date(Date.UTC(ymd[0], ymd[1]-1, ymd[2]));
+    },
+    pad: function (s) { return s.length > 1 ? s : '0' + s; },
+    toDateString: function (d) {
+            return [
+                d.getUTCFullYear(),
+                this.pad(String(d.getUTCMonth() + 1)),
+                this.pad(String(d.getUTCDate()))
+            ].join('-');
     },
     minMaxX: function (d) {
         var x = this.x(d.date);

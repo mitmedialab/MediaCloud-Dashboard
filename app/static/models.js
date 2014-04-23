@@ -358,7 +358,15 @@ App.WordCountCollection = Backbone.Collection.extend({
     }
 });
 
-App.DateCountModel = Backbone.Model.extend({});
+App.DateCountModel = Backbone.Model.extend({
+    parse: function (result) {
+        var ymd = result.date.split('-');
+        d = new Date(Date.UTC(ymd[0], ymd[1]-1, ymd[2]));
+        result.dateObj = d;
+        result.timestamp = d.getTime();
+        return result;
+    },
+});
 App.DateCountCollection = Backbone.Collection.extend({
     resourceType: 'datecount',
     model: App.DateCountModel,
