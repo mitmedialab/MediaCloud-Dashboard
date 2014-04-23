@@ -632,8 +632,8 @@ App.WordCountResultView = Backbone.View.extend({
 App.WordCountComparisonView = Backbone.View.extend({
     config: {
         fontSize: {
-            minSize: 4
-            , maxSize: 32
+            minSize: 8
+            , maxSize: 48
         }
     },
 
