@@ -471,11 +471,8 @@ App.SentenceView = Backbone.View.extend({
     }
 });
 
-App.WordCountView = Backbone.View.extend({
-    config: {
-        minSize: 4
-        , maxSize: 32
-    },
+// Wrapper view for single word clouds and comparison word cloud
+App.WordCountView = App.NestedView.extend({
     template: _.template($('#tpl-wordcount-view').html()),
     initialize: function (options) {
         this.render();
@@ -486,62 +483,64 @@ App.WordCountView = Backbone.View.extend({
         this.$el.html(this.template());
         var $el = this.$('.panel-body');
         $el.html(_.template($('#tpl-progress').html())());
-        // TODO support multiple queries
-        this.collection.resources.on('sync:wordcount', function (wordcounts) {
-            App.debug('App.WordCountView.collection:sync');
-            var topWords = _.first(wordcounts.toJSON(), 100);
-            var counts = _.pluck(topWords, 'count');
-            var min = d3.min(counts);
-            var max = d3.max(counts);
-            var slope = this.config.maxSize / Math.log(max);
-            $el.html('');
-            _.each(topWords, function (m) {
-                var size = slope * Math.log(m['count']);
-                if (size >= that.config.minSize) {
-                    var word = $('<span>')
-                        .css('font-size', size + 'pt')
-                        .html(m['term']);
-                    $el.append(word);
-                    $el.append(' ');
-                }
-            });
-        }, this);
-    }
-});
-
-// First pass of single wordcloud
-App.DebugWordCountView = App.NestedView.extend({
-    config: {
-        minSize: 4,
-        maxSize: 48
-    },
-    template: _.template($('#tpl-wordcount-view').html()),
-    
-    initialize: function (options) {
-        this.render();
-    },
-
-    render: function () {
-        App.debug('App.WordCountView.render()');
-        this.$el.html(this.template());
-        progress = _.template($('#tpl-progress').html());
-        this.$('.panel-body').html(progress());
-        var that = this;
-        this.listenTo(this.collection.resources, 'sync:wordcount', this.renderD3);
-        // this.listenTo(this.collection.resources, 'resource:complete:wordcount', this.renderD3);
-
+        // render individual word clouds for each query
+        this.listenTo(this.collection.resources, 'sync:wordcount', this.renderWordCountResults);
+        // only render comparison when >=2 queries
         this.listenTo(this.collection.resources, 'resource:complete:wordcount', function () {
-            App.debug('App.DebugWordCountView() resource:complete ' + that.cid);
+        this.$('.wordcount-view-content .panel-body .progress').hide();
+            if (that.collection.length >=2){
+                this.renderWordCountComparison(that.collection);
+            }
+            App.debug('App.WordCountComparisonView() resource:complete ' + that.cid);
             App.debug(that.collection);
         });
     },
 
+    renderWordCountResults: function (wordcounts) {
+        App.debug('App.WordCountView.renderWordCountResults()');
+        var wordCountResultView = new App.WordCountResultView(wordcounts);
+        this.addSubView(wordCountResultView);
+        var $el = this.$('.panel-body');
+        $el.append(wordCountResultView.$el);
+    },
+
+    renderWordCountComparison: function (collection) {
+        App.debug('App.WordCountView.renderWordCountComparison()');
+        var wordCountComparisonView = new App.WordCountComparisonView(collection);
+        this.addSubView(wordCountComparisonView);
+        var $el = this.$('.panel-body');
+        $el.append(wordCountComparisonView.$el);
+    }
+});
+
+// Single word cloud view
+App.WordCountResultView = Backbone.View.extend({
+    config: {
+        minSize: 4,
+        maxSize: 48
+    },
+    template: _.template($('#tpl-wordcount-result-view').html()),
+
+    initialize: function (wordcounts) {
+        this.render(wordcounts);
+    },
+
+    render: function (wordcounts) {
+        App.debug('App.WordCountResultView.render()');
+        this.$el.html(this.template());
+        progress = _.template($('#tpl-progress').html());
+        this.$('.wordcount-result-view-content').html(progress());
+        var that = this;
+        // wait until end to get correct width
+        _.defer(function(){that.renderD3(wordcounts);});
+    },
+
     renderD3: function (wordcounts) {
-        App.debug('App.DebugWordCountView.renderD3()');
-        this.$('.wordcount-view-content')
+        App.debug('App.WordCountResultView.renderD3()');
+        this.$('.wordcount-result-view-content')
             .html('')
             .css('padding', '0');
-        var width = this.$('.wordcount-view-content').width();
+        var width = this.$('.wordcount-result-view-content').width();
         var height = 400;
         var topWords = _.first(wordcounts.toJSON(), 100);
         var counts = _.pluck(topWords, 'count');
@@ -568,7 +567,7 @@ App.DebugWordCountView = App.NestedView.extend({
             // var fill = d3.scale.linear().domain([0,100]).range(["black","white"]);
             // Colors
             var fill = d3.scale.category20();
-            var svg = d3.select('.wordcount-view-content').append('svg')
+            var svg = d3.select('.wordcount-result-view-content').append('svg')
             .attr('width', width).attr('height', height)    
             .append("g")
             .attr("transform", "translate(575,200)")
@@ -586,8 +585,8 @@ App.DebugWordCountView = App.NestedView.extend({
     }
 });
 
-
-App.DebugWordCountComparisonView = Backbone.View.extend({
+// View for comparison word cloud
+App.WordCountComparisonView = Backbone.View.extend({
     config: {
         fontSize: {
             minSize: 4
@@ -595,36 +594,28 @@ App.DebugWordCountComparisonView = Backbone.View.extend({
         }
     },
 
-    template: _.template($('#tpl-wordcount-view').html()),
+    template: _.template($('#tpl-wordcount-comparison-view').html()),
     
-    initialize: function (options) {
-        this.render();
+    initialize: function (collection) {
+        this.render(collection);
     },
 
-    render: function () {
-        App.debug('App.WordCountView.render()');
+    render: function (collection) {
+        App.debug('App.WordCountComparisonView.render()');
         this.$el.html(this.template());
         progress = _.template($('#tpl-progress').html());
         this.$('.panel-body').html(progress());
         var that = this;
-        // this.listenTo(this.collection.resources, 'sync:wordcount', this.renderD3);
-        this.listenTo(this.collection.resources, 'resource:complete:wordcount', function () {
-            this.renderD3(that.collection);
-            App.debug('App.DebugWordCountView() resource:complete ' + that.cid);
-            App.debug(that.collection);
-        });
+        _.defer(function(){that.renderD3(collection);});
     },
 
     renderD3: function (collection) {
-        console.log('blargh');
-        console.log(collection);
-        App.debug('App.DebugWordCountView.renderD3()');
-        this.$('.wordcount-view-content')
+        App.debug('App.WordCountComparisonView.renderD3()');
+        this.$('.wordcount-comparison-view-content')
             .html('')
             .css('padding', '0');
-        var width = this.$('.wordcount-view-content').width();
+        var width = this.$('.wordcount-comparison-view-content').width();
         var height = 400;
-
         // supports two queries
         // TODO: Iterate through collections instead
         var query1Words = collection.models[0].get('results').get('wordcounts');
@@ -652,7 +643,7 @@ App.DebugWordCountComparisonView = Backbone.View.extend({
         });
 
         _.each(intersection, function (m) {
-            intersectionWordList.push({text: m['term'], color: 'orange', query1Count: 0, query2Count: 0, size: 0});
+            intersectionWordList.push({text: m['term'], color: 'gray', query1Count: 0, query2Count: 0, size: 0});
         });
 
         _.each(topWordsQuery1, function (m) {
@@ -677,7 +668,7 @@ App.DebugWordCountComparisonView = Backbone.View.extend({
             }
             else{
                 // add to wordList2
-                wordList2.push({text: m['term'], color: 'green', query1Count: 0, query2Count: m['count'], size: slope * Math.log(m['count'])});
+                wordList2.push({text: m['term'], color: 'darkorange', query1Count: 0, query2Count: m['count'], size: slope * Math.log(m['count'])});
             }
         });
 
@@ -706,7 +697,7 @@ App.DebugWordCountComparisonView = Backbone.View.extend({
 
         function draw(words) {
             // var fill = d3.scale.category20();
-            var svg = d3.select('.wordcount-view-content').append('svg')
+            var svg = d3.select('.wordcount-comparison-view-content').append('svg')
             .attr('width', width).attr('height', height)    
             .append("g")
             .attr("transform", "translate(575,200)")
@@ -723,6 +714,7 @@ App.DebugWordCountComparisonView = Backbone.View.extend({
         }     
     }
 });
+
 
 
 App.HistogramView = Backbone.View.extend({
@@ -952,16 +944,9 @@ App.HistogramView = Backbone.View.extend({
 
 App.QueryResultView = App.NestedView.extend({
     initialize: function (options) {
-        console.log('options is');
-        console.log(options);
         App.debug('App.QueryResultView.initialize():' + this.cid);
         this.histogramView = new App.HistogramView(options);
-
-        // use comparison cloud for multiple queries
-        this.wordCountView = new App.DebugWordCountComparisonView(options);
-
-        // use single topic word cloud for single query
-        // this.wordCountView = new App.DebugWordCountView(options);
+        this.wordCountView = new App.WordCountView(options);
         this.sentenceView = new App.SentenceView(options);
         this.addSubView(this.histogramView);
         this.addSubView(this.wordCountView);
