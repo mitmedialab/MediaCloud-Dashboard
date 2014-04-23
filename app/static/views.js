@@ -478,7 +478,7 @@ App.SentenceView = Backbone.View.extend({
         var that = this;
         App.debug('App.SentenceView.render()');
         this.$el.html(this.template());
-        var $el = this.$('.sentence-view-content');
+        var $el = this.$('.sentence-view .copy');
         progress = _.template($('#tpl-progress').html());
         $el.html(progress());
         // TODO split into two views, one for the QueryColleciton and one for SentenceColleciton
@@ -496,6 +496,9 @@ App.SentenceView = Backbone.View.extend({
                 $el.append(p);
             });
         }, this);
+        this.collection.on('execute', function () {
+            $el.html(progress());
+        });
     }
 });
 
@@ -799,9 +802,14 @@ App.HistogramView = Backbone.View.extend({
         App.debug('App.HistogramView.render()');
         this.$el.html(this.template());
         progress = _.template($('#tpl-progress').html());
-        this.$('.panel-body').html(progress());
+        this.$('.copy').html(progress());
+        this.$('.viz').hide();
         // TODO allow for multiple results
         this.collection.resources.on('resource:complete:datecount', this.renderD3, this);
+        this.listenTo(this.collection, 'execute', function () {
+            this.$('.copy').html(progress()).show();
+            this.$('.viz').html('');
+        }, this);
     },
     renderD3: function () {
         App.debug('App.HistogramView.renderD3()');
@@ -831,14 +839,16 @@ App.HistogramView = Backbone.View.extend({
             that.domain.push(that.toDateString(nextDate));
         });
         // Layout
-        this.$('.histogram-view-content')
+        this.$('.copy').hide();
+        this.$('.viz')
             .html('')
-            .css('padding', '0');
-        this.width = this.$('.histogram-view-content').width();
+            .css('padding', '0')
+            .show();
+        this.width = this.$('.viz').width();
         this.height = 120;
         this.chartWidth = this.width - this.config.margin.left - this.config.margin.right;
         this.chartHeight = this.height - this.config.margin.top - this.config.margin.bottom;
-        this.svg = d3.select('.histogram-view-content').append('svg')
+        this.svg = d3.select('.histogram-view .viz').append('svg')
             .attr('width', this.width).attr('height', this.height);
         // Create axes
         this.dayScale = d3.scale.ordinal()
