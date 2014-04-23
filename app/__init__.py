@@ -7,9 +7,13 @@ import mediacloud
 import mediacloud.api as mcapi
 import pymongo
 
+import os.path
+
 # Load configuration
 config = ConfigParser.ConfigParser()
-config.read('app.config')
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+config.read(os.path.join(parent_dir, 'app.config'))
 
 # Flask app
 app = flask.Flask(__name__)
