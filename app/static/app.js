@@ -6,7 +6,8 @@ App = {
             format: 'yyyy-mm-dd'
         },
         fullMonthNames: [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ],
-        shortMonthNames: [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec" ]
+        shortMonthNames: [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec" ],
+        queryColors: ['#e14c11', "#249fc9"]
     },
     
     initialize: function () {
