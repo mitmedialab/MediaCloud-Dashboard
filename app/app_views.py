@@ -34,7 +34,7 @@ def media_sets():
 @flask_login.login_required
 def sentences(keywords, media, start, end):
     query = util.solr_query(util.media_to_solr(media), start, end)
-    res = mc.sentenceList(keywords , query)
+    res = mc.sentenceList(keywords , query, 0, 10)
     return json.dumps(res, separators=(',',':'))
     
 @app.route('/api/sentences/docs/<keywords>/<media>/<start>/<end>')
@@ -42,7 +42,7 @@ def sentences(keywords, media, start, end):
 def sentence_docs(keywords, media, start, end):
     query = util.solr_query(util.media_to_solr(media), start, end)
     print query
-    res = mc.sentenceList(keywords, query, 0, 10)
+    res = mc.sentenceList(keywords, query, 0, 0)
     sentences = res['response']['docs']
     for s in sentences:
         s['totalSentences'] = res['response']['numFound'] # hack to get total sentences count to Backbone.js

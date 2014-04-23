@@ -686,7 +686,7 @@ App.WordCountComparisonView = Backbone.View.extend({
         });
 
         _.each(intersection, function (m) {
-            intersectionWordList.push({text: m['term'], color: 'gray', query1Count: 0, query2Count: 0, size: 0});
+            intersectionWordList.push({text: m['term'], color: 'black', query1Count: 0, query2Count: 0, size: 0});
         });
 
         _.each(topWordsQuery1, function (m) {
@@ -698,7 +698,7 @@ App.WordCountComparisonView = Backbone.View.extend({
             }
             else{
                 // add to wordList1
-                wordList1.push({text: m['term'], color: 'blue', query1Count: m['count'], query2Count: 0, size: slope * Math.log(m['count'])});
+                wordList1.push({text: m['term'], color: '#e14c11', query1Count: m['count'], query2Count: 0, size: slope * Math.log(m['count'])});
             }
         });
 
@@ -711,7 +711,7 @@ App.WordCountComparisonView = Backbone.View.extend({
             }
             else{
                 // add to wordList2
-                wordList2.push({text: m['term'], color: 'darkorange', query1Count: 0, query2Count: m['count'], size: slope * Math.log(m['count'])});
+                wordList2.push({text: m['term'], color: '#249fc9', query1Count: 0, query2Count: m['count'], size: slope * Math.log(m['count'])});
             }
         });
 
@@ -748,6 +748,7 @@ App.WordCountComparisonView = Backbone.View.extend({
             .data(words)
             .enter().append("text")
             .style("font-size", function(d) { return d.size + "px"; })
+            .style("font-weight", 'bold')
             .style("fill", function(d) { return d.fontColor; })
             .attr("text-anchor", "middle")
             .attr("transform", function(d) {
