@@ -559,7 +559,7 @@ App.WordCountView = App.NestedView.extend({
 // Single word cloud view
 App.WordCountResultView = Backbone.View.extend({
     config: {
-        minSize: 4,
+        minSize: 8,
         maxSize: 48
     },
     template: _.template($('#tpl-wordcount-result-view').html()),
@@ -618,8 +618,9 @@ App.WordCountResultView = Backbone.View.extend({
             .data(words)
             .enter().append("text")
             .style("font-size", function(d) { return d.size + "px"; })
-            .style("fill", function(d, i) { return fill(i); })
+            .style("fill", App.config.queryColors[0])
             .attr("text-anchor", "middle")
+            .attr('font-weight', 'bold')
             .attr("transform", function(d) {
                 return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
             })
