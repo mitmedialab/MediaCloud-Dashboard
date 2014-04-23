@@ -200,7 +200,7 @@ App.Router = Backbone.Router.extend({
             , success:function (collection) { console.log(collection); }
         });
 
-        var wordCountView = new App.DebugWordCountComparisonView({collection:queryCollection
+        var wordCountView = new App.WordCountComparisonView({collection:queryCollection
         });
         this.vm.showViews([
             wordCountView
