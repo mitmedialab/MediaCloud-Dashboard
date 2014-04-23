@@ -58,7 +58,8 @@ class NumFound:
             self.to_query.append((self, keywords, date, query))
             
     def results(self):
-        return NumFound.thread_pool.map(num_found_worker, self.to_query)
+        return [num_found_worker(arg) for arg in self.to_query]
+        #return NumFound.thread_pool.map(num_found_worker, self.to_query)
 
 # This should be an instancemethod of NumFound, but Pool.map() requires it
 # to be pickle-able, so this is a quick hack to work around that.
@@ -70,4 +71,4 @@ def num_found_worker(arg):
         , 'numFound': res['response']['numFound']
     }
 
-NumFound.thread_pool = multiprocessing.Pool(processes=31)
+#NumFound.thread_pool = multiprocessing.Pool(processes=31)
