@@ -789,14 +789,36 @@ App.HistogramView = Backbone.View.extend({
         progress = _.template($('#tpl-progress').html());
         this.$('.panel-body').html(progress());
         // TODO allow for multiple results
-        this.collection.resources.on('sync:datecount', this.renderD3, this);
+        this.collection.resources.on('resource:complete:datecount', this.renderD3, this);
     },
-    renderD3: function (datecounts) {
+    renderD3: function () {
         App.debug('App.HistogramView.renderD3()');
         var that = this;
         // Prepare javascript object and date array
-        this.allLayersData = [datecounts.toJSON()];
-        this.dayData = _.map(_.pluck(this.allLayersData[0], 'date'), this.toDate);
+        this.allLayersData = this.collection.map(function (queryModel) {
+            return queryModel.get('results').get('datecounts').toJSON();
+        });
+        this.allDayData = _.map(this.allLayersData, function (layerData) {
+            return _.map(_.pluck(layerData, 'date'), that.toDate);
+        });
+        // Get min/max count/date
+        var maxCount = d3.max(this.allLayersData, function (layerData) {
+            return d3.max(_.pluck(layerData, 'numFound'));
+        });
+        console.log(this.allDayData);
+        var minDate = d3.min(_.map(this.allDayData, function (dayData) {
+            return _.first(dayData);
+        }));
+        var maxDate = d3.max(_.map(this.allDayData, function (dayData) {
+            return _.last(dayData);
+        }));
+        var days = Math.round((maxDate.getTime() - minDate.getTime()) / (1000*60*60*24));
+        var domain = _.map(_.range(days), function (d) {
+            var next = new Date(minDate);
+            next.setDate(next.getDate() + d);
+            return next;
+        });
+        this.dayData = this.allDayData[0];
         // Layout
         this.$('.histogram-view-content')
             .html('')

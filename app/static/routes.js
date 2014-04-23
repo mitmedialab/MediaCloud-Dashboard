@@ -133,12 +133,15 @@ App.Router = Backbone.Router.extend({
         var opts = {
             mediaSources: this.mediaSources
         };
-        var queryCollection = new App.QueryCollection({}, opts);
+        var queryCollection = new App.QueryCollection([], opts);
+        console.log(queryCollection.length);
         var queryModel = new App.QueryModel({}, opts);
         queryCollection.add(queryModel);
+        console.log(queryCollection.length);
         var datecounts = queryModel.get('results').get('datecounts')
         datecounts.url = '/static/data/test/datecounts.json';
         datecounts.fetch({ parse:true });
+        console.log(queryCollection.length);
         var histogramView = new App.HistogramView({collection:queryCollection});
         this.vm.showViews([
             histogramView
