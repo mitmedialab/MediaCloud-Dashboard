@@ -819,7 +819,6 @@ App.HistogramView = Backbone.View.extend({
         this.allLayersData = this.collection.map(function (queryModel) {
             return queryModel.get('results').get('datecounts').toJSON();
         });
-        console.log(this.allLayersData);
         // TODO: move into DateCountCollection
         // Get min/max count/date
         var maxCount = d3.max(this.allLayersData, function (layerData) {
@@ -875,7 +874,7 @@ App.HistogramView = Backbone.View.extend({
         this.chart.selectAll('path').data(this.allLayersData)
             .enter().append('path')
                 .attr('width', that.chartWidth)
-                .attr('d', function (d, i) { console.log(d); console.log(i); return path(d); })
+                .attr('d', path)
                 .style('stroke', function (d, i) { return App.config.queryColors[i]; })
                 .style('fill', 'none');
         this.renderD3MinMax();
