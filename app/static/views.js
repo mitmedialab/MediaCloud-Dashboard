@@ -503,6 +503,8 @@ App.SentenceView = Backbone.View.extend({
 App.WordCountView = App.NestedView.extend({
     template: _.template($('#tpl-wordcount-view').html()),
     initialize: function (options) {
+        this.resultViews = null;
+        this.comparisonViews = null;
         this.render();
     },
     render: function () {
@@ -510,30 +512,35 @@ App.WordCountView = App.NestedView.extend({
         var that = this;
         this.$el.html(this.template());
         var $el = this.$('.panel-body');
-        $el.html(_.template($('#tpl-progress').html())());
+        this.$('.wordcount-view .copy').html(_.template($('#tpl-progress').html())());
         // render individual word clouds for each query
-        this.listenTo(this.collection.resources, 'sync:wordcount', this.renderWordCountResults);
-        // only render comparison when >=2 queries
-        this.listenTo(this.collection.resources, 'sync:wordcount', function () {
-            that.$('.wordcount-view-content .progress').hide();
-            that.$('.wordcount-view-content').css('padding','0');
+        this.listenTo(this.collection.resources, 'sync:wordcount', function (model) {
+            if (that.collection.length < 2) {
+                that.renderWordCountResults(model);
+            }
         });
+        // only render comparison when >=2 queries
         this.listenTo(this.collection.resources, 'resource:complete:wordcount', function () {
-            /*
+            that.$('.wordcount-view .copy').hide();
             if (that.collection.length >=2){
                 this.renderWordCountComparison(that.collection);
             }
             App.debug('App.WordCountComparisonView() resource:complete ' + that.cid);
             App.debug(that.collection);
-            */
         });
+        // Reset when the query executes
+        this.listenTo(this.collection, 'execute', function () {
+            App.debug('App.WordCountView.collection:execute');
+            this.$('.wordcount-view .copy').show();
+            this.$('.viz').html('');
+        }, this);
     },
-
+    
     renderWordCountResults: function (wordcounts) {
         App.debug('App.WordCountView.renderWordCountResults()');
         var wordCountResultView = new App.WordCountResultView(wordcounts);
         this.addSubView(wordCountResultView);
-        var $el = this.$('.panel-body');
+        var $el = this.$('.viz');
         $el.append(wordCountResultView.$el);
     },
 
@@ -541,7 +548,7 @@ App.WordCountView = App.NestedView.extend({
         App.debug('App.WordCountView.renderWordCountComparison()');
         var wordCountComparisonView = new App.WordCountComparisonView(collection);
         this.addSubView(wordCountComparisonView);
-        var $el = this.$('.panel-body');
+        var $el = this.$('.viz');
         $el.append(wordCountComparisonView.$el);
     }
 });

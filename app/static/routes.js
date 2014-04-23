@@ -233,5 +233,6 @@ App.Router = Backbone.Router.extend({
             this.queryListView
             , resultView
         ]);
+        resultView.render();
     }
 }); 

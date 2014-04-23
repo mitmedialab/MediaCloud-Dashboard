@@ -1,9 +1,16 @@
 <script id="tpl-wordcount-view" type="text/template">
-    <div class="panel panel-default">
+    <div class="wordcount-view panel panel-default">
         <div class="panel-heading">
-            <h2 class="panel-title">Related Words</h2>
+            <h2 class="panel-title">Frequency</h2>
         </div>
-        <div class="wordcount-view-content panel-body">
+        <ul class="nav nav-tabs">
+            <li class="active loading"><a href="">Tab <img class="spinner" src="/static/img/ajax-loader.gif"/></a></li>
+        </ul>
+        <div class="copy panel-body">
+        </div>
+        <div class="viz panel-body">
+            <div class="tab-content wordcount-view-content">
+            </div>
         </div>
     </div>
 </script>

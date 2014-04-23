@@ -41,6 +41,33 @@
     float: right;
 }
 
+.wordcount-view .nav-tabs {
+    border-bottom: solid 1px #777;
+    background: #fff;
+    color: #000;
+    display: none;
+}
+.wordcount-view .nav-tabs li {
+    border-right: solid 1px #777;
+    background: none;
+}
+.wordcount-view .nav-tabs .active {
+}
+.wordcount-view .nav-tabs li a,
+.wordcount-view .nav-tabs li a:hover,
+.wordcount-view .nav-tabs li a:active {
+    background: none;
+    border: none;
+}
+.wordcount-view .viz {
+    padding: 0;
+}
+.wordcount-view .spinner {
+    position: relative;
+    top: -0.15ex;
+}
+
+
 /* Plugin styles **************************************************************/
 
 /* Typeahead styling */
