@@ -42,12 +42,12 @@ def sentences(keywords, media, start, end):
 def sentence_docs(keywords, media, start, end):
     query = util.solr_query(util.media_to_solr(media), start, end)
     print query
-    res = mc.sentenceList(keywords, query, 0, 0)
+    res = mc.sentenceList(keywords, query, 0, 10)
     sentences = res['response']['docs']
     for s in sentences:
         s['totalSentences'] = res['response']['numFound'] # hack to get total sentences count to Backbone.js
-        story = mc.story(s['stories_id'])
-        s['storyUrl'] = story['url'] # so you can click on the sentence
+        #story = mc.story(s['stories_id'])
+        #s['storyUrl'] = story['url'] # so you can click on the sentence
     return json.dumps(sentences, separators=(',',':'))
 
 @app.route('/api/stories/docs/<keywords>/<media>/<start>/<end>.csv')
