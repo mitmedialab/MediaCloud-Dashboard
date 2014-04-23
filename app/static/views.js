@@ -514,13 +514,18 @@ App.WordCountView = App.NestedView.extend({
         // render individual word clouds for each query
         this.listenTo(this.collection.resources, 'sync:wordcount', this.renderWordCountResults);
         // only render comparison when >=2 queries
+        this.listenTo(this.collection.resources, 'sync:wordcount', function () {
+            that.$('.wordcount-view-content .progress').hide();
+            that.$('.wordcount-view-content').css('padding','0');
+        });
         this.listenTo(this.collection.resources, 'resource:complete:wordcount', function () {
-        this.$('.wordcount-view-content .panel-body .progress').hide();
+            /*
             if (that.collection.length >=2){
                 this.renderWordCountComparison(that.collection);
             }
             App.debug('App.WordCountComparisonView() resource:complete ' + that.cid);
             App.debug(that.collection);
+            */
         });
     },
 
