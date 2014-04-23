@@ -833,7 +833,6 @@ App.HistogramView = Backbone.View.extend({
         this.chartHeight = this.height - this.config.margin.top - this.config.margin.bottom;
         this.svg = d3.select('.histogram-view-content').append('svg')
             .attr('width', this.width).attr('height', this.height);
-        // TODO - for multiple layers call d3.layout.stack
         // Create axes
         this.dayScale = d3.scale.ordinal()
             .domain(this.domain)
@@ -883,7 +882,8 @@ App.HistogramView = Backbone.View.extend({
             .attr('stroke', this.config.axisColor);
     },
     renderD3Labels: function () {
-        var labelData = App.dateLabels(this.dayData);
+        var that = this;
+        var labelData = App.dateLabels(this.domainDates);
         var yearLabels = this.chart.append('g').classed('labels-year', true);
         yearLabels.selectAll('.label-year').data(labelData.year)
             .enter()
@@ -901,7 +901,7 @@ App.HistogramView = Backbone.View.extend({
             .enter()
                 .append('text').classed('label-month', true)
                     .text(function (d) { return App.monthName(d.getUTCMonth()); })
-                    .attr('x', this.x)
+                    .attr('x', function (d) { return that.x(that.toDateString(d)); })
                     .attr('y', this.config.monthSize)
                     .attr('font-size', this.config.monthSize)
                     .attr('fill', this.config.monthColor)
