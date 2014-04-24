@@ -10,37 +10,39 @@ import mediacloud
 import mediacloud.api as mcapi
 import pymongo
 
-from app import app, config, util
+import app
+import app.util
+from app import app as application
 
 # Create media cloud api
-mc = mcapi.MediaCloud(config.get('mediacloud','key'))
+mc = mcapi.MediaCloud(app.config.get('mediacloud','key'))
 
-@app.route('/api/media')
+@application.route('/api/media')
 @flask_login.login_required
 def media():
-    return json.dumps({'sets':util.all_media_sets()}, separators=(',',':'));
+    return json.dumps({'sets':app.util.all_media_sets()}, separators=(',',':'));
 
-@app.route('/api/media/sources')
+@application.route('/api/media/sources')
 @flask_login.login_required
 def media_sources():
-    return json.dumps(list(util.all_media_sources()), separators=(',',':'))
+    return json.dumps(list(app.util.all_media_sources()), separators=(',',':'))
 
-@app.route('/api/media/sets')
+@application.route('/api/media/sets')
 @flask_login.login_required
 def media_sets():
-    return json.dumps(list(util.all_media_sets()), separators=(',',':'))
+    return json.dumps(list(app.util.all_media_sets()), separators=(',',':'))
     
-@app.route('/api/sentences/<keywords>/<media>/<start>/<end>')
+@application.route('/api/sentences/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def sentences(keywords, media, start, end):
-    query = util.solr_query(util.media_to_solr(media), start, end)
+    query = app.util.solr_query(app.util.media_to_solr(media), start, end)
     res = mc.sentenceList(keywords , query, 0, 10)
     return json.dumps(res, separators=(',',':'))
     
-@app.route('/api/sentences/docs/<keywords>/<media>/<start>/<end>')
+@application.route('/api/sentences/docs/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def sentence_docs(keywords, media, start, end):
-    query = util.solr_query(util.media_to_solr(media), start, end)
+    query = app.util.solr_query(app.util.media_to_solr(media), start, end)
     print query
     res = mc.sentenceList(keywords, query, 0, 10)
     sentences = res['response']['docs']
@@ -50,10 +52,10 @@ def sentence_docs(keywords, media, start, end):
         #s['storyUrl'] = story['url'] # so you can click on the sentence
     return json.dumps(sentences, separators=(',',':'))
 
-@app.route('/api/stories/docs/<keywords>/<media>/<start>/<end>.csv')
+@application.route('/api/stories/docs/<keywords>/<media>/<start>/<end>.csv')
 @flask_login.login_required
 def story_docs_csv(keywords, media, start, end):
-    query = util.solr_query(util.media_to_solr(media), start, end)
+    query = app.util.solr_query(app.util.media_to_solr(media), start, end)
     all_stories = []
     last_processed_stories_id = 0
     more_stories = True
@@ -75,16 +77,16 @@ def story_docs_csv(keywords, media, start, end):
     return flask.Response(stream_csv(all_stories), mimetype='text/csv', 
                 headers={"Content-Disposition":"attachment;filename="+download_filename})
     
-@app.route('/api/sentences/numfound/<keywords>/<media>/<start>/<end>')
+@application.route('/api/sentences/numfound/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def sentence_numfound(keywords, media, start, end):
-    nf = util.NumFound(mc, keywords, media, start, end)
+    nf = app.util.NumFound(mc, keywords, media, start, end)
     results = nf.results()
     return json.dumps(results, separators=(',',':'))
     
-@app.route('/api/wordcount/<keywords>/<media>/<start>/<end>')
+@application.route('/api/wordcount/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def wordcount(keywords, media, start, end):
-    query = util.solr_query(util.media_to_solr(media), start, end)
+    query = app.util.solr_query(app.util.media_to_solr(media), start, end)
     res = mc.wordCount(keywords , query)
     return json.dumps(res, separators=(',',':'))
