@@ -14,6 +14,14 @@
     top: 3px !important;
 }
 
+.btn {
+    margin-bottom: 0;
+}
+
+.last-element {
+    margin-bottom: 0;
+}
+
 /* Template styles ************************************************************/
 
 .media-list-view a.remove {
