@@ -1,5 +1,7 @@
 import datetime, os, json, multiprocessing
 
+import app
+
 def load_media_info_json():
     static_data_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)),'static','data')
     json_data=open(os.path.join(static_data_dir,'media.json'))
@@ -58,8 +60,9 @@ class NumFound:
             self.to_query.append((self, keywords, date, query))
             
     def results(self):
+        if int(app.config.get('threading', 'num_threads')) > 0:
+            return NumFound.thread_pool.map(num_found_worker, self.to_query)
         return [num_found_worker(arg) for arg in self.to_query]
-        #return NumFound.thread_pool.map(num_found_worker, self.to_query)
 
 # This should be an instancemethod of NumFound, but Pool.map() requires it
 # to be pickle-able, so this is a quick hack to work around that.
@@ -71,4 +74,5 @@ def num_found_worker(arg):
         , 'numFound': res['response']['numFound']
     }
 
-#NumFound.thread_pool = multiprocessing.Pool(processes=31)
+if int(app.config.get('threading', 'num_threads')) > 0:
+    NumFound.thread_pool = multiprocessing.Pool(processes=int(app.config.get('threading', 'num_threads')))

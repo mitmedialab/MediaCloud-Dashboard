@@ -4,3 +4,6 @@ database = my_db
 
 [mediacloud]
 key = MY_API_KEY
+
+[threading]
+num_threads = 0
