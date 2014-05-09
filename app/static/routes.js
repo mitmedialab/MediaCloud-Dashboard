@@ -3,6 +3,7 @@ App.Router = Backbone.Router.extend({
         '': 'home'
         , '/': 'home'
         , 'login': 'login'
+        , 'demo': 'demo'
         , 'query/:keywords/:media/:start/:end': 'query'
         , 'debug/histogram': 'debugHistogram'
         , 'debug/wordCount': 'debugWordCount'
@@ -67,6 +68,42 @@ App.Router = Backbone.Router.extend({
                 collection: this.queryCollection
                 , mediaSources: this.mediaSources
             }
+        );
+        this.queryCollection.on('execute', this.onQuery, this);
+        this.vm.showView(this.queryListView);
+    },
+    
+    demo: function () {
+        App.debug('Route: demo');
+        var that = this;
+        // Defaults media
+        this.mediaModel = new App.MediaModel({
+            'sets': [{'id':1, 'name':'Top 25 Mainstream Media'}]
+        }, {'parse':'true'});
+        console.log(this.mediaModel);
+        // Defaults dates
+        var dayMs = 24 * 60 * 60 * 1000;
+        var ts = new Date().getTime();
+        var start = new Date(ts - 97*dayMs);
+        var end = new Date(ts - 7*dayMs);
+        var attributes = {
+            start: start.getFullYear() + '-' + (start.getMonth()+1) + '-' + start.getDate()
+            , end: end.getFullYear() + '-' + (end.getMonth()+1) + '-' + end.getDate()
+            , mediaModel: this.mediaModel
+            , keywords: 'boston'
+        };
+        var options = { mediaSources: this.mediaModel, parse: true };
+        this.mediaModel.trigger('sync');
+        if (!this.queryCollection) {
+            this.queryCollection = new App.QueryCollection();
+        } else {
+            this.queryCollection.reset();
+        }
+        this.queryModel = new App.QueryModel(attributes, options);
+        this.queryCollection.add(this.queryModel);
+        this.queryListView = this.vm.getView(
+            App.DemoQueryListView
+            , { collection: this.queryCollection }
         );
         this.queryCollection.on('execute', this.onQuery, this);
         this.vm.showView(this.queryListView);

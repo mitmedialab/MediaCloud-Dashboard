@@ -205,6 +205,76 @@ App.QueryView = App.NestedView.extend({
     }
 });
 
+App.DemoQueryView = App.NestedView.extend({
+    template: _.template($('#tpl-query-view').html()),
+    events: {
+        'click button.copy': 'onCopyInput',
+        'click button.remove': 'onRemoveInput'
+    },
+    initialize: function (options) {
+        App.debug('App.DemoQueryView.initialize()');
+        App.debug(options);
+        _.bindAll(this, 'onCopyInput');
+        _.bindAll(this, 'onRemoveInput');
+        this.mediaSources = options.mediaSources;
+        this.mediaSelectView = new App.MediaSelectView({
+            model: this.model.get('params').get('mediaModel'),
+            mediaSources: this.model.get('params').get('mediaModel'),
+            disabled: true
+        });
+        this.mediaListView = new App.MediaListView({
+            model: this.model.get('params').get('mediaModel')
+        });
+        this.dateRangeView = new App.DateRangeView({
+            model: this.model, disabled: true
+        });
+        this.keywordView = new App.KeywordView({ model: this.model});
+        this.controlsView = new App.QueryControlsView();
+        this.model.on('remove', this.close, this);
+        this.addSubView(this.mediaSelectView);
+        this.addSubView(this.mediaListView);
+        this.addSubView(this.dateRangeView);
+        this.addSubView(this.controlsView);
+        this.render();
+    },
+    render: function () {
+        // Assume the media sources are loaded already
+        this.$el.html(this.template());
+        // Replace loading with sub views
+        var topRow = $('<div>').addClass('row')
+            .append(this.keywordView.el)
+            .append(this.dateRangeView.el)
+            .append(this.controlsView.el);
+        var bottomRow = $('<div>').addClass('row')
+            .append(this.mediaSelectView.el)
+            .append(this.mediaListView.el);
+        this.$('.query-view-content').html('')
+            .append(topRow)
+            .append(bottomRow);
+    },
+    onCopyInput: function (evt) {
+        App.debug('App.QueryView.onCopyInput()');
+        evt.preventDefault();
+        var newMedia = this.model.get('params').get('mediaModel');
+        var attr = {
+            start: this.model.get('params').get('start'),
+            end: this.model.get('params').get('end'),
+            keywords: this.model.get('params').get('keywords'),
+            mediaModel: newMedia.clone()
+        };
+        var opts = {
+            mediaSources: this.mediaSources
+            , parse: true
+        };
+        var newModel = new App.QueryModel(attr, opts);
+        this.model.collection.add(newModel);
+    },
+    onRemoveInput: function (evt) {
+        evt.preventDefault();
+        this.model.collection.remove(this.model);
+    }
+});
+
 App.QueryListView = App.NestedView.extend({
     template: _.template($('#tpl-query-list-view').html()),
     events: {
@@ -265,6 +335,33 @@ App.QueryListView = App.NestedView.extend({
     }
 });
 
+App.DemoQueryListView = App.QueryListView.extend({
+    render: function () {
+        // Assume media sources is already loaded
+        this.$el.html(this.template());
+        // Replace loading with queries
+        var that = this;
+        this.collection.each(function (m) {
+            that.onAdd(m, that.collection)
+        });
+    },
+    onAdd: function (model, collection, options) {
+        App.debug('App.QueryListView.onAdd()');
+        var queryView = new App.DemoQueryView({ model: model });
+        this.addSubView(queryView);
+        this.$('.query-views').append(queryView.$el);
+        // TODO this is a hack to only allow two queries, but we can get data
+        // for more once the viz can handle it.
+        if (collection.length == 1) {
+            this.$('.query-views').addClass('one');
+            this.$('.query-views').removeClass('two');
+        } else {
+            this.$('.query-views').addClass('two');
+            this.$('.query-views').removeClass('one');
+        }
+    }
+});
+
 App.MediaSelectView = App.NestedView.extend({
     template: _.template($('#tpl-media-select-view').html()),
     events: {
@@ -273,28 +370,32 @@ App.MediaSelectView = App.NestedView.extend({
     initialize: function (options) {
         App.debug('App.MediaSelectView.initialize()');
         this.mediaSources = options.mediaSources;
+        this.disabled = options.disabled;
         // Set deferred callbacks
         var that = this;
         _.bindAll(this, 'onTextEntered');
         this.mediaSources.deferred.done(function () {
             that.render();
-            App.debug('Creating typeahead');
-            $('.media-input', that.$el).typeahead(null, {
-                name: 'sets',
-                displayKey: 'name',
-                source: that.mediaSources.get('sets').getSuggestions().ttAdapter()
-            });
-            // Listen to custom typeahead events
-            that.$('.media-input').bind(
-                'typeahead:selected',
-                function () { that.onTextEntered(); });
-            that.$('.media-input').bind(
-                'typeahead:autocompleted',
-                function () { that.onTextEntered(); });
+            if (!that.disabled) {
+                App.debug('Creating typeahead');
+                $('.media-input', that.$el).typeahead(null, {
+                    name: 'sets',
+                    displayKey: 'name',
+                    source: that.mediaSources.get('sets').getSuggestions().ttAdapter()
+                });
+                // Listen to custom typeahead events
+                that.$('.media-input').bind(
+                    'typeahead:selected',
+                    function () { that.onTextEntered(); });
+                that.$('.media-input').bind(
+                    'typeahead:autocompleted',
+                    function () { that.onTextEntered(); });
+            }
         });
     },
     render: function () {
         this.$el.html(this.template());
+        this.$('.media-input').attr('disabled', 'disabled');
         var $el = this.$el;
     },
     onTextEntered: function (event) {
@@ -394,6 +495,7 @@ App.DateRangeView = Backbone.View.extend({
         App.debug('App.DateRangeView.initialize()');
         App.debug(options);
         _.bindAll(this, "onContentChange");
+        this.disabled = options.disabled;
         this.render();
     },
     render: function () {
@@ -403,26 +505,31 @@ App.DateRangeView = Backbone.View.extend({
         this.$('.date-range-start').val(this.model.get('params').get('start'));
         this.$('.date-range-end').val(this.model.get('params').get('end'));
         // Create the datepickers and hide on selection / tab-out
-        var start = this.$('.date-range-start').datepicker(
-            App.config.datepickerOptions
-        ).on('changeDate', function (event) {
-            that.onContentChange();
-            start.hide();
-        }).on('keydown', function (event) {
-            if (e.keyCode == 9) {
+        if (!this.disabled) {
+            var start = this.$('.date-range-start').datepicker(
+                App.config.datepickerOptions
+            ).on('changeDate', function (event) {
+                that.onContentChange();
                 start.hide();
-            }
-        }).data('datepicker');
-        var end = this.$('.date-range-end').datepicker(
-            App.config.datepickerOptions
-        ).on('changeDate', function (event) {
-            that.onContentChange();
-            end.hide();
-        }).on('keydown', function (event) {
-            if (e.keyCode == 9) {
+            }).on('keydown', function (event) {
+                if (e.keyCode == 9) {
+                    start.hide();
+                }
+            }).data('datepicker');
+            var end = this.$('.date-range-end').datepicker(
+                App.config.datepickerOptions
+            ).on('changeDate', function (event) {
+                that.onContentChange();
                 end.hide();
-            }
-        }).data('datepicker');
+            }).on('keydown', function (event) {
+                if (e.keyCode == 9) {
+                    end.hide();
+                }
+            }).data('datepicker');
+        } else {
+            this.$('.date-range-start').attr('disabled', 'disabled');
+            this.$('.date-range-end').attr('disabled', 'disabled');
+        }
     },
     onContentChange: function () {
         App.debug('App.DateRangeView.onContentChange()');
