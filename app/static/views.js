@@ -223,7 +223,8 @@ App.DemoQueryView = App.NestedView.extend({
             disabled: true
         });
         this.mediaListView = new App.MediaListView({
-            model: this.model.get('params').get('mediaModel')
+            model: this.model.get('params').get('mediaModel'),
+            disabled: true
         });
         this.dateRangeView = new App.DateRangeView({
             model: this.model, disabled: true
@@ -449,6 +450,7 @@ App.MediaListView = App.NestedView.extend({
         App.debug(this.model);
         _.bindAll(this, 'onAdd');
         _.bindAll(this, 'onRemoveClick');
+        this.disabled = options.disabled;
         this.render();
         // Add listeners
         this.model.get('sources').on('add', this.onAdd, this);
@@ -460,6 +462,9 @@ App.MediaListView = App.NestedView.extend({
         App.debug(this.model);
         var that = this;
         this.$el.html(this.template());
+        if (this.disabled) {
+            this.$el.addClass('disabled');
+        }
         this.model.get('sets').each(function (m) {
             that.onAdd(m, that.model.get('sets'), {});
         });

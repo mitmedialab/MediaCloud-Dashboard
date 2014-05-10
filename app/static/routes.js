@@ -77,9 +77,14 @@ App.Router = Backbone.Router.extend({
         App.debug('Route: demo');
         var that = this;
         // Defaults media
-        this.mediaModel = new App.MediaModel({
-            'sets': [{'id':1, 'name':'Top 25 Mainstream Media'}]
-        }, {'parse':'true'});
+        this.mediaModel = new App.MediaModel();
+        this.mediaModel.set(
+            this.mediaModel.parse({
+                'sets': [{'id':1, 'name':'Top 25 Mainstream Media'}]
+                , 'sources': []
+            })
+        );
+        console.log('mediaModel');
         console.log(this.mediaModel);
         // Defaults dates
         var dayMs = 24 * 60 * 60 * 1000;

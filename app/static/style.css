@@ -22,6 +22,14 @@
     margin-bottom: 0;
 }
 
+.disabled .label {
+    background: #eee;
+    color: #555;
+}
+.disabled .label a {
+    display: none;
+}
+
 /* Template styles ************************************************************/
 
 .media-list-view a.remove {

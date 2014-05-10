@@ -6,7 +6,8 @@
 App.NestedModel = Backbone.Model.extend({
     attributeModels: {},
     parse: function (response) {
-        App.debug('NestedModel.parse');
+        App.debug('NestedModel.parse: ' + this.cid);
+        App.debug(response);
         for (var key in this.attributeModels) {
             var subModel = this.attributeModels[key];
             var subData = response[key];
@@ -14,6 +15,7 @@ App.NestedModel = Backbone.Model.extend({
             // Notify children that they have been updated
             response[key].trigger('parentSync');
         }
+        App.debug(response);
         return response;
     }
 })
