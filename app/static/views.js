@@ -256,12 +256,12 @@ App.DemoQueryView = App.NestedView.extend({
     onCopyInput: function (evt) {
         App.debug('App.QueryView.onCopyInput()');
         evt.preventDefault();
-        var newMedia = this.model.get('params').get('mediaModel');
+        var newMedia = this.model.get('params').get('mediaModel').clone();
         var attr = {
             start: this.model.get('params').get('start'),
             end: this.model.get('params').get('end'),
             keywords: this.model.get('params').get('keywords'),
-            mediaModel: newMedia.clone()
+            mediaModel: newMedia
         };
         var opts = {
             mediaSources: this.mediaSources
@@ -370,6 +370,7 @@ App.MediaSelectView = App.NestedView.extend({
     },
     initialize: function (options) {
         App.debug('App.MediaSelectView.initialize()');
+        App.debug(options);
         this.mediaSources = options.mediaSources;
         this.disabled = options.disabled;
         // Set deferred callbacks
@@ -395,8 +396,11 @@ App.MediaSelectView = App.NestedView.extend({
         });
     },
     render: function () {
+        App.debug('App.MediaSelectView.render()');
         this.$el.html(this.template());
-        this.$('.media-input').attr('disabled', 'disabled');
+        if (this.disabled) {
+            this.$('.media-input').attr('disabled', 'disabled');
+        }
         var $el = this.$el;
     },
     onTextEntered: function (event) {

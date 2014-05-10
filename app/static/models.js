@@ -195,6 +195,7 @@ App.MediaModel = App.NestedModel.extend({
         this.get('sources').each(function (m) {
             cloneModel.get('sources').add(m);
         });
+        cloneModel.deferred.resolve();
         return cloneModel;
     },
     subset: function (s) {
