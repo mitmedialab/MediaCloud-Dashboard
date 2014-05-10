@@ -105,6 +105,10 @@ App.ControlsView = App.NestedView.extend({
             this.controlsSignOutView = new App.ControlsSignOutView({ userModel: this.userModel });
             this.addSubView(this.controlsSignOutView);
             this.$el.append(this.controlsSignOutView.el);
+        } else {
+            this.controlsSignInView = new App.ControlsSignInView({ userModel: this.userModel });
+            this.addSubView(this.controlsSignInView);
+            this.$el.append(this.controlsSignInView.el);
         }
         return this;
     }
@@ -129,6 +133,21 @@ App.ControlsSignOutView = App.NestedView.extend({
     signOut: function () {
         App.debug('App.ControlsSignOutView.signOut()');
         this.options.userModel.signOut();
+    }
+});
+
+App.ControlsSignInView = App.NestedView.extend({
+    tagName: 'li',
+    template: _.template($('#tpl-controls-sign-in-view').html()),
+    initialize: function (options) {
+        App.debug('App.ControlSignInView.initialize()');
+        this.options = options || {}
+        _.bindAll(this, 'render');
+        this.render();
+    },
+    render: function () {
+        App.debug('App.ControlSignInView.render()');
+        this.$el.html(this.template(this.options.userModel.get('username')));
     }
 });
 

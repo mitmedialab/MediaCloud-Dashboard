@@ -34,7 +34,7 @@ App.Router = Backbone.Router.extend({
         App.debug('Route: home');
         var that = this;
         if (!this.userModel.get('authenticated')) {
-            this.navigate('login', true);
+            this.navigate('demo', true);
             return;
         }
         // Defaults media
