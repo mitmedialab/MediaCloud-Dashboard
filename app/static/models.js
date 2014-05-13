@@ -218,8 +218,14 @@ App.MediaModel = App.NestedModel.extend({
         return media;
     },
     queryParam: function () {
-        var qp = {
-            sets: this.get('sets').pluck('id')
+        var qp = {}
+        var sets = this.get('sets')
+        if (sets && sets.length > 0) {
+            qp.sets = sets.pluck('id');
+        }
+        var sources = this.get('sources');
+        if (sources && sources.length > 0) {
+            qp.sources = sources.pluck('media_id');
         }
         return qp;
     }
