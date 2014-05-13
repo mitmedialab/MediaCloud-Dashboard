@@ -400,9 +400,9 @@ App.MediaSelectView = App.NestedView.extend({
             if (!that.disabled) {
                 App.debug('Creating typeahead');
                 $('.media-input', that.$el).typeahead(null, {
-                    name: 'sets',
+                    name: 'sources',
                     displayKey: 'name',
-                    source: that.mediaSources.get('sets').getSuggestions().ttAdapter()
+                    source: that.mediaSources.get('sources').getSuggestions().ttAdapter()
                 });
                 // Listen to custom typeahead events
                 that.$('.media-input').bind(
@@ -432,12 +432,9 @@ App.MediaSelectView = App.NestedView.extend({
             $('.media-input', $el).focus();
         });
         source = this.mediaSources.get('sources').nameToSource[name];
-        set = this.mediaSources.get('sets').nameToSet[name];
         if (source) {
             this.model.get('sources').add(source);
-        } else if (set) {
-            this.model.get('sets').add(set);
-        }
+        } 
     }
 });
 
@@ -489,10 +486,10 @@ App.MediaListView = App.NestedView.extend({
             this.$el.addClass('disabled');
         }
         this.model.get('sets').each(function (m) {
-            that.onAdd(m, that.model.get('sets'), {});
+            that.onAdd(m, that.model.get('sources'), {});
         });
         this.model.get('sources').each(function (m) {
-            that.onAdd(m, that.model.get('sets'), {});
+            that.onAdd(m, that.model.get('sources'), {});
         });
     },
     onAdd: function (model, collection, options) {

@@ -41,7 +41,7 @@ App.Router = Backbone.Router.extend({
         this.mediaModel = new App.MediaModel();
         this.mediaSources.deferred.then(function () {
             App.debug('Adding default media');
-            that.mediaModel.get('sets').add(that.mediaSources.get('sets').get(1));
+            that.mediaModel.get('sources').add(that.mediaSources.get('sources').get(1));
         });
         // Defaults dates
         var dayMs = 24 * 60 * 60 * 1000;
@@ -80,8 +80,8 @@ App.Router = Backbone.Router.extend({
         this.mediaModel = new App.MediaModel();
         this.mediaModel.set(
             this.mediaModel.parse({
-                'sets': [{'id':1, 'name':'Top 25 Mainstream Media'}]
-                , 'sources': []
+                'sources': [{'id':1, 'name':'New York Times'}]
+                , 'sets': []
             })
         );
         console.log('mediaModel');
