@@ -43,6 +43,18 @@ App.Router = Backbone.Router.extend({
             App.debug('Adding default media');
             that.mediaModel.get('sources').add(that.mediaSources.get('sources').get(1));
         });
+        // Default tags
+        this.tagSets = new App.TagSetCollection();
+        this.tagSets.add({
+            "tag_sets_id": 597
+            , "name": "gv_country"
+        });
+        this.allTags = new App.TagCollection();
+        this.allTags.add({
+            "tags_id": 8876989,
+            "tag": "japan",
+            "tag_sets_id": 597
+        });
         // Defaults dates
         var dayMs = 24 * 60 * 60 * 1000;
         var ts = new Date().getTime();
@@ -54,7 +66,12 @@ App.Router = Backbone.Router.extend({
             , mediaModel: this.mediaModel
             , keywords: 'boston'
         };
-        var options = { mediaSources: this.mediaSources, parse: true };
+        var options = {
+            mediaSources: this.mediaSources
+            , tagSets: this.tagSets
+            , allTags: this.allTags
+            , parse: true
+        };
         if (!this.queryCollection) {
             this.queryCollection = new App.QueryCollection();
         } else {
@@ -67,6 +84,8 @@ App.Router = Backbone.Router.extend({
             , {
                 collection: this.queryCollection
                 , mediaSources: this.mediaSources
+                , tagSets: this.tagSets
+                , allTags: this.allTags
             }
         );
         this.queryCollection.on('execute', this.onQuery, this);
@@ -97,7 +116,10 @@ App.Router = Backbone.Router.extend({
             , mediaModel: this.mediaModel
             , keywords: 'boston'
         };
-        var options = { mediaSources: this.mediaModel, parse: true };
+        var options = {
+            mediaSources: this.mediaModel
+            , tagSets: this.tagSets
+            , parse: true };
         this.mediaModel.trigger('sync');
         if (!this.queryCollection) {
             this.queryCollection = new App.QueryCollection();
