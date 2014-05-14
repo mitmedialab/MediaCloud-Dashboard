@@ -231,6 +231,56 @@ App.MediaModel = App.NestedModel.extend({
     }
 })
 
+App.TagSetModel = Backbone.Model.extend({
+    url: '/api/tag_sets/single',
+    idAttribute: 'tag_sets_id',
+    initialize: function (options) {}
+});
+
+App.TagSetCollection = Backbone.Collection.extend({
+    model: App.TagSetModel,
+    initialize: function (options) {},
+    getSuggestions: function () {
+        App.debug('TagSetCollection.getSuggestions()');
+        if (!this.suggest) {
+            this.suggest = new Bloodhound({
+                datumTokenizer: function (d) {
+                    return Bloodhound.tokenizers.whitespace(d.name);
+                },
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                local: this.toJSON()
+            });
+            this.suggest.initialize();
+        }
+        return this.suggest;
+    }
+})
+
+App.TagModel = Backbone.Model.extend({
+    url: '/api/tags/single',
+    idAttribute: 'tags_id',
+    initialize: function (options) {}
+});
+
+App.TagCollection = Backbone.Collection.extend({
+    model: App.TagModel,
+    initialize: function (options) {},
+    getSuggestions: function (tag_sets_id) {
+        App.debug('TagSetCollection.getSuggestions()');
+        if (!this.suggest) {
+            this.suggest = new Bloodhound({
+                datumTokenizer: function (d) {
+                    return Bloodhound.tokenizers.whitespace(d.tag);
+                },
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                local: this.toJSON()
+            });
+            this.suggest.initialize();
+        }
+        return this.suggest;
+    }
+});
+
 App.QueryModel = Backbone.Model.extend({
     initialize: function (attributes, options) {
         App.debug('App.QueryModel.initialize()');

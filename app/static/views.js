@@ -163,11 +163,20 @@ App.QueryView = App.NestedView.extend({
         _.bindAll(this, 'onCopyInput');
         _.bindAll(this, 'onRemoveInput');
         this.mediaSources = options.mediaSources;
+        this.tagSets = options.tagSets;
+        this.allTags = options.allTags;
         this.mediaSelectView = new App.MediaSelectView({
             model: this.model.get('params').get('mediaModel')
             , mediaSources: this.mediaSources
         });
         this.mediaListView = new App.MediaListView({
+            model: this.model.get('params').get('mediaModel')
+        });
+        this.tagSelectView = new App.TagSelectView({
+            tagSets: this.tagSets
+            , allTags: this.allTags
+        })
+        this.tagListView = new App.TagListView({
             model: this.model.get('params').get('mediaModel')
         });
         this.dateRangeView = new App.DateRangeView({ model: this.model });
@@ -176,6 +185,8 @@ App.QueryView = App.NestedView.extend({
         this.model.on('remove', this.close, this);
         this.addSubView(this.mediaSelectView);
         this.addSubView(this.mediaListView);
+        this.addSubView(this.tagSelectView);
+        this.addSubView(this.tagListView);
         this.addSubView(this.dateRangeView);
         this.addSubView(this.controlsView);
         this.render();
@@ -193,11 +204,15 @@ App.QueryView = App.NestedView.extend({
                 .append(that.keywordView.el)
                 .append(that.dateRangeView.el)
                 .append(that.controlsView.el);
-            var bottomRow = $('<div>').addClass('row')
+            var middleRow = $('<div>').addClass('row')
                 .append(that.mediaSelectView.el)
                 .append(that.mediaListView.el);
+            var bottomRow = $('<div>').addClass('row')
+                .append(that.tagSelectView.el)
+                .append(that.tagListView.el);
             that.$('.query-view-content').html('')
                 .append(topRow)
+                .append(middleRow)
                 .append(bottomRow);
         });
     },
@@ -304,6 +319,8 @@ App.QueryListView = App.NestedView.extend({
         App.debug('App.QueryListView.initialize()');
         _.bindAll(this, 'onAdd');
         this.mediaSources = options.mediaSources;
+        this.tagSets = options.tagSets;
+        this.allTags = options.allTags;
         this.collection.on('add', this.onAdd, this);
         this.collection.on('remove', this.onRemove, this);
         this.render();
@@ -330,7 +347,9 @@ App.QueryListView = App.NestedView.extend({
         App.debug('App.QueryListView.onAdd()');
         var queryView = new App.QueryView({
             model: model,
-            mediaSources: this.mediaSources
+            mediaSources: this.mediaSources,
+            tagSets: this.tagSets,
+            allTags: this.allTags
         });
         this.addSubView(queryView);
         this.$('.query-views').append(queryView.$el);
@@ -420,7 +439,6 @@ App.MediaSelectView = App.NestedView.extend({
         if (this.disabled) {
             this.$('.media-input').attr('disabled', 'disabled');
         }
-        var $el = this.$el;
     },
     onTextEntered: function (event) {
         App.debug('App.MediaSelectView.textEntered()');
@@ -508,6 +526,73 @@ App.MediaListView = App.NestedView.extend({
         } else {
             this.model.get('sets').remove(model);
         }
+    }
+});
+
+App.TagSelectView = App.NestedView.extend({
+    template: _.template($('#tpl-tag-select-view').html()),
+    initialize: function (options) {
+        App.debug("App.TagSelectView.initialize()");
+        var that = this;
+        this.tagSets = options.tagSets;
+        this.allTags = options.allTags;
+        this.render();
+        if (!this.disabled) {
+            App.debug('Creating typeahead');
+            // Create typeahead for tag sets
+            $('.tag-set-input', this.$el).typeahead(null, {
+                name: 'tag_sets',
+                displayKey: 'name',
+                source: this.tagSets.getSuggestions().ttAdapter()
+            });
+            // Listen to custom typeahead events
+            this.$('.tag-set-input').bind(
+                'typeahead:selected',
+                function () { that.onSetEntered(); });
+            this.$('.tag-set-input').bind(
+                'typeahead:autocompleted',
+                function () { that.onSetEntered(); });
+            // Create typeahead for tags
+            $('.tag-input', this.$el).typeahead(null, {
+                name: 'tags',
+                displayKey: 'tag',
+                source: this.allTags.getSuggestions().ttAdapter()
+            });
+            // Listen to custom typeahead events
+            this.$('.tag-input').bind(
+                'typeahead:selected',
+                function () { that.onTagEntered(); });
+            this.$('.tag-input').bind(
+                'typeahead:autocompleted',
+                function () { that.onTagEntered(); });
+        }
+    },
+    render: function () {
+        this.$el.append(this.template());
+        if (this.disabled) {
+            this.$('.tag-set-input').attr('disabled', 'disabled');
+            this.$('.tag-input').attr('disabled', 'disabled');
+        }
+    },
+    onSetEntered: function (event) {
+        App.debug('App.TagSelectView.onSetEntered()');
+        if (event) { event.preventDefault(); }
+        var name = $('.tag-set-input.tt-input', this.$el).typeahead('val');
+    },
+    onTagEntered: function (event) {
+        App.debug('App.TagSelectView.onTagEntered()');
+        if (event) { event.preventDefault(); }
+        var name = $('.tag-input.tt-input', this.$el).typeahead('val');
+    }
+});
+
+App.TagListView = App.NestedView.extend({
+    template: _.template($('#tpl-tag-list-view').html()),
+    initialize: function (options) {
+        this.render();
+    },
+    render: function () {
+        this.$el.append(this.template());
     }
 });
 
