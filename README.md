@@ -34,6 +34,7 @@ configuration file.
 
 * flask
 * flask-login
+* flask-wtf
 * pymongo
 
 ### Configuration
