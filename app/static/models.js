@@ -170,30 +170,108 @@ App.MediaSetCollection = Backbone.Collection.extend({
     }
 });
 
+App.TagSetModel = Backbone.Model.extend({
+    url: '/api/tag_sets/single',
+    idAttribute: 'tag_sets_id',
+    initialize: function (options) {}
+});
+
+App.TagSetCollection = Backbone.Collection.extend({
+    model: App.TagSetModel,
+    initialize: function (options) {
+        var that = this;
+    },
+    nameToId: function (name) {
+        var that = this;
+        if (!this._nameToId) {
+            this._nameToId = {}
+            this.each(function (m) {
+                that._nameToId[m.get('name')] = m.get('tag_sets_id');
+            });
+        }
+        return this._nameToId[name];
+    },
+    getSuggestions: function () {
+        App.debug('TagSetCollection.getSuggestions()');
+        if (!this.suggest) {
+            this.suggest = new Bloodhound({
+                datumTokenizer: function (d) {
+                    return Bloodhound.tokenizers.whitespace(d.name);
+                },
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                local: this.toJSON()
+            });
+            this.suggest.initialize();
+        }
+        return this.suggest;
+    }
+})
+
+App.TagModel = Backbone.Model.extend({
+    url: '/api/tags/single',
+    idAttribute: 'tags_id',
+    initialize: function (options) {}
+});
+
+App.TagCollection = Backbone.Collection.extend({
+    model: App.TagModel,
+    initialize: function (options) {
+        this.suggest = {};
+    },
+    getSuggestions: function (tag_sets_id) {
+        App.debug('TagCollection.getSuggestions(' + tag_sets_id + ')');
+        if (!this.suggest[tag_sets_id]) {
+            App.debug('Creating new suggestion engine');
+            var localData = _.filter(
+                this.toJSON(),
+                function (d) {
+                    return d.tag_sets_id == tag_sets_id;
+                }
+            );
+            var suggest = new Bloodhound({
+                datumTokenizer: function (d) {
+                    return Bloodhound.tokenizers.whitespace(d.tag);
+                },
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                local: localData
+            });
+            suggest.initialize();
+            this.suggest[tag_sets_id] = suggest;
+        } else {
+            App.debug('Reusing suggestion engine');
+        }
+        return this.suggest[tag_sets_id];
+    }
+});
+
 App.MediaModel = App.NestedModel.extend({
     urlRoot: '/api/media',
     attributeModels: {
         sources: App.MediaSourceCollection
-        , sets: App.MediaSetCollection
+        , tags: App.TagCollection
+        , tag_sets: App.TagSetCollection
     },
     initialize: function () {
         App.debug('App.MediaModel.initialize()');
         var that = this;
         this.set('sources', new App.MediaSourceCollection());
-        this.set('sets', new App.MediaSetCollection());
+        this.set('tags', new App.TagCollection());
+        this.set('tag_sets', new App.TagSetCollection());
         this.deferred = $.Deferred();
         this.on('sync', function () {
-            App.debug('App.MediaModel:sync');
             this.deferred.resolve();
         }, this);
     },
     clone: function () {
         var cloneModel = new App.MediaModel()
-        this.get('sets').each(function (m) {
-            cloneModel.get('sets').add(m);
-        });
         this.get('sources').each(function (m) {
             cloneModel.get('sources').add(m);
+        });
+        this.get('tag_sets').each(function (m) {
+            cloneModel.get('tag_sets').add(m);
+        });
+        this.get('tags').each(function (m) {
+            cloneModel.get('tags').add(m);
         });
         cloneModel.deferred.resolve();
         return cloneModel;
@@ -219,67 +297,21 @@ App.MediaModel = App.NestedModel.extend({
     },
     queryParam: function () {
         var qp = {}
-        var sets = this.get('sets')
-        if (sets && sets.length > 0) {
-            qp.sets = sets.pluck('id');
-        }
         var sources = this.get('sources');
         if (sources && sources.length > 0) {
             qp.sources = sources.pluck('media_id');
         }
+        var tags = this.get('tags');
+        if (tags && tags.length > 0) {
+            qp.tags = tags.pluck('tags_id');
+        }
+        var tagSets = this.get('tag_sets');
+        if (tagSets && tagSets.length > 0) {
+            qp.tags = tagSets.pluck('tag_sets_id');
+        }
         return qp;
     }
 })
-
-App.TagSetModel = Backbone.Model.extend({
-    url: '/api/tag_sets/single',
-    idAttribute: 'tag_sets_id',
-    initialize: function (options) {}
-});
-
-App.TagSetCollection = Backbone.Collection.extend({
-    model: App.TagSetModel,
-    initialize: function (options) {},
-    getSuggestions: function () {
-        App.debug('TagSetCollection.getSuggestions()');
-        if (!this.suggest) {
-            this.suggest = new Bloodhound({
-                datumTokenizer: function (d) {
-                    return Bloodhound.tokenizers.whitespace(d.name);
-                },
-                queryTokenizer: Bloodhound.tokenizers.whitespace,
-                local: this.toJSON()
-            });
-            this.suggest.initialize();
-        }
-        return this.suggest;
-    }
-})
-
-App.TagModel = Backbone.Model.extend({
-    url: '/api/tags/single',
-    idAttribute: 'tags_id',
-    initialize: function (options) {}
-});
-
-App.TagCollection = Backbone.Collection.extend({
-    model: App.TagModel,
-    initialize: function (options) {},
-    getSuggestions: function (tag_sets_id) {
-        App.debug('TagSetCollection.getSuggestions()');
-        if (!this.suggest) {
-            this.suggest = new Bloodhound({
-                datumTokenizer: function (d) {
-                    return Bloodhound.tokenizers.whitespace(d.tag);
-                },
-                queryTokenizer: Bloodhound.tokenizers.whitespace,
-                local: this.toJSON()
-            });
-            this.suggest.initialize();
-        }
-        return this.suggest;
-    }
-});
 
 App.QueryModel = Backbone.Model.extend({
     initialize: function (attributes, options) {
