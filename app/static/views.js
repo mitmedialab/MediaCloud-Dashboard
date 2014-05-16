@@ -163,8 +163,6 @@ App.QueryView = App.NestedView.extend({
         _.bindAll(this, 'onCopyInput');
         _.bindAll(this, 'onRemoveInput');
         this.mediaSources = options.mediaSources;
-        this.tagSets = options.tagSets;
-        this.allTags = options.allTags;
         this.mediaSelectView = new App.MediaSelectView({
             model: this.model.get('params').get('mediaModel')
             , mediaSources: this.mediaSources
@@ -173,9 +171,8 @@ App.QueryView = App.NestedView.extend({
             model: this.model.get('params').get('mediaModel')
         });
         this.tagSelectView = new App.TagSelectView({
-            tagSets: this.tagSets
-            , allTags: this.allTags
-        })
+            mediaSources: this.mediaSources
+        });
         this.tagListView = new App.TagListView({
             model: this.model.get('params').get('mediaModel')
         });
@@ -492,7 +489,6 @@ App.MediaListView = App.NestedView.extend({
         this.render();
         // Add listeners
         this.model.get('sources').on('add', this.onAdd, this);
-        this.model.get('sets').on('add', this.onAdd, this);
         // Set listener context
     },
     render: function () {
@@ -503,9 +499,6 @@ App.MediaListView = App.NestedView.extend({
         if (this.disabled) {
             this.$el.addClass('disabled');
         }
-        this.model.get('sets').each(function (m) {
-            that.onAdd(m, that.model.get('sources'), {});
-        });
         this.model.get('sources').each(function (m) {
             that.onAdd(m, that.model.get('sources'), {});
         });
@@ -534,17 +527,18 @@ App.TagSelectView = App.NestedView.extend({
     initialize: function (options) {
         App.debug("App.TagSelectView.initialize()");
         var that = this;
-        this.tagSets = options.tagSets;
-        this.allTags = options.allTags;
+        this.tagSets = options.mediaSources.get('tag_sets');
+        this.allTags = options.mediaSources.get('tags');
         this.render();
         if (!this.disabled) {
             App.debug('Creating typeahead');
             // Create typeahead for tag sets
-            $('.tag-set-input', this.$el).typeahead(null, {
+            this.$('.tag-set-input').typeahead(null, {
                 name: 'tag_sets',
                 displayKey: 'name',
                 source: this.tagSets.getSuggestions().ttAdapter()
             });
+            this.$('.tag-set-input').val('gv_country');
             // Listen to custom typeahead events
             this.$('.tag-set-input').bind(
                 'typeahead:selected',
@@ -553,10 +547,11 @@ App.TagSelectView = App.NestedView.extend({
                 'typeahead:autocompleted',
                 function () { that.onSetEntered(); });
             // Create typeahead for tags
-            $('.tag-input', this.$el).typeahead(null, {
+            var tag_sets_id = this.tagSets.nameToId(this.$('.tag-set-input').val());
+            this.$('.tag-input').typeahead(null, {
                 name: 'tags',
                 displayKey: 'tag',
-                source: this.allTags.getSuggestions().ttAdapter()
+                source: this.allTags.getSuggestions(tag_sets_id).ttAdapter()
             });
             // Listen to custom typeahead events
             this.$('.tag-input').bind(
@@ -578,6 +573,14 @@ App.TagSelectView = App.NestedView.extend({
         App.debug('App.TagSelectView.onSetEntered()');
         if (event) { event.preventDefault(); }
         var name = $('.tag-set-input.tt-input', this.$el).typeahead('val');
+        // Create typeahead for tags
+        var tag_sets_id = this.tagSets.nameToId(this.$('.tag-set-input.tt-input').typeahead('val'));
+        this.$('.tag-input').typeahead('destroy');
+        this.$('.tag-input').typeahead(null, {
+            name: 'tags',
+            displayKey: 'tag',
+            source: this.allTags.getSuggestions(tag_sets_id).ttAdapter()
+        });
     },
     onTagEntered: function (event) {
         App.debug('App.TagSelectView.onTagEntered()');
