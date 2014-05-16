@@ -257,6 +257,14 @@ App.DemoQueryView = App.NestedView.extend({
             model: this.model.get('params').get('mediaModel'),
             disabled: true
         });
+        this.tagSelectView = new App.TagSelectView({
+            mediaSources: this.mediaSources
+            , disabled: true
+        });
+        this.tagListView = new App.TagListView({
+            model: this.model.get('params').get('mediaModel')
+            , disabled: true
+        });
         this.dateRangeView = new App.DateRangeView({
             model: this.model, disabled: true
         });
@@ -265,6 +273,8 @@ App.DemoQueryView = App.NestedView.extend({
         this.model.on('remove', this.close, this);
         this.addSubView(this.mediaSelectView);
         this.addSubView(this.mediaListView);
+        this.addSubView(this.tagSelectView);
+        this.addSubView(this.tagListView);
         this.addSubView(this.dateRangeView);
         this.addSubView(this.controlsView);
         this.render();
@@ -277,11 +287,15 @@ App.DemoQueryView = App.NestedView.extend({
             .append(this.keywordView.el)
             .append(this.dateRangeView.el)
             .append(this.controlsView.el);
-        var bottomRow = $('<div>').addClass('row')
+        var middleRow = $('<div>').addClass('row')
             .append(this.mediaSelectView.el)
             .append(this.mediaListView.el);
+        var bottomRow = $('<div>').addClass('row')
+            .append(this.tagSelectView.el)
+            .append(this.tagListView.el);
         this.$('.query-view-content').html('')
             .append(topRow)
+            .append(middleRow)
             .append(bottomRow);
     },
     onCopyInput: function (evt) {
@@ -316,8 +330,6 @@ App.QueryListView = App.NestedView.extend({
         App.debug('App.QueryListView.initialize()');
         _.bindAll(this, 'onAdd');
         this.mediaSources = options.mediaSources;
-        this.tagSets = options.tagSets;
-        this.allTags = options.allTags;
         this.collection.on('add', this.onAdd, this);
         this.collection.on('remove', this.onRemove, this);
         this.render();
@@ -344,9 +356,7 @@ App.QueryListView = App.NestedView.extend({
         App.debug('App.QueryListView.onAdd()');
         var queryView = new App.QueryView({
             model: model,
-            mediaSources: this.mediaSources,
-            tagSets: this.tagSets,
-            allTags: this.allTags
+            mediaSources: this.mediaSources
         });
         this.addSubView(queryView);
         this.$('.query-views').append(queryView.$el);
@@ -383,7 +393,10 @@ App.DemoQueryListView = App.QueryListView.extend({
     },
     onAdd: function (model, collection, options) {
         App.debug('App.QueryListView.onAdd()');
-        var queryView = new App.DemoQueryView({ model: model });
+        var queryView = new App.DemoQueryView({
+            model: model
+            , mediaSources: this.mediaSources
+        });
         this.addSubView(queryView);
         this.$('.query-views').append(queryView.$el);
         // TODO this is a hack to only allow two queries, but we can get data
@@ -527,6 +540,7 @@ App.TagSelectView = App.NestedView.extend({
     initialize: function (options) {
         App.debug("App.TagSelectView.initialize()");
         var that = this;
+        this.disabled = options.disabled;
         this.tagSets = options.mediaSources.get('tag_sets');
         this.allTags = options.mediaSources.get('tags');
         this.render();
@@ -592,6 +606,7 @@ App.TagSelectView = App.NestedView.extend({
 App.TagListView = App.NestedView.extend({
     template: _.template($('#tpl-tag-list-view').html()),
     initialize: function (options) {
+        this.disabled = options.disabled;
         this.render();
     },
     render: function () {

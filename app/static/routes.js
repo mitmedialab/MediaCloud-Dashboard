@@ -71,9 +71,6 @@ App.Router = Backbone.Router.extend({
             , {
                 collection: this.queryCollection
                 , mediaSources: this.mediaSources
-                , tagSets: this.tagSets
-                , allTags: this.allTags
-                
             }
         );
         this.queryCollection.on('execute', this.onQuery, this);
@@ -88,7 +85,8 @@ App.Router = Backbone.Router.extend({
         this.mediaModel.set(
             this.mediaModel.parse({
                 'sources': [{'id':1, 'name':'New York Times'}]
-                , 'sets': []
+                , 'tag_sets' : [{ "tag_sets_id": 597, "name": "gv_country" }]
+                , 'tags': [{ "tags_id": 8876989, "tag": "japan", "tag_sets_id": 597}]
             })
         );
         // Defaults dates
@@ -104,7 +102,6 @@ App.Router = Backbone.Router.extend({
         };
         var options = {
             mediaSources: this.mediaModel
-            , tagSets: this.tagSets
             , parse: true };
         this.mediaModel.trigger('sync');
         if (!this.queryCollection) {
@@ -116,7 +113,10 @@ App.Router = Backbone.Router.extend({
         this.queryCollection.add(this.queryModel);
         this.queryListView = this.vm.getView(
             App.DemoQueryListView
-            , { collection: this.queryCollection }
+            , {
+                collection: this.queryCollection
+                , mediaSources: this.mediaModel
+            }
         );
         this.queryCollection.on('execute', this.onQuery, this);
         this.vm.showView(this.queryListView);
