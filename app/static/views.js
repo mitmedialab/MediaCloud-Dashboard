@@ -466,7 +466,7 @@ App.MediaSelectView = App.NestedView.extend({
     }
 });
 
-App.MediaListItemView = Backbone.View.extend({
+App.ItemView = Backbone.View.extend({
     tagName: 'span',
     events: {
         'click .remove': 'onClickRemove'
@@ -479,7 +479,7 @@ App.MediaListItemView = Backbone.View.extend({
         this.$el.addClass('label');
         this.$el.addClass('label-default');
         this.template = _.template(
-            $('#tpl-media-list-item-view').html(),
+            $('#tpl-item-view').html(),
             this.model.attributes);
         this.$el.html(this.template);
     },
@@ -519,7 +519,7 @@ App.MediaListView = App.NestedView.extend({
     onAdd: function (model, collection, options) {
         App.debug('App.MediaListView.onAdd()');
         App.debug(model);
-        var itemView = new App.MediaListItemView({model: model});
+        var itemView = new App.ItemView({model: model});
         itemView.on('removeClick', this.onRemoveClick);
         this.$('.media-list-view-content').append(itemView.el);
     },
@@ -610,7 +610,15 @@ App.TagListView = App.NestedView.extend({
         this.render();
     },
     render: function () {
-        this.$el.append(this.template());
+        var that = this;
+        this.$el.html(this.template());
+        this.model.get('tags').each(function (m) {
+            var item = new Backbone.Model({
+                "name": "Hello, World!"
+            });
+            var itemView = new App.ItemView({ model: item })
+            that.$('.tag-list-view-content').append(itemView.el);
+        });
     }
 });
 
