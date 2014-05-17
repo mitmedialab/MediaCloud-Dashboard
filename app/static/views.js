@@ -171,6 +171,7 @@ App.QueryView = App.NestedView.extend({
             model: this.model.get('params').get('mediaModel')
         });
         this.tagSelectView = new App.TagSelectView({
+            model: this.model.get('params').get('mediaModel'),
             mediaSources: this.mediaSources
         });
         this.tagListView = new App.TagListView({
@@ -600,6 +601,8 @@ App.TagSelectView = App.NestedView.extend({
         App.debug('App.TagSelectView.onTagEntered()');
         if (event) { event.preventDefault(); }
         var name = $('.tag-input.tt-input', this.$el).typeahead('val');
+        var tagModel = this.allTags.find(function (m) { return m.get('tag') == name; });
+        this.model.get('tags').add(tagModel);
     }
 });
 
@@ -607,18 +610,20 @@ App.TagListView = App.NestedView.extend({
     template: _.template($('#tpl-tag-list-view').html()),
     initialize: function (options) {
         this.disabled = options.disabled;
+        this.listenTo(this.model.get('tags'), 'add', this.onAdd);
         this.render();
     },
     render: function () {
         var that = this;
         this.$el.html(this.template());
         this.model.get('tags').each(function (m) {
-            var item = new Backbone.Model({
-                "name": "Hello, World!"
-            });
-            var itemView = new App.ItemView({ model: item })
-            that.$('.tag-list-view-content').append(itemView.el);
+            this.onAdd(m);
         });
+    },
+    onAdd: function (m) {
+        var item = new Backbone.Model({ "name": m.get("tag") });
+        var itemView = new App.ItemView({ model: item })
+        this.$('.tag-list-view-content').append(itemView.el);
     }
 });
 
