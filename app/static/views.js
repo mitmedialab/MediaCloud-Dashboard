@@ -170,12 +170,9 @@ App.QueryView = App.NestedView.extend({
         this.mediaListView = new App.MediaListView({
             model: this.model.get('params').get('mediaModel')
         });
-        this.tagSelectView = new App.TagSelectView({
-            model: this.model.get('params').get('mediaModel'),
-            mediaSources: this.mediaSources
-        });
-        this.tagListView = new App.TagListView({
-            model: this.model.get('params').get('mediaModel')
+        this.tagSetListView = new App.TagSetListView({
+            collection: this.model.get('params').get('mediaModel').get('tag_sets')
+            , mediaSources: this.mediaSources
         });
         this.dateRangeView = new App.DateRangeView({ model: this.model });
         this.keywordView = new App.KeywordView({model: this.model});
@@ -183,8 +180,7 @@ App.QueryView = App.NestedView.extend({
         this.model.on('remove', this.close, this);
         this.addSubView(this.mediaSelectView);
         this.addSubView(this.mediaListView);
-        this.addSubView(this.tagSelectView);
-        this.addSubView(this.tagListView);
+        this.addSubView(this.tagFilterListView);
         this.addSubView(this.dateRangeView);
         this.addSubView(this.controlsView);
         this.render();
@@ -205,13 +201,10 @@ App.QueryView = App.NestedView.extend({
             var middleRow = $('<div>').addClass('row')
                 .append(that.mediaSelectView.el)
                 .append(that.mediaListView.el);
-            var bottomRow = $('<div>').addClass('row')
-                .append(that.tagSelectView.el)
-                .append(that.tagListView.el);
             that.$('.query-view-content').html('')
                 .append(topRow)
                 .append(middleRow)
-                .append(bottomRow);
+                .append(that.tagSetListView.el);
         });
     },
     onCopyInput: function (evt) {
@@ -536,37 +529,21 @@ App.MediaListView = App.NestedView.extend({
     }
 });
 
-App.TagSelectView = App.NestedView.extend({
-    template: _.template($('#tpl-tag-select-view').html()),
+App.TagSetView = Backbone.View.extend({
+    template: _.template($('#tpl-tag-set-view').html()),
     initialize: function (options) {
-        App.debug("App.TagSelectView.initialize()");
-        var that = this;
-        this.disabled = options.disabled;
-        this.tagSets = options.mediaSources.get('tag_sets');
-        this.allTags = options.mediaSources.get('tags');
+        this.mediaSources = options.mediaSources;
         this.render();
         if (!this.disabled) {
             App.debug('Creating typeahead');
-            // Create typeahead for tag sets
-            this.$('.tag-set-input').typeahead(null, {
-                name: 'tag_sets',
-                displayKey: 'name',
-                source: this.tagSets.getSuggestions().ttAdapter()
-            });
-            this.$('.tag-set-input').val('gv_country');
-            // Listen to custom typeahead events
-            this.$('.tag-set-input').bind(
-                'typeahead:selected',
-                function () { that.onSetEntered(); });
-            this.$('.tag-set-input').bind(
-                'typeahead:autocompleted',
-                function () { that.onSetEntered(); });
             // Create typeahead for tags
-            var tag_sets_id = this.tagSets.nameToId(this.$('.tag-set-input').val());
+            var id = this.model.get('tag_sets_id');
+            var tagSet = this.mediaSources.get('tag_sets').get(id);
+            console.log(tagSet);
             this.$('.tag-input').typeahead(null, {
                 name: 'tags',
                 displayKey: 'tag',
-                source: this.allTags.getSuggestions(tag_sets_id).ttAdapter()
+                source: tagSet.get('tags').getSuggestions().ttAdapter()
             });
             // Listen to custom typeahead events
             this.$('.tag-input').bind(
@@ -578,31 +555,78 @@ App.TagSelectView = App.NestedView.extend({
         }
     },
     render: function () {
+        this.$el.html(this.template(this.model.attributes));
+    },
+    onTagEntered: function (event) {
+        // TODO update this code
+        App.debug('App.TagSetView.onTagEntered()');
+        if (event) { event.preventDefault(); }
+        var tag = this.$('.tag-input.tt-input').typeahead('val');
+        this.$('.tag-input.tt-input').typeahead('val', '');
+        var tagModel = this.model.get('tags').find(function (m) { return m.get('tag') == tag; });
+        this.collection.get('tags').add(tagModel);
+    }
+});
+
+App.TagSetListView = App.NestedView.extend({
+    template: _.template($('#tpl-tag-set-list-view').html()),
+    events: {
+        "click .add-tag-set button": 'onSetEntered'
+    },
+    initialize: function (options) {
+        App.debug("App.TagSetListView.initialize()");
+        var that = this;
+        _.bindAll(this, 'onSetEntered');
+        this.disabled = options.disabled;
+        this.mediaSources = options.mediaSources;
+        this.listenTo(this.collection, 'add', this.onAdd);
+        this.render();
+        if (!this.disabled) {
+            App.debug('Creating typeahead');
+            // Create typeahead for tag sets
+            this.$('.tag-set-input').typeahead(null, {
+                name: 'tag_sets',
+                displayKey: 'name',
+                source: this.mediaSources.get('tag_sets').getSuggestions().ttAdapter()
+            });
+            // Listen to custom typeahead events
+            this.$('.tag-set-input').bind(
+                'typeahead:selected',
+                function () { that.onSetEntered(); });
+            this.$('.tag-set-input').bind(
+                'typeahead:autocompleted',
+                function () { that.onSetEntered(); });
+        }
+    },
+    render: function () {
         this.$el.append(this.template());
         if (this.disabled) {
             this.$('.tag-set-input').attr('disabled', 'disabled');
-            this.$('.tag-input').attr('disabled', 'disabled');
         }
     },
     onSetEntered: function (event) {
-        App.debug('App.TagSelectView.onSetEntered()');
+        App.debug('App.TagSetListView.onSetEntered()');
         if (event) { event.preventDefault(); }
-        var name = $('.tag-set-input.tt-input', this.$el).typeahead('val');
+        var name = this.$('.tag-set-input.tt-input').typeahead('val');
+        this.$('.tag-set-input.tt-input').typeahead('val', '');
         // Create typeahead for tags
-        var tag_sets_id = this.tagSets.nameToId(this.$('.tag-set-input.tt-input').typeahead('val'));
-        this.$('.tag-input').typeahead('destroy');
-        this.$('.tag-input').typeahead(null, {
-            name: 'tags',
-            displayKey: 'tag',
-            source: this.allTags.getSuggestions(tag_sets_id).ttAdapter()
-        });
+        App.debug(this.mediaSources);
+        var tag_set = this.mediaSources.get('tag_sets').find(
+            function (m) { return m.get('name') == name; }
+        );
+        var new_tag_set = tag_set.cloneEmpty();
+        this.collection.add(new_tag_set);
     },
-    onTagEntered: function (event) {
-        App.debug('App.TagSelectView.onTagEntered()');
-        if (event) { event.preventDefault(); }
-        var name = $('.tag-input.tt-input', this.$el).typeahead('val');
-        var tagModel = this.allTags.find(function (m) { return m.get('tag') == name; });
-        this.model.get('tags').add(tagModel);
+    onAdd: function (tagSetModel) {
+        App.debug('App.TagSetListView.onAdd()');
+        var tagSetView = new App.TagSetView({
+            model: tagSetModel
+            , mediaSources: this.mediaSources
+        });
+        this.$('.tag-set-list-view-content').append(tagSetView.el);
+        _.defer(function () {
+            tagSetView.$('input').focus();
+        });
     }
 });
 
