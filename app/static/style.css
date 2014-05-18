@@ -30,6 +30,10 @@
     display: none;
 }
 
+.nomargin {
+    margin: 0;
+}
+
 /* Template styles ************************************************************/
 
 .media-list-view a.remove {
@@ -47,6 +51,10 @@
 }
 .query-views.one .query-controls button.remove {
     display: none;
+}
+.query-views .tag-set-list-view-content .name {
+    padding-top: 6px;
+    font-weight: bold;
 }
 .keyword-view label {
     display: block;

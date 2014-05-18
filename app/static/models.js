@@ -11,7 +11,7 @@ App.NestedModel = Backbone.Model.extend({
         for (var key in this.attributeModels) {
             var subModel = this.attributeModels[key];
             var subData = response[key];
-            response[key] = new subModel(subData)
+            response[key] = new subModel(subData, {parse: true})
             // Notify children that they have been updated
             response[key].trigger('parentSync');
         }
@@ -170,26 +170,60 @@ App.MediaSetCollection = Backbone.Collection.extend({
     }
 });
 
-App.TagSetModel = Backbone.Model.extend({
+App.TagModel = Backbone.Model.extend({
+    url: '/api/tags/single',
+    idAttribute: 'tags_id',
+    initialize: function (options) {}
+});
+
+App.TagCollection = Backbone.Collection.extend({
+    model: App.TagModel,
+    initialize: function (options) {
+    },
+    getSuggestions: function () {
+        App.debug('TagCollection.getSuggestions()');
+        if (!this.suggest) {
+            App.debug('Creating new suggestion engine');
+            var suggest = new Bloodhound({
+                datumTokenizer: function (d) {
+                    return Bloodhound.tokenizers.whitespace(d.tag);
+                },
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                local: this.toJSON()
+            });
+            suggest.initialize();
+            this.suggest = suggest;
+        } else {
+            App.debug('Reusing suggestion engine');
+        }
+        return this.suggest;
+    }
+});
+
+App.TagSetModel = App.NestedModel.extend({
     url: '/api/tag_sets/single',
     idAttribute: 'tag_sets_id',
-    initialize: function (options) {}
+    attributeModels: {
+        'tags': App.TagCollection
+    },
+    initialize: function (options) {
+        if (!this.get('tags')) {
+            // TODO this should be moved into defaults
+            this.set('tags', new App.TagCollection());
+        }
+    },
+    cloneEmpty: function () {
+        newModel = new App.TagSetModel();
+        newModel.set('tag_sets_id', this.get('tag_sets_id'));
+        newModel.set('name', this.get('name'));
+        return newModel;
+    }
 });
 
 App.TagSetCollection = Backbone.Collection.extend({
     model: App.TagSetModel,
     initialize: function (options) {
         var that = this;
-    },
-    nameToId: function (name) {
-        var that = this;
-        if (!this._nameToId) {
-            this._nameToId = {}
-            this.each(function (m) {
-                that._nameToId[m.get('name')] = m.get('tag_sets_id');
-            });
-        }
-        return this._nameToId[name];
     },
     getSuggestions: function () {
         App.debug('TagSetCollection.getSuggestions()');
@@ -207,55 +241,16 @@ App.TagSetCollection = Backbone.Collection.extend({
     }
 })
 
-App.TagModel = Backbone.Model.extend({
-    url: '/api/tags/single',
-    idAttribute: 'tags_id',
-    initialize: function (options) {}
-});
-
-App.TagCollection = Backbone.Collection.extend({
-    model: App.TagModel,
-    initialize: function (options) {
-        this.suggest = {};
-    },
-    getSuggestions: function (tag_sets_id) {
-        App.debug('TagCollection.getSuggestions(' + tag_sets_id + ')');
-        if (!this.suggest[tag_sets_id]) {
-            App.debug('Creating new suggestion engine');
-            var localData = _.filter(
-                this.toJSON(),
-                function (d) {
-                    return d.tag_sets_id == tag_sets_id;
-                }
-            );
-            var suggest = new Bloodhound({
-                datumTokenizer: function (d) {
-                    return Bloodhound.tokenizers.whitespace(d.tag);
-                },
-                queryTokenizer: Bloodhound.tokenizers.whitespace,
-                local: localData
-            });
-            suggest.initialize();
-            this.suggest[tag_sets_id] = suggest;
-        } else {
-            App.debug('Reusing suggestion engine');
-        }
-        return this.suggest[tag_sets_id];
-    }
-});
-
 App.MediaModel = App.NestedModel.extend({
     urlRoot: '/api/media',
     attributeModels: {
         sources: App.MediaSourceCollection
-        , tags: App.TagCollection
         , tag_sets: App.TagSetCollection
     },
     initialize: function () {
         App.debug('App.MediaModel.initialize()');
         var that = this;
         this.set('sources', new App.MediaSourceCollection());
-        this.set('tags', new App.TagCollection());
         this.set('tag_sets', new App.TagSetCollection());
         this.deferred = $.Deferred();
         this.on('sync', function () {
@@ -270,24 +265,22 @@ App.MediaModel = App.NestedModel.extend({
         this.get('tag_sets').each(function (m) {
             cloneModel.get('tag_sets').add(m);
         });
-        this.get('tags').each(function (m) {
-            cloneModel.get('tags').add(m);
-        });
         cloneModel.deferred.resolve();
         return cloneModel;
     },
     subset: function (s) {
+        // Map path to model
         // Return a copy of this media model containing a subset of the
-        // sources and sets according to a string like:
-        // sets:[7125],sources:[1]
+        // sources and sets according to an object like:
+        // {sources:[1],tags:[{'tag_sets_id:23', 'tags_id[4,5]'}]}
         App.debug('App.MediaModel.subset()');
         var that = this;
         media = new App.MediaModel();
         var o = s;
-            // Copy the source/set from this MediaModel to a new one
-        _.each(o.sets, function (id) {
-            var m = that.get('sets').get(id);
-            media.get('sets').add(m);
+        // Copy the source/tag from this MediaModel to a new one
+        _.each(o.tags, function (id) {
+            var m = that.get('tags').get(id);
+            media.get('tags').add(m);
         });
         _.each(o.sources, function (id) {
             var m = that.get('sources').get({id:id})
@@ -295,6 +288,7 @@ App.MediaModel = App.NestedModel.extend({
         });
         return media;
     },
+    // Map model to path
     queryParam: function () {
         var qp = {}
         var sources = this.get('sources');
@@ -304,10 +298,6 @@ App.MediaModel = App.NestedModel.extend({
         var tags = this.get('tags');
         if (tags && tags.length > 0) {
             qp.tags = tags.pluck('tags_id');
-        }
-        var tagSets = this.get('tag_sets');
-        if (tagSets && tagSets.length > 0) {
-            qp.tags = tagSets.pluck('tag_sets_id');
         }
         return qp;
     }

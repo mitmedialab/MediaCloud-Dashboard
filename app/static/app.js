@@ -39,10 +39,10 @@ App = {
         App.debug('App.onSignIn()');
         var that = this;
         if (this.mediaSources.get('sources').length == 0) {
-            $.ajax('/static/data/media.json', {
+            $.ajax('/static/data/test/media.json', {
                 "dataType": "json",
                 "success": function (data) {
-                    App.debug('Received media json');
+                    App.debug('Received media json:');
                     that.mediaSources.set(that.mediaSources.parse(data));
                     that.mediaSources.trigger('sync');
                     that.mediaSourceData = data;
