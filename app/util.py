@@ -36,9 +36,22 @@ def solr_date_queries(media, start, end):
 
 def media_to_solr(media):
     d = json.loads(media)
-    solr = ['media_id:%s' % i for i in d.get('sources', [])]
-    solr += ['media_sets_id:%s' % i for i in d.get('sets', [])]
-    query = ' OR '.join(solr)
+    sources = ['media_id:%s' % i for i in d.get('sources', [])]
+    sources += ['media_sets_id:%s' % i for i in d.get('sets', [])]
+    source_query = '(' + ' OR '.join(sources) + ')'
+    tag_queries = []
+    for tag in d['tags']:
+        parts = ['tags_id:%s' % i for i in tag['tags_id']]
+        tag_queries.append('(' + ' OR '.join(parts) + ')')
+    tag_query = '(' + ' AND '.join(tag_queries) + ')'
+    queries = []
+    if len(source_query) > 0:
+        queries.append(source_query)
+    if len(tag_query) > 0:
+        queries.append(tag_query)
+    query = ' AND '.join(queries)
+    print "Here's the query yo"
+    print query
     return query
     
 def all_media():

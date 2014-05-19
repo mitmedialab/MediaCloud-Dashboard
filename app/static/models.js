@@ -217,6 +217,13 @@ App.TagSetModel = App.NestedModel.extend({
         newModel.set('tag_sets_id', this.get('tag_sets_id'));
         newModel.set('name', this.get('name'));
         return newModel;
+    },
+    queryParam: function () {
+        qp = {
+            tag_sets_id: this.get('tag_sets_id')
+            , tags_id: this.get('tags').pluck('tags_id')
+        }
+        return qp;
     }
 });
 
@@ -238,6 +245,9 @@ App.TagSetCollection = Backbone.Collection.extend({
             this.suggest.initialize();
         }
         return this.suggest;
+    },
+    queryParam: function () {
+        return this.map(function (m) { return m.queryParam(); });
     }
 })
 
@@ -272,12 +282,13 @@ App.MediaModel = App.NestedModel.extend({
         // Map path to model
         // Return a copy of this media model containing a subset of the
         // sources and sets according to an object like:
-        // {sources:[1],tags:[{'tag_sets_id:23', 'tags_id[4,5]'}]}
+        // {sources:[1],tags:[{'tag_sets_id:23', 'tags_id:[4,5]'}]}
         App.debug('App.MediaModel.subset()');
         var that = this;
         media = new App.MediaModel();
         var o = s;
         // Copy the source/tag from this MediaModel to a new one
+        // TODO fix tags
         _.each(o.tags, function (id) {
             var m = that.get('tags').get(id);
             media.get('tags').add(m);
@@ -295,10 +306,7 @@ App.MediaModel = App.NestedModel.extend({
         if (sources && sources.length > 0) {
             qp.sources = sources.pluck('media_id');
         }
-        var tags = this.get('tags');
-        if (tags && tags.length > 0) {
-            qp.tags = tags.pluck('tags_id');
-        }
+        qp.tags = this.get('tag_sets').queryParam();
         return qp;
     }
 })
