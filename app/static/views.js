@@ -537,6 +537,7 @@ App.MediaListView = App.NestedView.extend({
 App.TagSetView = Backbone.View.extend({
     template: _.template($('#tpl-tag-set-view').html()),
     initialize: function (options) {
+        App.debug('App.TagSetView.initialize()');
         var that = this;
         this.mediaSources = options.mediaSources;
         this.listenTo(this.model.get('tags'), 'add', this.onAdd);
@@ -562,6 +563,10 @@ App.TagSetView = Backbone.View.extend({
     },
     render: function () {
         this.$el.html(this.template(this.model.attributes));
+        var that = this;
+        this.model.get('tags').each(function (m) {
+            that.onAdd(m);
+        });
     },
     onTagEntered: function (event) {
         // TODO update this code
@@ -619,10 +624,14 @@ App.TagSetListView = App.NestedView.extend({
         }
     },
     render: function () {
+        var that = this;
         this.$el.append(this.template());
         if (this.disabled) {
             this.$('.tag-set-input').attr('disabled', 'disabled');
         }
+        this.collection.each(function (m) {
+            that.onAdd(m);
+        });
     },
     onSetEntered: function (event) {
         App.debug('App.TagSetListView.onSetEntered()');
