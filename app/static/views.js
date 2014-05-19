@@ -466,15 +466,20 @@ App.ItemView = Backbone.View.extend({
         'click .remove': 'onClickRemove'
     },
     initialize: function (options) {
+        this.display = options.display;
         this.render();
         _.bindAll(this, 'onClickRemove');
     },
     render: function () {
         this.$el.addClass('label');
         this.$el.addClass('label-default');
-        this.template = _.template(
-            $('#tpl-item-view').html(),
-            this.model.attributes);
+        var data = {}
+        if (this.display) {
+            data.name = this.model.get(this.display);
+        } else {
+            data.name = this.model.get('name');
+        }
+        this.template = _.template($('#tpl-item-view').html(), data);
         this.$el.html(this.template);
     },
     onClickRemove: function (event) {
@@ -532,14 +537,15 @@ App.MediaListView = App.NestedView.extend({
 App.TagSetView = Backbone.View.extend({
     template: _.template($('#tpl-tag-set-view').html()),
     initialize: function (options) {
+        var that = this;
         this.mediaSources = options.mediaSources;
+        this.listenTo(this.model.get('tags'), 'add', this.onAdd);
         this.render();
         if (!this.disabled) {
             App.debug('Creating typeahead');
             // Create typeahead for tags
             var id = this.model.get('tag_sets_id');
             var tagSet = this.mediaSources.get('tag_sets').get(id);
-            console.log(tagSet);
             this.$('.tag-input').typeahead(null, {
                 name: 'tags',
                 displayKey: 'tag',
@@ -563,8 +569,22 @@ App.TagSetView = Backbone.View.extend({
         if (event) { event.preventDefault(); }
         var tag = this.$('.tag-input.tt-input').typeahead('val');
         this.$('.tag-input.tt-input').typeahead('val', '');
-        var tagModel = this.model.get('tags').find(function (m) { return m.get('tag') == tag; });
-        this.collection.get('tags').add(tagModel);
+        var id = this.model.get('tag_sets_id');
+        var sourceTagSet = this.mediaSources.get('tag_sets').get(id);
+        var tagModel = sourceTagSet.get('tags').find(function (m) { return m.get('tag') == tag; });
+        this.model.get('tags').add(tagModel);
+    },
+    onAdd: function (tagModel, collection) {
+        App.debug('App.TagSetView.onAdd()');
+        var that = this;
+        var itemView = new App.ItemView({
+            model: tagModel
+            , display: 'tag'
+        });
+        this.listenTo(itemView, 'removeClick', function (m) {
+            that.model.get('tags').remove(m);
+        });
+        this.$('.tag-set-view-content').append(itemView.el);
     }
 });
 
