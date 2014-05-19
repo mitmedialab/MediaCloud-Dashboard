@@ -38,22 +38,28 @@ def media_to_solr(media):
     d = json.loads(media)
     sources = ['media_id:%s' % i for i in d.get('sources', [])]
     sources += ['media_sets_id:%s' % i for i in d.get('sets', [])]
-    source_query = '(' + ' OR '.join(sources) + ')'
+    source_query = join_query_clauses(sources, 'AND')
     tag_queries = []
     for tag in d['tags']:
-        parts = ['tags_id:%s' % i for i in tag['tags_id']]
-        tag_queries.append('(' + ' OR '.join(parts) + ')')
-    tag_query = '(' + ' AND '.join(tag_queries) + ')'
+        parts = ['tags_id_media:%s' % i for i in tag['tags_id']]
+        tag_queries.append(join_query_clauses(parts, 'OR'))
+    tag_query = join_query_clauses(tag_queries, 'AND')
     queries = []
     if len(source_query) > 0:
         queries.append(source_query)
     if len(tag_query) > 0:
         queries.append(tag_query)
-    query = ' AND '.join(queries)
-    print "Here's the query yo"
-    print query
+    query = join_query_clauses(queries, 'AND')
     return query
-    
+
+def join_query_clauses(clauses, operator):
+    if len(clauses) == 0:
+        return ''
+    if len(clauses) == 1:
+        return clauses[0]
+    glue = ' %s ' % (operator)
+    return '(%s)' % (glue.join(clauses))
+
 def all_media():
     return _media_info
 
