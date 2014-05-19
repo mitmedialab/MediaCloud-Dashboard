@@ -173,7 +173,14 @@ App.MediaSetCollection = Backbone.Collection.extend({
 App.TagModel = Backbone.Model.extend({
     url: '/api/tags/single',
     idAttribute: 'tags_id',
-    initialize: function (options) {}
+    initialize: function (options) {},
+    clone: function () {
+        var cloneModel = new App.TagModel();
+        cloneModel.set('tags_id', this.get('tags_id'));
+        cloneModel.set('tag_sets_id', this.get('tag_sets_id'));
+        cloneModel.set('tag', this.get('tag'));
+        return cloneModel;
+    }
 });
 
 App.TagCollection = Backbone.Collection.extend({
@@ -197,6 +204,13 @@ App.TagCollection = Backbone.Collection.extend({
             App.debug('Reusing suggestion engine');
         }
         return this.suggest;
+    },
+    clone: function () {
+        var cloneCollection = new App.TagCollection();
+        this.each(function (m) {
+            cloneCollection.add(m.clone());
+        });
+        return cloneCollection;
     }
 });
 
@@ -211,6 +225,11 @@ App.TagSetModel = App.NestedModel.extend({
             // TODO this should be moved into defaults
             this.set('tags', new App.TagCollection());
         }
+    },
+    clone: function () {
+        newModel = this.cloneEmpty();
+        newModel.set('tags', this.get('tags').clone());
+        return newModel;
     },
     cloneEmpty: function () {
         newModel = new App.TagSetModel();
@@ -248,6 +267,13 @@ App.TagSetCollection = Backbone.Collection.extend({
     },
     queryParam: function () {
         return this.map(function (m) { return m.queryParam(); });
+    },
+    clone: function () {
+        var cloneCollection = new App.TagSetCollection();
+        this.each(function (m) {
+            cloneCollection.add(m.clone());
+        });
+        return cloneCollection;
     }
 })
 
@@ -268,14 +294,14 @@ App.MediaModel = App.NestedModel.extend({
         }, this);
     },
     clone: function () {
+        App.debug('App.MediaModel.clone()');
         var cloneModel = new App.MediaModel()
         this.get('sources').each(function (m) {
             cloneModel.get('sources').add(m);
         });
-        this.get('tag_sets').each(function (m) {
-            cloneModel.get('tag_sets').add(m);
-        });
+        cloneModel.set('tag_sets', this.get('tag_sets').clone());
         cloneModel.deferred.resolve();
+        console.log(cloneModel);
         return cloneModel;
     },
     subset: function (s) {
