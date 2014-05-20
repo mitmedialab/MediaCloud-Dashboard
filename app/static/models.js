@@ -301,10 +301,9 @@ App.MediaModel = App.NestedModel.extend({
         });
         cloneModel.set('tag_sets', this.get('tag_sets').clone());
         cloneModel.deferred.resolve();
-        console.log(cloneModel);
         return cloneModel;
     },
-    subset: function (s) {
+    subset: function (o) {
         // Map path to model
         // Return a copy of this media model containing a subset of the
         // sources and sets according to an object like:
@@ -312,12 +311,15 @@ App.MediaModel = App.NestedModel.extend({
         App.debug('App.MediaModel.subset()');
         var that = this;
         media = new App.MediaModel();
-        var o = s;
         // Copy the source/tag from this MediaModel to a new one
-        // TODO fix tags
-        _.each(o.tags, function (id) {
-            var m = that.get('tags').get(id);
-            media.get('tags').add(m);
+        _.each(o.tags, function (tagParam) {
+            var set = that.get('tag_sets').get(tagParam.tag_sets_id);
+            var newSet = set.cloneEmpty();
+            media.get('tag_sets').add(newSet);
+            _.each(tagParam.tags_id, function (id) {
+                var cloneTag = set.get('tags').get(id).clone();
+                newSet.get('tags').add(cloneTag);
+            });
         });
         _.each(o.sources, function (id) {
             var m = that.get('sources').get({id:id})
