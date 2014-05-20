@@ -37,8 +37,12 @@ def main():
     
     # page through tag_sets
     public_tag_sets_id = set()
+    all_tag_sets_id = set()
+    included_tag_sets_id = set()
     more_rows = True
     tag_sets = []
+    hidden_tag_sets = {}
+    included_tag_sets = {}
     last_id = 0
     while more_rows:
         print " At tag_set " + str(last_id)
@@ -47,15 +51,27 @@ def main():
         if more_rows:
             last_id = results[-1]['tag_sets_id']
         for r in results:
+            all_tag_sets_id.add(r['tag_sets_id'])
             if r['show_on_media'] not in (0, None):
                 del r['show_on_media']
                 del r['show_on_stories']
                 tag_sets.append(r)
+                print "Appending tag_set: %s" % r
                 public_tag_sets_id.add(r['tag_sets_id'])
+                included_tag_sets_id.add(r['tag_sets_id'])
+                included_tag_sets[r['tag_sets_id']] = r
+                r['tags'] = []
+            else:
+                try:
+                    del r['show_on_media']
+                    del r['show_on_stories']
+                except KeyError:
+                    pass
+                hidden_tag_sets[r['tag_sets_id']] = r
     
     # page through tags
     tags = []
-    for tag_sets_id in public_tag_sets_id:
+    for tag_sets_id in all_tag_sets_id:
         print tag_sets_id
         more_rows = True
         last_id = 0
@@ -66,21 +82,33 @@ def main():
             if more_rows:
                 last_id = results[-1]['tags_id']
             for r in results:
-                # Remove keys for empty values to save space
-                if not r['description']:
-                    del r['description']
-                if not r['label']:
-                    del r['label']
-                del r['show_on_media']
-                del r['show_on_stories']
-                tags.append(r)
+                if r['tag_sets_id'] == 5:
+                    print r
+                if r['show_on_media'] == 1 or r['tag_sets_id'] in public_tag_sets_id:
+                    # Remove keys for empty values to save space
+                    if not r['description']:
+                        del r['description']
+                    if not r['label']:
+                        del r['label']
+                    del r['show_on_media']
+                    del r['show_on_stories']
+                    if r['tag_sets_id'] not in included_tag_sets_id:
+                        # The tag's set wasn't included, add it now
+                        tag_set = hidden_tag_sets[r['tag_sets_id']]
+                        print "Appending tag_set: %s" % tag_set
+                        tag_sets.append(tag_set)
+                        included_tag_sets_id.add(r['tag_sets_id'])
+                        included_tag_sets[r['tag_sets_id']] = tag_set
+                        tag_set['tags'] = []
+                    else:
+                        tag_set = included_tag_sets[r['tag_sets_id']]
+                    tag_set['tags'].append(r)
     
     # stitch it together and output it
     print "Writing Output"
     results = {
         'sources':sources,
-        'tag_sets':tag_sets,
-        'tags':tags
+        'tag_sets':tag_sets
     }
     with open(json_file_path, 'w') as outfile:
         json.dump(results, outfile, separators=(',',':'))

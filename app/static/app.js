@@ -39,7 +39,7 @@ App = {
         App.debug('App.onSignIn()');
         var that = this;
         if (this.mediaSources.get('sources').length == 0) {
-            $.ajax('/static/data/test/media.json', {
+            $.ajax('/static/data/media.json', {
                 "dataType": "json",
                 "success": function (data) {
                     App.debug('Received media json:');
