@@ -13,11 +13,13 @@ App.NestedView = Backbone.View.extend({
         this.onClose();
     },
     closeSubViews: function () {
-        _.each(this.subViews, function (view) {
-            if (typeof(view.close) !== 'undefined') {
-                view.close();
-            }
-        });
+        if (this.subViews) {
+            _.each(this.subViews, function (view) {
+                if (typeof(view.close) !== 'undefined') {
+                    view.close();
+                }
+            });
+        }
     },
     onClose: function () {
     },
@@ -180,7 +182,7 @@ App.QueryView = App.NestedView.extend({
         this.model.on('remove', this.close, this);
         this.addSubView(this.mediaSelectView);
         this.addSubView(this.mediaListView);
-        this.addSubView(this.tagFilterListView);
+        this.addSubView(this.tagSetListView);
         this.addSubView(this.dateRangeView);
         this.addSubView(this.controlsView);
         this.render();
@@ -251,11 +253,7 @@ App.DemoQueryView = App.NestedView.extend({
             model: this.model.get('params').get('mediaModel'),
             disabled: true
         });
-        this.tagSelectView = new App.TagSelectView({
-            mediaSources: this.mediaSources
-            , disabled: true
-        });
-        this.tagListView = new App.TagListView({
+        this.tagSetListView = new App.TagSetListView({
             model: this.model.get('params').get('mediaModel')
             , disabled: true
         });
@@ -267,8 +265,7 @@ App.DemoQueryView = App.NestedView.extend({
         this.model.on('remove', this.close, this);
         this.addSubView(this.mediaSelectView);
         this.addSubView(this.mediaListView);
-        this.addSubView(this.tagSelectView);
-        this.addSubView(this.tagListView);
+        this.addSubView(this.tagSetListView);
         this.addSubView(this.dateRangeView);
         this.addSubView(this.controlsView);
         this.render();

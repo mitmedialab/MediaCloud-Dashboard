@@ -158,9 +158,9 @@ App.Router = Backbone.Router.extend({
                 subset.get('sources').each(function (m) {
                     mediaModel.get('sources').add(m);
                 });
-                subset.get('sets').each(function (m) {
-                    mediaModel.get('sets').add(m);
-                });
+                subset.get('tag_sets').each(function (m) {
+                    mediaModel.get('tag_sets').add(m);
+                })
             });
             that.queryCollection.execute();
         });
@@ -268,6 +268,7 @@ App.Router = Backbone.Router.extend({
         App.debug('App.Router.onQuery()');
         App.debug(queryCollection);
         var path = queryCollection.dashboardUrl();
+        App.debug('Path: ' + path);
         this.navigate(path);
         this.showResults(queryCollection);
     },
