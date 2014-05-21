@@ -274,20 +274,22 @@ App.DemoQueryView = App.NestedView.extend({
         // Assume the media sources are loaded already
         this.$el.html(this.template());
         // Replace loading with sub views
-        var topRow = $('<div>').addClass('row')
-            .append(this.keywordView.el)
-            .append(this.dateRangeView.el)
-            .append(this.controlsView.el);
-        var middleRow = $('<div>').addClass('row')
-            .append(this.mediaSelectView.el)
-            .append(this.mediaListView.el);
-        var bottomRow = $('<div>').addClass('row')
-            .append(this.tagSelectView.el)
-            .append(this.tagListView.el);
-        this.$('.query-view-content').html('')
-            .append(topRow)
-            .append(middleRow)
-            .append(bottomRow);
+        that = this;
+        this.mediaSources.deferred.done(function () {
+            that.$el.html(that.template());
+            // Replace loading with sub views
+            var topRow = $('<div>').addClass('row')
+                .append(that.keywordView.el)
+                .append(that.dateRangeView.el)
+                .append(that.controlsView.el);
+            var middleRow = $('<div>').addClass('row')
+                .append(that.mediaSelectView.el)
+                .append(that.mediaListView.el);
+            that.$('.query-view-content').html('')
+                .append(topRow)
+                .append(middleRow)
+                .append(that.tagSetListView.el);
+        });
     },
     onCopyInput: function (evt) {
         App.debug('App.QueryView.onCopyInput()');
@@ -439,6 +441,7 @@ App.MediaSelectView = App.NestedView.extend({
         this.$el.html(this.template());
         if (this.disabled) {
             this.$('.media-input').attr('disabled', 'disabled');
+            this.$('button').attr('disabled', 'disabled');
         }
     },
     onTextEntered: function (event) {
@@ -601,6 +604,9 @@ App.TagSetListView = App.NestedView.extend({
         _.bindAll(this, 'onSetEntered');
         this.disabled = options.disabled;
         this.mediaSources = options.mediaSources;
+        if (typeof(this.collection) == 'undefined') {
+            this.collection = new App.TagSetCollection();
+        }
         this.listenTo(this.collection, 'add', this.onAdd);
         this.render();
         if (!this.disabled) {
@@ -625,6 +631,7 @@ App.TagSetListView = App.NestedView.extend({
         this.$el.append(this.template());
         if (this.disabled) {
             this.$('.tag-set-input').attr('disabled', 'disabled');
+            this.$('button').attr('disabled', 'disabled');
         }
         this.collection.each(function (m) {
             that.onAdd(m);
