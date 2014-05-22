@@ -11,11 +11,13 @@ import mediacloud.api as mcapi
 import pymongo
 
 import app
-import app.util
-from app import app as application
 
 # Create media cloud api
 mc = mcapi.MediaCloud(app.config.get('mediacloud','key'))
+
+import app.util
+from app import app as application
+
 
 @application.route('/api/media')
 @flask_login.login_required
