@@ -4,6 +4,7 @@ App.Router = Backbone.Router.extend({
         , '/': 'home'
         , 'login': 'login'
         , 'demo': 'demo'
+        , 'demo-query/:keywords/:media/:start/:end': 'demoQuery'
         , 'query/:keywords/:media/:start/:end': 'query'
         , 'debug/histogram': 'debugHistogram'
         , 'debug/wordCount': 'debugWordCount'
@@ -131,8 +132,81 @@ App.Router = Backbone.Router.extend({
                 , mediaSources: this.mediaModel
             }
         );
-        this.queryCollection.on('execute', this.onQuery, this);
+        this.queryCollection.on('execute', this.onDemoQuery, this);
         this.vm.showView(this.queryListView);
+    },
+    
+    demoQuery: function (keywords, media, start, end) {
+        App.debug('Route: demoQuery');
+        var that = this;
+        // Defaults media
+        this.mediaSources = new App.MediaModel();
+        this.mediaSources.set(
+            this.mediaSources.parse({
+                'sources': []
+                , 'tag_sets' : [
+                    {
+                        "tag_sets_id": 5
+                        , "name": "collection"
+                        , "tags": [
+                            {
+                                "tag_sets_id":5
+                                ,"label":"U.S. Mainstream Media"
+                                ,"tag":"ap_english_us_top25_20100110"
+                                ,"tags_id":8875027
+                                ,"description":"Top U.S. mainstream media according Google Ad Planner's measure of unique monthly users."
+                            }
+                        ]
+                    }
+                ]
+            })
+        );
+        this.mediaSources.trigger('sync');
+        keywordList = $.parseJSON(keywords);
+        startList = $.parseJSON(start);
+        endList = $.parseJSON(end);
+        // Create query collection
+        if (!this.queryCollection) {
+            this.queryCollection = new App.QueryCollection();
+        } else {
+            this.queryCollection.reset();
+        }
+        // When sources are loaded, populate the media models from the url
+        this.mediaSources.deferred.then(function() {
+            // Add a media model for each query
+            // TODO this should really happen in MediaCollection/MediaModel
+            _.each($.parseJSON(media), function (d, i) {
+                var mediaModel = new App.MediaModel();
+                var queryModel = new App.QueryModel({
+                    keywords: keywordList[i]
+                    , mediaModel: mediaModel
+                    , start: startList[i]
+                    , end: endList[i]
+                }, {
+                    mediaSources: that.mediaSources
+                    , parse: true
+                });
+                that.queryCollection.add(queryModel);
+                var subset = that.mediaSources.subset(d);
+                subset.get('sources').each(function (m) {
+                    mediaModel.get('sources').add(m);
+                });
+                subset.get('tag_sets').each(function (m) {
+                    mediaModel.get('tag_sets').add(m);
+                })
+            });
+            that.queryCollection.execute();
+        });
+        this.queryListView = this.vm.getView(
+            App.DemoQueryListView
+            , {
+                collection: this.queryCollection
+                , mediaSources: this.mediaSources
+            }
+        );
+        this.queryCollection.on('execute', this.onDemoQuery, this);
+        this.queryCollection.on('add', this.onQueryAdd, this);
+        this.showResults(this.queryCollection);
     },
     
     query: function (keywords, media, start, end) {
@@ -281,6 +355,15 @@ App.Router = Backbone.Router.extend({
         App.debug('App.Router.onQuery()');
         App.debug(queryCollection);
         var path = queryCollection.dashboardUrl();
+        App.debug('Path: ' + path);
+        this.navigate(path);
+        this.showResults(queryCollection);
+    },
+    
+    onDemoQuery: function (queryCollection) {
+        App.debug('App.Router.onQuery()');
+        App.debug(queryCollection);
+        var path = queryCollection.dashboardDemoUrl();
         App.debug('Path: ' + path);
         this.navigate(path);
         this.showResults(queryCollection);

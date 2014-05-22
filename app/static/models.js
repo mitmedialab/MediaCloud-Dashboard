@@ -418,6 +418,15 @@ App.QueryCollection = Backbone.Collection.extend({
             , this.start()
             , this.end()
         ].join('/');
+    },
+    dashboardDemoUrl: function () {
+        return [
+            'demo-query'
+            , this.keywords()
+            , this.media()
+            , this.start()
+            , this.end()
+        ].join('/');
     }
 })
 
