@@ -244,18 +244,10 @@ App.DemoQueryView = App.NestedView.extend({
         _.bindAll(this, 'onCopyInput');
         _.bindAll(this, 'onRemoveInput');
         this.mediaSources = options.mediaSources;
-        this.mediaSelectView = new App.MediaSelectView({
-            model: this.model.get('params').get('mediaModel'),
-            mediaSources: this.model.get('params').get('mediaModel'),
-            disabled: true
-        });
-        this.mediaListView = new App.MediaListView({
-            model: this.model.get('params').get('mediaModel'),
-            disabled: true
-        });
         this.tagSetListView = new App.TagSetListView({
-            model: this.model.get('params').get('mediaModel')
+            collection: this.model.get('params').get('mediaModel').get('tag_sets')
             , disabled: true
+            , mediaSources: this.model.get('params').get('mediaModel')
         });
         this.dateRangeView = new App.DateRangeView({
             model: this.model, disabled: true
@@ -263,8 +255,6 @@ App.DemoQueryView = App.NestedView.extend({
         this.keywordView = new App.KeywordView({ model: this.model});
         this.controlsView = new App.QueryControlsView();
         this.model.on('remove', this.close, this);
-        this.addSubView(this.mediaSelectView);
-        this.addSubView(this.mediaListView);
         this.addSubView(this.tagSetListView);
         this.addSubView(this.dateRangeView);
         this.addSubView(this.controlsView);
@@ -282,12 +272,8 @@ App.DemoQueryView = App.NestedView.extend({
                 .append(that.keywordView.el)
                 .append(that.dateRangeView.el)
                 .append(that.controlsView.el);
-            var middleRow = $('<div>').addClass('row')
-                .append(that.mediaSelectView.el)
-                .append(that.mediaListView.el);
             that.$('.query-view-content').html('')
                 .append(topRow)
-                .append(middleRow)
                 .append(that.tagSetListView.el);
         });
     },
@@ -546,6 +532,7 @@ App.TagSetView = Backbone.View.extend({
             App.debug('Creating typeahead');
             // Create typeahead for tags
             var id = this.model.get('tag_sets_id');
+            console.log(this.mediaSources);
             var tagSet = this.mediaSources.get('tag_sets').get(id);
             this.$('.tag-input').typeahead(null, {
                 name: 'tags',
@@ -627,6 +614,7 @@ App.TagSetListView = App.NestedView.extend({
         }
     },
     render: function () {
+        App.debug('App.TagSetListView.render()');
         var that = this;
         this.$el.append(this.template());
         if (this.disabled) {

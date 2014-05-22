@@ -84,15 +84,28 @@ App.Router = Backbone.Router.extend({
         this.mediaModel = new App.MediaModel();
         this.mediaModel.set(
             this.mediaModel.parse({
-                'sources': [{'id':1, 'name':'New York Times'}]
-                , 'tag_sets' : [{ "tag_sets_id": 597, "name": "gv_country" }]
-                , 'tags': [{ "tags_id": 8876989, "tag": "japan", "tag_sets_id": 597}]
+                'sources': []
+                , 'tag_sets' : [
+                    {
+                        "tag_sets_id": 5
+                        , "name": "collection"
+                        , "tags": [
+                            {
+                                "tag_sets_id":5
+                                ,"label":"U.S. Mainstream Media"
+                                ,"tag":"ap_english_us_top25_20100110"
+                                ,"tags_id":8875027
+                                ,"description":"Top U.S. mainstream media according Google Ad Planner's measure of unique monthly users."
+                            }
+                        ]
+                    }
+                ]
             })
         );
         // Defaults dates
         var dayMs = 24 * 60 * 60 * 1000;
         var ts = new Date().getTime();
-        var start = new Date(ts - 97*dayMs);
+        var start = new Date(ts - 21*dayMs);
         var end = new Date(ts - 7*dayMs);
         var attributes = {
             start: start.getFullYear() + '-' + (start.getMonth()+1) + '-' + start.getDate()
