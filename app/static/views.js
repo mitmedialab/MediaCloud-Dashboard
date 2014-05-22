@@ -525,6 +525,8 @@ App.TagSetView = Backbone.View.extend({
     initialize: function (options) {
         App.debug('App.TagSetView.initialize()');
         var that = this;
+        this.disabled = options.disabled;
+        console.log(this.disabled);
         this.mediaSources = options.mediaSources;
         this.listenTo(this.model.get('tags'), 'add', this.onAdd);
         this.render();
@@ -551,6 +553,10 @@ App.TagSetView = Backbone.View.extend({
     render: function () {
         this.$el.html(this.template(this.model.attributes));
         var that = this;
+        if (this.disabled) {
+            this.$('.tag-input').attr('disabled', 'disabled');
+            this.$('button').attr('disabled', 'disabled');
+        }
         this.model.get('tags').each(function (m) {
             that.onAdd(m);
         });
@@ -572,6 +578,7 @@ App.TagSetView = Backbone.View.extend({
         var itemView = new App.ItemView({
             model: tagModel
             , display: 'tag'
+            , disabled: true
         });
         this.listenTo(itemView, 'removeClick', function (m) {
             that.model.get('tags').remove(m);
@@ -596,7 +603,9 @@ App.TagSetListView = App.NestedView.extend({
         }
         this.listenTo(this.collection, 'add', this.onAdd);
         this.render();
-        if (!this.disabled) {
+        if (this.disabled) {
+            this.$el.addClass('disabled');
+        } else {
             App.debug('Creating typeahead');
             // Create typeahead for tag sets
             this.$('.tag-set-input').typeahead(null, {
@@ -643,6 +652,7 @@ App.TagSetListView = App.NestedView.extend({
         var tagSetView = new App.TagSetView({
             model: tagSetModel
             , mediaSources: this.mediaSources
+            , disabled: this.disabled
         });
         this.$('.tag-set-list-view-content').append(tagSetView.el);
         _.defer(function () {
