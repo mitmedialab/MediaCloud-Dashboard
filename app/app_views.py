@@ -41,10 +41,8 @@ def sentences(keywords, media, start, end):
     query = app.util.solr_query(app.util.media_to_solr(media), start, end)
     res = mc.sentenceList(keywords , query, 0, 10)
     return json.dumps(res, separators=(',',':'))
-    
-@application.route('/api/sentences/docs/<keywords>/<media>/<start>/<end>')
-@flask_login.login_required
-def sentence_docs(keywords, media, start, end):
+
+def _sentence_docs(keywords, media, start, end):
     query = app.util.solr_query(app.util.media_to_solr(media), start, end)
     res = mc.sentenceList(keywords, query, 0, 10)
     sentences = res['response']['docs']
@@ -53,6 +51,16 @@ def sentence_docs(keywords, media, start, end):
         #story = mc.story(s['stories_id'])
         #s['storyUrl'] = story['url'] # so you can click on the sentence
     return json.dumps(sentences, separators=(',',':'))
+    
+@application.route('/api/sentences/docs/<keywords>/<media>/<start>/<end>')
+@flask_login.login_required
+def sentence_docs(keywords, media, start, end):
+    return _sentence_docs(keywords, media, start, end)
+
+@application.route('/api/demo/sentences/docs/<keywords>')
+def demo_sentence_docs(keywords):
+    media, start, end = demo_params()
+    return _sentence_docs(keywords, media, start, end)
 
 @application.route('/api/stories/docs/<keywords>/<media>/<start>/<end>.csv')
 @flask_login.login_required
@@ -79,16 +87,40 @@ def story_docs_csv(keywords, media, start, end):
     return flask.Response(stream_csv(all_stories), mimetype='text/csv', 
                 headers={"Content-Disposition":"attachment;filename="+download_filename})
     
-@application.route('/api/sentences/numfound/<keywords>/<media>/<start>/<end>')
-@flask_login.login_required
-def sentence_numfound(keywords, media, start, end):
+def _sentence_numfound(keywords, media, start, end):
     nf = app.util.NumFound(mc_key, keywords, media, start, end)
     results = nf.results()
     return json.dumps(results, separators=(',',':'))
-    
-@application.route('/api/wordcount/<keywords>/<media>/<start>/<end>')
+
+@application.route('/api/sentences/numfound/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
-def wordcount(keywords, media, start, end):
+def sentence_numfound(keywords, media, start, end):
+    return _sentence_numfound(keywords, media, start, end)
+
+@application.route('/api/demo/sentences/numfound/<keywords>')
+def demo_sentence_numfound(keywords):
+    media, start, end = demo_params()
+    return _sentence_numfound(keywords, media, start, end)
+    
+def _wordcount(keywords, media, start, end):
     query = app.util.solr_query(app.util.media_to_solr(media), start, end)
     res = mc.wordCount(keywords , query)
     return json.dumps(res, separators=(',',':'))
+
+@application.route('/api/wordcount/<keywords>/<media>/<start>/<end>')
+@flask_login.login_required
+def wordcount(keywords, media, start, end):
+    return _wordcount(keywords, media, start, end)
+
+@application.route('/api/demo/wordcount/<keywords>')
+def demo_wordcount(keywords):
+    media, start, end = demo_params()
+    return _wordcount(keywords, media, start, end)
+
+def demo_params():
+    media = '{"tags":[{"tag_sets_id":5,"tags_id":[8875027]}]}'
+    start_date = datetime.date.today() - datetime.timedelta(days=21)
+    end_date = datetime.date.today() - datetime.timedelta(days = 7)
+    start = start_date.strftime("%Y-%m-%d")
+    end = end_date.strftime("%Y-%m-%d")
+    return (media, start, end)

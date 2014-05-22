@@ -341,13 +341,19 @@ App.QueryModel = Backbone.Model.extend({
     initialize: function (attributes, options) {
         App.debug('App.QueryModel.initialize()');
         App.debug(attributes);
+        App.debug(options);
         App.debug(this.get('mediaModel'));
         this.mediaSources = options.mediaSources
         var opts = {
             mediaSources: this.mediaSources,
             params: this.get('params')
         };
-        this.set('results', new App.ResultModel({}, opts));
+        this.ResultModel = options.ResultModel;
+        if (typeof(this.ResultModel) == 'undefined') {
+            console.log('Default result model')
+            this.ResultModel = App.ResultModel;
+        }
+        this.set('results', new this.ResultModel({}, opts));
     },
     parse: function (response, options) {
         response.params = new Backbone.Model({
@@ -465,6 +471,15 @@ App.SentenceCollection = Backbone.Collection.extend({
     }
 });
 
+App.DemoSentenceCollection = App.SentenceCollection.extend({
+    url: function () {
+        var url = '/api/demo/sentences/docs/';
+        url += encodeURIComponent(this.params.get('keywords'));
+        return url;
+    }
+});
+
+
 App.WordCountModel = Backbone.Model.extend({});
 App.WordCountCollection = Backbone.Collection.extend({
     resourceType: 'wordcount',
@@ -478,6 +493,14 @@ App.WordCountCollection = Backbone.Collection.extend({
         url += '/' + encodeURIComponent(JSON.stringify(this.params.get('mediaModel').queryParam()));
         url += '/' + encodeURIComponent(this.params.get('start'));
         url += '/' + encodeURIComponent(this.params.get('end'));
+        return url;
+    }
+});
+
+App.DemoWordCountCollection = App.WordCountCollection.extend({
+    url: function () {
+        var url = '/api/demo/wordcount/';
+        url += encodeURIComponent(this.params.get('keywords'));
         return url;
     }
 });
@@ -502,6 +525,14 @@ App.DateCountCollection = Backbone.Collection.extend({
         url += this.params.get('keywords') + '/';
         url += JSON.stringify(this.params.get('mediaModel').queryParam()) + '/';
         url += this.params.get('start') + '/' + this.params.get('end');
+        return url;
+    }
+});
+
+App.DemoDateCountCollection = App.DateCountCollection.extend({
+    url: function () {
+        var url = '/api/demo/sentences/numfound/';
+        url += this.params.get('keywords');
         return url;
     }
 });
@@ -536,4 +567,22 @@ App.ResultModel = Backbone.Model.extend({
     onSync: function (model_or_controller, request, options) {
         this.trigger('sync', model_or_controller, request, options);
     }
+});
+
+App.DemoResultModel = App.ResultModel.extend({
+    initialize: function (attributes, options) {
+        App.debug('App.DemoResultModel.initialize()');
+        var sentences = new App.DemoSentenceCollection([], options);
+        var wordcounts = new App.DemoWordCountCollection([], options);
+        var datecounts = new App.DemoDateCountCollection([], options);
+        this.set('sentences', sentences);
+        this.set('wordcounts', wordcounts);
+        this.set('datecounts', datecounts);
+        // Bubble-up events sent by the individual collections
+        _.each([sentences, wordcounts, datecounts], function (m) {
+            m.on('request', this.onRequest, this);
+            m.on('error', this.onError, this);
+            m.on('sync', this.onSync, this);
+        }, this);
+    },
 });

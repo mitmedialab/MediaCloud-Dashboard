@@ -116,7 +116,9 @@ App.Router = Backbone.Router.extend({
         };
         var options = {
             mediaSources: this.mediaModel
-            , parse: true };
+            , parse: true
+            , ResultModel: App.DemoResultModel
+        };
         this.mediaModel.trigger('sync');
         if (!this.queryCollection) {
             this.queryCollection = new App.QueryCollection();
@@ -185,6 +187,7 @@ App.Router = Backbone.Router.extend({
                 }, {
                     mediaSources: that.mediaSources
                     , parse: true
+                    , ResultModel: App.DemoResultModel
                 });
                 that.queryCollection.add(queryModel);
                 var subset = that.mediaSources.subset(d);
