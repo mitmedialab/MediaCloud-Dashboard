@@ -69,6 +69,16 @@ def all_media_sources():
 def all_media_sets():
     return _media_info.get('sets', [])
 
+# This should be an instancemethod of NumFound, but Pool.map() requires it
+# to be pickle-able, so this is a quick hack to work around that.
+def num_found_worker(arg):
+    nf, keywords, date, query = arg
+    res = nf.mc.sentenceList(keywords, query, 0, 0)
+    return {
+        'date': date
+        , 'numFound': res['response']['numFound']
+    }
+
 class NumFound:
     def __init__(self, mc, keywords, media, start, end):
         self.mc = mc
@@ -82,16 +92,6 @@ class NumFound:
         if int(app.config.get('threading', 'num_threads')) > 0:
             return NumFound.thread_pool.map(num_found_worker, self.to_query)
         return [num_found_worker(arg) for arg in self.to_query]
-
-# This should be an instancemethod of NumFound, but Pool.map() requires it
-# to be pickle-able, so this is a quick hack to work around that.
-def num_found_worker(arg):
-    nf, keywords, date, query = arg
-    res = nf.mc.sentenceList(keywords, query, 0, 0)
-    return {
-        'date': date
-        , 'numFound': res['response']['numFound']
-    }
 
 if int(app.config.get('threading', 'num_threads')) > 0:
     NumFound.thread_pool = multiprocessing.Pool(processes=int(app.config.get('threading', 'num_threads')))
