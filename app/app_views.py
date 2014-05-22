@@ -13,7 +13,8 @@ import pymongo
 import app
 
 # Create media cloud api
-mc = mcapi.MediaCloud(app.config.get('mediacloud','key'))
+mc_key = app.config.get('mediacloud','key')
+mc = mcapi.MediaCloud(mc_key)
 
 import app.util
 from app import app as application
@@ -81,7 +82,7 @@ def story_docs_csv(keywords, media, start, end):
 @application.route('/api/sentences/numfound/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def sentence_numfound(keywords, media, start, end):
-    nf = app.util.NumFound(mc, keywords, media, start, end)
+    nf = app.util.NumFound(mc_key, keywords, media, start, end)
     results = nf.results()
     return json.dumps(results, separators=(',',':'))
     

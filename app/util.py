@@ -1,5 +1,6 @@
 import datetime, os, json, multiprocessing
 
+import mediacloud.api as mcapi
 import app
 
 def load_media_info_json():
@@ -70,13 +71,14 @@ def all_media_sets():
     return _media_info.get('sets', [])
 
 class NumFound:
-    def __init__(self, mc, keywords, media, start, end):
-        self.mc = mc
+    def __init__(self, mc_key, keywords, media, start, end):
+        self.mc_key = mc_key
         self.to_query = []
         queries = solr_date_queries(media_to_solr(media), start, end)
         for q in queries:
             date, query = q
-            self.to_query.append((self, keywords, date, query))
+            #self.to_query.append((self, keywords, date, query))
+            self.to_query.append((mc_key, keywords, date, query))
             
     def results(self):
         if int(app.config.get('threading', 'num_threads')) > 0:
@@ -86,8 +88,9 @@ class NumFound:
 # This should be an instancemethod of NumFound, but Pool.map() requires it
 # to be pickle-able, so this is a quick hack to work around that.
 def num_found_worker(arg):
-    nf, keywords, date, query = arg
-    res = nf.mc.sentenceList(keywords, query, 0, 0)
+    mc_key, keywords, date, query = arg
+    mc = mcapi.MediaCloud(mc_key)
+    res = mc.sentenceList(keywords, query, 0, 0)
     return {
         'date': date
         , 'numFound': res['response']['numFound']
