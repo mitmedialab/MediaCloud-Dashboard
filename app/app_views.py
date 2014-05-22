@@ -43,7 +43,6 @@ def sentences(keywords, media, start, end):
 @flask_login.login_required
 def sentence_docs(keywords, media, start, end):
     query = app.util.solr_query(app.util.media_to_solr(media), start, end)
-    print query
     res = mc.sentenceList(keywords, query, 0, 10)
     sentences = res['response']['docs']
     for s in sentences:
