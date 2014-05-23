@@ -90,7 +90,7 @@ class NumFound:
 def num_found_worker(arg):
     mc_key, keywords, date, query = arg
     mc = mcapi.MediaCloud(mc_key)
-    res = mc.sentenceList(keywords, query, 0, 0)
+    res = mc.sentenceList("%s AND (%s)" % (keywords, query), '', 0, 0)
     return {
         'date': date
         , 'numFound': res['response']['numFound']

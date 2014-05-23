@@ -39,12 +39,12 @@ def media_sets():
 @flask_login.login_required
 def sentences(keywords, media, start, end):
     query = app.util.solr_query(app.util.media_to_solr(media), start, end)
-    res = mc.sentenceList(keywords , query, 0, 10)
+    res = mc.sentenceList("%s AND (%s)" % (keywords, query), '', 0, 10)
     return json.dumps(res, separators=(',',':'))
 
 def _sentence_docs(keywords, media, start, end):
     query = app.util.solr_query(app.util.media_to_solr(media), start, end)
-    res = mc.sentenceList(keywords, query, 0, 10)
+    res = mc.sentenceList("%s AND (%s)" % (keywords, query), '', 0, 10)
     sentences = res['response']['docs']
     for s in sentences:
         s['totalSentences'] = res['response']['numFound'] # hack to get total sentences count to Backbone.js
@@ -104,7 +104,7 @@ def demo_sentence_numfound(keywords):
     
 def _wordcount(keywords, media, start, end):
     query = app.util.solr_query(app.util.media_to_solr(media), start, end)
-    res = mc.wordCount(keywords , query)
+    res = mc.wordCount("%s AND (%s)" % (keywords , query))
     return json.dumps(res, separators=(',',':'))
 
 @application.route('/api/wordcount/<keywords>/<media>/<start>/<end>')
