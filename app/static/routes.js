@@ -48,8 +48,8 @@ App.Router = Backbone.Router.extend({
         // Defaults dates
         var dayMs = 24 * 60 * 60 * 1000;
         var ts = new Date().getTime();
-        var start = new Date(ts - 97*dayMs);
-        var end = new Date(ts - 7*dayMs);
+        var start = new Date(ts - 15*dayMs);
+        var end = new Date(ts - 1*dayMs);
         var attributes = {
             start: start.getFullYear() + '-' + (start.getMonth()+1) + '-' + start.getDate()
             , end: end.getFullYear() + '-' + (end.getMonth()+1) + '-' + end.getDate()
@@ -108,8 +108,8 @@ App.Router = Backbone.Router.extend({
         // Defaults dates
         var dayMs = 24 * 60 * 60 * 1000;
         var ts = new Date().getTime();
-        var start = new Date(ts - 21*dayMs);
-        var end = new Date(ts - 7*dayMs);
+        var start = new Date(ts - 15*dayMs);
+        var end = new Date(ts - 1*dayMs);
         var attributes = {
             start: start.getFullYear() + '-' + (start.getMonth()+1) + '-' + start.getDate()
             , end: end.getFullYear() + '-' + (end.getMonth()+1) + '-' + end.getDate()

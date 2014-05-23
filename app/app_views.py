@@ -119,8 +119,8 @@ def demo_wordcount(keywords):
 
 def demo_params():
     media = '{"tags":[{"tag_sets_id":5,"tags_id":[8875027]}]}'
-    start_date = datetime.date.today() - datetime.timedelta(days=21)
-    end_date = datetime.date.today() - datetime.timedelta(days = 7)
+    start_date = datetime.date.today() - datetime.timedelta(days=15)
+    end_date = datetime.date.today() - datetime.timedelta(days = 1)
     start = start_date.strftime("%Y-%m-%d")
     end = end_date.strftime("%Y-%m-%d")
     return (media, start, end)
