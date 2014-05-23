@@ -368,6 +368,7 @@ App.DemoQueryListView = App.QueryListView.extend({
         this.$el.html(this.template());
         // Replace loading with queries
         var that = this;
+        this.$('.messages').append($('<p>This public demo is a limited-functionality version of the full Media Meter Dashboard.</p>'))
         this.collection.each(function (m) {
             that.onAdd(m, that.collection)
         });
