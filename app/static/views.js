@@ -247,7 +247,7 @@ App.DemoQueryView = App.NestedView.extend({
         this.tagSetListView = new App.TagSetListView({
             collection: this.model.get('params').get('mediaModel').get('tag_sets')
             , disabled: true
-            , mediaSources: this.model.get('params').get('mediaModel')
+            , mediaSources: this.mediaSources
         });
         this.dateRangeView = new App.DateRangeView({
             model: this.model, disabled: true
@@ -371,7 +371,7 @@ App.DemoQueryListView = App.QueryListView.extend({
         });
     },
     onAdd: function (model, collection, options) {
-        App.debug('App.QueryListView.onAdd()');
+        App.debug('DemoApp.QueryListView.onAdd()');
         var queryView = new App.DemoQueryView({
             model: model
             , mediaSources: this.mediaSources
