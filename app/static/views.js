@@ -222,6 +222,7 @@ App.QueryView = App.NestedView.extend({
         var opts = {
             mediaSources: this.mediaSources
             , parse: true
+            , ResultModel: this.model.ResultModel
         };
         var newModel = new App.QueryModel(attr, opts);
         this.model.collection.add(newModel);
@@ -235,14 +236,14 @@ App.QueryView = App.NestedView.extend({
 App.DemoQueryView = App.NestedView.extend({
     template: _.template($('#tpl-query-view').html()),
     events: {
-        'click button.copy': 'onCopyInput',
-        'click button.remove': 'onRemoveInput'
+        'click button.copy': 'onDemoCopyInput',
+        'click button.remove': 'onDemoRemoveInput'
     },
     initialize: function (options) {
         App.debug('App.DemoQueryView.initialize()');
         App.debug(options);
-        _.bindAll(this, 'onCopyInput');
-        _.bindAll(this, 'onRemoveInput');
+        _.bindAll(this, 'onDemoCopyInput');
+        _.bindAll(this, 'onDemoRemoveInput');
         this.mediaSources = options.mediaSources;
         this.tagSetListView = new App.TagSetListView({
             collection: this.model.get('params').get('mediaModel').get('tag_sets')
@@ -277,8 +278,8 @@ App.DemoQueryView = App.NestedView.extend({
                 .append(that.tagSetListView.el);
         });
     },
-    onCopyInput: function (evt) {
-        App.debug('App.QueryView.onCopyInput()');
+    onDemoCopyInput: function (evt) {
+        App.debug('App.DemoQueryView.onCopyInput()');
         evt.preventDefault();
         var newMedia = this.model.get('params').get('mediaModel').clone();
         var attr = {
@@ -290,11 +291,12 @@ App.DemoQueryView = App.NestedView.extend({
         var opts = {
             mediaSources: this.mediaSources
             , parse: true
+            , ResultModel: this.model.ResultModel
         };
         var newModel = new App.QueryModel(attr, opts);
         this.model.collection.add(newModel);
     },
-    onRemoveInput: function (evt) {
+    onDemoRemoveInput: function (evt) {
         evt.preventDefault();
         this.model.collection.remove(this.model);
     }
@@ -761,7 +763,6 @@ App.SentenceView = Backbone.View.extend({
         var $el = this.$('.sentence-view .copy');
         progress = _.template($('#tpl-progress').html());
         $el.html(progress());
-        // TODO split into two views, one for the QueryColleciton and one for SentenceColleciton
         this.collection.resources.on('sync:sentence', function (sentences) {
             App.debug('App.SentenceView.sentenceCollection: sync');
             // figure out the total sentence count

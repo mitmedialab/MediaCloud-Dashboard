@@ -572,6 +572,7 @@ App.ResultModel = Backbone.Model.extend({
 App.DemoResultModel = App.ResultModel.extend({
     initialize: function (attributes, options) {
         App.debug('App.DemoResultModel.initialize()');
+        App.debug(options);
         var sentences = new App.DemoSentenceCollection([], options);
         var wordcounts = new App.DemoWordCountCollection([], options);
         var datecounts = new App.DemoDateCountCollection([], options);
