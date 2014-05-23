@@ -526,28 +526,27 @@ App.TagSetView = Backbone.View.extend({
         App.debug('App.TagSetView.initialize()');
         var that = this;
         this.disabled = options.disabled;
-        console.log(this.disabled);
         this.mediaSources = options.mediaSources;
+        _.bindAll(this, 'onTagEntered');
         this.listenTo(this.model.get('tags'), 'add', this.onAdd);
         this.render();
         if (!this.disabled) {
             App.debug('Creating typeahead');
             // Create typeahead for tags
             var id = this.model.get('tag_sets_id');
-            console.log(this.mediaSources);
             var tagSet = this.mediaSources.get('tag_sets').get(id);
             this.$('.tag-input').typeahead(null, {
                 name: 'tags',
-                displayKey: 'tag',
+                displayKey: 'label',
                 source: tagSet.get('tags').getSuggestions().ttAdapter()
             });
             // Listen to custom typeahead events
             this.$('.tag-input').bind(
                 'typeahead:selected',
-                function () { that.onTagEntered(); });
+                that.onTagEntered);
             this.$('.tag-input').bind(
                 'typeahead:autocompleted',
-                function () { that.onTagEntered(); });
+                that.onTagEntered);
         }
     },
     render: function () {
@@ -561,23 +560,22 @@ App.TagSetView = Backbone.View.extend({
             that.onAdd(m);
         });
     },
-    onTagEntered: function (event) {
-        // TODO update this code
+    onTagEntered: function (event, suggestion, dataset) {
         App.debug('App.TagSetView.onTagEntered()');
+        App.debug(suggestion);
         if (event) { event.preventDefault(); }
-        var tag = this.$('.tag-input.tt-input').typeahead('val');
         this.$('.tag-input.tt-input').typeahead('val', '');
-        var id = this.model.get('tag_sets_id');
-        var sourceTagSet = this.mediaSources.get('tag_sets').get(id);
-        var tagModel = sourceTagSet.get('tags').find(function (m) { return m.get('tag') == tag; });
+        var sourceTagSet = this.mediaSources.get('tag_sets').get(suggestion.tag_sets_id);
+        var tagModel = sourceTagSet.get('tags').find(function (m) { return m.get('tag') == suggestion.tag; });
         this.model.get('tags').add(tagModel);
     },
     onAdd: function (tagModel, collection) {
         App.debug('App.TagSetView.onAdd()');
+        App.debug(tagModel);
         var that = this;
         var itemView = new App.ItemView({
             model: tagModel
-            , display: 'tag'
+            , display: 'label'
             , disabled: true
         });
         this.listenTo(itemView, 'removeClick', function (m) {
@@ -658,27 +656,6 @@ App.TagSetListView = App.NestedView.extend({
         _.defer(function () {
             tagSetView.$('input').focus();
         });
-    }
-});
-
-App.TagListView = App.NestedView.extend({
-    template: _.template($('#tpl-tag-list-view').html()),
-    initialize: function (options) {
-        this.disabled = options.disabled;
-        this.listenTo(this.model.get('tags'), 'add', this.onAdd);
-        this.render();
-    },
-    render: function () {
-        var that = this;
-        this.$el.html(this.template());
-        this.model.get('tags').each(function (m) {
-            this.onAdd(m);
-        });
-    },
-    onAdd: function (m) {
-        var item = new Backbone.Model({ "name": m.get("tag") });
-        var itemView = new App.ItemView({ model: item })
-        this.$('.tag-list-view-content').append(itemView.el);
     }
 });
 

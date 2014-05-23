@@ -177,6 +177,7 @@ App.TagModel = Backbone.Model.extend({
         cloneModel.set('tags_id', this.get('tags_id'));
         cloneModel.set('tag_sets_id', this.get('tag_sets_id'));
         cloneModel.set('tag', this.get('tag'));
+        cloneModel.set('label', this.get('label'));
         return cloneModel;
     }
 });
@@ -191,7 +192,7 @@ App.TagCollection = Backbone.Collection.extend({
             App.debug('Creating new suggestion engine');
             var suggest = new Bloodhound({
                 datumTokenizer: function (d) {
-                    return Bloodhound.tokenizers.whitespace(d.tag);
+                    return Bloodhound.tokenizers.whitespace(d.label);
                 },
                 queryTokenizer: Bloodhound.tokenizers.whitespace,
                 local: this.toJSON()
@@ -350,7 +351,6 @@ App.QueryModel = Backbone.Model.extend({
         };
         this.ResultModel = options.ResultModel;
         if (typeof(this.ResultModel) == 'undefined') {
-            console.log('Default result model')
             this.ResultModel = App.ResultModel;
         }
         this.set('results', new this.ResultModel({}, opts));
