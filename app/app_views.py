@@ -48,8 +48,8 @@ def _sentence_docs(keywords, media, start, end):
     sentences = res['response']['docs']
     for s in sentences:
         s['totalSentences'] = res['response']['numFound'] # hack to get total sentences count to Backbone.js
-        #story = mc.story(s['stories_id'])
-        #s['storyUrl'] = story['url'] # so you can click on the sentence
+        story = mc.story(s['stories_id'])
+        s['storyUrl'] = story['url'] # so you can click on the sentence
     return json.dumps(sentences, separators=(',',':'))
     
 @application.route('/api/sentences/docs/<keywords>/<media>/<start>/<end>')
