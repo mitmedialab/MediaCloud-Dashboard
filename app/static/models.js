@@ -440,8 +440,11 @@ App.SentenceModel = Backbone.Model.extend({
     initialize: function (attributes, options) {
     },
     date: function () {
-        var date = this.get('publish_date');
-        date = new Date(date.substring(0, date.indexOf('T')));
+        var dateString = this.get('publish_date');
+        if (dateString.indexOf('T') >= 0) {
+            dateString = dateString.substring(0, dateString.indexOf('T'));
+        }
+        var date = new Date(dateString);
         return date.toLocaleDateString();
     },
     media: function () {
@@ -459,7 +462,7 @@ App.SentenceCollection = Backbone.Collection.extend({
         this.params = options.params;
         this.mediaSources = options.mediaSources;
         this.waitForLoad = $.Deferred();
-        this.on('sync', function () { this.waitForLoad.resolve(); }, this);
+        this.on('sync', function () { console.log(this); this.waitForLoad.resolve(); }, this);
     },
     url: function () {
         var url = '/api/sentences/docs/';
