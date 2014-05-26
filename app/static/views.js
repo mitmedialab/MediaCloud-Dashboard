@@ -773,7 +773,7 @@ App.SentenceView = Backbone.View.extend({
             // now list some of the sentences
             _.each(sentences.last(10), function (m) {
                 var p = $('<p>').html('<em>' + m.media() + '</em> - ' + m.date() + ': ' 
-                    + '<a href="' + m.get('storyUrl') + '">' + m.escape('sentence') + '</a>'
+                    + '<a href="' + m.get('url') + '">' + m.escape('sentence') + '</a>'
                     );
                 $el.append(p);
             });

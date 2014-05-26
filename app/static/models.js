@@ -448,10 +448,7 @@ App.SentenceModel = Backbone.Model.extend({
         return date.toLocaleDateString();
     },
     media: function () {
-        var sources = this.collection.mediaSources.get('sources');
-        var media_id = this.get('media_id');
-        var source = sources.get(media_id);
-        return source.get('name');
+        return this.get('medium_name');
     }
 });
 
