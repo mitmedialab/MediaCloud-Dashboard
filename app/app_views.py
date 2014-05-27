@@ -39,7 +39,7 @@ def sentences(keywords, media, start, end):
 
 def _sentence_docs(api, keywords, media, start, end):
     query = app.util.solr_query(app.util.media_to_solr(media), start, end)
-    res = api.sentenceList("%s AND (%s)" % (keywords, query), '', 0, 10)
+    res = api.sentenceList("%s AND (%s)" % (keywords, query), '', 0, 10, sort=mcapi.MediaCloud.SORT_RANDOM)
     sentences = res['response']['docs']
     for s in sentences:
         s['totalSentences'] = res['response']['numFound'] # hack to get total sentences count to Backbone.js
