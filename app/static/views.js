@@ -525,12 +525,16 @@ App.MediaListView = App.NestedView.extend({
 
 App.TagSetView = Backbone.View.extend({
     template: _.template($('#tpl-tag-set-view').html()),
+    events: {
+        'click .name .remove': 'onClickRemove'
+    },
     initialize: function (options) {
         App.debug('App.TagSetView.initialize()');
         var that = this;
         this.disabled = options.disabled;
         this.mediaSources = options.mediaSources;
         _.bindAll(this, 'onTagEntered');
+        _.bindAll(this, 'onClickRemove');
         this.listenTo(this.model.get('tags'), 'add', this.onAdd);
         this.render();
         if (!this.disabled) {
@@ -556,6 +560,7 @@ App.TagSetView = Backbone.View.extend({
         this.$el.html(this.template(this.model.attributes));
         var that = this;
         if (this.disabled) {
+            this.$el.addClass('disabled');
             this.$('.tag-input').attr('disabled', 'disabled');
             this.$('button').attr('disabled', 'disabled');
         }
@@ -585,6 +590,11 @@ App.TagSetView = Backbone.View.extend({
             that.model.get('tags').remove(m);
         });
         this.$('.tag-set-view-content').append(itemView.el);
+    },
+    onClickRemove: function (event) {
+        event.preventDefault();
+        this.model.collection.remove(this.model);
+        this.remove();
     }
 });
 
