@@ -19,6 +19,10 @@ config.read(os.path.join(parent_dir, 'app.config'))
 app = flask.Flask(__name__)
 app.secret_key = 'put secret key here'
 
+# Create media cloud api
+mc_key = config.get('mediacloud','key')
+mc = mcapi.MediaCloud(mc_key)
+
 # Create user login manager
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)

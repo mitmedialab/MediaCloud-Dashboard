@@ -2,7 +2,7 @@ import hashlib
 
 from flask_login import UserMixin, AnonymousUserMixin
 
-from app import db
+from app import db, mc
 
 # User class
 class User(UserMixin):
@@ -21,10 +21,9 @@ class User(UserMixin):
         return True
 
 def authenticate_user(username, password):
-    global db
-    hashword = hashlib.sha1(password).hexdigest()
-    result = db.users.find_one({u'username': username, u'password': hashword})
-    if (result):
-        return User(result['username'], result['username'])
-    return AnonymousUserMixin()
+    try:
+        key = mc.userAuthToken(username, password)
+        return User(username, key)
+    except Exception:
+        return AnonymousUserMixin()
 

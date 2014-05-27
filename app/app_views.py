@@ -11,13 +11,8 @@ import mediacloud.api as mcapi
 import pymongo
 
 import app
-
-# Create media cloud api
-mc_key = app.config.get('mediacloud','key')
-mc = mcapi.MediaCloud(mc_key)
-
 import app.util
-from app import app as application
+from app import app as application, mc, mc_key
 
 
 @application.route('/api/media')
