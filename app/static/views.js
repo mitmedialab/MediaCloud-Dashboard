@@ -343,15 +343,12 @@ App.QueryListView = App.NestedView.extend({
         this.$('.query-views').append(queryView.$el);
         // TODO this is a hack to only allow two queries, but we can get data
         // for more once the viz can handle it.
-        if (collection.length == 1) {
-            this.$('.query-views').addClass('one');
-            this.$('.query-views').removeClass('two');
-        } else {
-            this.$('.query-views').addClass('two');
-            this.$('.query-views').removeClass('one');
-        }
+        this.updateNumQueries(collection);
     },
     onRemove: function (model, collection, options) {
+        this.updateNumQueries(collection);
+    },
+    updateNumQueries: function (collection) {
         if (collection.length == 1) {
             this.$('.query-views').addClass('one');
             this.$('.query-views').removeClass('two');
@@ -359,6 +356,10 @@ App.QueryListView = App.NestedView.extend({
             this.$('.query-views').addClass('two');
             this.$('.query-views').removeClass('one');
         }
+        this.$('.query-views .query-title').eq(0).addClass('first');
+        this.$('.query-views .query-title').eq(1)
+            .html('Comparison Query')
+            .addClass('second');
     }
 });
 
