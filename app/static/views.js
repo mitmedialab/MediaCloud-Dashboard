@@ -398,6 +398,7 @@ App.MediaSelectView = App.NestedView.extend({
     template: _.template($('#tpl-media-select-view').html()),
     events: {
         'click button': 'onTextEntered'
+        , 'click a.explore': 'onExplore'
     },
     initialize: function (options) {
         App.debug('App.MediaSelectView.initialize()');
@@ -407,6 +408,7 @@ App.MediaSelectView = App.NestedView.extend({
         // Set deferred callbacks
         var that = this;
         _.bindAll(this, 'onTextEntered');
+        _.bindAll(this, 'onExplore');
         this.mediaSources.deferred.done(function () {
             that.render();
             if (!that.disabled) {
@@ -429,6 +431,11 @@ App.MediaSelectView = App.NestedView.extend({
     render: function () {
         App.debug('App.MediaSelectView.render()');
         this.$el.html(this.template());
+        this.exploreView = new App.ExploreListView({
+            collection: this.mediaSources.get('sources'),
+            ExploreView: App.SourceExploreView
+        });
+        $('body').append(this.exploreView.el);
         if (this.disabled) {
             this.$('.media-input').attr('disabled', 'disabled');
             this.$('button').attr('disabled', 'disabled');
@@ -446,7 +453,22 @@ App.MediaSelectView = App.NestedView.extend({
         source = this.mediaSources.get('sources').nameToSource[name];
         if (source) {
             this.model.get('sources').add(source);
-        } 
+        }
+    },
+    onExplore: function (event) {
+        App.debug('App.MediaSelectView.onExplore()');
+        event.preventDefault();
+        this.exploreView.show();
+    }
+});
+
+App.SourceExploreView = Backbone.View.extend({
+    initialize: function (options) {
+        this.render();
+    },
+    render: function () {
+        var tpl = _.template($('#tpl-source-explore-view').html(), this.model.toJSON());
+        this.$el.html(tpl);
     }
 });
 
@@ -760,6 +782,64 @@ App.QueryControlsView = App.NestedView.extend({
     },
     render: function () {
         this.$el.html(this.template());
+    }
+});
+
+App.ExploreListView = Backbone.View.extend({
+    template: _.template($('#tpl-explore-list-view').html()),
+    initialize: function (options) {
+        this.ExploreView = options.ExploreView
+        this.render();
+    },
+    render: function () {
+        var that = this;
+        this.$el.html(this.template());
+        var alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        _.each(alpha, function (a) {
+            var link = $('<a href="">' + a + '</a>');
+            that.$('.alpha-links').append(
+                $('<li>')
+                    .append(link)
+            );
+            link.bind('click', function (event) {
+                event.preventDefault();
+                that.show();
+                that.showPage(a);
+            });
+        });
+    },
+    onAdd: function (m) {
+        var v = new this.ExploreView({
+            model: m
+        });
+        this.$('.modal-body').append(v.el);
+    },
+    show: function () {
+        var that = this;
+        if (typeof(this.currentPage) === 'undefined') {
+            this.$('.modal').one('shown.bs.modal', function () {
+                that.showPage('A');
+            });
+        }
+        this.$('.modal').modal('show');
+    },
+    showPage: function (a) {
+        var that = this;
+        if (typeof(a) === 'undefined') {
+            a = 'A';
+        }
+        if (this.currentPage != a) {
+            this.$('.modal-body').html(_.template($('#tpl-progress').html())());
+            // Show the progress bar before we start building results
+            _.defer(function () {
+                this.$('.modal-body').html('');
+                that.currentPage = a;
+                var f = function(d) { return d.get('name')[0].toUpperCase() == a; }
+                _.each(that.collection.filter(f), function (m) {
+                    that.onAdd(m);
+                });
+            });
+        }
     }
 });
 
