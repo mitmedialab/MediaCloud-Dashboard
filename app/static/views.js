@@ -433,7 +433,8 @@ App.MediaSelectView = App.NestedView.extend({
         this.$el.html(this.template());
         this.exploreView = new App.ExploreListView({
             collection: this.mediaSources.get('sources'),
-            ExploreView: App.SourceExploreView
+            ExploreView: App.SourceExploreView,
+            page: true
         });
         $('body').append(this.exploreView.el);
         if (this.disabled) {
@@ -624,12 +625,14 @@ App.TagSetView = Backbone.View.extend({
 App.TagSetListView = App.NestedView.extend({
     template: _.template($('#tpl-tag-set-list-view').html()),
     events: {
-        "click .add-tag-set button": 'onSetEntered'
+        "click .add-tag-set button": 'onSetEntered',
+        "click a.explore": 'onExplore'
     },
     initialize: function (options) {
         App.debug("App.TagSetListView.initialize()");
         var that = this;
         _.bindAll(this, 'onSetEntered');
+        _.bindAll(this, 'onExplore');
         this.disabled = options.disabled;
         this.mediaSources = options.mediaSources;
         if (typeof(this.collection) == 'undefined') {
@@ -663,6 +666,12 @@ App.TagSetListView = App.NestedView.extend({
         if (this.disabled) {
             this.$('.tag-set-input').attr('disabled', 'disabled');
             this.$('button').attr('disabled', 'disabled');
+        } else {
+            this.exploreView = new App.ExploreListView({
+                collection: this.mediaSources.get('tag_sets')
+                , ExploreView: App.TagSetExploreView
+            });
+            $('body').append(this.exploreView.el);
         }
         this.collection.each(function (m) {
             that.onAdd(m);
@@ -691,6 +700,28 @@ App.TagSetListView = App.NestedView.extend({
         this.$('.tag-set-list-view-content').append(tagSetView.el);
         _.defer(function () {
             tagSetView.$('input').focus();
+        });
+    },
+    onExplore: function (event) {
+        App.debug('App.TagSetListView.onExplore()');
+        event.preventDefault();
+        this.exploreView.show();
+    }
+});
+
+App.TagSetExploreView = Backbone.View.extend({
+    initialize: function (options) {
+        this.render();
+    },
+    render: function () {
+        var that = this;
+        if (!this.model.get('label')) {
+            return;
+        }
+        var tpl = _.template($('#tpl-tag-set-explore-view').html(), this.model.toJSON());
+        this.$el.html(tpl);
+        this.model.get('tags').each(function (m) {
+            that.$('ul.tags').append($('<li>').html(m.get('label')));
         });
     }
 });
@@ -789,24 +820,30 @@ App.ExploreListView = Backbone.View.extend({
     template: _.template($('#tpl-explore-list-view').html()),
     initialize: function (options) {
         this.ExploreView = options.ExploreView
+        this.page = options.page;
         this.render();
     },
     render: function () {
         var that = this;
         this.$el.html(this.template());
-        var alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        _.each(alpha, function (a) {
-            var link = $('<a href="">' + a + '</a>');
-            that.$('.alpha-links').append(
-                $('<li>')
-                    .append(link)
-            );
-            link.bind('click', function (event) {
-                event.preventDefault();
-                that.show();
-                that.showPage(a);
+        if (this.page) {
+            var alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            _.each(alpha, function (a) {
+                var link = $('<a href="">' + a + '</a>');
+                that.$('.alpha-links').append(
+                    $('<li>')
+                        .append(link)
+                );
+                link.bind('click', function (event) {
+                    event.preventDefault();
+                    that.show();
+                    that.showPage(a);
+                });
             });
-        });
+        } else {
+            this.$('.modal-body').html(_.template($('#tpl-progress').html())());
+            this.$el.addClass('no-page');
+        }
     },
     onAdd: function (m) {
         var v = new this.ExploreView({
@@ -816,12 +853,27 @@ App.ExploreListView = Backbone.View.extend({
     },
     show: function () {
         var that = this;
-        if (typeof(this.currentPage) === 'undefined') {
+        if (this.page) {
+            if (typeof(this.currentPage) === 'undefined') {
+                this.$('.modal').one('shown.bs.modal', function () {
+                    that.showPage('A');
+                });
+            }
+        } else {
             this.$('.modal').one('shown.bs.modal', function () {
-                that.showPage('A');
+                that.showAll();
             });
         }
         this.$('.modal').modal('show');
+    },
+    showAll: function () {
+        App.debug('App.ExploreListView.showAll()');
+        App.debug(this.collection);
+        var that = this;
+        this.$('.modal-body').html('');
+        this.collection.each(function (m) {
+            that.onAdd(m);
+        });
     },
     showPage: function (a) {
         var that = this;

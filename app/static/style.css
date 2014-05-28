@@ -77,7 +77,8 @@
     display: block;
     float: right;
 }
-.media-select-view span.explore {
+.media-select-view span.explore,
+.tag-set-list-view span.explore {
     float: right;
 }
 .disabled .add-tag-set {
@@ -86,6 +87,9 @@
 .explore-list-view .modal-body {
     max-height: 500px;
     overflow-y: scroll;
+}
+.no-page .explore-list-view .alpha-links {
+    display: none !important;
 }
 .explore-list-view .alpha-links {
     margin: 0;
@@ -102,6 +106,9 @@
     margin: 0;
 }
 .explore-list-view .source-explore-view {
+    margin-top: 10px;
+}
+.tag-set-explore-view p {
     margin-top: 10px;
 }
 
