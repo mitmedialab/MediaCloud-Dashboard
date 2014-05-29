@@ -580,7 +580,6 @@ App.TagSetView = Backbone.View.extend({
         }
     },
     render: function () {
-        console.log(this.model.toJSON());
         this.$el.html(_.template($('#tpl-tag-set-view').html(), this.model.toJSON()));
         var that = this;
         if (this.disabled) {

@@ -460,7 +460,7 @@ App.SentenceCollection = Backbone.Collection.extend({
         this.params = options.params;
         this.mediaSources = options.mediaSources;
         this.waitForLoad = $.Deferred();
-        this.on('sync', function () { console.log(this); this.waitForLoad.resolve(); }, this);
+        this.on('sync', function () { this.waitForLoad.resolve(); }, this);
     },
     url: function () {
         var url = '/api/sentences/docs/';
