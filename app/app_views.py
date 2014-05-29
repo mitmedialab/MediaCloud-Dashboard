@@ -83,9 +83,22 @@ def story_docs_csv(keywords, media, start, end):
                 headers={"Content-Disposition":"attachment;filename="+download_filename})
     
 def _sentence_numfound(api_key, keywords, media, start, end):
-    nf = app.util.NumFound(api_key, keywords, media, start, end)
-    results = nf.results()
-    return json.dumps(results, separators=(',',':'))
+    user_mc = mcapi.MediaCloud(api_key)
+    query = "%s AND (%s)" % (keywords, app.util.media_to_solr(media))
+    start = datetime.datetime.strptime(start, '%Y-%m-%d').strftime('%Y-%m-%d')
+    end = datetime.datetime.strptime(end, '%Y-%m-%d').strftime('%Y-%m-%d')
+    response = user_mc.sentenceCount(query, solr_filter='', split=True, split_daily=True, split_start_date=start, split_end_date=end)
+    del response['split']['gap']
+    del response['split']['start']
+    del response['split']['end']
+    date_counts = []
+    for date, num_found in response['split'].iteritems():
+        date_counts.append({
+            "date": date[:10]
+            , "numFound": num_found
+        })
+    date_counts = sorted(date_counts, key=lambda d: datetime.datetime.strptime(d["date"], "%Y-%m-%d"))
+    return json.dumps(date_counts, separators=(',',':'))
 
 @application.route('/api/sentences/numfound/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
