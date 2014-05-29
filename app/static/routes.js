@@ -92,6 +92,7 @@ App.Router = Backbone.Router.extend({
                     {
                         "tag_sets_id": 5
                         , "name": "collection"
+                        , "label": "Collections"
                         , "tags": [
                             {
                                 "tag_sets_id":5

@@ -548,7 +548,6 @@ App.MediaListView = App.NestedView.extend({
 });
 
 App.TagSetView = Backbone.View.extend({
-    template: _.template($('#tpl-tag-set-view').html()),
     events: {
         'click .name .remove': 'onClickRemove'
     },
@@ -581,7 +580,8 @@ App.TagSetView = Backbone.View.extend({
         }
     },
     render: function () {
-        this.$el.html(this.template(this.model.attributes));
+        console.log(this.model.toJSON());
+        this.$el.html(_.template($('#tpl-tag-set-view').html(), this.model.toJSON()));
         var that = this;
         if (this.disabled) {
             this.$el.addClass('disabled');

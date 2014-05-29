@@ -234,6 +234,7 @@ App.TagSetModel = App.NestedModel.extend({
         newModel = new App.TagSetModel();
         newModel.set('tag_sets_id', this.get('tag_sets_id'));
         newModel.set('name', this.get('name'));
+        newModel.set('label', this.get('label'));
         return newModel;
     },
     queryParam: function () {
