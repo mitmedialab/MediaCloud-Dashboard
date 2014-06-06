@@ -84,13 +84,9 @@ App.ViewManager.prototype = {
         App.debug(newIds);
         App.debug('Old view ids:');
         App.debug(oldIds);
-        newViews = [];
-        // Determine whether to keep old views
+        // Determine whether to close old views
         _.each(this.views, function (oldView) {
-            if (_.contains(newIds, oldView.cid)) {
-                // Keep the view
-                newViews.push(oldView);
-            } else {
+            if (!_.contains(newIds, oldView.cid)) {
                 that.closeView(oldView);
             }
         });
@@ -98,13 +94,12 @@ App.ViewManager.prototype = {
         _.each(views, function (newView) {
             if (!_.contains(oldIds, newView.cid)) {
                 App.debug('Attaching view: ' + newView.cid);
-                newViews.push(newView);
                 that.viewMap[newView.cid] = newView;
             }
         });
         // Replace active view list
         $('.content').html();
-        this.views = newViews;
+        this.views = views;
         _.each(this.views, function (v) {
             $(this.options.selector).append(v.el);
         }, this);
