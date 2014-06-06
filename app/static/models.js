@@ -213,6 +213,43 @@ App.TagCollection = Backbone.Collection.extend({
     }
 });
 
+App.SimpleTagModel = Backbone.Model.extend({
+    initialize: function (options) {}
+});
+
+App.SimpleTagCollection = Backbone.Collection.extend({
+    model: App.SimpleTagModel,
+    url: '/api/tags/all',
+    initialize: function (options) {
+        this.nameToTag = {};
+    },
+    onSync: function () {
+        App.debug('App.MediaSourceCollection.onSync()');
+        this.nameToTag = App.makeMap(this, 'name');
+    },
+    getSuggestions: function () {
+        App.debug('SimpleTagCollection.getSuggestions()');
+        if (!this.suggest) {
+            this.suggest = new Bloodhound({
+                datumTokenizer: function (d) {
+                    return Bloodhound.tokenizers.whitespace(d.name);
+                },
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                local: this.toJSON()
+            });
+            this.suggest.initialize();
+        }
+        return this.suggest;
+    },
+    clone: function () {
+        var cloneCollection = new App.SimpleTagCollection();
+        this.each(function (m) {
+            cloneCollection.add(m.clone());
+        });
+        return cloneCollection;
+    }
+});
+
 App.TagSetModel = App.NestedModel.extend({
     url: '/api/tag_sets/single',
     idAttribute: 'tag_sets_id',
