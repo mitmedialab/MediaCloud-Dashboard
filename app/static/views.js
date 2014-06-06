@@ -2,6 +2,7 @@
  * View base class that automatically cleans up its sub-views.
  */
 App.NestedView = Backbone.View.extend({
+    name: 'NestedView',
     close: function () {
         App.debug('Closing ' + this.cid);
         this.remove();
@@ -35,7 +36,8 @@ App.NestedView = Backbone.View.extend({
  * Login form.
  */
 App.LoginView = App.NestedView.extend({
-    
+    name: 'LoginView',
+
     template: _.template($('#tpl-login-view').html()),
     
     initialize: function (options) {
@@ -86,6 +88,7 @@ App.LoginView = App.NestedView.extend({
  * Controls drop-down menu
  */
 App.ControlsView = App.NestedView.extend({
+    name: 'ControlsView',
     tagName: 'ul',
     initialize: function (options) {
         App.debug('App.ControlsView.initialize()');
@@ -117,6 +120,7 @@ App.ControlsView = App.NestedView.extend({
 });
 
 App.ControlsSignOutView = App.NestedView.extend({
+    name: 'ControlsSignOutView',
     tagName: 'li',
     template: _.template($('#tpl-controls-sign-out-view').html()),
     events: {
@@ -139,6 +143,7 @@ App.ControlsSignOutView = App.NestedView.extend({
 });
 
 App.ControlsSignInView = App.NestedView.extend({
+    name:'ControlsSignInView',
     tagName: 'li',
     template: _.template($('#tpl-controls-sign-in-view').html()),
     initialize: function (options) {
@@ -154,6 +159,7 @@ App.ControlsSignInView = App.NestedView.extend({
 });
 
 App.QueryView = App.NestedView.extend({
+    name:'QueryView',
     template: _.template($('#tpl-query-view').html()),
     events: {
         'click button.copy': 'onCopyInput',
@@ -234,6 +240,7 @@ App.QueryView = App.NestedView.extend({
 });
 
 App.DemoQueryView = App.NestedView.extend({
+    name:'DemoQueryView',
     template: _.template($('#tpl-query-view').html()),
     events: {
         'click button.copy': 'onDemoCopyInput',
@@ -303,6 +310,8 @@ App.DemoQueryView = App.NestedView.extend({
 });
 
 App.QueryListView = App.NestedView.extend({
+    name:'QueryListView',
+    id:'query-builder',
     template: _.template($('#tpl-query-list-view').html()),
     events: {
         "click .btn-primary": 'onQuery'
@@ -364,6 +373,7 @@ App.QueryListView = App.NestedView.extend({
 });
 
 App.DemoQueryListView = App.QueryListView.extend({
+    name: 'DemoQueryListView',
     render: function () {
         // Assume media sources is already loaded
         this.$el.html(this.template());
@@ -395,6 +405,7 @@ App.DemoQueryListView = App.QueryListView.extend({
 });
 
 App.MediaSelectView = App.NestedView.extend({
+    name: 'MediaSelectView',
     template: _.template($('#tpl-media-select-view').html()),
     events: {
         'click button': 'onTextEntered'
@@ -464,6 +475,7 @@ App.MediaSelectView = App.NestedView.extend({
 });
 
 App.SourceExploreView = Backbone.View.extend({
+    name: 'SourceExploreView',
     initialize: function (options) {
         this.render();
     },
@@ -474,6 +486,7 @@ App.SourceExploreView = Backbone.View.extend({
 });
 
 App.ItemView = Backbone.View.extend({
+    name:'ItemView',
     tagName: 'span',
     events: {
         'click .remove': 'onClickRemove'
@@ -503,6 +516,7 @@ App.ItemView = Backbone.View.extend({
 });
 
 App.MediaListView = App.NestedView.extend({
+    name:'MediaListView',
     template: _.template($('#tpl-media-list-view').html()),
     initialize: function (options) {
         App.debug('App.MediaListView.initialize()');
@@ -548,6 +562,7 @@ App.MediaListView = App.NestedView.extend({
 });
 
 App.TagSetView = Backbone.View.extend({
+    name:'TagSetView',
     events: {
         'click .name .remove': 'onClickRemove'
     },
@@ -622,6 +637,7 @@ App.TagSetView = Backbone.View.extend({
 });
 
 App.TagSetListView = App.NestedView.extend({
+    name:'TagSetListView',
     template: _.template($('#tpl-tag-set-list-view').html()),
     events: {
         "click .add-tag-set button": 'onSetEntered',
@@ -709,6 +725,7 @@ App.TagSetListView = App.NestedView.extend({
 });
 
 App.TagSetExploreView = Backbone.View.extend({
+    name:'TagSetExploreView',
     initialize: function (options) {
         this.render();
     },
@@ -726,6 +743,7 @@ App.TagSetExploreView = Backbone.View.extend({
 });
 
 App.DateRangeView = Backbone.View.extend({
+    name: 'DateRangeView',
     template: _.template($('#tpl-date-range-view').html()),
     events: {
         "change input": "onContentChange"
@@ -778,6 +796,7 @@ App.DateRangeView = Backbone.View.extend({
 });
 
 App.KeywordView = Backbone.View.extend({
+    name: 'KeywordView',
     template: _.template($('#tpl-keyword-view').html()),
     events: {
         "change input": "contentChanged"
@@ -816,6 +835,7 @@ App.QueryControlsView = App.NestedView.extend({
 });
 
 App.ExploreListView = Backbone.View.extend({
+    name: 'ExploreListView',
     template: _.template($('#tpl-explore-list-view').html()),
     initialize: function (options) {
         this.ExploreView = options.ExploreView
@@ -895,6 +915,7 @@ App.ExploreListView = Backbone.View.extend({
 });
 
 App.SentenceView = Backbone.View.extend({
+    name: 'SentenceView',
     template: _.template($('#tpl-sentence-view').html()),
     initialize: function (options) {
         this.render();
@@ -928,6 +949,7 @@ App.SentenceView = Backbone.View.extend({
 
 // Wrapper view for single word clouds and comparison word cloud
 App.WordCountView = App.NestedView.extend({
+    name: 'WordCountView',
     template: _.template($('#tpl-wordcount-view').html()),
     initialize: function (options) {
         this.resultViews = null;
@@ -982,6 +1004,7 @@ App.WordCountView = App.NestedView.extend({
 
 // Single word cloud view
 App.WordCountResultView = Backbone.View.extend({
+    name: 'WordCountResultView',
     config: {
         minSize: 8,
         maxSize: 48
@@ -1055,6 +1078,7 @@ App.WordCountResultView = Backbone.View.extend({
 
 // View for comparison word cloud
 App.WordCountComparisonView = Backbone.View.extend({
+    name: 'WordCountComparisonView',
     config: {
         fontSize: {
             minSize: 8
@@ -1187,6 +1211,7 @@ App.WordCountComparisonView = Backbone.View.extend({
 
 
 App.HistogramView = Backbone.View.extend({
+    name: 'HistogramView',
     config: {
         margin: {
             top: 0
@@ -1444,6 +1469,9 @@ App.HistogramView = Backbone.View.extend({
 });
 
 App.QueryResultView = App.NestedView.extend({
+    name: 'QueryResultView',
+    tagName: 'div',
+    id: 'query-results',
     initialize: function (options) {
         App.debug('App.QueryResultView.initialize():' + this.cid);
         this.histogramView = new App.HistogramView(options);
