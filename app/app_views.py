@@ -3,6 +3,7 @@
 
 import datetime
 import json
+from operator import itemgetter
 
 import flask
 import flask_login
@@ -29,6 +30,23 @@ def media_sources():
 def media_sets():
     return json.dumps(list(app.util.all_media_sets()), separators=(',',':'))
     
+@application.route('/api/tags/all')
+@flask_login.login_required
+def all_tags():
+    tags = []
+    tag_sets = sorted(app.util.all_media_sets(),key=itemgetter('name'))
+    for tag_set in tag_sets:
+        tag_set_name = tag_set['name']
+        for tag in sorted(tag_set['tags'],key=itemgetter('tag')):
+            info = {
+                'id': tag['tags_id'],
+                'tag_sets_id': tag_set['tag_sets_id'],
+                'tagName': tag['tag'],
+                'name': tag_set_name+" - "+tag['tag']
+            }
+            tags.append( info )
+    return json.dumps(tags)
+
 @application.route('/api/sentences/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def sentences(keywords, media, start, end):
