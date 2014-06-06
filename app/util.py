@@ -68,7 +68,7 @@ def all_media_sources():
     return _media_info.get('sources', [])
 
 def all_media_sets():
-    return _media_info.get('sets', [])
+    return _media_info.get('tag_sets', [])
 
 class NumFound:
     def __init__(self, mc_key, keywords, media, start, end):
