@@ -143,7 +143,7 @@ App.Router = Backbone.Router.extend({
     },
     
     demoQuery: function (keywords, media, start, end) {
-        App.debug('Route: demoQuery');
+        App.debug('Route: demoQuery ------------------------------------------------------------------------------------------------------------------------');
         var that = this;
         // Defaults media
         this.mediaSources = new App.MediaModel();
@@ -218,7 +218,7 @@ App.Router = Backbone.Router.extend({
     },
     
     query: function (keywords, media, start, end) {
-        App.debug('Route: query');
+        App.debug('Route: query ------------------------------------------------------------------------------------------------------------------------');
         var that = this;
         keywordList = $.parseJSON(keywords);
         startList = $.parseJSON(start);
@@ -379,6 +379,7 @@ App.Router = Backbone.Router.extend({
     
     showResults: function (queryCollection) {
         // Create new results view
+        App.debug("Router.showResults")
         var resultView = this.vm.getView(
             App.QueryResultView,
             { collection: queryCollection },
@@ -389,5 +390,6 @@ App.Router = Backbone.Router.extend({
             , resultView
         ]);
         resultView.render();
+        App.debug("done------------------------------------------------------------------------------------------------------------------------")
     }
 }); 
