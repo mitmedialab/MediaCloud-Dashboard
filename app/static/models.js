@@ -276,6 +276,9 @@ App.TagSetModel = App.NestedModel.extend({
         newModel.set('label', this.get('label'));
         return newModel;
     },
+    getLabel: function(){
+        return (this.get('label')!=null) ? this.get('label') : this.get('name');
+    },
     queryParam: function () {
         qp = {
             tag_sets_id: this.get('tag_sets_id')
@@ -348,7 +351,7 @@ App.MediaModel = App.NestedModel.extend({
                     'id': tag.get('tags_id'),
                     'tag_sets_id': tagSet.get('tag_sets_id'),
                     'tagName': tag.get('tag'),
-                    'name': tagSet.get('label')+" - "+tag.get('label')
+                    'name': tagSet.getLabel()+" - "+tag.getLabel()
                 }));
             });
         });
