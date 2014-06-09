@@ -38,8 +38,7 @@ def solr_date_queries(media, start, end):
 def media_to_solr(media):
     d = json.loads(media)
     sources = ['media_id:%s' % i for i in d.get('sources', [])]
-    sources += ['media_sets_id:%s' % i for i in d.get('sets', [])]
-    source_query = join_query_clauses(sources, 'AND')
+    source_query = join_query_clauses(sources, 'OR')
     tag_queries = []
     
     #for tag in d['tags']:
@@ -47,8 +46,9 @@ def media_to_solr(media):
     #    tag_queries.append(join_query_clauses(parts, 'OR'))
     #"{\"simpleTags\":[8875027],\"tags\":[{\"tag_sets_id\":5,\"tags_id\":[8875027]}]}"
     print json.dumps(media)
-    parts = ['tags_id_media:%s' % i for i in d['simpleTags']]
-    tag_queries.append(join_query_clauses(parts, 'OR'))
+    if 'simpleTags' in d:
+        parts = ['tags_id_media:%s' % i for i in d['simpleTags']]
+        tag_queries.append(join_query_clauses(parts, 'OR'))
 
     tag_query = join_query_clauses(tag_queries, 'AND')
     queries = []
