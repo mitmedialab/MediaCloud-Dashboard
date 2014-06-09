@@ -127,45 +127,6 @@ App.MediaSourceCollection = Backbone.Collection.extend({
         }
         return this.suggest;
     }
-})
-
-App.MediaSetModel = Backbone.Model.extend({
-    urlRoot: '/api/media/sets'
-    , defaults: {
-        name: ''
-        , media_ids: []
-    },
-    initialize: function (attributes, options) {
-        this.set('type', 'media set');
-    }
-});
-
-App.MediaSetCollection = Backbone.Collection.extend({
-    model: App.MediaSetModel,
-    url: '/api/media/sets',
-    initialize: function () {
-        App.debug('App.MediaSetCollection.initialize()');
-        this.nameToSet = {}
-        this.on('sync', this.onSync);
-        this.on('parentSync', this.onSync);
-        _.bindAll(this, 'onSync');
-    },
-    onSync: function () {
-        App.debug('MediaSetCollection.onSync()');
-        this.nameToSet = App.makeMap(this, 'name');
-    },
-    getSuggestions: function () {
-        App.debug('MediaSetCollection.getSuggestions()');
-        var suggest = new Bloodhound({
-            datumTokenizer: function (d) {
-                return Bloodhound.tokenizers.whitespace(d.name);
-            },
-            queryTokenizer: Bloodhound.tokenizers.whitespace,
-            local: this.toJSON()
-        });
-        suggest.initialize();
-        return suggest;
-    }
 });
 
 App.TagModel = Backbone.Model.extend({
