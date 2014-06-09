@@ -690,8 +690,6 @@ App.TagSetExploreView = Backbone.View.extend({
     },
     render: function () {
         var that = this;
-        App.debug("TagSetExploreView.render:");
-        App.debug(this.model.toJSON());
         var tpl = _.template($('#tpl-tag-set-explore-view').html(), this.model.toJSON());
         this.$el.html(tpl);
         this.model.get('tags').each(function (m) {
@@ -823,8 +821,6 @@ App.ExploreListView = Backbone.View.extend({
         }
     },
     onAdd: function (m) {
-        App.debug('ExploreListView.onAdd:')
-        App.debug(m);
         var v = new this.ExploreView({
             model: m
         });
