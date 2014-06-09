@@ -341,6 +341,7 @@ App.MediaModel = App.NestedModel.extend({
         App.debug("MediaModel.onSync");
         var that = this;
         App.debug(this);
+        // turn the tag_sets info from the server into tags information
         this.get('tag_sets').each(function(tagSet){
             tagSet.get('tags').each(function(tag){
                 that.get('tags').add(new App.SimpleTagModel({
@@ -403,7 +404,6 @@ App.MediaModel = App.NestedModel.extend({
         if (simpleTags && simpleTags.length > 0) {
             qp.simpleTags = simpleTags.pluck('id');
         }
-        qp.tags = this.get('tag_sets').queryParam();
         return qp;
     }
 })
