@@ -42,9 +42,9 @@ App.Router = Backbone.Router.extend({
         this.mediaModel = new App.MediaModel();
         this.mediaSources.deferred.then(function () {
             App.debug('Adding default media');
-            var tagSet = that.mediaSources.get('tag_sets').get(5).cloneEmpty();
-            tagSet.get('tags').add(that.mediaSources.get('tag_sets').get(5).get('tags').get(8875027).clone());
-            that.mediaModel.get('tag_sets').add(tagSet);
+            //var tagSet = that.mediaSources.get('tag_sets').get(5).cloneEmpty();
+            //tagSet.get('tags').add(that.mediaSources.get('tag_sets').get(5).get('tags').get(8875027).clone());
+            //that.mediaModel.get('tag_sets').add(tagSet);
             var tag = that.mediaSources.get('tags').get(8875027).clone();
             that.mediaModel.get('tags').add(tag);
         });

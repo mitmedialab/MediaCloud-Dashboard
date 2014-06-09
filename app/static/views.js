@@ -679,11 +679,7 @@ App.MediaListView = App.NestedView.extend({
         App.debug('App.MediaListView.onRemoveClick()');
         // Figure out which collection to remove from,
         // otherwise we might remove the wrong thing.
-        if (model.get('media_id')) {
-            this.model.get('sources').remove(model);
-        } else {
-            this.model.get('sets').remove(model);
-        }
+        this.model.get('sources').remove(model);
     }
 });
 
