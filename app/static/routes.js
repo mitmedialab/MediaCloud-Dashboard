@@ -109,7 +109,7 @@ App.Router = Backbone.Router.extend({
             })
         );
         this.mediaSources.trigger('sync');
-        this.mediaModel = this.mediaSources.subset({"tags":[{"tag_sets_id":5,"tags_id":[8875027]}]});
+        this.mediaModel = this.mediaSources.subset({"simpleTags":[8875027],"tags":[{"tag_sets_id":5,"tags_id":[8875027]}]});
         // Defaults dates
         var dayMs = 24 * 60 * 60 * 1000;
         var ts = new Date().getTime();

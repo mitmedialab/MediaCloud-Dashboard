@@ -187,10 +187,6 @@ App.QueryView = App.NestedView.extend({
             model: this.model.get('params').get('mediaModel')
         });
 
-        this.tagSetListView = new App.TagSetListView({
-            collection: this.model.get('params').get('mediaModel').get('tag_sets')
-            , mediaSources: this.mediaSources
-        });
         this.dateRangeView = new App.DateRangeView({ model: this.model });
         this.keywordView = new App.KeywordView({model: this.model});
         this.controlsView = new App.QueryControlsView();
@@ -199,7 +195,6 @@ App.QueryView = App.NestedView.extend({
         this.addSubView(this.mediaListView);
         this.addSubView(this.simpleTagSelectView);
         this.addSubView(this.simpleTagListView);
-        this.addSubView(this.tagSetListView);
         this.addSubView(this.dateRangeView);
         this.addSubView(this.controlsView);
         this.render();
@@ -226,8 +221,7 @@ App.QueryView = App.NestedView.extend({
             that.$('.query-view-content').html('')
                 .append(topRow)
                 .append(middleRow)
-                .append(bottomRow)
-                .append(that.tagSetListView.el);
+                .append(bottomRow);
         });
     },
     onCopyInput: function (evt) {
@@ -267,20 +261,25 @@ App.DemoQueryView = App.NestedView.extend({
         _.bindAll(this, 'onDemoCopyInput');
         _.bindAll(this, 'onDemoRemoveInput');
         this.mediaSources = options.mediaSources;
-        this.tagSetListView = new App.TagSetListView({
-            collection: this.model.get('params').get('mediaModel').get('tag_sets')
-            , disabled: true
-            , mediaSources: this.mediaSources
-        });
         this.dateRangeView = new App.DateRangeView({
             model: this.model, disabled: true
         });
         this.keywordView = new App.KeywordView({ model: this.model});
         this.controlsView = new App.QueryControlsView();
+        this.simpleTagSelectView = new App.SimpleTagSelectView({
+            model: this.model.get('params').get('mediaModel')
+            , mediaSources: this.mediaSources
+            , disabled: true
+        });
+        this.simpleTagListView = new App.SimpleTagListView({
+            model: this.model.get('params').get('mediaModel')
+            , disabled: true
+        });
         this.model.on('remove', this.close, this);
-        this.addSubView(this.tagSetListView);
         this.addSubView(this.dateRangeView);
         this.addSubView(this.controlsView);
+        this.addSubView(this.simpleTagSelectView);
+        this.addSubView(this.simpleTagListView);
         this.render();
     },
     render: function () {
@@ -295,9 +294,12 @@ App.DemoQueryView = App.NestedView.extend({
                 .append(that.keywordView.el)
                 .append(that.dateRangeView.el)
                 .append(that.controlsView.el);
+            var bottomRow = $('<div>').addClass('row')
+                .append(that.simpleTagSelectView.el)
+                .append(that.simpleTagListView.el);
             that.$('.query-view-content').html('')
                 .append(topRow)
-                .append(that.tagSetListView.el);
+                .append(bottomRow);
         });
     },
     onDemoCopyInput: function (evt) {
@@ -757,94 +759,6 @@ App.TagSetView = Backbone.View.extend({
         event.preventDefault();
         this.model.collection.remove(this.model);
         this.remove();
-    }
-});
-
-App.TagSetListView = App.NestedView.extend({
-    name:'TagSetListView',
-    template: _.template($('#tpl-tag-set-list-view').html()),
-    events: {
-        "click .add-tag-set button": 'onSetEntered',
-        "click a.explore": 'onExplore'
-    },
-    initialize: function (options) {
-        App.debug("App.TagSetListView.initialize()");
-        var that = this;
-        _.bindAll(this, 'onSetEntered');
-        _.bindAll(this, 'onExplore');
-        this.disabled = options.disabled;
-        this.mediaSources = options.mediaSources;
-        if (typeof(this.collection) == 'undefined') {
-            this.collection = new App.TagSetCollection();
-        }
-        this.listenTo(this.collection, 'add', this.onAdd);
-        this.render();
-        if (this.disabled) {
-            this.$el.addClass('disabled');
-        } else {
-            App.debug('Creating typeahead');
-            // Create typeahead for tag sets
-            this.$('.tag-set-input').typeahead(null, {
-                name: 'tag_sets',
-                displayKey: 'name',
-                source: this.mediaSources.get('tag_sets').getSuggestions().ttAdapter()
-            });
-            // Listen to custom typeahead events
-            this.$('.tag-set-input').bind(
-                'typeahead:selected',
-                function () { that.onSetEntered(); });
-            this.$('.tag-set-input').bind(
-                'typeahead:autocompleted',
-                function () { that.onSetEntered(); });
-        }
-    },
-    render: function () {
-        App.debug('App.TagSetListView.render()');
-        var that = this;
-        this.$el.append(this.template());
-        if (this.disabled) {
-            this.$('.tag-set-input').attr('disabled', 'disabled');
-            this.$('button').attr('disabled', 'disabled');
-        } else {
-            this.exploreView = new App.ExploreListView({
-                collection: this.mediaSources.get('tag_sets')
-                , ExploreView: App.TagSetExploreView
-            });
-            $('body').append(this.exploreView.el);
-        }
-        this.collection.each(function (m) {
-            that.onAdd(m);
-        });
-    },
-    onSetEntered: function (event) {
-        App.debug('App.TagSetListView.onSetEntered()');
-        if (event) { event.preventDefault(); }
-        var name = this.$('.tag-set-input.tt-input').typeahead('val');
-        this.$('.tag-set-input.tt-input').typeahead('val', '');
-        // Create typeahead for tags
-        App.debug(this.mediaSources);
-        var tag_set = this.mediaSources.get('tag_sets').find(
-            function (m) { return m.get('name') == name; }
-        );
-        var new_tag_set = tag_set.cloneEmpty();
-        this.collection.add(new_tag_set);
-    },
-    onAdd: function (tagSetModel) {
-        App.debug('App.TagSetListView.onAdd()');
-        var tagSetView = new App.TagSetView({
-            model: tagSetModel
-            , mediaSources: this.mediaSources
-            , disabled: this.disabled
-        });
-        this.$('.tag-set-list-view-content').append(tagSetView.el);
-        _.defer(function () {
-            tagSetView.$('input').focus();
-        });
-    },
-    onExplore: function (event) {
-        App.debug('App.TagSetListView.onExplore()');
-        event.preventDefault();
-        this.exploreView.show();
     }
 });
 
