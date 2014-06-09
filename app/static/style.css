@@ -78,7 +78,7 @@
     float: right;
 }
 .media-select-view span.explore,
-.tag-set-list-view span.explore {
+.simple-tag-select-view span.explore {
     float: right;
 }
 .disabled .add-tag-set {
