@@ -1,6 +1,6 @@
 <script id="tpl-tag-set-explore-view" type="text/template">
 <div class="tag-set-explore-view">
-    <h6><%= label %></h6>
+    <h6><%= (label!=null) ?  label : name %></h6>
     <p><%= description %></p>
     <ul class="tags"></ul>
 </div>

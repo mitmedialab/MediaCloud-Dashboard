@@ -179,6 +179,9 @@ App.TagModel = Backbone.Model.extend({
         cloneModel.set('tag', this.get('tag'));
         cloneModel.set('label', this.get('label'));
         return cloneModel;
+    },
+    getLabel: function(){
+        return (this.get('label')!=null) ? this.get('label') : this.get('tag');
     }
 });
 
@@ -215,6 +218,7 @@ App.TagCollection = Backbone.Collection.extend({
 
 App.SimpleTagModel = Backbone.Model.extend({
     initialize: function (options) {}
+
 });
 
 App.SimpleTagCollection = Backbone.Collection.extend({

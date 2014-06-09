@@ -455,8 +455,6 @@ App.SimpleTagListView = App.NestedView.extend({
     },
     onRemoveClick: function (model) {
         App.debug('App.SimpleTagListView.onRemoveClick()');
-        // Figure out which collection to remove from,
-        // otherwise we might remove the wrong thing.
         this.model.get('tags').remove(model);
     }
 });
@@ -499,12 +497,11 @@ App.SimpleTagSelectView = App.NestedView.extend({
     render: function () {
         App.debug('App.SimpleTagSelectView.render()');
         this.$el.html(this.template());
-/*        this.exploreView = new App.ExploreListView({
-            collection: this.mediaSources.get('tags'),
-            ExploreView: App.SourceExploreView,
-            page: true
+        this.exploreView = new App.ExploreListView({
+            collection: this.mediaSources.get('tag_sets')
+            , ExploreView: App.TagSetExploreView
         });
-        $('body').append(this.exploreView.el);*/
+        $('body').append(this.exploreView.el);
         if (this.disabled) {
             this.$('.simple-tag-input').attr('disabled', 'disabled');
             this.$('button').attr('disabled', 'disabled');
@@ -858,13 +855,12 @@ App.TagSetExploreView = Backbone.View.extend({
     },
     render: function () {
         var that = this;
-        if (!this.model.get('label')) {
-            return;
-        }
+        App.debug("TagSetExploreView.render:");
+        App.debug(this.model.toJSON());
         var tpl = _.template($('#tpl-tag-set-explore-view').html(), this.model.toJSON());
         this.$el.html(tpl);
         this.model.get('tags').each(function (m) {
-            that.$('ul.tags').append($('<li>').html(m.get('label')));
+            that.$('ul.tags').append($('<li>').html(m.getLabel()));
         });
     }
 });
@@ -992,6 +988,8 @@ App.ExploreListView = Backbone.View.extend({
         }
     },
     onAdd: function (m) {
+        App.debug('ExploreListView.onAdd:')
+        App.debug(m);
         var v = new this.ExploreView({
             model: m
         });
