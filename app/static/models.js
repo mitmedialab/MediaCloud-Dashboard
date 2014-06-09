@@ -219,13 +219,8 @@ App.SimpleTagModel = Backbone.Model.extend({
 
 App.SimpleTagCollection = Backbone.Collection.extend({
     model: App.SimpleTagModel,
-    url: '/api/tags/all',
     initialize: function (options) {
-        this.nameToTag = {};
-    },
-    onSync: function () {
-        App.debug('App.MediaSourceCollection.onSync()');
-        this.nameToTag = App.makeMap(this, 'name');
+        App.debug('App.SimpleTagCollection.initialize()');
     },
     getSuggestions: function () {
         App.debug('SimpleTagCollection.getSuggestions()');
@@ -240,6 +235,9 @@ App.SimpleTagCollection = Backbone.Collection.extend({
             this.suggest.initialize();
         }
         return this.suggest;
+    },
+    getByName: function (nameToFind){
+        return this.where({ name: nameToFind })[0];
     },
     clone: function () {
         var cloneCollection = new App.SimpleTagCollection();
@@ -314,21 +312,42 @@ App.TagSetCollection = Backbone.Collection.extend({
     }
 })
 
+
+/**
+ * This handles specifying media individually and by set.
+ */
 App.MediaModel = App.NestedModel.extend({
     urlRoot: '/api/media',
     attributeModels: {
         sources: App.MediaSourceCollection
         , tag_sets: App.TagSetCollection
+        , tags: App.SimpleTagCollection
     },
     initialize: function () {
         App.debug('App.MediaModel.initialize()');
         var that = this;
         this.set('sources', new App.MediaSourceCollection());
         this.set('tag_sets', new App.TagSetCollection());
+        this.set('tags', new App.SimpleTagCollection());
         this.deferred = $.Deferred();
-        this.on('sync', function () {
-            this.deferred.resolve();
-        }, this);
+        this.on('sync', this.onSync, this);
+        _.bindAll(this, 'onSync');
+    },
+    onSync: function() {
+        App.debug("MediaModel.onSync");
+        var that = this;
+        App.debug(this);
+        this.get('tag_sets').each(function(tagSet){
+            tagSet.get('tags').each(function(tag){
+                that.get('tags').add(new App.SimpleTagModel({
+                    'id': tag.get('tags_id'),
+                    'tag_sets_id': tagSet.get('tag_sets_id'),
+                    'tagName': tag.get('tag'),
+                    'name': tagSet.get('label')+" - "+tag.get('label')
+                }));
+            });
+        });
+        this.deferred.resolve();
     },
     clone: function () {
         App.debug('App.MediaModel.clone()');
@@ -336,6 +355,7 @@ App.MediaModel = App.NestedModel.extend({
         this.get('sources').each(function (m) {
             cloneModel.get('sources').add(m);
         });
+        cloneModel.set('tags', this.get('tags').clone());
         cloneModel.set('tag_sets', this.get('tag_sets').clone());
         cloneModel.deferred.resolve();
         return cloneModel;
@@ -358,6 +378,10 @@ App.MediaModel = App.NestedModel.extend({
                 newSet.get('tags').add(cloneTag);
             });
         });
+        _.each(o.simpleTags, function(id){
+            var tag = that.get('tags').get({id:id});
+            media.get('tags').add(tag);
+        });
         _.each(o.sources, function (id) {
             var m = that.get('sources').get({id:id})
             media.get('sources').add(m);
@@ -371,11 +395,19 @@ App.MediaModel = App.NestedModel.extend({
         if (sources && sources.length > 0) {
             qp.sources = sources.pluck('media_id');
         }
+        var simpleTags = this.get('tags');
+        if (simpleTags && simpleTags.length > 0) {
+            qp.simpleTags = simpleTags.pluck('id');
+        }
         qp.tags = this.get('tag_sets').queryParam();
         return qp;
     }
 })
 
+/** 
+ * Wrapper around one set of criteria for a search (keywords, dates, media sources + sets).
+ * This also handles results.
+ */
 App.QueryModel = Backbone.Model.extend({
     initialize: function (attributes, options) {
         App.debug('App.QueryModel.initialize()');
@@ -413,6 +445,10 @@ App.QueryModel = Backbone.Model.extend({
     }
 });
 
+/**
+ * Holds a set of queries, each specifying criteria that are part of the search.
+ * This handles serialization.
+ */
 App.QueryCollection = Backbone.Collection.extend({
     model: App.QueryModel,
     initialize: function () {

@@ -1,7 +1,7 @@
 App = {
     
     config: {
-        debug: false
+        debug: true
         , datepickerOptions: {
             format: 'yyyy-mm-dd'
         },
@@ -16,6 +16,7 @@ App = {
         // Create models and router
         this.userModel = new App.UserModel();
         this.mediaSources = new App.MediaModel({parse:true});
+console.log(this.mediaSources);
         this.router = new App.Router({
             userModel: this.userModel
             , mediaSources: this.mediaSources

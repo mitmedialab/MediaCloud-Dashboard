@@ -41,9 +41,13 @@ def media_to_solr(media):
     sources += ['media_sets_id:%s' % i for i in d.get('sets', [])]
     source_query = join_query_clauses(sources, 'AND')
     tag_queries = []
-    for tag in d['tags']:
-        parts = ['tags_id_media:%s' % i for i in tag['tags_id']]
-        tag_queries.append(join_query_clauses(parts, 'OR'))
+    
+    #for tag in d['tags']:
+    #    parts = ['tags_id_media:%s' % i for i in tag['tags_id']]
+    #    tag_queries.append(join_query_clauses(parts, 'OR'))
+    parts = ['tags_id_media:%s' % i for i in d['tags']]
+    tag_queries.append(join_query_clauses(parts, 'OR'))
+
     tag_query = join_query_clauses(tag_queries, 'AND')
     queries = []
     if len(source_query) > 0:

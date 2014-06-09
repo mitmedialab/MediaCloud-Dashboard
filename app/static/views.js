@@ -178,6 +178,15 @@ App.QueryView = App.NestedView.extend({
         this.mediaListView = new App.MediaListView({
             model: this.model.get('params').get('mediaModel')
         });
+
+        this.simpleTagSelectView = new App.SimpleTagSelectView({
+            model: this.model.get('params').get('mediaModel')
+            , mediaSources: this.mediaSources
+        });
+        this.simpleTagListView = new App.SimpleTagListView({
+            model: this.model.get('params').get('mediaModel')
+        });
+
         this.tagSetListView = new App.TagSetListView({
             collection: this.model.get('params').get('mediaModel').get('tag_sets')
             , mediaSources: this.mediaSources
@@ -188,6 +197,8 @@ App.QueryView = App.NestedView.extend({
         this.model.on('remove', this.close, this);
         this.addSubView(this.mediaSelectView);
         this.addSubView(this.mediaListView);
+        this.addSubView(this.simpleTagSelectView);
+        this.addSubView(this.simpleTagListView);
         this.addSubView(this.tagSetListView);
         this.addSubView(this.dateRangeView);
         this.addSubView(this.controlsView);
@@ -209,9 +220,13 @@ App.QueryView = App.NestedView.extend({
             var middleRow = $('<div>').addClass('row')
                 .append(that.mediaSelectView.el)
                 .append(that.mediaListView.el);
+            var bottomRow = $('<div>').addClass('row')
+                .append(that.simpleTagSelectView.el)
+                .append(that.simpleTagListView.el);
             that.$('.query-view-content').html('')
                 .append(topRow)
                 .append(middleRow)
+                .append(bottomRow)
                 .append(that.tagSetListView.el);
         });
     },
@@ -401,6 +416,118 @@ App.DemoQueryListView = App.QueryListView.extend({
             this.$('.query-views').addClass('two');
             this.$('.query-views').removeClass('one');
         }
+    }
+});
+
+App.SimpleTagListView = App.NestedView.extend({
+    name:'SimpleTagListView',
+    template: _.template($('#tpl-simple-tag-list-view').html()),
+    initialize: function (options) {
+        App.debug('App.SimpleTagListView.initialize()');
+        App.debug(options);
+        App.debug(this.model);
+        _.bindAll(this, 'onAdd');
+        _.bindAll(this, 'onRemoveClick');
+        this.disabled = options.disabled;
+        this.render();
+        // Add listeners
+        this.model.get('tags').on('add', this.onAdd, this);
+        // Set listener context
+    },
+    render: function () {
+        App.debug('App.SimpleTagListView.render()');
+        App.debug(this.model);
+        var that = this;
+        this.$el.html(this.template());
+        if (this.disabled) {
+            this.$el.addClass('disabled');
+        }
+        this.model.get('tags').each(function (m) {
+            that.onAdd(m, that.model.get('tags'), {});
+        });
+    },
+    onAdd: function (model, collection, options) {
+        App.debug('App.SimpleTagListView.onAdd()');
+        App.debug(model);
+        var itemView = new App.ItemView({model: model});
+        itemView.on('removeClick', this.onRemoveClick);
+        this.$('.simple-tag-list-view-content').append(itemView.el);
+    },
+    onRemoveClick: function (model) {
+        App.debug('App.SimpleTagListView.onRemoveClick()');
+        // Figure out which collection to remove from,
+        // otherwise we might remove the wrong thing.
+        this.model.get('tags').remove(model);
+    }
+});
+
+App.SimpleTagSelectView = App.NestedView.extend({
+    name: 'SimpleTagSelectView',
+    template: _.template($('#tpl-simple-tag-select-view').html()),
+    events: {
+        'click button': 'onTextEntered'
+        , 'click a.explore': 'onExplore'
+    },
+    initialize: function (options) {
+        App.debug('App.SimpleTagSelectView.initialize()');
+        App.debug(options);
+        this.mediaSources = options.mediaSources;
+        this.disabled = options.disabled;
+        // Set deferred callbacks
+        var that = this;
+        _.bindAll(this, 'onTextEntered');
+        _.bindAll(this, 'onExplore');
+        this.mediaSources.deferred.done(function () {
+            that.render();
+            if (!that.disabled) {
+                App.debug('Creating typeahead');
+                $('.simple-tag-input', that.$el).typeahead(null, {
+                    name: 'tags',
+                    displayKey: 'name',
+                    source: that.mediaSources.get('tags').getSuggestions().ttAdapter()
+                });
+                // Listen to custom typeahead events
+                that.$('.simple-tag-input').bind(
+                    'typeahead:selected',
+                    function () { that.onTextEntered(); });
+                that.$('.simple-tag-input').bind(
+                    'typeahead:autocompleted',
+                    function () { that.onTextEntered(); });
+            }
+        });
+    },
+    render: function () {
+        App.debug('App.SimpleTagSelectView.render()');
+        this.$el.html(this.template());
+/*        this.exploreView = new App.ExploreListView({
+            collection: this.mediaSources.get('tags'),
+            ExploreView: App.SourceExploreView,
+            page: true
+        });
+        $('body').append(this.exploreView.el);*/
+        if (this.disabled) {
+            this.$('.simple-tag-input').attr('disabled', 'disabled');
+            this.$('button').attr('disabled', 'disabled');
+        }
+    },
+    onTextEntered: function (event) {
+        App.debug('App.SimpleTagSelectView.textEntered()');
+        if (event) { event.preventDefault(); }
+        var name = $('.simple-tag-input.tt-input', this.$el).typeahead('val');
+        $('.simple-tag-input.tt-input', this.$el).typeahead('val', '');
+        var $el = this.$el;
+        _.defer(function () {
+            $('.simple-tag-input', $el).focus();
+        });
+        source = this.mediaSources.get('tags').getByName(name);
+        if (source) {
+            this.model.get('tags').add(source);
+        }
+    },
+    onExplore: function (event) {
+        App.debug('App.SimpleTagSelectView.onExplore()');
+        event.preventDefault();
+        this.exploreView.show();
     }
 });
 

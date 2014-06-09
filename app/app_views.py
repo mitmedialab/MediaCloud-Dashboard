@@ -29,23 +29,6 @@ def media_sources():
 @flask_login.login_required
 def media_sets():
     return json.dumps(list(app.util.all_media_sets()), separators=(',',':'))
-    
-@application.route('/api/tags/all')
-@flask_login.login_required
-def all_tags():
-    tags = []
-    tag_sets = sorted(app.util.all_media_sets(),key=itemgetter('name'))
-    for tag_set in tag_sets:
-        tag_set_name = tag_set['name']
-        for tag in sorted(tag_set['tags'],key=itemgetter('tag')):
-            info = {
-                'id': tag['tags_id'],
-                'tag_sets_id': tag_set['tag_sets_id'],
-                'tagName': tag['tag'],
-                'name': tag_set_name+" - "+tag['tag']
-            }
-            tags.append( info )
-    return json.dumps(tags)
 
 @application.route('/api/sentences/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
@@ -146,7 +129,7 @@ def demo_wordcount(keywords):
     return _wordcount(mc, keywords, media, start, end)
 
 def demo_params():
-    media = '{"tags":[{"tag_sets_id":5,"tags_id":[8875027]}]}'
+    media = '{"simpleTags":[8875027],"tags":[{"tag_sets_id":5,"tags_id":[8875027]}]}'
     start_date = datetime.date.today() - datetime.timedelta(days=15)
     end_date = datetime.date.today() - datetime.timedelta(days = 1)
     start = start_date.strftime("%Y-%m-%d")

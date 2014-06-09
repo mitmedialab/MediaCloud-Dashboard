@@ -45,6 +45,8 @@ App.Router = Backbone.Router.extend({
             var tagSet = that.mediaSources.get('tag_sets').get(5).cloneEmpty();
             tagSet.get('tags').add(that.mediaSources.get('tag_sets').get(5).get('tags').get(8875027).clone());
             that.mediaModel.get('tag_sets').add(tagSet);
+            var tag = that.mediaSources.get('tags').get(8875027).clone();
+            that.mediaModel.get('tags').add(tag);
         });
         // Default tags
         // Defaults dates
@@ -199,9 +201,12 @@ App.Router = Backbone.Router.extend({
                 subset.get('sources').each(function (m) {
                     mediaModel.get('sources').add(m);
                 });
+                subset.get('tags').each(function(simpleTag){
+                    mediaModel.get('tags').add(simpleTag);
+                });
                 subset.get('tag_sets').each(function (m) {
                     mediaModel.get('tag_sets').add(m);
-                })
+                });
             });
             that.queryCollection.execute();
         });
@@ -253,9 +258,12 @@ App.Router = Backbone.Router.extend({
                 subset.get('sources').each(function (m) {
                     mediaModel.get('sources').add(m);
                 });
+                subset.get('tags').each(function(simpleTag){
+                    mediaModel.get('tags').add(simpleTag);
+                });
                 subset.get('tag_sets').each(function (m) {
                     mediaModel.get('tag_sets').add(m);
-                })
+                });
             });
             that.queryCollection.execute();
         });
