@@ -347,7 +347,7 @@ App.MediaModel = App.NestedModel.extend({
                 newSet.get('tags').add(cloneTag);
             });
         });
-        _.each(o.simpleTags, function(id){
+        _.each(o.sets, function(id){
             var tag = that.get('tags').get({id:id});
             media.get('tags').add(tag);
         });
@@ -364,9 +364,9 @@ App.MediaModel = App.NestedModel.extend({
         if (sources && sources.length > 0) {
             qp.sources = sources.pluck('media_id');
         }
-        var simpleTags = this.get('tags');
-        if (simpleTags && simpleTags.length > 0) {
-            qp.simpleTags = simpleTags.pluck('id');
+        var sets = this.get('tags');
+        if (sets && sets.length > 0) {
+            qp.sets = sets.pluck('id');
         }
         return qp;
     }
