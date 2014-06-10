@@ -29,11 +29,16 @@ def main():
     more_rows = True
     while more_rows:
         print "  At "+str(current)
-        collection = mc.mediaList(current,ITEMS_PER_PAGE)
-        [ sources.append( {'media_id': m['media_id'], 'name': m['name'], 'url': m['url']} ) 
-            for m in collection ]
-        current = current + len(collection)
-        more_rows = True if len(collection)>0 else False
+        media_list = mc.mediaList(current,ITEMS_PER_PAGE)
+        public_media_list = []
+        for media in media_list:
+            public_tags = [t for t in media['media_source_tags'] if t['show_on_media']==1 or t['show_on_stories']==1]
+            if len(public_tags)>0:
+                public_media_list.append(media)
+        [ sources.append( {'media_id': m['media_id'], 'name': m['name'], 'url': m['url'] } )
+            for m in public_media_list ]
+        current = current + len(media_list)
+        more_rows = True if len(media_list)>0 else False
     
     # page through tag_sets
     public_tag_sets_id = set()
