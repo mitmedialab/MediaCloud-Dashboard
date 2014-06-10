@@ -17,8 +17,8 @@ parent_dir = os.path.dirname(current_dir)
 config.read(os.path.join(parent_dir, 'app.config'))
 
 # Flask app
-app = flask.Flask(__name__)
-app.secret_key = 'put secret key here'
+flapp = flask.Flask(__name__)
+flapp.secret_key = 'put secret key here'
 
 # Create media cloud api
 mc_key = config.get('mediacloud','key')
@@ -27,7 +27,7 @@ mc = mcapi.MediaCloud(mc_key)
 
 # Create user login manager
 login_manager = flask_login.LoginManager()
-login_manager.init_app(app)
+login_manager.init_app(flapp)
 
 # Connect to db
 host = config.get('database', 'host')
