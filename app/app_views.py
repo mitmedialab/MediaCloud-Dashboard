@@ -34,7 +34,7 @@ def media_sets():
 @application.route('/api/sentences/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def sentences(keywords, media, start, end):
-    user_mc = mcapi.MediaCloud(flask_login.current_user.get_id(),logging.DEBUG)
+    user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
     query = app.util.solr_query(app.util.media_to_solr(media), start, end)
     res = user_mc.sentenceList("%s AND (%s)" % (keywords, query), '', 0, 10)
     return json.dumps(res, separators=(',',':'))
@@ -50,7 +50,7 @@ def _sentence_docs(api, keywords, media, start, end):
 @application.route('/api/sentences/docs/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def sentence_docs(keywords, media, start, end):
-    user_mc = mcapi.MediaCloud(flask_login.current_user.get_id(),logging.DEBUG)
+    user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
     return _sentence_docs(user_mc, keywords, media, start, end)
 
 @application.route('/api/demo/sentences/docs/<keywords>')
@@ -61,7 +61,7 @@ def demo_sentence_docs(keywords):
 @application.route('/api/stories/docs/<keywords>/<media>/<start>/<end>.csv')
 @flask_login.login_required
 def story_docs_csv(keywords, media, start, end):
-    user_mc = mcapi.MediaCloud(flask_login.current_user.get_id(),logging.DEBUG)
+    user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
     query = app.util.solr_query(app.util.media_to_solr(media), start, end)
     all_stories = []
     last_processed_stories_id = 0
@@ -85,7 +85,7 @@ def story_docs_csv(keywords, media, start, end):
                 headers={"Content-Disposition":"attachment;filename="+download_filename})
     
 def _sentence_numfound(api_key, keywords, media, start, end):
-    user_mc = mcapi.MediaCloud(api_key,logging.DEBUG)
+    user_mc = mcapi.MediaCloud(api_key)
     query = "%s AND (%s)" % (keywords, app.util.media_to_solr(media))
     start = datetime.datetime.strptime(start, '%Y-%m-%d').strftime('%Y-%m-%d')
     end = datetime.datetime.strptime(end, '%Y-%m-%d').strftime('%Y-%m-%d')
@@ -121,7 +121,7 @@ def _wordcount(api, keywords, media, start, end):
 @application.route('/api/wordcount/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def wordcount(keywords, media, start, end):
-    user_mc = mcapi.MediaCloud(flask_login.current_user.get_id(),logging.DEBUG)
+    user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
     return _wordcount(user_mc, keywords, media, start, end)
 
 @application.route('/api/demo/wordcount/<keywords>')

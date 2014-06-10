@@ -22,7 +22,8 @@ app.secret_key = 'put secret key here'
 
 # Create media cloud api
 mc_key = config.get('mediacloud','key')
-mc = mcapi.MediaCloud(mc_key,logging.DEBUG)
+mc = mcapi.MediaCloud(mc_key)
+logging.getLogger('MediaCloud').setLevel(logging.DEBUG)
 
 # Create user login manager
 login_manager = flask_login.LoginManager()
