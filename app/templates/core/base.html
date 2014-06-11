@@ -2,10 +2,10 @@
 <html>
     <head>
         <title>{% block branding_tool_name %}Skeleton{% endblock %} - MediaMeter</title>
-        <link rel="stylesheet" type="text/css" href="static/lib/bootstrap/css/bootstrap.min.css"/>
-        <link rel="stylesheet" type="text/css" href="static/lib/typeahead.js-bootstrap/typeahead.css">
+        <link rel="stylesheet" type="text/css" href="static/core/lib/bootstrap/css/bootstrap.min.css"/>
+        <link rel="stylesheet" type="text/css" href="static/core/lib/typeahead.js-bootstrap/typeahead.css">
         <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:300,700" type="text/css">
-        <link rel="stylesheet" type="text/css" href="static/mediameter.css"/>
+        <link rel="stylesheet" type="text/css" href="static/core/mediameter.css"/>
         {% block stylesheets %}{% endblock %}
         {% include 'core/progress.html' %}
         {% include 'core/login_view.html' %}
@@ -43,7 +43,7 @@
                 <div class="container">
                     {% block branding %}
                     <h1>
-                        {% block logo %}<img src="/static/img/mm-logo-65-orange.png" />{% endblock %}
+                        {% block logo %}<img src="/static/core/img/mm-logo-65-orange.png" />{% endblock %}
                         <strong>Media Meter</strong>
                         {{ self.branding_tool_name() }}
                     </h1>
@@ -106,27 +106,26 @@ If you have feedback or questions, you can get in touch with us at
                         </p>
                     </div>
                     <div class="col-sm-4 col-sm-offset-1">
-                        <h3><a href="http://civic.mit.edu"><img class="logo" src="static/img/civic.png"/></a></h3>
+                        <h3><a href="http://civic.mit.edu"><img class="logo" src="static/core/img/civic.png"/></a></h3>
                     </div>
                 </div>
                 {% endblock %}
             </div>
         </div>
-        <script type="text/javascript" src="static/lib/jquery/js/jquery-2.0.3.min.js"></script>
-        <script type="text/javascript" src="static/lib/underscore/underscore-1.5.2-min.js"></script>
-        <script type="text/javascript" src="static/lib/backbone/backbone-1.1.0-min.js"></script>
-        <script type="text/javascript" src="static/lib/bootstrap/js/bootstrap.min.js"></script>
-        <script type="text/javascript" src="static/lib/typeahead/typeahead.bundle.min.js"></script>
-        <script type="text/javascript" src="static/lib/datepicker/js/bootstrap-datepicker.js"></script>
-        <script type="text/javascript" src="static/lib/d3/js/d3-3.4.1-min.js"></script>
-        <script type="text/javascript" src="static/lib/d3-cloud/js/d3-cloud-civic.js"></script>
-        <script type="text/javascript" src="static/app.js"></script>
-        <script type="text/javascript" src="static/include/viewmanager.js"></script>
-        <script type="text/javascript" src="static/include/resource.js"></script>
-        <script type="text/javascript" src="static/models.js"></script>
-        <script type="text/javascript" src="static/views.js"></script>
-        <script type="text/javascript" src="static/routes.js"></script>
-        <script type="text/javascript" src="static/script.js"></script>
+        <script type="text/javascript" src="static/core/lib/jquery/js/jquery-2.0.3.min.js"></script>
+        <script type="text/javascript" src="static/core/lib/underscore/underscore-1.5.2-min.js"></script>
+        <script type="text/javascript" src="static/core/lib/backbone/backbone-1.1.0-min.js"></script>
+        <script type="text/javascript" src="static/core/lib/bootstrap/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="static/core/lib/typeahead/typeahead.bundle.min.js"></script>
+        <script type="text/javascript" src="static/core/lib/datepicker/js/bootstrap-datepicker.js"></script>
+        <script type="text/javascript" src="static/core/lib/d3/js/d3-3.4.1-min.js"></script>
+        <script type="text/javascript" src="static/core/lib/d3-cloud/js/d3-cloud-civic.js"></script>
+        <script type="text/javascript" src="static/core/app.js"></script>
+        <script type="text/javascript" src="static/core/include/viewmanager.js"></script>
+        <script type="text/javascript" src="static/core/include/resource.js"></script>
+        <script type="text/javascript" src="static/core/models.js"></script>
+        <script type="text/javascript" src="static/core/views.js"></script>
+        <script type="text/javascript" src="static/core/routes.js"></script>
         <script type="text/javascript">$(function(){ App.initialize(); });</script>
         {% block scripts %}{% endblock %}
     </body>
