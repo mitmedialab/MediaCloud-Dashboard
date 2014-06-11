@@ -1,9 +1,9 @@
 import ConfigParser, logging, os, shutil, sys, json, datetime
 import mediacloud
 
-CONFIG_FILE = '../app.config'
+CONFIG_FILE = '../../app.config'
 ITEMS_PER_PAGE = 100
-OUTPUT_DIR = '../app/static/data/'
+OUTPUT_DIR = '../../app/static/data/'
 OUTPUT_FILE = 'media.json'
 TIMESTAMP_FORMAT = '%Y%m%d%H%M%S'
 BACKUP_OUTPUT_FILE = 'media.json.backup-'+datetime.datetime.now().strftime(TIMESTAMP_FORMAT)
