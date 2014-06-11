@@ -16,7 +16,7 @@ from forms import *
 
 @flapp.route('/')
 def index():
-    content = flask.render_template('progress.html')
+    content = flask.render_template('core/progress.html')
     return flask.render_template('main.html', content=content)
 
 @flapp.route('/api/login', methods=['POST'])

@@ -1,0 +1,18 @@
+{% extends 'core/base.html' %}
+
+{% block branding_tool_name %}Dashboard{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="static/style.css"/>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
+
+{% block backbone_templates %}
+    {% include 'sentence_view.html' %}
+    {% include 'histogram_view.html' %}
+    {% include 'wordcount_view.html' %}
+    {% include 'wordcount_result_view.html' %}
+    {% include 'wordcount_comparison_view.html' %}
+{% endblock %}
