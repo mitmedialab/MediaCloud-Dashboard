@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{% block branding_tool_name %}Skeleton{% endblock %} - MediaMeter</title>
+        <link rel="stylesheet" type="text/css" href="static/lib/bootstrap/css/bootstrap.min.css"/>
+        <link rel="stylesheet" type="text/css" href="static/lib/typeahead.js-bootstrap/typeahead.css">
+        <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:300,700" type="text/css">
+        <link rel="stylesheet" type="text/css" href="static/mediameter.css"/>
+        <link rel="stylesheet" type="text/css" href="static/style.css"/>
+        {% block stylesheets %}{% endblock %}
+        {% include 'progress.html' %}
+        {% include 'login_view.html' %}
+        {% include 'controls_view.html' %}
+        {% include 'controls_signout_view.html' %}
+        {% block backbone_templates %}
+        {% endblock %}
+    </head>
+    <body>
+        <div class="header">
+            <div class="brand-toolbar">
+                <div class="container">
+                    {% block brand_toolbar %}
+                    <div class="row">
+                        <div class="col-sm-8 links"></div>
+                        <div class="col-sm-4 controls"></div>
+                    </div>
+                    {% endblock %}
+                </div>
+            </div>
+            <div class="branding">
+                <div class="container">
+                    {% block branding %}
+                    <h1>
+                        {% block logo %}<img src="/static/img/mm-logo-65-orange.png" />{% endblock %}
+                        <strong>Media Meter</strong>
+                        {{ self.branding_tool_name() }}
+                    </h1>
+                    {% endblock %}
+                </div>
+            </div>
+            <div class="app-toolbar">
+                <div class="container">
+                    {% block app_toolbar %}{% endblock %}
+                </div>
+            </div>
+        </div>
+        <div class="drawer">
+            <div class="container">
+                {% block drawer %}{% endblock %}
+            </div>
+        </div>
+        <div class="messages">
+            <div class="container">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <ul class="flashes">
+                        {% for message in messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+        <div class="content">
+            <div class="container">
+                {% block content %}
+                {{ content |safe }}
+                {% endblock %}
+            </div>
+        </div>
+        <div class="footer">
+            <div class="container">
+                {% block footer %}
+                <div class="row">
+                    <div class="col-sm-4">
+                        <h3>About Media Meter</h3>
+                        <p>
+What was covered in the news this week? Did the issues you care about get the
+attention you think they deserved? Did the media talk about these topics in the
+way you want them to? Who set the narrative for the current breaking story?
+                        </p>
+                        <p>
+MediaMeter is a suite of tools built on top of the MediaCloud online news
+database. A number of tools make up the suite, all driven by a query you author
+to specify media sources, a date range, and some keywords.
+                        </p>
+                    </div>
+                    <div class="col-sm-2 col-sm-offset-1">
+                        <h3>Contact</h3>
+                        <p>
+If you have feedback or questions, you can get in touch with us at
+<a href="mailto:mediameter@media.mit.edu">mediameter@media.mit.edu</a>
+                        </p>
+                    </div>
+                    <div class="col-sm-4 col-sm-offset-1">
+                        <h3><a href="http://civic.mit.edu"><img class="logo" src="static/img/civic.png"/></a></h3>
+                    </div>
+                </div>
+                {% endblock %}
+            </div>
+        </div>
+        <script type="text/javascript" src="static/lib/jquery/js/jquery-2.0.3.min.js"></script>
+        <script type="text/javascript" src="static/lib/underscore/underscore-1.5.2-min.js"></script>
+        <script type="text/javascript" src="static/lib/backbone/backbone-1.1.0-min.js"></script>
+        <script type="text/javascript" src="static/lib/bootstrap/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="static/lib/typeahead/typeahead.bundle.min.js"></script>
+        <script type="text/javascript" src="static/lib/datepicker/js/bootstrap-datepicker.js"></script>
+        <script type="text/javascript" src="static/lib/d3/js/d3-3.4.1-min.js"></script>
+        <script type="text/javascript" src="static/lib/d3-cloud/js/d3-cloud-civic.js"></script>
+        <script type="text/javascript" src="static/app.js"></script>
+        <script type="text/javascript" src="static/include/viewmanager.js"></script>
+        <script type="text/javascript" src="static/include/resource.js"></script>
+        <script type="text/javascript" src="static/models.js"></script>
+        <script type="text/javascript" src="static/views.js"></script>
+        <script type="text/javascript" src="static/routes.js"></script>
+        <script type="text/javascript" src="static/script.js"></script>
+        <script type="text/javascript">$(function(){ App.initialize(); });</script>
+        {% block scripts %}{% endblock %}
+    </body>
+</html>
