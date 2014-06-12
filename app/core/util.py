@@ -4,7 +4,8 @@ import mediacloud.api as mcapi
 from app.core import config
 
 def load_media_info_json():
-    static_data_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)),'static','data')
+    base_dir = os.path.dirname(os.path.realpath(__file__))
+    static_data_dir = os.path.join(base_dir, 'static','core', 'data')
     json_data=open(os.path.join(static_data_dir,'media.json'))
     data = json.load(json_data)
     media_info = data
