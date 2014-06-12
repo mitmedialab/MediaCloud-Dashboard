@@ -9,7 +9,7 @@ import mediacloud
 import mediacloud.api as mcapi
 import pymongo
 
-from app.core import flapp, login_manager, mc, mc_key
+from app.core import config, flapp, login_manager, mc, mc_key
 import app.core.util
 from user import User, authenticate_user
 from forms import *
@@ -17,7 +17,8 @@ from forms import *
 @flapp.route('/')
 def index():
     content = flask.render_template('core/progress.html')
-    return flask.render_template('main.html', content=content)
+    template = config.get('flask', 'template')
+    return flask.render_template(template, content=content)
 
 @flapp.route('/api/login', methods=['POST'])
 def login():
