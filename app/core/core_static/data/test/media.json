@@ -1,0 +1,16 @@
+{
+  "sources": [
+    { "name": "New York Times", "media_id": 1 }
+    , { "name": "Boston Globe", "media_id": 15 }
+  ],
+  "tag_sets": [
+    {
+      "name": "gv_country"
+      , "tag_sets_id": 597
+      , "tags": [
+        { "tag": "japan", "tags_id": 8876989, "tag_sets_id": 597 }
+        , { "tag": "u.s.a.", "tags_id": 8877008, "tag_sets_id": 597}
+      ]
+    }
+  ]
+}

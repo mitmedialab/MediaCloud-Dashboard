@@ -1,0 +1,21 @@
+{% extends 'core/base.html' %}
+
+{% block branding_tool_name %}Dashboard{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="static/dashboard/style.css"/>
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" src="static/dashboard/controller.js"></script>
+    <script type="text/javascript" src="static/dashboard/routes.js"></script>
+    <script type="text/javascript" src="static/dashboard/script.js"></script>
+{% endblock %}
+
+{% block backbone_templates %}
+    {% include 'dashboard/sentence_view.html' %}
+    {% include 'dashboard/histogram_view.html' %}
+    {% include 'dashboard/wordcount_view.html' %}
+    {% include 'dashboard/wordcount_result_view.html' %}
+    {% include 'dashboard/wordcount_comparison_view.html' %}
+{% endblock %}
