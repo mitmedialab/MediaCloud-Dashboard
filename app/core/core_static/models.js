@@ -27,6 +27,7 @@ App.UserModel = Backbone.Model.extend({
         , anonymous: true
         , authenticated: false
         , error: ''
+        , key: ''
     },
     
     initialize: function () {
@@ -39,6 +40,8 @@ App.UserModel = Backbone.Model.extend({
         _.bindAll(this, 'signOut');
         this.on('sync', this.onSync);
         this.on('error', this.onSignInError);
+        this.set('key', $.cookie('mediameter_user_key'));
+        this.set('username', $.cookie('mediameter_user_username'));
     },
     
     onSync: function () {
@@ -52,6 +55,8 @@ App.UserModel = Backbone.Model.extend({
     
     onSignIn: function () {
         App.debug('App.UserModel.onSignIn()');
+        $.cookie('mediameter_user_key', this.get('key'), App.config.cookieOpts);
+        $.cookie('mediameter_user_username', this.get('username'), App.config.cookieOpts);
         this.trigger('signin');
     },
     
@@ -68,21 +73,41 @@ App.UserModel = Backbone.Model.extend({
         this.trigger('signout');
     },
     
-    signIn: function (username, password) {
+    signIn: function (options) {
         App.debug('App.UserModel.signIn()')
         that = this;
         if (typeof(route) === 'undefined') {
             route = 'home';
         }
-        this.set('id', 'login');
-        this.fetch({
-          type: 'post',
-          data: {'username': username, 'password': password}
-        });
+        if (typeof(options.username) !== 'undefined') {
+            App.debug('Signing in with username/password');
+            this.set('id', 'login');
+            this.fetch({
+              type: 'post',
+              data: {'username': options.username, 'password': options.password},
+              success: options.success,
+              error: options.error
+            });
+        } else if (typeof(this.get('key')) !== 'undefined') {
+            App.debug('Signing in with key');
+            this.set('id', 'login');
+            this.fetch({
+              type: 'post',
+              data: {'username': this.get('username'), 'key': this.get('key')},
+              success: options.success,
+              error: options.error
+            });
+        } else {
+            if (options.error) {
+                options.error();
+            }
+        }
     },
     
     signOut: function () {
         App.debug('App.UserModel.signOut()')
+        $.cookie('mediameter_user_key', '', App.config.cookieOpts);
+        $.cookie('mediameter_user_username', '', App.config.cookieOpts);
         this.set('id', 'logout');
         this.fetch({type: 'post'});
     }

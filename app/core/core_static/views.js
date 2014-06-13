@@ -71,7 +71,7 @@ App.LoginView = App.NestedView.extend({
         password = $('input[name=password]', this.$el).val();
         $('input[name=username]', this.$el).val('');
         $('input[name=password]', this.$el).val('');
-        this.model.signIn(username, password);
+        this.model.signIn({username:username, password:password});
         var progress = _.template($('#tpl-progress').html());
         this.$('.message').html(progress());
         this.$('form').hide();

@@ -11,7 +11,7 @@ import pymongo
 
 from app.core import config, flapp, login_manager, mc, mc_key
 import app.core.util
-from user import User, authenticate_user
+from user import User, authenticate_user, authenticate_user_key
 from forms import *
 
 @flapp.route('/')
@@ -28,17 +28,24 @@ def login():
             'username': flask_login.current_user.name
             , 'authenticated': True
             , 'anonymous': False
+            , 'key': flask_login.current_user.get_id()
         }
         return json.dumps(response)
     # User is attempting new login, authenticate
     username = ''
     password = ''
+    key = ''
     try:
         username = flask.request.form['username']
         password = flask.request.form['password']
+        user = authenticate_user(username, password)
     except KeyError:
-        pass
-    user = authenticate_user(username, password)
+        try:
+            username = flask.request.form['username']
+            key = flask.request.form['key']
+            user = authenticate_user_key(username, key)
+        except KeyError:
+            pass
     if not user.is_authenticated():
         flask.abort(401)
     flask_login.login_user(user)
@@ -46,6 +53,7 @@ def login():
         'username': username
         , 'authenticated': True
         , 'anonymous': False
+        , 'key': user.get_id()
     }
     return json.dumps(response)
 
@@ -57,6 +65,7 @@ def user():
             'username': flask_login.current_user.name
             , 'authenticated': True
             , 'anonymous': False
+            , 'key': flask_login.current_user.get_id()
         }
         return json.dumps(response)
     flask.abort(401)
@@ -68,13 +77,14 @@ def logout():
     response = {
         'username': ''
         , 'authenticated': False
+        , 'key': ''
     }
     return json.dumps(response)
 
 # Callback for flask-login
 @login_manager.user_loader
 def load_user(userid):
-    return User(userid, userid)
+    return User.get(userid)
 
 @flapp.route('/api/media')
 @flask_login.login_required

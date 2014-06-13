@@ -21,9 +21,8 @@ App.con = App.Controller = {
         App.con.userModel.on('signout', App.con.onSignOut);
         App.con.userModel.on('unauthorized', App.con.onSignOut);
         // Start navigation and log user in
-        App.con.userModel.fetch({
-            "type": "post"
-            , "success": function() { _.defer(function () { Backbone.history.start(); }); }
+        App.con.userModel.signIn({
+            "success": function() { _.defer(function () { Backbone.history.start(); }); }
             , "error": function() { _.defer(function () { Backbone.history.start(); }); }
         });
     },
