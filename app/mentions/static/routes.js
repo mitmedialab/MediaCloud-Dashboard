@@ -1,6 +1,3 @@
-
 _.extend(App.Router.prototype.routes, {
-    'demo': App.Controller.routeDemo
-    , 'demo-query': App.Controller.routeDemoQuery
-    , 'query': App.Controller.routeQuery
+    'query/:keywords/:media/:start/:end': App.Controller.routeQuery
 });
