@@ -1,4 +1,3 @@
-console.log('extending controller');
 _.extend(App.Controller, {
     
     // Override
