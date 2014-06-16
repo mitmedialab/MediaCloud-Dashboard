@@ -455,10 +455,12 @@ App.QueryCollection = Backbone.Collection.extend({
     onAdd: function (model, collection, options) {
         // When adding a QueryModel, listen to it's ResultModel
         this.resources.listen(model.get('results'));
+        collection.updateNames();
     },
     onRemove: function (model, collection, options) {
         // Unlisten when we remove
         this.resources.unlisten(model.get('results'));
+        collection.updateNames();
     },
     execute: function () {
         App.debug('App.QueryCollection.execute()');
@@ -500,6 +502,13 @@ App.QueryCollection = Backbone.Collection.extend({
             , this.start()
             , this.end()
         ].join('/');
+    },
+    updateNames: function () {
+        this.each(function (m, i) {
+            if (i < App.config.queryNames.length) {
+                m.set('name', App.config.queryNames[i]);
+            }
+        })
     }
 })
 
