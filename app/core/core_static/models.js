@@ -623,6 +623,7 @@ App.ResultModel = Backbone.Model.extend({
         App.debug('App.ResultModel.initialize()');
         // Create children collections
         _.each(this.children, function (c) {
+            console.log(c.name);
             this.set(c.name, new c.type([], options));
         }, this);
         // Bubble-up events sent by the individual collections

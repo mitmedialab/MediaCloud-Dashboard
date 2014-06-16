@@ -1,7 +1,7 @@
 App = {
     
     config: {
-        debug: false
+        debug: true
         , datepickerOptions: {
             format: 'yyyy-mm-dd'
         },
