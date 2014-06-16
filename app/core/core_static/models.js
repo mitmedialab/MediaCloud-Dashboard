@@ -605,25 +605,37 @@ App.DemoDateCountCollection = App.DateCountCollection.extend({
 });
 
 App.ResultModel = Backbone.Model.extend({
+    children: [
+        {
+            "name": "sentences"
+            , "type": App.SentenceCollection
+        },
+        {
+            "name": "wordcounts"
+            , "type": App.WordCountCollection
+        },
+        {
+            "name": "datecounts"
+            , "type": App.DateCountCollection
+        }
+    ],
     initialize: function (attributes, options) {
         App.debug('App.ResultModel.initialize()');
-        var sentences = new App.SentenceCollection([], options);
-        var wordcounts = new App.WordCountCollection([], options);
-        var datecounts = new App.DateCountCollection([], options);
-        this.set('sentences', sentences);
-        this.set('wordcounts', wordcounts);
-        this.set('datecounts', datecounts);
+        // Create children collections
+        _.each(this.children, function (c) {
+            this.set(c.name, new c.type([], options));
+        }, this);
         // Bubble-up events sent by the individual collections
-        _.each([sentences, wordcounts, datecounts], function (m) {
-            m.on('request', this.onRequest, this);
-            m.on('error', this.onError, this);
-            m.on('sync', this.onSync, this);
+        _.each(this.children, function (c) {
+            this.get(c.name).on('request', this.onRequest, this);
+            this.get(c.name).on('error', this.onError, this);
+            this.get(c.name).on('sync', this.onSync, this);
         }, this);
     },
     fetch: function () {
-        this.get('sentences').fetch();
-        this.get('wordcounts').fetch();
-        this.get('datecounts').fetch();
+        _.each(this.children, function (c) {
+            this.get(c.name).fetch();
+        }, this);
     },
     onRequest: function (model_or_controller, request, options) {
         this.trigger('request', model_or_controller, request, options);
