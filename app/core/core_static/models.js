@@ -544,6 +544,14 @@ App.SentenceCollection = Backbone.Collection.extend({
         url += '/' + encodeURIComponent(this.params.get('start'));
         url += '/' + encodeURIComponent(this.params.get('end'));
         return url;
+    },
+    csvUrl: function () {
+        var url = '/api/stories/docs/';
+        url += encodeURIComponent(this.params.get('keywords'));
+        url += '/' + encodeURIComponent(JSON.stringify(this.params.get('mediaModel').queryParam()));
+        url += '/' + encodeURIComponent(this.params.get('start'));
+        url += '/' + encodeURIComponent(this.params.get('end'));
+        return url + encodeURIComponent('.csv');
     }
 });
 
