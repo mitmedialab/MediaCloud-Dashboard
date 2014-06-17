@@ -105,13 +105,17 @@ def media_sets():
 @flask_login.login_required
 def sentences(keywords, media, start, end):
     user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
-    query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
-    res = user_mc.sentenceList("%s AND (%s)" % (keywords, query), '', 0, 10)
+    filter_query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
+    query = "%s AND (%s)" % (app.core.util.keywords_to_solr(keywords), filter_query)
+    app.core.logger.debug("query: sentences %s" % query)
+    res = user_mc.sentenceList(query, '', 0, 10)
     return json.dumps(res, separators=(',',':'))
 
 def _sentence_docs(api, keywords, media, start, end):
-    query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
-    res = api.sentenceList("%s AND (%s)" % (keywords, query), '', 0, 10, sort=mcapi.MediaCloud.SORT_RANDOM)
+    filter_query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
+    query = "%s AND (%s)" % (app.core.util.keywords_to_solr(keywords), filter_query)
+    app.core.logger.debug("query: _sentence_docs %s" % query)
+    res = api.sentenceList(query, '', 0, 10, sort=mcapi.MediaCloud.SORT_RANDOM)
     sentences = res['response']['docs']
     for s in sentences:
         s['totalSentences'] = res['response']['numFound'] # hack to get total sentences count to Backbone.js
@@ -130,12 +134,14 @@ def demo_sentence_docs(keywords):
 
 @flapp.route('/api/stories/docs/<keywords>/<media>/<start>/<end>.csv')
 @flask_login.login_required
-def story_docs_csv(keywords, media, start, end):
+def story_docs_csv(orig_keywords, media, start, end):
     user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
     query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
     all_stories = []
     last_processed_stories_id = 0
     more_stories = True
+    keywords = app.core.util.keywords_to_solr(orig_keywords)
+    app.core.logger.debug("query: story_docs_csv %s %s" % (keywords, query))
     while more_stories:
         res = user_mc.storyList(keywords, query, last_processed_stories_id, 1000)
         if len(res) > 0:
@@ -156,7 +162,8 @@ def story_docs_csv(keywords, media, start, end):
     
 def _sentence_numfound(api_key, keywords, media, start, end):
     user_mc = mcapi.MediaCloud(api_key)
-    query = "%s AND (%s)" % (keywords, app.core.util.media_to_solr(media))
+    query = "%s AND (%s)" % (app.core.util.keywords_to_solr(keywords), app.core.util.media_to_solr(media))
+    app.core.logger.debug("query: _sentence_numfound: %s" % query)
     start = datetime.datetime.strptime(start, '%Y-%m-%d').strftime('%Y-%m-%d')
     end = datetime.datetime.strptime(end, '%Y-%m-%d').strftime('%Y-%m-%d')
     response = user_mc.sentenceCount(query, solr_filter='', split=True, split_daily=True, split_start_date=start, split_end_date=end)
@@ -184,8 +191,10 @@ def demo_sentence_numfound(keywords):
     return _sentence_numfound(mc_key, keywords, media, start, end)
     
 def _wordcount(api, keywords, media, start, end):
-    query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
-    res = api.wordCount("%s AND (%s)" % (keywords , query))
+    filter_query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
+    query = "%s AND (%s)" % (app.core.util.keywords_to_solr(keywords) , filter_query)
+    app.core.logger.debug("query: _wordcount: %s" % query)
+    res = api.wordCount(query)
     return json.dumps(res, separators=(',',':'))
 
 @flapp.route('/api/wordcount/<keywords>/<media>/<start>/<end>')
