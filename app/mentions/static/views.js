@@ -24,6 +24,9 @@ App.MentionsResultView = Backbone.View.extend({
         this.$('.progress').html(
             _.template($('#tpl-progress').html())()
         ).show();
+        console.log(this.model);
+        var csvUrl = this.model.get('results').get('sentences').csvUrl();
+        this.$('li.csv a').attr('href', csvUrl);
         this.listenTo(this.model.collection.resources, 'sync:sentence', function (sentences) {
             App.debug('App.MentionsResultView.collection: sync');
             this.$('.progress').hide();
