@@ -387,7 +387,7 @@ App.HistogramView = Backbone.View.extend({
         var urlTemplate = _.template("<li><a target=\"_blank\" href=\"<%=url%>\"><%=text%></a></li>");
         this.$('.panel-action-list').html('');
         for(idx in downloadUrls){
-            title = (idx==0) ? "Main" : "Comparison"
+            title = (idx==0) ? "<span class=\"first-query\">Main</span>" : "<span class=\"second-query\">Comparison</span>"
             var element = urlTemplate({url:downloadUrls[idx],'text':"Download "+title+" Data CSV"});
             this.$('.panel-action-list').append(element);  
         }
