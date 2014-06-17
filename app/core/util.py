@@ -59,6 +59,9 @@ def media_to_solr(media):
     query = join_query_clauses(queries, 'OR')
     return query
 
+def keywords_to_solr(keywords):
+    return "+( %s )" % keywords
+
 def join_query_clauses(clauses, operator):
     if len(clauses) == 0:
         return ''
@@ -94,9 +97,11 @@ class NumFound:
 # This should be an instancemethod of NumFound, but Pool.map() requires it
 # to be pickle-able, so this is a quick hack to work around that.
 def num_found_worker(arg):
-    mc_key, keywords, date, query = arg
+    mc_key, keywords, date, filter_query = arg
     mc = mcapi.MediaCloud(mc_key)
-    res = mc.sentenceList("%s AND (%s)" % (keywords, query), '', 0, 0)
+    query = "%s AND (%s)" % (keywords_to_solr(keywords), filter_query)
+    app.core.logger.debug("query: sentenceList: %s" % query)
+    res = mc.sentenceList(query, '', 0, 0)
     return {
         'date': date
         , 'numFound': res['response']['numFound']
