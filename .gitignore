@@ -1,7 +1,7 @@
 *.pyc
 .DS_Store
 app.config
-mediacloud-api.log
+*.log
 venv
 .Python
 app/static/data/media.json.backup*
