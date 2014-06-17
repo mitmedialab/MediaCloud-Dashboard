@@ -19,7 +19,7 @@ config.read(os.path.join(base_dir, 'app.config'))
 # setup logging
 logger = logging.getLogger("mediameter.core")
 log_file = logging.FileHandler('mediameter-core.log')
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 logger.addHandler(log_file)
 
 logger.info("---------------------------------------------------------------------------------------")
