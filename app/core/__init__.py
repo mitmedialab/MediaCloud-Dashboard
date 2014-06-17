@@ -49,5 +49,10 @@ logger.info("Connected to DB %s@%s" % (database,host))
 from app.core import views
 
 # Import tool-specific code
-for m in config.get('custom', 'modules').split(','):
-    importlib.import_module(m)
+try:
+    modules = config.get('custom', 'modules').split(',')
+    for m in modules:
+        if len(m) > 0:
+            importlib.import_module(m)
+except ConfigParser.NoOptionError:
+    pass
