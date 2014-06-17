@@ -5,6 +5,9 @@ database = my_db
 [mediacloud]
 key = MY_API_KEY
 
+[custom]
+modules = app.dashboard
+
 [flask]
 template = dashboard/main.html
 

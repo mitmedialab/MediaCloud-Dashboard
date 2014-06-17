@@ -1,5 +1,6 @@
 
 import ConfigParser
+import importlib
 
 import flask
 import flask_login
@@ -46,3 +47,7 @@ logger.info("Connected to DB %s@%s" % (database,host))
 
 # Set up routes and content
 from app.core import views
+
+# Import tool-specific code
+for m in config.get('custom', 'modules').split(','):
+    importlib.import_module(m)
