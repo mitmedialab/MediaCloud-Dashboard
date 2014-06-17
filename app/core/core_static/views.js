@@ -870,3 +870,23 @@ App.ExploreListView = Backbone.View.extend({
     }
 });
 
+App.QueryResultView = App.NestedView.extend({
+    name: 'QueryResultView',
+    tagName: 'div',
+    id: 'query-results',
+    initialize: function (options) {
+        App.debug('App.QueryResultView.initialize():' + this.cid);
+        this.subViews = options['subViews'];
+        for(idx in this.subViews){
+            this.addSubView(subViews[inx]);
+        }
+        this.render();
+    },
+    render: function () {
+        // Reset and render views
+        this.$el.html('');
+        for(idx in this.subViews){
+            this.$el.append(subViews[idx].$el);
+        }
+    }
+});

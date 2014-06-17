@@ -16,6 +16,14 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 base_dir = os.path.dirname(os.path.dirname(current_dir))
 config.read(os.path.join(base_dir, 'app.config'))
 
+# setup logging
+logger = logging.getLogger("mediameter.core")
+log_file = logging.FileHandler('mediameter-core.log')
+logger.setLevel(logging.INFO)
+logger.addHandler(log_file)
+
+logger.info("---------------------------------------------------------------------------------------")
+
 # Flask app
 flapp = flask.Flask(__name__)
 flapp.secret_key = 'put secret key here'
@@ -23,6 +31,7 @@ flapp.secret_key = 'put secret key here'
 # Create media cloud api
 mc_key = config.get('mediacloud','key')
 mc = mcapi.MediaCloud(mc_key)
+logger.info("Connected to MediaCloud with default key %s" % (mc_key))
 #logging.getLogger('MediaCloud').setLevel(logging.DEBUG)
 
 # Create user login manager
@@ -33,6 +42,7 @@ login_manager.init_app(flapp)
 host = config.get('database', 'host')
 database = config.get('database', 'database')
 db = pymongo.Connection(host)[database]
+logger.info("Connected to DB %s@%s" % (database,host))
 
 # Set up routes and content
 from app.core import views

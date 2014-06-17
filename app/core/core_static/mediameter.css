@@ -128,6 +128,10 @@ body {
     background: #fff;
     border-color: #777;
 }
+.panel-default > .panel-heading > .btn-group {
+    margin-top: -5px;
+    margin-right: -5px;
+}
 .panel-default > .panel-body {
     background: #f2f2f2;
 }
