@@ -293,8 +293,6 @@ App.WordCountComparisonView = Backbone.View.extend({
     }
 });
 
-
-
 App.HistogramView = Backbone.View.extend({
     name: 'HistogramView',
     config: {
@@ -334,6 +332,36 @@ App.HistogramView = Backbone.View.extend({
         _.bindAll(this, 'dayFillColor');
         this.render();
     },
+    demoDownloadCsvUrls: function() {
+        var keywords = JSON.parse(this.collection.keywords());
+        var urls = [];
+        for(idx in keywords){
+            urls.push(['/api', 'demo', 'sentences', 'numfound'
+                    , encodeURIComponent(JSON.stringify(keywords[idx]))
+                    , 'csv'
+                ].join('/')
+            );
+        }
+        return urls;
+    },
+    downloadCsvUrls: function() {
+        var keywords = JSON.parse(this.collection.keywords());
+        var media = JSON.parse(this.collection.media());
+        var start = JSON.parse(this.collection.start());
+        var end = JSON.parse(this.collection.end());
+        var urls = [];
+        for(idx in keywords){
+            urls.push(['/api', 'sentences', 'numfound'
+                    , encodeURIComponent(keywords[idx])
+                    , encodeURIComponent(JSON.stringify(media[idx]))
+                    , encodeURIComponent(start[idx])
+                    , encodeURIComponent(end[idx])
+                    , 'csv'
+                ].join('/')
+            );
+        }
+        return urls;
+    },
     render: function () {
         App.debug('App.HistogramView.render()');
         this.$el.html(this.template());
@@ -349,6 +377,20 @@ App.HistogramView = Backbone.View.extend({
     },
     renderD3: function () {
         App.debug('App.HistogramView.renderD3()');
+        // now that the query collection is filled in, add the download data links
+        var downloadUrls = null;
+        if (App.con.userModel.get('anonymous')==true){
+            downloadUrls = this.demoDownloadCsvUrls();
+        } else {
+            downloadUrls = this.downloadCsvUrls();
+        }
+        var urlTemplate = _.template("<li><a target=\"_blank\" href=\"<%=url%>\"><%=text%></a></li>");
+        this.$('.panel-action-list').html('');
+        for(idx in downloadUrls){
+            title = (idx==0) ? "Main" : "Comparison"
+            var element = urlTemplate({url:downloadUrls[idx],'text':"Download "+title+" Data CSV"});
+            this.$('.panel-action-list').append(element);  
+        }
         var that = this;
         // Prepare javascript object and date array
         this.allLayersData = this.collection.map(function (queryModel) {
