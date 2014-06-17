@@ -27,7 +27,7 @@ App.MentionsResultView = Backbone.View.extend({
         console.log(this.model);
         var csvUrl = this.model.get('results').get('sentences').csvUrl();
         this.$('li.csv a').attr('href', csvUrl);
-        this.listenTo(this.model.collection.resources, 'sync:sentence', function (sentences) {
+        this.listenTo(this.model.get('results').get('sentences'), 'sync', function (sentences) {
             App.debug('App.MentionsResultView.collection: sync');
             this.$('.progress').hide();
             // figure out the total sentence count
