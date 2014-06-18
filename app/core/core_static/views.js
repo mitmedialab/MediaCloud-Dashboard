@@ -382,10 +382,11 @@ App.QueryListView = App.NestedView.extend({
             this.$('.query-views').addClass('two');
             this.$('.query-views').removeClass('one');
         }
-        this.$('.query-views .query-title').eq(0).addClass('first');
+        this.$('.query-views .query-title').eq(0).addClass('first-query');
         this.$('.query-views .query-title').eq(1)
             .html('Comparison Query')
-            .addClass('second');
+            .removeClass('first-query')
+            .addClass('second-query');
     }
 });
 
@@ -418,6 +419,10 @@ App.DemoQueryListView = App.QueryListView.extend({
             this.$('.query-views').addClass('two');
             this.$('.query-views').removeClass('one');
         }
+        this.$('.query-views .query-title').eq(0).addClass('first-query');
+        this.$('.query-views .query-title').eq(1)
+            .html('Comparison Query')
+            .addClass('second-query');
     }
 });
 

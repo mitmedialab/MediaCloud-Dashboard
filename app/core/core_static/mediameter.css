@@ -238,12 +238,6 @@ input.form-control, select.form-control, textarea.form-control {
 .query-views .query-title {
     margin-top: 0;
 }
-.query-views .query-title {
-    color: #e14c11;
-}
-.query-views .query-title.second {
-    color: #249fc9;
-}
 .query-views > div {
     border-bottom: solid 1px #ccc;
     margin-bottom: 20px;
@@ -296,4 +290,10 @@ input.form-control, select.form-control, textarea.form-control {
 }
 .tag-set-explore-view p {
     margin-top: 10px;
+}
+.first-query {
+    color: #e14c11;
+}
+.second-query {
+    color: #249fc9;
 }
