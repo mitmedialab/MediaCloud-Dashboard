@@ -6,11 +6,16 @@ App.con = App.Controller = {
         // Create models
         App.con.userModel = new App.UserModel();
         App.con.mediaSources = new App.MediaModel({parse:true});
+        App.con.queryCollection = new App.QueryCollection();
         // Create view manager and app-level views
         App.con.vm = new App.ViewManager({
             "selector": '.content .container'
         });
         App.con.controlsView = new App.ControlsView({ userModel: App.con.userModel });
+        App.con.toolView = new App.ToolListView({
+            collection:App.con.queryCollection
+        });
+        $('.brand-toolbar .links').append(App.con.toolView.el);
         $('.controls').append(App.con.controlsView.el);
         App.con.router = new App.Router();
         // Bind event handlers

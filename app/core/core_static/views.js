@@ -890,3 +890,17 @@ App.QueryResultView = App.NestedView.extend({
         }
     }
 });
+
+App.ToolListView = Backbone.View.extend({
+    tagName: 'ul',
+    initialize: function (options) {
+        this.render();
+    },
+    render: function () {
+        var path = window.location.hash;
+        this.$el.append(
+            $('<li><a href="//dashboard.mediameter.org/' + path + '">Dashboard</a></li>'));
+        this.$el.append(
+            $('<li><a href="//mentions.mediameter.org/' + path + '">Mentions</a></li>'));        
+    }
+});
