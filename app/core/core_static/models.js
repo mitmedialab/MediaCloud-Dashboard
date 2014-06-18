@@ -486,13 +486,17 @@ App.QueryCollection = Backbone.Collection.extend({
         return JSON.stringify(allMedia);
     },
     dashboardUrl: function () {
-        return [
+        if (this.length == 0) {
+            return '';
+        }
+        path = [
             'query'
             , this.keywords()
             , this.media()
             , this.start()
             , this.end()
         ].join('/');
+        return path.replace(' ', '');
     },
     dashboardDemoUrl: function () {
         return [
@@ -640,7 +644,6 @@ App.ResultModel = Backbone.Model.extend({
         App.debug('App.ResultModel.initialize()');
         // Create children collections
         _.each(this.children, function (c) {
-            console.log(c.name);
             this.set(c.name, new c.type([], options));
         }, this);
         // Bubble-up events sent by the individual collections

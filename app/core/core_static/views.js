@@ -894,13 +894,27 @@ App.QueryResultView = App.NestedView.extend({
 App.ToolListView = Backbone.View.extend({
     tagName: 'ul',
     initialize: function (options) {
+        _.bindAll(this, 'render');
         this.render();
+        this.listenTo(this.collection, 'execute', this.render);
     },
     render: function () {
-        var path = window.location.hash;
+        App.debug('App.ToolListView.render()');
+        var path = '#' + this.collection.dashboardUrl();
+        this.$el.html('');
         this.$el.append(
-            $('<li><a href="//dashboard.mediameter.org/' + path + '">Dashboard</a></li>'));
+            $('<li>').append(
+                $('<a>')
+                    .attr('href', 'https://dashboard.mediameter.org/' + path)
+                    .text('Dashboard')
+                )
+            );
         this.$el.append(
-            $('<li><a href="//mentions.mediameter.org/' + path + '">Mentions</a></li>'));        
+            $('<li>').append(
+                $('<a>')
+                    .attr('href', 'https://mentions.mediameter.org/' + path)
+                    .text('Mentions')
+                )
+            );
     }
 });
