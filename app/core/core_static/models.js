@@ -602,6 +602,7 @@ App.DateCountModel = Backbone.Model.extend({
         return result;
     },
 });
+
 App.DateCountCollection = Backbone.Collection.extend({
     resourceType: 'datecount',
     model: App.DateCountModel,
@@ -609,11 +610,21 @@ App.DateCountCollection = Backbone.Collection.extend({
         this.params = options.params;
     },
     url: function () {
-        var url = '/api/sentences/numfound/';
-        url += this.params.get('keywords') + '/';
-        url += JSON.stringify(this.params.get('mediaModel').queryParam()) + '/';
-        url += this.params.get('start') + '/' + this.params.get('end');
-        return url;
+        return ['/api', 'sentences', 'numfound'
+            , this.params.get('keywords')
+            , JSON.stringify(this.params.get('mediaModel').queryParam())
+            , this.params.get('start')
+            , this.params.get('end')
+        ].join('/');
+    },
+    csvUrl: function(){
+        return ['/api', 'sentences', 'numfound'
+            , this.params.get('keywords')
+            , encodeURIComponent(JSON.stringify(this.params.get('mediaModel').queryParam()))
+            , this.params.get('start')
+            , this.params.get('end')
+            , 'csv'
+        ].join('/')
     }
 });
 
@@ -622,6 +633,12 @@ App.DemoDateCountCollection = App.DateCountCollection.extend({
         var url = '/api/demo/sentences/numfound/';
         url += this.params.get('keywords');
         return url;
+    },
+    csvUrl: function(){
+        return ['/api', 'demo', 'sentences', 'numfound'
+            , this.params.get('keywords')
+            , 'csv'
+        ].join('/')
     }
 });
 
