@@ -1,0 +1,24 @@
+{% extends 'core/base.html' %}
+
+{% block branding_tool_name %}Mentions{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="static/mentions/style.css"/>
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" src="static/mentions/models.js"></script>
+    <script type="text/javascript" src="static/mentions/views.js"></script>
+    <script type="text/javascript" src="static/mentions/controller.js"></script>
+    <script type="text/javascript" src="static/mentions/routes.js"></script>
+    <script type="text/javascript" src="static/mentions/script.js"></script>
+{% endblock %}
+
+{% block backbone_templates %}
+    {% include 'mentions/mentions_result_view.html' %}
+    {% include 'dashboard/sentence_view.html' %}
+    {% include 'dashboard/wordcount_view.html' %}
+    {% include 'dashboard/wordcount_result_view.html' %}
+    {% include 'dashboard/wordcount_comparison_view.html' %}
+    {% include 'dashboard/histogram_view.html' %}
+{% endblock %}

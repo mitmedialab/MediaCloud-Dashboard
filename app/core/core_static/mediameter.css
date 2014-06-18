@@ -102,15 +102,31 @@ body {
     color: #777;
 }
 
-.controls ul {
+
+.controls ul,
+.brand-toolbar .links ul {
     list-style: none;
     margin: 0;
-    float: right;
+    padding: 0;
     color: white;
 }
-.controls ul a {
+.brand-toolbar .controls ul {
+    float: right;
+}
+.controls ul a,
+.brand-toolbar .links ul a {
     color: white;
     text-decoration: none;
+}
+.brand-toolbar .links ul li {
+    display: block;
+    float: left;
+    margin-right: 2em;
+}
+.controls ul li {
+    display: block;
+    float: left;
+    margin-left: 2em;
 }
 
 .last-element {

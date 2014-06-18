@@ -895,3 +895,31 @@ App.QueryResultView = App.NestedView.extend({
         }
     }
 });
+
+App.ToolListView = Backbone.View.extend({
+    tagName: 'ul',
+    initialize: function (options) {
+        _.bindAll(this, 'render');
+        this.render();
+        this.listenTo(this.collection, 'execute', this.render);
+    },
+    render: function () {
+        App.debug('App.ToolListView.render()');
+        var path = '#' + this.collection.dashboardUrl();
+        this.$el.html('');
+        this.$el.append(
+            $('<li>').append(
+                $('<a>')
+                    .attr('href', 'https://dashboard.mediameter.org/' + path)
+                    .text('Dashboard')
+                )
+            );
+        this.$el.append(
+            $('<li>').append(
+                $('<a>')
+                    .attr('href', 'https://mentions.mediameter.org/' + path)
+                    .text('Mentions')
+                )
+            );
+    }
+});
