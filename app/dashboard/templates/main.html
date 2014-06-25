@@ -14,6 +14,9 @@
 {% endblock %}
 
 {% block backbone_templates %}
+    {% include 'dashboard/about_histogram_view.html' %}
+    {% include 'dashboard/about_wordcount_view.html' %}
+    {% include 'dashboard/about_sentences_view.html' %}
     {% include 'dashboard/sentence_view.html' %}
     {% include 'dashboard/histogram_view.html' %}
     {% include 'dashboard/wordcount_view.html' %}

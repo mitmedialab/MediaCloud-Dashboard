@@ -2,6 +2,9 @@
 App.SentenceView = Backbone.View.extend({
     name: 'SentenceView',
     template: _.template($('#tpl-sentence-view').html()),
+    events: {
+        'click li.action-about > a': 'clickAbout'
+    },
     initialize: function (options) {
         this.render();
     },
@@ -25,10 +28,19 @@ App.SentenceView = Backbone.View.extend({
                     );
                 $el.append(p);
             });
+            this.delegateEvents();  // gotta run this to register the events again
         }, this);
         this.collection.on('execute', function () {
             $el.html(progress());
         });
+        this.delegateEvents();
+    },
+    clickAbout: function (evt) {
+        evt.preventDefault();
+        this.aboutView = new App.AboutView({
+            template: '#tpl-about-sentences-view'
+        });
+        $('body').append(this.aboutView.el);
     }
 });
 
@@ -36,6 +48,9 @@ App.SentenceView = Backbone.View.extend({
 App.WordCountView = App.NestedView.extend({
     name: 'WordCountView',
     template: _.template($('#tpl-wordcount-view').html()),
+    events: {
+        'click li.action-about > a': 'clickAbout'
+    },
     initialize: function (options) {
         this.resultViews = null;
         this.comparisonViews = null;
@@ -60,7 +75,8 @@ App.WordCountView = App.NestedView.extend({
                 this.renderWordCountComparison(that.collection);
             }
             App.debug('App.WordCountComparisonView() resource:complete ' + that.cid);
-            App.debug(that.collection);
+            //App.debug(that.collection);
+            this.delegateEvents();
         });
         // Reset when the query executes
         this.listenTo(this.collection, 'execute', function () {
@@ -84,7 +100,16 @@ App.WordCountView = App.NestedView.extend({
         this.addSubView(wordCountComparisonView);
         var $el = this.$('.viz');
         $el.append(wordCountComparisonView.$el);
+    },
+
+    clickAbout: function (evt) {
+        evt.preventDefault();
+        this.aboutView = new App.AboutView({
+            template: '#tpl-about-wordcount-view'
+        });
+        $('body').append(this.aboutView.el);
     }
+
 });
 
 // Single word cloud view
@@ -327,40 +352,13 @@ App.HistogramView = Backbone.View.extend({
         axisColor: '#ddd'
     },
     template: _.template($('#tpl-histogram-view').html()),
+    events: {
+        'click li.action-about > a' : 'clickAbout'
+    },
     initialize: function (options) {
         App.debug('App.HistogramView.initialize()');
-        _.bindAll(this, 'dayFillColor');
         this.render();
-    },
-    demoDownloadCsvUrls: function() {
-        var keywords = JSON.parse(this.collection.keywords());
-        var urls = [];
-        for(idx in keywords){
-            urls.push(['/api', 'demo', 'sentences', 'numfound'
-                    , encodeURIComponent(JSON.stringify(keywords[idx]))
-                    , 'csv'
-                ].join('/')
-            );
-        }
-        return urls;
-    },
-    downloadCsvUrls: function() {
-        var keywords = JSON.parse(this.collection.keywords());
-        var media = JSON.parse(this.collection.media());
-        var start = JSON.parse(this.collection.start());
-        var end = JSON.parse(this.collection.end());
-        var urls = [];
-        for(idx in keywords){
-            urls.push(['/api', 'sentences', 'numfound'
-                    , encodeURIComponent(keywords[idx])
-                    , encodeURIComponent(JSON.stringify(media[idx]))
-                    , encodeURIComponent(start[idx])
-                    , encodeURIComponent(end[idx])
-                    , 'csv'
-                ].join('/')
-            );
-        }
-        return urls;
+        _.bindAll(this, 'dayFillColor');
     },
     render: function () {
         App.debug('App.HistogramView.render()');
@@ -377,15 +375,14 @@ App.HistogramView = Backbone.View.extend({
     },
     renderD3: function () {
         App.debug('App.HistogramView.renderD3()');
+        // register an about click handler
+        this.delegateEvents();  // gotta run this to register the events again
         // now that the query collection is filled in, add the download data links
-        var downloadUrls = null;
-        if (App.con.userModel.get('anonymous')==true){
-            downloadUrls = this.demoDownloadCsvUrls();
-        } else {
-            downloadUrls = this.downloadCsvUrls();
-        }
-        var urlTemplate = _.template("<li><a target=\"_blank\" href=\"<%=url%>\"><%=text%></a></li>");
-        this.$('.panel-action-list').html('');
+        var downloadUrls = this.collection.map(function(m) { 
+            return m.get('results').get('datecounts').csvUrl();
+        });
+        var urlTemplate = _.template("<li><a target=\"_blank\" role=\"presentation\" role=\"menuitem\" href=\"<%=url%>\"><%=text%></a></li>");
+        this.$('.panel-action-list').children( 'li:not(:first)' ).remove(); // remove all except the "about" item
         for(idx in downloadUrls){
             title = (idx==0) ? "<span class=\"first-query\">Main</span>" : "<span class=\"second-query\">Comparison</span>"
             var element = urlTemplate({url:downloadUrls[idx],'text':"Download "+title+" Data CSV"});
@@ -592,6 +589,13 @@ App.HistogramView = Backbone.View.extend({
     labelAnchor: function (d) {
         var x = this.x(d.date);
         return x < this.chartWidth / 2.0 ? 'beginning' : 'end';
+    },
+    clickAbout: function (evt) {
+        evt.preventDefault();
+        this.aboutView = new App.AboutView({
+            template: '#tpl-about-histogram-view'
+        });
+        $('body').append(this.aboutView.el);
     }
 });
 
