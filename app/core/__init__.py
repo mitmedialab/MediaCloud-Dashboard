@@ -46,7 +46,7 @@ db = pymongo.Connection(host)[database]
 logger.info("Connected to DB %s@%s" % (database,host))
 
 # Set up routes and content
-from app.core import views
+import app.core.views
 
 # Import tool-specific code
 try:
