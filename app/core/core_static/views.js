@@ -923,3 +923,17 @@ App.ToolListView = Backbone.View.extend({
             );
     }
 });
+
+App.AboutView = Backbone.View.extend({
+    name: 'AboutView',
+    initialize: function(options){
+        this.options = options;
+        this.template = _.template($(this.options['template']).html());
+        this.render();
+    },
+    render: function(){
+        App.debug(this.options);
+        this.$el.html(this.template());
+        this.$('.modal').modal('show');
+    }
+});
