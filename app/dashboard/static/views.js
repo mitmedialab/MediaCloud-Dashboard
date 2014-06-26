@@ -1,4 +1,15 @@
 
+// This simple helpers centralizes add download links to the action menu
+App._downloadUrlTemplate = _.template("<li><a target=\"_blank\" role=\"presentation\" role=\"menuitem\" href=\"<%=url%>\"><%=text%></a></li>");
+App.addDownloadMenuItems = function(downloadUrls,view){
+    view.$('.panel-action-list').children( 'li:not(:first)' ).remove(); // remove all except the "about" item
+    for(idx in downloadUrls){
+        title = (idx==0) ? "<span class=\"first-query\">Main</span>" : "<span class=\"second-query\">Comparison</span>"
+        var element = App._downloadUrlTemplate({url:downloadUrls[idx],'text':"Download "+title+" Data CSV"});
+        view.$('.panel-action-list').append(element);  
+    }
+}
+
 App.SentenceView = Backbone.View.extend({
     name: 'SentenceView',
     template: _.template($('#tpl-sentence-view').html()),
@@ -62,12 +73,20 @@ App.WordCountView = App.NestedView.extend({
         this.$el.html(this.template());
         var $el = this.$('.panel-body');
         this.$('.wordcount-view .copy').html(_.template($('#tpl-progress').html())());
+
+        // add in data download links
+        var downloadUrls = this.collection.map(function(m) { 
+            return m.get('results').get('wordcounts').csvUrl();
+        });
+        App.addDownloadMenuItems(downloadUrls,this);
+
         // render individual word clouds for each query
         this.listenTo(this.collection.resources, 'sync:wordcount', function (model) {
             if (that.collection.length < 2) {
                 that.renderWordCountResults(model);
             }
         });
+
         // only render comparison when >=2 queries
         this.listenTo(this.collection.resources, 'resource:complete:wordcount', function () {
             that.$('.wordcount-view .copy').hide();
@@ -381,13 +400,7 @@ App.HistogramView = Backbone.View.extend({
         var downloadUrls = this.collection.map(function(m) { 
             return m.get('results').get('datecounts').csvUrl();
         });
-        var urlTemplate = _.template("<li><a target=\"_blank\" role=\"presentation\" role=\"menuitem\" href=\"<%=url%>\"><%=text%></a></li>");
-        this.$('.panel-action-list').children( 'li:not(:first)' ).remove(); // remove all except the "about" item
-        for(idx in downloadUrls){
-            title = (idx==0) ? "<span class=\"first-query\">Main</span>" : "<span class=\"second-query\">Comparison</span>"
-            var element = urlTemplate({url:downloadUrls[idx],'text':"Download "+title+" Data CSV"});
-            this.$('.panel-action-list').append(element);  
-        }
+        App.addDownloadMenuItems(downloadUrls,this);
         var that = this;
         // Prepare javascript object and date array
         this.allLayersData = this.collection.map(function (queryModel) {
