@@ -567,7 +567,6 @@ App.DemoSentenceCollection = App.SentenceCollection.extend({
     }
 });
 
-
 App.WordCountModel = Backbone.Model.extend({});
 App.WordCountCollection = Backbone.Collection.extend({
     resourceType: 'wordcount',
@@ -582,6 +581,15 @@ App.WordCountCollection = Backbone.Collection.extend({
         url += '/' + encodeURIComponent(this.params.get('start'));
         url += '/' + encodeURIComponent(this.params.get('end'));
         return url;
+    },
+    csvUrl: function(){
+        return [ '/api', 'wordcount',
+                 encodeURIComponent(this.params.get('keywords')),
+                 encodeURIComponent(JSON.stringify(this.params.get('mediaModel').queryParam())),
+                 encodeURIComponent(this.params.get('start')),
+                 encodeURIComponent(this.params.get('end')),
+                 'csv'
+        ].join('/');
     }
 });
 
@@ -590,6 +598,12 @@ App.DemoWordCountCollection = App.WordCountCollection.extend({
         var url = '/api/demo/wordcount/';
         url += encodeURIComponent(this.params.get('keywords'));
         return url;
+    },
+    csvUrl: function(){
+        return ['/api', 'demo', 'wordcount'
+            , encodeURIComponent(this.params.get('keywords'))
+            , 'csv'
+        ].join('/')
     }
 });
 
