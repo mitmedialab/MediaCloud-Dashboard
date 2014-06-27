@@ -106,12 +106,16 @@ def media_sets():
 @flask_login.login_required
 def sentences(keywords, media, start, end):
     user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
-    query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
-    res = user_mc.sentenceList("%s AND (%s)" % (keywords, query), '', 0, 10)
+    filter_query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
+    query = "%s AND (%s)" % (app.core.util.keywords_to_solr(keywords), filter_query)
+    app.core.logger.debug("query: sentences %s" % query)
+    res = user_mc.sentenceList(query, '', 0, 10)
     return json.dumps(res, separators=(',',':'))
 
 def _sentence_docs(api, keywords, media, start, end, count=10, sort=mcapi.MediaCloud.SORT_RANDOM):
-    query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
+    filter_query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
+    query = "%s AND (%s)" % (app.core.util.keywords_to_solr(keywords), filter_query)
+    app.core.logger.debug("query: _sentence_docs %s" % query)
     start_index = 0
     if sort==mcapi.MediaCloud.SORT_RANDOM :
         # to sort radomly, we need to offset into the results and set sort to random
@@ -119,7 +123,7 @@ def _sentence_docs(api, keywords, media, start, end, count=10, sort=mcapi.MediaC
         sentence_counts = json.loads(_sentence_numfound(api._auth_token, keywords, media, start, end))
         sentence_total = sum([day['numFound'] for day in sentence_counts])
         start_index = randint(0,sentence_total-count)
-    res = api.sentenceList("%s AND (%s)" % (keywords, query), '', start_index, count, sort=sort)
+    res = api.sentenceList(query, '', start_index, count, sort=sort)
     sentences = res['response']['docs']
     for s in sentences:
         s['totalSentences'] = res['response']['numFound'] # hack to get total sentences count to Backbone.js
@@ -135,10 +139,11 @@ def sentence_docs(keywords, media, start, end):
 def demo_sentence_docs(keywords):
     media, start, end = demo_params()
     return _sentence_docs(mc, keywords, media, start, end)
-
+    
 def _sentence_numfound(api_key, keywords, media, start, end):
     user_mc = mcapi.MediaCloud(api_key)
-    query = "%s AND (%s)" % (keywords, app.core.util.media_to_solr(media))
+    query = "%s AND (%s)" % (app.core.util.keywords_to_solr(keywords), app.core.util.media_to_solr(media))
+    app.core.logger.debug("query: _sentence_numfound: %s" % query)
     start = datetime.datetime.strptime(start, '%Y-%m-%d').strftime('%Y-%m-%d')
     end = datetime.datetime.strptime(end, '%Y-%m-%d').strftime('%Y-%m-%d')
     response = user_mc.sentenceCount(query, solr_filter='', split=True, split_daily=True, split_start_date=start, split_end_date=end)
@@ -166,8 +171,10 @@ def demo_sentence_numfound(keywords):
     return _sentence_numfound(mc_key, keywords, media, start, end)
     
 def _wordcount(api, keywords, media, start, end):
-    query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
-    res = api.wordCount("%s AND (%s)" % (keywords , query))
+    filter_query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
+    query = "%s AND (%s)" % (app.core.util.keywords_to_solr(keywords) , filter_query)
+    app.core.logger.debug("query: _wordcount: %s" % query)
+    res = api.wordCount(query)
     return json.dumps(res, separators=(',',':'))
 
 @flapp.route('/api/wordcount/<keywords>/<media>/<start>/<end>')
