@@ -7,7 +7,7 @@ import flask_login
 import mediacloud
 import mediacloud.api as mcapi
 import pymongo
-import logging
+import logging, logging.handlers
 
 import os.path
 
@@ -22,7 +22,8 @@ logger = logging.getLogger(__name__)	# the mediameter logger
 # setup logging
 logging.basicConfig(level=logging.INFO)
 log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-log_handler = logging.FileHandler(os.path.join(base_dir,'mediameter.log'))
+log_handler = logging.handlers.RotatingFileHandler(
+	os.path.join(base_dir,'log','mediameter.log'), 'a', 10485760, 10) # 10MB
 log_handler.setFormatter(log_formatter)
 # set up mediacloud logging to the file
 mc_logger = logging.getLogger('mediacloud')
