@@ -1,6 +1,6 @@
 
 // This simple helpers centralizes add download links to the action menu
-App._downloadUrlTemplate = _.template("<li><a target=\"_blank\" role=\"presentation\" role=\"menuitem\" href=\"<%=url%>\"><%=text%></a></li>");
+App._downloadUrlTemplate = _.template("<li><a role=\"presentation\" role=\"menuitem\" href=\"<%=url%>\"><%=text%></a></li>");
 App.addDownloadMenuItems = function(downloadUrls,view){
     view.$('.panel-action-list').children( 'li:not(:first)' ).remove(); // remove all except the "about" item
     for(idx in downloadUrls){
