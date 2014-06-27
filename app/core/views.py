@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging
+from random import randint
 from operator import itemgetter
 
 import flask
@@ -111,7 +112,14 @@ def sentences(keywords, media, start, end):
 
 def _sentence_docs(api, keywords, media, start, end, count=10, sort=mcapi.MediaCloud.SORT_RANDOM):
     query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
-    res = api.sentenceList("%s AND (%s)" % (keywords, query), '', 0, count, sort=sort)
+    start_index = 0
+    if sort==mcapi.MediaCloud.SORT_RANDOM :
+        # to sort radomly, we need to offset into the results and set sort to random
+        # so first we need to know how many senteces there are
+        sentence_counts = json.loads(_sentence_numfound(api._auth_token, keywords, media, start, end))
+        sentence_total = sum([day['numFound'] for day in sentence_counts])
+        start_index = randint(0,sentence_total-count)
+    res = api.sentenceList("%s AND (%s)" % (keywords, query), '', start_index, count, sort=sort)
     sentences = res['response']['docs']
     for s in sentences:
         s['totalSentences'] = res['response']['numFound'] # hack to get total sentences count to Backbone.js
