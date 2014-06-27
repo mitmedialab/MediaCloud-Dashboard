@@ -173,7 +173,7 @@ App.WordCountResultView = Backbone.View.extend({
             }
         );
         // create wordcloud
-        d3.layout.cloud().size([1000, 350])
+        d3.layout.cloud().size([width, height])
         .words(wordList)
         .rotate(function() { return ~~(Math.random() * 1) * 90; })
         .font("Arial")
@@ -189,7 +189,7 @@ App.WordCountResultView = Backbone.View.extend({
             var svg = d3.select('.wordcount-result-view-content').append('svg')
             .attr('width', width).attr('height', height)    
             .append("g")
-            .attr("transform", "translate(575,200)")
+            .attr("transform", "translate("+width/2+","+height/2+")")
             .selectAll("text")
             .data(words)
             .enter().append("text")
@@ -304,7 +304,7 @@ App.WordCountComparisonView = Backbone.View.extend({
         var fill = d3.scale.linear()
                 .domain([-1, 1])
                 .range(["orange", "orchid"]);  
-        d3.layout.cloud().size([1000, 350])
+        d3.layout.cloud().size([width, height])
         .words(wordsList)
         .rotate(function() { return ~~(Math.random() * 1) * 90; })
         .font("Arial")
@@ -321,7 +321,7 @@ App.WordCountComparisonView = Backbone.View.extend({
             var svg = d3.select('.wordcount-comparison-view-content').append('svg')
             .attr('width', width).attr('height', height)    
             .append("g")
-            .attr("transform", "translate(575,200)")
+            .attr("transform", "translate("+width/2+","+height/2+")")
             .selectAll("text")
             .data(words)
             .enter().append("text")
