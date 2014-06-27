@@ -139,34 +139,6 @@ def sentence_docs(keywords, media, start, end):
 def demo_sentence_docs(keywords):
     media, start, end = demo_params()
     return _sentence_docs(mc, keywords, media, start, end)
-
-@flapp.route('/api/stories/docs/<keywords>/<media>/<start>/<end>.csv')
-@flask_login.login_required
-def story_docs_csv(orig_keywords, media, start, end):
-    user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
-    query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
-    all_stories = []
-    last_processed_stories_id = 0
-    more_stories = True
-    keywords = app.core.util.keywords_to_solr(orig_keywords)
-    app.core.logger.debug("query: story_docs_csv %s %s" % (keywords, query))
-    while more_stories:
-        res = user_mc.storyList(keywords, query, last_processed_stories_id, 1000)
-        if len(res) > 0:
-            stories = [ [str(s['stories_id']),s['language'],s['title'],s['url'],s['publish_date']]
-                for s in res]
-            last_processed_stories_id = res[len(res)-1]['processed_stories_id']
-            all_stories = all_stories + stories
-            more_stories = True
-        else:
-            more_stories = False
-    def stream_csv(story_list):
-        yield ','.join(['stories_id','language','title','url','publish_date']) + '\n'
-        for story in story_list:
-            yield ','.join(story) + '\n'
-    download_filename = 'mediacloud-results-'+datetime.datetime.now().strftime('%Y%m%d%H%M%S')+'.csv'
-    return flask.Response(stream_csv(all_stories), mimetype='text/csv', 
-                headers={"Content-Disposition":"attachment;filename="+download_filename})
     
 def _sentence_numfound(api_key, keywords, media, start, end):
     user_mc = mcapi.MediaCloud(api_key)
