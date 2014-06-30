@@ -937,3 +937,78 @@ App.AboutView = Backbone.View.extend({
         this.$('.modal').modal('show');
     }
 });
+
+// Single word cloud view
+App.WordCountResultView = Backbone.View.extend({
+    name: 'WordCountResultView',
+    config: {
+        minSize: 8,
+        maxSize: 48
+    },
+    template: _.template($('#tpl-wordcount-result-view').html()),
+
+    initialize: function (wordcounts) {
+        this.render(wordcounts);
+    },
+
+    render: function (wordcounts) {
+        App.debug('App.WordCountResultView.render()');
+        this.$el.html(this.template());
+        progress = _.template($('#tpl-progress').html());
+        this.$('.wordcount-result-view-content').html(progress());
+        var that = this;
+        // wait until end to get correct width
+        _.defer(function(){that.renderD3(wordcounts);});
+    },
+
+    renderD3: function (wordcounts) {
+        App.debug('App.WordCountResultView.renderD3()');
+        this.$('.wordcount-result-view-content')
+            .html('')
+            .css('padding', '0');
+        var width = this.$('.wordcount-result-view-content').width();
+        var height = 400;
+        var topWords = _.first(wordcounts.toJSON(), 100);
+        var counts = _.pluck(topWords, 'count');
+        var min = d3.min(counts);
+        var max = d3.max(counts);
+        var slope = this.config.maxSize / Math.log(max);
+        // get list of all words and sizes
+        wordList = [];
+        _.each(topWords, function (m) {
+                wordList.push({text: m['term'], size: slope * Math.log(m['count'])});
+            }
+        );
+        // create wordcloud
+        d3.layout.cloud().size([width, height])
+        .words(wordList)
+        .rotate(function() { return ~~(Math.random() * 1) * 90; })
+        .font("Arial")
+        .fontSize(function(d) { return d.size; })
+        .on("end", draw)
+        .start();
+
+        function draw(words) {
+            // Black and white
+            // var fill = d3.scale.linear().domain([0,100]).range(["black","white"]);
+            // Colors
+            var fill = d3.scale.category20();
+            var svg = d3.select('.wordcount-result-view-content').append('svg')
+            .attr('width', width).attr('height', height)    
+            .append("g")
+            .attr("transform", "translate("+width/2+","+height/2+")")
+            .selectAll("text")
+            .data(words)
+            .enter().append("text")
+            .style("font-size", function(d) { return d.size + "px"; })
+            .style("fill", App.config.queryColors[0])
+            .attr("text-anchor", "middle")
+            .attr('font-weight', 'bold')
+            .attr("transform", function(d) {
+                return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+            })
+            .text(function(d) { return d.text; });
+        }     
+    }
+});
+
