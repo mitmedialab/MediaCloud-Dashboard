@@ -1,14 +1,28 @@
 
-// This simple helpers centralizes add download links to the action menu
-App._downloadUrlTemplate = _.template("<li><a role=\"presentation\" role=\"menuitem\" href=\"<%=url%>\"><%=text%></a></li>");
-App.addDownloadMenuItems = function(downloadUrls,view){
-    view.$('.panel-action-list').children( 'li:not(:first)' ).remove(); // remove all except the "about" item
-    for(idx in downloadUrls){
-        title = (idx==0) ? "<span class=\"first-query\">Main</span>" : "<span class=\"second-query\">Comparison</span>"
-        var element = App._downloadUrlTemplate({url:downloadUrls[idx],'text':"Download "+title+" Data CSV"});
-        view.$('.panel-action-list').append(element);  
+// This simple helpers centralize adding download links to the action menu.  Use it as a mixin to any view that has
+// and action menu.
+App.ActionedViewMixin = {
+    _downloadUrlTemplate: _.template('<li><a role="presentation" role="menuitem" href="<%=url%>"><%=text%></a></li>'),
+    hideActionMenu: function(){
+        this.$('.panel-heading button').hide();
+    },
+    showActionMenu: function(){
+        this.$('.panel-heading button').show();
+    },
+    addDownloadMenuItems: function(downloadUrls){
+        this.$('.panel-action-list').children( 'li:not(:first)' ).remove(); // remove all except the "about" item
+        for(idx in downloadUrls){
+            title = "";
+            if(idx==0){
+                title = '<span class="first-query">'+App.config.queryNames[0]+'</span>';
+            } else {
+                title = '<span class="second-query">'+App.config.queryNames[1]+'</span>';
+            }
+            var element = this._downloadUrlTemplate({url:downloadUrls[idx],'text':"Download "+title+" Data CSV"});
+            this.$('.panel-action-list').append(element);  
+        }
     }
-}
+};
 
 App.SentenceView = Backbone.View.extend({
     name: 'SentenceView',
@@ -23,6 +37,7 @@ App.SentenceView = Backbone.View.extend({
         var that = this;
         App.debug('App.SentenceView.render()');
         this.$el.html(this.template());
+        this.hideActionMenu();
         var $el = this.$('.sentence-view .copy');
         progress = _.template($('#tpl-progress').html());
         $el.html(progress());
@@ -40,6 +55,7 @@ App.SentenceView = Backbone.View.extend({
                 $el.append(p);
             });
             this.delegateEvents();  // gotta run this to register the events again
+            this.showActionMenu();
         }, this);
         this.collection.on('execute', function () {
             $el.html(progress());
@@ -54,6 +70,7 @@ App.SentenceView = Backbone.View.extend({
         $('body').append(this.aboutView.el);
     }
 });
+App.SentenceView = App.SentenceView.extend(App.ActionedViewMixin);
 
 // Wrapper view for single word clouds and comparison word cloud
 App.WordCountView = App.NestedView.extend({
@@ -71,6 +88,7 @@ App.WordCountView = App.NestedView.extend({
         App.debug('App.WordCountView.render()');
         var that = this;
         this.$el.html(this.template());
+        this.hideActionMenu();
         var $el = this.$('.panel-body');
         this.$('.wordcount-view .copy').html(_.template($('#tpl-progress').html())());
 
@@ -78,7 +96,7 @@ App.WordCountView = App.NestedView.extend({
         var downloadUrls = this.collection.map(function(m) { 
             return m.get('results').get('wordcounts').csvUrl();
         });
-        App.addDownloadMenuItems(downloadUrls,this);
+        this.addDownloadMenuItems(downloadUrls);
 
         // render individual word clouds for each query
         this.listenTo(this.collection.resources, 'sync:wordcount', function (model) {
@@ -96,6 +114,7 @@ App.WordCountView = App.NestedView.extend({
             App.debug('App.WordCountComparisonView() resource:complete ' + that.cid);
             //App.debug(that.collection);
             this.delegateEvents();
+            this.showActionMenu();
         });
         // Reset when the query executes
         this.listenTo(this.collection, 'execute', function () {
@@ -130,6 +149,7 @@ App.WordCountView = App.NestedView.extend({
     }
 
 });
+App.WordCountView = App.WordCountView.extend(App.ActionedViewMixin);
 
 // View for comparison word cloud
 App.WordCountComparisonView = Backbone.View.extend({
@@ -308,6 +328,7 @@ App.HistogramView = Backbone.View.extend({
     render: function () {
         App.debug('App.HistogramView.render()');
         this.$el.html(this.template());
+        this.hideActionMenu();
         progress = _.template($('#tpl-progress').html());
         this.$('.copy').html(progress());
         this.$('.viz').hide();
@@ -322,11 +343,12 @@ App.HistogramView = Backbone.View.extend({
         App.debug('App.HistogramView.renderD3()');
         // register an about click handler
         this.delegateEvents();  // gotta run this to register the events again
+        this.showActionMenu();
         // now that the query collection is filled in, add the download data links
         var downloadUrls = this.collection.map(function(m) { 
             return m.get('results').get('datecounts').csvUrl();
         });
-        App.addDownloadMenuItems(downloadUrls,this);
+        this.addDownloadMenuItems(downloadUrls);
         var that = this;
         // Prepare javascript object and date array
         this.allLayersData = this.collection.map(function (queryModel) {
@@ -537,6 +559,7 @@ App.HistogramView = Backbone.View.extend({
         $('body').append(this.aboutView.el);
     }
 });
+App.HistogramView = App.HistogramView.extend(App.ActionedViewMixin);
 
 App.QueryResultView = App.NestedView.extend({
     name: 'QueryResultView',
