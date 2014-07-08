@@ -106,8 +106,8 @@ App.UserModel = Backbone.Model.extend({
     
     signOut: function () {
         App.debug('App.UserModel.signOut()')
-        $.cookie('mediameter_user_key', '', App.config.cookieOpts);
-        $.cookie('mediameter_user_username', '', App.config.cookieOpts);
+        $.removeCookie('mediameter_user_key', App.config.cookieOpts);
+        $.removeCookie('mediameter_user_username', App.config.cookieOpts);
         this.set('id', 'logout');
         this.fetch({type: 'post'});
     }
