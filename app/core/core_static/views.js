@@ -947,11 +947,12 @@ App.WordCountResultView = Backbone.View.extend({
     },
     template: _.template($('#tpl-wordcount-result-view').html()),
 
-    initialize: function (wordcounts) {
-        this.render(wordcounts);
+    initialize: function (options) {
+        this.render();
     },
 
-    render: function (wordcounts) {
+    render: function () {
+        var wordcounts = this.collection;
         App.debug('App.WordCountResultView.render()');
         this.$el.html(this.template());
         progress = _.template($('#tpl-progress').html());
