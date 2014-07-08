@@ -74,6 +74,20 @@ body {
     position: relative;
     top: -0.33ex;
 }
+.branding h1 small {
+    margin-top: 50px;
+    font-size: 14px;
+    color: #ffffff;
+    vertical-align: baseline;
+    opacity: 0.5;
+}
+.branding h1 small a,
+.branding h1 small a:link,
+.branding h1 small a:visited,
+.branding h1 small a:hover,
+.branding h1 small a:active {
+    color: #ffffff;
+}
 .drawer {
     position: relative;
     z-index: 400;
