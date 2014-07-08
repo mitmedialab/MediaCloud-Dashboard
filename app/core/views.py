@@ -109,8 +109,11 @@ def sentences(keywords, media, start, end):
     filter_query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
     query = "%s AND (%s)" % (app.core.util.keywords_to_solr(keywords), filter_query)
     app.core.logger.debug("query: sentences %s" % query)
-    res = user_mc.sentenceList(query, '', 0, 10)
-    return json.dumps(res, separators=(',',':'))
+    try:
+        res = user_mc.sentenceList(query, '', 0, 10)
+        return json.dumps(res, separators=(',',':'))
+    except Exception as exception:
+        return json.dumps({'error':str(exception)}, separators=(',',':')), 400
 
 def _sentence_docs(api, keywords, media, start, end, count=10, sort=mcapi.MediaCloud.SORT_RANDOM):
     filter_query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
@@ -133,12 +136,18 @@ def _sentence_docs(api, keywords, media, start, end, count=10, sort=mcapi.MediaC
 @flask_login.login_required
 def sentence_docs(keywords, media, start, end):
     user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
-    return _sentence_docs(user_mc, keywords, media, start, end)
+    try:
+        return _sentence_docs(user_mc, keywords, media, start, end)
+    except Exception as exception:
+        return json.dumps({'error':str(exception)}, separators=(',',':')), 400
 
 @flapp.route('/api/demo/sentences/docs/<keywords>')
 def demo_sentence_docs(keywords):
     media, start, end = demo_params()
-    return _sentence_docs(mc, keywords, media, start, end)
+    try:
+        return _sentence_docs(mc, keywords, media, start, end)
+    except Exception as exception:
+        return json.dumps({'error':str(exception)}, separators=(',',':')), 400
     
 def _sentence_numfound(api_key, keywords, media, start, end):
     user_mc = mcapi.MediaCloud(api_key)
@@ -163,12 +172,18 @@ def _sentence_numfound(api_key, keywords, media, start, end):
 @flask_login.login_required
 def sentence_numfound(keywords, media, start, end):
     api_key = flask_login.current_user.get_id()
-    return _sentence_numfound(api_key, keywords, media, start, end)
+    try:
+        return _sentence_numfound(api_key, keywords, media, start, end)
+    except Exception as exception:
+        return json.dumps({'error':str(exception)}, separators=(',',':')), 400
 
 @flapp.route('/api/demo/sentences/numfound/<keywords>')
 def demo_sentence_numfound(keywords):
     media, start, end = demo_params()
-    return _sentence_numfound(mc_key, keywords, media, start, end)
+    try:
+        return _sentence_numfound(mc_key, keywords, media, start, end)
+    except Exception as exception:
+        return json.dumps({'error':str(exception)}, separators=(',',':')), 400
     
 def _wordcount(api, keywords, media, start, end):
     filter_query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
@@ -181,12 +196,18 @@ def _wordcount(api, keywords, media, start, end):
 @flask_login.login_required
 def wordcount(keywords, media, start, end):
     user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
-    return _wordcount(user_mc, keywords, media, start, end)
+    try:
+        return _wordcount(user_mc, keywords, media, start, end)
+    except Exception as exception:
+        return json.dumps({'error':str(exception)}, separators=(',',':')), 400
 
 @flapp.route('/api/demo/wordcount/<keywords>')
 def demo_wordcount(keywords):
     media, start, end = demo_params()
-    return _wordcount(mc, keywords, media, start, end)
+    try:
+        return _wordcount(mc, keywords, media, start, end)
+    except Exception as exception:
+        return json.dumps({'error':str(exception)}, separators=(',',':')), 400
 
 def demo_params():
     media = '{"sets":[8875027]}'
