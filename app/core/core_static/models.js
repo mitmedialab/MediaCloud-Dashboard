@@ -434,7 +434,7 @@ App.QueryModel = Backbone.Model.extend({
     execute: function () {
         App.debug('App.QueryModel.execute()');
         this.get('results').fetch();
-        //this.trigger('model:execute', this);
+        this.trigger('model:execute', this);
     }
 });
 
