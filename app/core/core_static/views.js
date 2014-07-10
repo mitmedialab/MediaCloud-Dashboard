@@ -952,11 +952,9 @@ App.WordCountResultView = Backbone.View.extend({
     },
 
     render: function () {
-        var wordcounts = this.collection;
         App.debug('App.WordCountResultView.render()');
+        var wordcounts = this.collection;
         this.$el.html(this.template());
-        progress = _.template($('#tpl-progress').html());
-        this.$('.wordcount-result-view-content').html(progress());
         var that = this;
         // wait until end to get correct width
         _.defer(function(){that.renderD3(wordcounts);});
@@ -964,6 +962,7 @@ App.WordCountResultView = Backbone.View.extend({
 
     renderD3: function (wordcounts) {
         App.debug('App.WordCountResultView.renderD3()');
+        var that = this;
         this.$('.wordcount-result-view-content')
             .html('')
             .css('padding', '0');
@@ -986,15 +985,12 @@ App.WordCountResultView = Backbone.View.extend({
         .rotate(function() { return ~~(Math.random() * 1) * 90; })
         .font("Arial")
         .fontSize(function(d) { return d.size; })
-        .on("end", draw)
-        .start();
-
-        function draw(words) {
+        .on("end", function (words) {
             // Black and white
             // var fill = d3.scale.linear().domain([0,100]).range(["black","white"]);
             // Colors
             var fill = d3.scale.category20();
-            var svg = d3.select('.wordcount-result-view-content').append('svg')
+            var svg = d3.select(that.$('.wordcount-result-view-content')[0]).append('svg')
             .attr('width', width).attr('height', height)    
             .append("g")
             .attr("transform", "translate("+width/2+","+height/2+")")
@@ -1009,7 +1005,8 @@ App.WordCountResultView = Backbone.View.extend({
                 return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
             })
             .text(function(d) { return d.text; });
-        }     
+        })
+        .start();
     }
 });
 
