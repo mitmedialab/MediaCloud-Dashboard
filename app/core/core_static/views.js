@@ -947,7 +947,8 @@ App.WordCountResultView = Backbone.View.extend({
     name: 'WordCountResultView',
     config: {
         minSize: 8,
-        maxSize: 48
+        maxSize: 48,
+        linkColor: "#428bca"
     },
     template: _.template($('#tpl-wordcount-result-view').html()),
 
@@ -1001,8 +1002,8 @@ App.WordCountResultView = Backbone.View.extend({
             .selectAll("text")
             .data(words)
             .enter().append("text")
-            .style("font-size", function(d) { return d.size + "px"; })
-            .style("fill", App.config.queryColors[0])
+            .attr("font-size", function(d) { return d.size + "px"; })
+            .attr("fill", App.config.queryColors[0])
             .attr("text-anchor", "middle")
             .attr('font-weight', 'bold')
             .attr("transform", function(d) {
@@ -1011,6 +1012,19 @@ App.WordCountResultView = Backbone.View.extend({
             .text(function(d) { return d.text; });
         })
         .start();
+        d3.select(that.$('.wordcount-result-view-content')[0]).selectAll('text')
+            .on('mouseover', function () {
+                d3.select(this).attr('fill', that.config.linkColor);
+            })
+            .on('mouseout', function () {
+                color = App.config.queryColors[0];
+                d3.select(this).attr('fill', color);
+            })
+            .on('click', function (d) {
+                that.trigger('mm:refine', {
+                    term: d.text
+                });
+            });
     }
 });
 

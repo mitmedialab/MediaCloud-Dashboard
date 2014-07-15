@@ -460,6 +460,8 @@ App.QueryCollection = Backbone.Collection.extend({
         // When adding a QueryModel, listen to it's ResultModel
         this.resources.listen(model.get('results'));
         collection.updateNames();
+        // Add the refine query event aggregator
+        model.refine = this.refine;
     },
     onRemove: function (model, collection, options) {
         // Unlisten when we remove
@@ -474,10 +476,14 @@ App.QueryCollection = Backbone.Collection.extend({
             q.push(options);
         }
         _.each(q, function (options) {
-            if (typeof(options.term) !== 'undefined'
-                && typeof(options.query !== 'undefined')) {
-                var params = this.at(options.query).get('params');
-                params.set('keywords', options.term);
+            if (typeof(options.term) !== 'undefined') {
+                if (typeof(options.query) !== 'undefined') {
+                    var params = this.at(options.query).get('params');
+                    params.set('keywords', options.term);
+                } else if (typeof(options.queryCid) !== 'undefined') {
+                    var params = this.get({cid:options.queryCid}).get('params');
+                    params.set('keywords', options.term);
+                }
             }
         }, this);
         this.execute();
