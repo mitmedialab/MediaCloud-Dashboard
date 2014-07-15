@@ -925,6 +925,13 @@ App.ToolListView = Backbone.View.extend({
                     .text('Mentions')
                 )
             );
+        this.$el.append(
+            $('<li>').append(
+                $('<a>')
+                    .attr('href', 'https://frequency.mediameter.org/' + path)
+                    .text('Frequency')
+                )
+            );
     }
 });
 
