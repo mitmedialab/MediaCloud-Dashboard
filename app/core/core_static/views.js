@@ -766,6 +766,7 @@ App.KeywordView = Backbone.View.extend({
         App.debug('App.KeywordView.initialize()');
         App.debug(options);
         _.bindAll(this, 'contentChanged');
+        this.listenTo(this.model.get('params'), 'change', this.modelChanged);
         this.render();
     },
     render: function () {
@@ -782,6 +783,9 @@ App.KeywordView = Backbone.View.extend({
     },
     contentChanged: function () {
         this.model.get('params').set('keywords', this.$input.val());
+    },
+    modelChanged: function () {
+        this.$input.val(this.model.get('params').get('keywords'));
     }
 });
 
