@@ -1046,11 +1046,13 @@ App.WordCountResultView = Backbone.View.extend({
         .start();
         d3.select(that.$('.wordcount-result-view-content')[0]).selectAll('text')
             .on('mouseover', function () {
-                d3.select(this).attr('fill', that.config.linkColor);
+                d3.select(this).attr('fill', that.config.linkColor)
+                .attr('cursor','pointer');
             })
             .on('mouseout', function () {
                 color = App.config.queryColors[0];
-                d3.select(this).attr('fill', color);
+                d3.select(this).attr('fill', color)
+                .attr('cursor','default');
             })
             .on('click', function (d) {
                 that.trigger('mm:refine', {
