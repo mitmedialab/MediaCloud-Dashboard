@@ -5,4 +5,4 @@ app.config
 venv
 .Python
 app/static/data/media.json.backup*
-
+tmp/restart.txt
