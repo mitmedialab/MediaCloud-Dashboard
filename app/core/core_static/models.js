@@ -434,7 +434,7 @@ App.QueryModel = Backbone.Model.extend({
     execute: function () {
         App.debug('App.QueryModel.execute()');
         this.get('results').fetch();
-        //this.trigger('model:execute', this);
+        this.trigger('model:execute', this);
     }
 });
 
@@ -445,22 +445,48 @@ App.QueryModel = Backbone.Model.extend({
 App.QueryCollection = Backbone.Collection.extend({
     model: App.QueryModel,
     initialize: function () {
+        // Resource event aggregator
         this.resources = new ResourceListener();
+        // Refine query event aggregator
+        this.refine = _.extend({}, Backbone.Events);
         this.each(function (m) {
             this.onAdd(m, this);
         }, this);
-        this.on('add', this.onAdd, this);
-        this.on('remove', this.onRemove, this);
+        this.listenTo(this, 'add', this.onAdd);
+        this.listenTo(this, 'remove', this.onRemove);
+        this.listenTo(this.refine, 'mm:refine', this.onRefine);
     },
     onAdd: function (model, collection, options) {
         // When adding a QueryModel, listen to it's ResultModel
         this.resources.listen(model.get('results'));
         collection.updateNames();
+        // Add the refine query event aggregator
+        model.refine = this.refine;
     },
     onRemove: function (model, collection, options) {
         // Unlisten when we remove
         this.resources.unlisten(model.get('results'));
         collection.updateNames();
+    },
+    onRefine: function (options) {
+        var q = []
+        if (typeof(options.length) !== 'undefined') {
+            q = options;
+        } else {
+            q.push(options);
+        }
+        _.each(q, function (options) {
+            if (typeof(options.term) !== 'undefined') {
+                if (typeof(options.query) !== 'undefined') {
+                    var params = this.at(options.query).get('params');
+                    params.set('keywords', options.term);
+                } else if (typeof(options.queryCid) !== 'undefined') {
+                    var params = this.get({cid:options.queryCid}).get('params');
+                    params.set('keywords', options.term);
+                }
+            }
+        }, this);
+        this.execute();
     },
     execute: function () {
         App.debug('App.QueryCollection.execute()');

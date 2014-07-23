@@ -766,6 +766,7 @@ App.KeywordView = Backbone.View.extend({
         App.debug('App.KeywordView.initialize()');
         App.debug(options);
         _.bindAll(this, 'contentChanged');
+        this.listenTo(this.model.get('params'), 'change', this.modelChanged);
         this.render();
     },
     render: function () {
@@ -782,6 +783,9 @@ App.KeywordView = Backbone.View.extend({
     },
     contentChanged: function () {
         this.model.get('params').set('keywords', this.$input.val());
+    },
+    modelChanged: function () {
+        this.$input.val(this.model.get('params').get('keywords'));
     }
 });
 
@@ -921,8 +925,40 @@ App.ToolListView = Backbone.View.extend({
                     .text('Mentions')
                 )
             );
+        this.$el.append(
+            $('<li>').append(
+                $('<a>')
+                    .attr('href', 'https://frequency.mediameter.org/' + path)
+                    .text('Frequency')
+                )
+            );
     }
 });
+
+// This simple helpers centralize adding download links to the action menu.  Use it as a mixin to any view that has
+// and action menu.
+App.ActionedViewMixin = {
+    _downloadUrlTemplate: _.template('<li><a role="presentation" role="menuitem" href="<%=url%>"><%=text%></a></li>'),
+    hideActionMenu: function(){
+        this.$('.panel-heading button').hide();
+    },
+    showActionMenu: function(){
+        this.$('.panel-heading button').show();
+    },
+    addDownloadMenuItems: function(downloadUrls){
+        this.$('.panel-action-list').children( 'li:not(:first)' ).remove(); // remove all except the "about" item
+        for(idx in downloadUrls){
+            title = "";
+            if(idx==0){
+                title = '<span class="first-query">'+App.config.queryNames[0]+'</span>';
+            } else {
+                title = '<span class="second-query">'+App.config.queryNames[1]+'</span>';
+            }
+            var element = this._downloadUrlTemplate({url:downloadUrls[idx],'text':"Download "+title+" Data CSV"});
+            this.$('.panel-action-list').append(element);  
+        }
+    }
+};
 
 App.AboutView = Backbone.View.extend({
     name: 'AboutView',
@@ -943,19 +979,19 @@ App.WordCountResultView = Backbone.View.extend({
     name: 'WordCountResultView',
     config: {
         minSize: 8,
-        maxSize: 48
+        maxSize: 48,
+        linkColor: "#428bca"
     },
     template: _.template($('#tpl-wordcount-result-view').html()),
 
-    initialize: function (wordcounts) {
-        this.render(wordcounts);
+    initialize: function (options) {
+        this.render();
     },
 
-    render: function (wordcounts) {
+    render: function () {
         App.debug('App.WordCountResultView.render()');
+        var wordcounts = this.collection;
         this.$el.html(this.template());
-        progress = _.template($('#tpl-progress').html());
-        this.$('.wordcount-result-view-content').html(progress());
         var that = this;
         // wait until end to get correct width
         _.defer(function(){that.renderD3(wordcounts);});
@@ -963,6 +999,7 @@ App.WordCountResultView = Backbone.View.extend({
 
     renderD3: function (wordcounts) {
         App.debug('App.WordCountResultView.renderD3()');
+        var that = this;
         this.$('.wordcount-result-view-content')
             .html('')
             .css('padding', '0');
@@ -985,30 +1022,41 @@ App.WordCountResultView = Backbone.View.extend({
         .rotate(function() { return ~~(Math.random() * 1) * 90; })
         .font("Arial")
         .fontSize(function(d) { return d.size; })
-        .on("end", draw)
-        .start();
-
-        function draw(words) {
+        .on("end", function (words) {
             // Black and white
             // var fill = d3.scale.linear().domain([0,100]).range(["black","white"]);
             // Colors
             var fill = d3.scale.category20();
-            var svg = d3.select('.wordcount-result-view-content').append('svg')
+            var svg = d3.select(that.$('.wordcount-result-view-content')[0]).append('svg')
             .attr('width', width).attr('height', height)    
             .append("g")
             .attr("transform", "translate("+width/2+","+height/2+")")
             .selectAll("text")
             .data(words)
             .enter().append("text")
-            .style("font-size", function(d) { return d.size + "px"; })
-            .style("fill", App.config.queryColors[0])
+            .attr("font-size", function(d) { return d.size + "px"; })
+            .attr("fill", App.config.queryColors[0])
             .attr("text-anchor", "middle")
             .attr('font-weight', 'bold')
             .attr("transform", function(d) {
                 return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
             })
             .text(function(d) { return d.text; });
-        }     
+        })
+        .start();
+        d3.select(that.$('.wordcount-result-view-content')[0]).selectAll('text')
+            .on('mouseover', function () {
+                d3.select(this).attr('fill', that.config.linkColor);
+            })
+            .on('mouseout', function () {
+                color = App.config.queryColors[0];
+                d3.select(this).attr('fill', color);
+            })
+            .on('click', function (d) {
+                that.trigger('mm:refine', {
+                    term: d.text
+                });
+            });
     }
 });
 
