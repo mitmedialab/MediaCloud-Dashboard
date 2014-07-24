@@ -75,8 +75,11 @@ App.WordCountView = App.NestedView.extend({
         // render individual word clouds for each query
         this.listenTo(this.collection.resources, 'sync:wordcount', function (model) {
             if (that.collection.length < 2) {
+                App.debug("App.WordCountView.sync:wordcount");
                 that.renderWordCountResults(model);
             }
+            this.delegateEvents();
+            this.showActionMenu();
         });
 
         // only render comparison when >=2 queries
@@ -86,9 +89,6 @@ App.WordCountView = App.NestedView.extend({
                 this.renderWordCountComparison(that.collection);
             }
             App.debug('App.WordCountComparisonView() resource:complete ' + that.cid);
-            //App.debug(that.collection);
-            this.delegateEvents();
-            this.showActionMenu();
         });
         // Reset when the query executes
         this.listenTo(this.collection, 'execute', function () {
@@ -100,7 +100,7 @@ App.WordCountView = App.NestedView.extend({
     
     renderWordCountResults: function (wordcounts) {
         App.debug('App.WordCountView.renderWordCountResults()');
-        var wordCountResultView = new App.WordCountResultView(wordcounts);
+        var wordCountResultView = new App.WordCountResultView({'collection':wordcounts,'clickable':false});
         this.addSubView(wordCountResultView);
         var $el = this.$('.viz');
         $el.append(wordCountResultView.$el);
