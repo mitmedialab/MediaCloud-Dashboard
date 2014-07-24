@@ -431,8 +431,6 @@ App.SimpleTagListView = App.NestedView.extend({
     template: _.template($('#tpl-simple-tag-list-view').html()),
     initialize: function (options) {
         App.debug('App.SimpleTagListView.initialize()');
-        App.debug(options);
-        App.debug(this.model);
         _.bindAll(this, 'onAdd');
         _.bindAll(this, 'onRemoveClick');
         this.disabled = options.disabled;
@@ -443,7 +441,6 @@ App.SimpleTagListView = App.NestedView.extend({
     },
     render: function () {
         App.debug('App.SimpleTagListView.render()');
-        App.debug(this.model);
         var that = this;
         this.$el.html(this.template());
         if (this.disabled) {
@@ -651,8 +648,6 @@ App.MediaListView = App.NestedView.extend({
     template: _.template($('#tpl-media-list-view').html()),
     initialize: function (options) {
         App.debug('App.MediaListView.initialize()');
-        App.debug(options);
-        App.debug(this.model);
         _.bindAll(this, 'onAdd');
         _.bindAll(this, 'onRemoveClick');
         this.disabled = options.disabled;
@@ -663,7 +658,6 @@ App.MediaListView = App.NestedView.extend({
     },
     render: function () {
         App.debug('App.MediaListView.render()');
-        App.debug(this.model);
         var that = this;
         this.$el.html(this.template());
         if (this.disabled) {
@@ -852,7 +846,6 @@ App.ExploreListView = Backbone.View.extend({
     },
     showAll: function () {
         App.debug('App.ExploreListView.showAll()');
-        App.debug(this.collection);
         var that = this;
         this.$('.modal-body').html('');
         this.collection.each(function (m) {
@@ -973,7 +966,6 @@ App.AboutView = Backbone.View.extend({
         this.render();
     },
     render: function(){
-        App.debug(this.options);
         this.$el.html(this.template());
         this.$('.modal').modal('show');
     }
@@ -990,7 +982,6 @@ App.WordCountResultView = Backbone.View.extend({
     template: _.template($('#tpl-wordcount-result-view').html()),
 
     initialize: function (options) {
-        App.debug(this.name+" Initialize");
         if('clickable' in options){
             this.clickable = options['clickable'];
         } else {
