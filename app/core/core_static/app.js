@@ -15,6 +15,11 @@ App = {
         }
     },
     
+    // get the url to a tool
+    getToolUrl: function(tool){
+      return 'https://'+tool+'.'+App.config.cookieOpts['domain']+'/#'+App.con.queryCollection.dashboardUrl();
+    },
+
     // Take a Collection and return a map using the specified key
     makeMap: function (col, key) {
         dataMap = {};
