@@ -945,16 +945,21 @@ App.ActionedViewMixin = {
     showActionMenu: function(){
         this.$('.panel-heading button').show();
     },
-    addDownloadMenuItems: function(downloadUrls){
+    addDownloadMenuItems: function(downloadUrls,title){
         this.$('.panel-action-list').children( 'li:not(:first)' ).remove(); // remove all except the "about" item
         for(idx in downloadUrls){
-            title = "";
-            if(idx==0){
-                title = '<span class="first-query">'+App.config.queryNames[0]+'</span>';
+            var text = "";
+            if(typeof title === "undefined"){
+                if(idx==0){
+                    name = '<span class="first-query">'+App.config.queryNames[0]+'</span>';
+                } else {
+                    name = '<span class="second-query">'+App.config.queryNames[1]+'</span>';
+                }
+                text = "Download "+name+" Data CSV";
             } else {
-                title = '<span class="second-query">'+App.config.queryNames[1]+'</span>';
+                text = title;
             }
-            var element = this._downloadUrlTemplate({url:downloadUrls[idx],'text':"Download "+title+" Data CSV"});
+            var element = this._downloadUrlTemplate({url:downloadUrls[idx],'text':text});
             this.$('.panel-action-list').append(element);  
         }
     }
