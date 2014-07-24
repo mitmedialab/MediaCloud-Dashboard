@@ -113,6 +113,7 @@ def sentences(keywords, media, start, end):
         res = user_mc.sentenceList(query, '', 0, 10)
         return json.dumps(res, separators=(',',':'))
     except Exception as exception:
+        app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
 
 def _sentence_docs(api, keywords, media, start, end, count=10, sort=mcapi.MediaCloud.SORT_RANDOM):
@@ -125,7 +126,10 @@ def _sentence_docs(api, keywords, media, start, end, count=10, sort=mcapi.MediaC
         # so first we need to know how many senteces there are
         sentence_counts = json.loads(_sentence_numfound(api._auth_token, keywords, media, start, end))
         sentence_total = sum([day['numFound'] for day in sentence_counts])
-        start_index = randint(0,sentence_total-count)
+        try:
+            start_index = randint(0,sentence_total-count)
+        except Exception as exception:
+            start_index = 0
     res = api.sentenceList(query, '', start_index, count, sort=sort)
     sentences = res['response']['docs']
     for s in sentences:
@@ -139,6 +143,7 @@ def sentence_docs(keywords, media, start, end):
     try:
         return _sentence_docs(user_mc, keywords, media, start, end)
     except Exception as exception:
+        app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
 
 @flapp.route('/api/demo/sentences/docs/<keywords>')
@@ -147,6 +152,7 @@ def demo_sentence_docs(keywords):
     try:
         return _sentence_docs(mc, keywords, media, start, end)
     except Exception as exception:
+        app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
     
 def _sentence_numfound(api_key, keywords, media, start, end):
@@ -175,6 +181,7 @@ def sentence_numfound(keywords, media, start, end):
     try:
         return _sentence_numfound(api_key, keywords, media, start, end)
     except Exception as exception:
+        app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
 
 @flapp.route('/api/demo/sentences/numfound/<keywords>')
@@ -183,6 +190,7 @@ def demo_sentence_numfound(keywords):
     try:
         return _sentence_numfound(mc_key, keywords, media, start, end)
     except Exception as exception:
+        app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
     
 def _wordcount(api, keywords, media, start, end):
@@ -199,6 +207,7 @@ def wordcount(keywords, media, start, end):
     try:
         return _wordcount(user_mc, keywords, media, start, end)
     except Exception as exception:
+        app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
 
 @flapp.route('/api/demo/wordcount/<keywords>')
@@ -207,6 +216,7 @@ def demo_wordcount(keywords):
     try:
         return _wordcount(mc, keywords, media, start, end)
     except Exception as exception:
+        app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
 
 _wordcount_export_props = ['term','stem','count']   # pass these into _assemble_csv_response as the properties arg
@@ -231,6 +241,7 @@ def wordcount_csv(keywords, media, start, end):
         results = json.loads(app.core.views._wordcount(user_mc, keywords, media, start, end))
         return _assemble_csv_response(results,_wordcount_export_props,_wordcount_export_props,'wordcount')
     except Exception as exception:
+        app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
 
 def demo_params():
