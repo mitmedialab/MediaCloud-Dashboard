@@ -209,6 +209,19 @@ def demo_wordcount(keywords):
     except Exception as exception:
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
 
+_wordcount_export_props = ['term','stem','count']   # pass these into _assemble_csv_response as the properties arg
+
+def _assemble_csv_response(results,properties,column_names,filename):
+    # stream back a csv
+    def stream_csv(data,props,names):
+        yield ','.join(names) + '\n'
+        for row in data:
+            attr = [ str(row[p]) for p in props]
+            yield ','.join(attr) + '\n'
+    download_filename = 'mediacloud-'+str(filename)+'-'+datetime.datetime.now().strftime('%Y%m%d%H%M%S')+'.csv'
+    return flask.Response(stream_csv(results,properties,column_names), mimetype='text/csv', 
+                headers={"Content-Disposition":"attachment;filename="+download_filename})
+
 @flapp.route('/api/wordcount/<keywords>/<media>/<start>/<end>/csv')
 @flask_login.login_required
 def wordcount_csv(keywords, media, start, end):
