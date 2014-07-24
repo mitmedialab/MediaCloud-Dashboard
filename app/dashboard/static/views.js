@@ -17,26 +17,43 @@ App.SentenceView = Backbone.View.extend({
         progress = _.template($('#tpl-progress').html());
         $el.html(progress());
         this.collection.resources.on('sync:sentence', function (sentences) {
-            App.debug('App.SentenceView.sentenceCollection: sync');
-            // figure out the total sentence count
-            totalSentences = sentences.last(1)[0].get('totalSentences');
-            that.$('.count').html('(' + totalSentences + ' found)');
-            $el.html('');
-            // now list some of the sentences
-            _.each(sentences.last(10), function (m) {
-                var p = $('<p>').html('<em>' + m.media() + '</em> - ' + m.date() + ': ' 
-                    + '<a href="' + m.get('url') + '">' + m.escape('sentence') + '</a>'
-                    );
-                $el.append(p);
-            });
-            this.delegateEvents();  // gotta run this to register the events again
-            this.showActionMenu();
-            this.showLaunchControl();
+            if (that.collection.length < 2) {
+                App.debug('App.SentenceView.sentenceCollection: sync');
+                // figure out the total sentence count
+                totalSentences = sentences.last(1)[0].get('totalSentences');
+                that.$('.count').html('(' + totalSentences + ' found)');
+                // now list some of the sentences
+                $el.html('');
+                that.addSentences(sentences.last(10),$el);
+            }
         }, this);
+        // only render both when >=2 queries
+        this.listenTo(this.collection.resources, 'resource:complete:sentence', function () {
+            if (that.collection.length >= 2) {
+                $el.html('');
+                $el.append('<h3 class="first-query">'+App.config.queryNames[0]+'</h3>');
+                var query1Sentences = that.collection.models[0].get('results').get('sentences');
+                that.addSentences(query1Sentences.last(10),$el);
+                $el.append('<h3 class="second-query">'+App.config.queryNames[1]+'</h3>');
+                var query2Sentences = that.collection.models[1].get('results').get('sentences');
+                that.addSentences(query2Sentences.last(10),$el);
+            }
+            that.delegateEvents();  // gotta run this to register the events again
+            that.showActionMenu();
+            that.showLaunchControl();
+        });
         this.collection.on('execute', function () {
             $el.html(progress());
         });
         this.delegateEvents();
+    },
+    addSentences: function(sentences,element){
+        _.each(sentences, function (m) {
+            var p = $('<p>').html('<em>' + m.media() + '</em> - ' + m.date() + ': ' 
+                + '<a href="' + m.get('url') + '">' + m.escape('sentence') + '</a>'
+                );
+            element.append(p);
+        });
     },
     clickAbout: function (evt) {
         evt.preventDefault();
@@ -87,9 +104,6 @@ App.WordCountView = App.NestedView.extend({
                 App.debug("App.WordCountView.sync:wordcount");
                 that.renderWordCountResults(model);
             }
-            this.delegateEvents();
-            this.showActionMenu();
-            this.showLaunchControl();
         });
 
         // only render comparison when >=2 queries
@@ -99,6 +113,9 @@ App.WordCountView = App.NestedView.extend({
                 this.renderWordCountComparison(that.collection);
             }
             App.debug('App.WordCountComparisonView() resource:complete ' + that.cid);
+            this.delegateEvents();
+            this.showActionMenu();
+            this.showLaunchControl();
         });
         // Reset when the query executes
         this.listenTo(this.collection, 'execute', function () {
