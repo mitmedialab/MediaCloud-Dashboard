@@ -553,7 +553,7 @@ App.SentenceModel = Backbone.Model.extend({
         var date;
         if(dateString.length==19){  // gotta parse this: "2014-07-12 18:32:05"
             date = new Date(
-                dateString.substring(0,4), dateString.substring(5,7), dateString.substring(8,10),
+                dateString.substring(0,4), parseInt(dateString.substring(5,7))-1, dateString.substring(8,10),
                 dateString.substring(11,13), dateString.substring(14,16), dateString.substring(17)
                 );
         } else {
