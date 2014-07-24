@@ -912,21 +912,21 @@ App.ToolListView = Backbone.View.extend({
         var path = '#' + this.collection.dashboardUrl();
         this.$el.html('');
         this.$el.append(
-            $('<li>').append(
+            $('<li class="dashboard-color">').append(
                 $('<a>')
                     .attr('href', 'https://dashboard.mediameter.org/' + path)
                     .text('Dashboard')
                 )
             );
         this.$el.append(
-            $('<li>').append(
+            $('<li class="mentions-color">').append(
                 $('<a>')
                     .attr('href', 'https://mentions.mediameter.org/' + path)
                     .text('Mentions')
                 )
             );
         this.$el.append(
-            $('<li>').append(
+            $('<li class="frequency-color">').append(
                 $('<a>')
                     .attr('href', 'https://frequency.mediameter.org/' + path)
                     .text('Frequency')
@@ -985,6 +985,12 @@ App.WordCountResultView = Backbone.View.extend({
     template: _.template($('#tpl-wordcount-result-view').html()),
 
     initialize: function (options) {
+        App.debug(this.name+" Initialize");
+        if('clickable' in options){
+            this.clickable = options['clickable'];
+        } else {
+            this.clickable = true;
+        }
         this.render();
     },
 
@@ -1044,21 +1050,23 @@ App.WordCountResultView = Backbone.View.extend({
             .text(function(d) { return d.text; });
         })
         .start();
-        d3.select(that.$('.wordcount-result-view-content')[0]).selectAll('text')
-            .on('mouseover', function () {
-                d3.select(this).attr('fill', that.config.linkColor)
-                .attr('cursor','pointer');
-            })
-            .on('mouseout', function () {
-                color = App.config.queryColors[0];
-                d3.select(this).attr('fill', color)
-                .attr('cursor','default');
-            })
-            .on('click', function (d) {
-                that.trigger('mm:refine', {
-                    term: d.text
+        if(that.clickable==true) {
+            d3.select(that.$('.wordcount-result-view-content')[0]).selectAll('text')
+                .on('mouseover', function () {
+                    d3.select(this).attr('fill', that.config.linkColor)
+                    .attr('cursor','pointer');
+                })
+                .on('mouseout', function () {
+                    color = App.config.queryColors[0];
+                    d3.select(this).attr('fill', color)
+                    .attr('cursor','default');
+                })
+                .on('click', function (d) {
+                    that.trigger('mm:refine', {
+                        term: d.text
+                    });
                 });
-            });
+        }
     }
 });
 

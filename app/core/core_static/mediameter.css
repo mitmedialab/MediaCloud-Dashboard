@@ -135,7 +135,8 @@ body {
 .brand-toolbar .links ul li {
     display: block;
     float: left;
-    margin-right: 2em;
+    padding-left: 1em;
+    padding-right: 1em;
 }
 .controls ul li {
     display: block;
@@ -311,3 +312,16 @@ input.form-control, select.form-control, textarea.form-control {
 .second-query {
     color: #249fc9;
 }
+
+/* Sub-Brand styles ***************************************************/
+
+.dashboard-color {
+    background-color: #e14c11;
+}
+.mentions-color {
+    background-color: #005826;
+}
+.frequency-color {
+    background-color: rgb(85,134,138);
+}
+
