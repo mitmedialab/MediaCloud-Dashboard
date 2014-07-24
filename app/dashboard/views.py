@@ -41,17 +41,6 @@ def _assemble_csv_response(results,properties,column_names,filename):
     return flask.Response(stream_csv(results,properties,column_names), mimetype='text/csv', 
                 headers={"Content-Disposition":"attachment;filename="+download_filename})
 
-@flapp.route('/api/wordcount/<keywords>/<media>/<start>/<end>/csv')
-@flask_login.login_required
-def wordcount_csv(keywords, media, start, end):
-    api_key = flask_login.current_user.get_id()
-    user_mc = mcapi.MediaCloud(api_key)
-    try:
-        results = json.loads(app.core.views._wordcount(user_mc, keywords, media, start, end))
-        return _assemble_csv_response(results,_wordcount_export_props,_wordcount_export_props,'wordcount')
-    except Exception as exception:
-        return json.dumps({'error':str(exception)}, separators=(',',':')), 400
-
 @flapp.route('/api/demo/wordcount/<keywords>/csv')
 def demo_wordcount_csv(keywords):
     media, start, end = app.core.views.demo_params()
