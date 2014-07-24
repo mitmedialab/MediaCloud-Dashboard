@@ -2,7 +2,8 @@ App.SentenceView = Backbone.View.extend({
     name: 'SentenceView',
     template: _.template($('#tpl-sentence-view').html()),
     events: {
-        'click li.action-about > a': 'clickAbout'
+        'click li.action-about > a': 'clickAbout',
+        'click .launch-btn': 'clickLaunch'
     },
     initialize: function (options) {
         this.render();
@@ -30,6 +31,7 @@ App.SentenceView = Backbone.View.extend({
             });
             this.delegateEvents();  // gotta run this to register the events again
             this.showActionMenu();
+            this.showLaunchControl();
         }, this);
         this.collection.on('execute', function () {
             $el.html(progress());
@@ -42,6 +44,12 @@ App.SentenceView = Backbone.View.extend({
             template: '#tpl-about-sentences-view'
         });
         $('body').append(this.aboutView.el);
+    },
+    clickLaunch: function(evt) {
+        window.open(App.getToolUrl('mentions'));
+    },
+    showLaunchControl: function(){
+        this.$('.launch-btn').toggle(App.con.userModel.get('authenticated')==true);
     }
 });
 App.SentenceView = App.SentenceView.extend(App.ActionedViewMixin);
@@ -51,7 +59,8 @@ App.WordCountView = App.NestedView.extend({
     name: 'WordCountView',
     template: _.template($('#tpl-wordcount-view').html()),
     events: {
-        'click li.action-about > a': 'clickAbout'
+        'click li.action-about > a': 'clickAbout',
+        'click .launch-btn': 'clickLaunch'        
     },
     initialize: function (options) {
         this.resultViews = null;
@@ -80,6 +89,7 @@ App.WordCountView = App.NestedView.extend({
             }
             this.delegateEvents();
             this.showActionMenu();
+            this.showLaunchControl();
         });
 
         // only render comparison when >=2 queries
@@ -120,6 +130,13 @@ App.WordCountView = App.NestedView.extend({
             template: '#tpl-about-wordcount-view'
         });
         $('body').append(this.aboutView.el);
+    },
+
+    clickLaunch: function(evt) {
+        window.open(App.getToolUrl('frequency'));
+    },
+    showLaunchControl: function(){
+        this.$('.launch-btn').toggle(App.con.userModel.get('authenticated')==true);
     }
 
 });
