@@ -522,7 +522,7 @@ App.QueryCollection = Backbone.Collection.extend({
             , this.start()
             , this.end()
         ].join('/');
-        return path.replace(' ', '');
+        return path;
     },
     dashboardDemoUrl: function () {
         return [
