@@ -8,7 +8,6 @@ import app.core.views
 
 _sentence_export_props = ['date','numFound']
 _sentence_export_columns = ['date','sentences']
-_wordcount_export_props = ['term','stem','count']
 
 @flapp.route('/api/demo/sentences/numfound/<keywords>/csv')
 def demo_sentence_numfound_csv(keywords):
@@ -29,17 +28,6 @@ def sentence_numfound_csv(keywords, media, start, end):
         return _assemble_csv_response(results, _sentence_export_props, _sentence_export_columns,'sentence-counts')
     except Exception as exception:
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
-
-def _assemble_csv_response(results,properties,column_names,filename):
-    # stream back a csv
-    def stream_csv(data,props,names):
-        yield ','.join(names) + '\n'
-        for row in data:
-            attr = [ str(row[p]) for p in props]
-            yield ','.join(attr) + '\n'
-    download_filename = 'mediacloud-'+str(filename)+'-'+datetime.datetime.now().strftime('%Y%m%d%H%M%S')+'.csv'
-    return flask.Response(stream_csv(results,properties,column_names), mimetype='text/csv', 
-                headers={"Content-Disposition":"attachment;filename="+download_filename})
 
 @flapp.route('/api/demo/wordcount/<keywords>/csv')
 def demo_wordcount_csv(keywords):
