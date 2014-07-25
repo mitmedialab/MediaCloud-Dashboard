@@ -21,6 +21,10 @@ def index():
     template = config.get('flask', 'template')
     return flask.render_template(template, content=content)
 
+# -----------------------------------------------------------------------------------------
+# USER MGMT -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------
+
 @flapp.route('/api/login', methods=['POST'])
 def login():
     if flask_login.current_user.is_authenticated():
@@ -30,6 +34,7 @@ def login():
             , 'authenticated': True
             , 'anonymous': False
             , 'key': flask_login.current_user.get_id()
+            , 'sentencesAllowed': _sentences_allowed(flask_login.current_user.get_id())
         }
         return json.dumps(response)
     # User is attempting new login, authenticate
@@ -55,6 +60,7 @@ def login():
         , 'authenticated': True
         , 'anonymous': False
         , 'key': user.get_id()
+        , 'sentencesAllowed': _sentences_allowed(user.get_id())
     }
     return json.dumps(response)
 
@@ -67,6 +73,7 @@ def user():
             , 'authenticated': True
             , 'anonymous': False
             , 'key': flask_login.current_user.get_id()
+            , 'sentencesAllowed': _sentences_allowed(flask_login.current_user.get_id())
         }
         return json.dumps(response)
     flask.abort(401)
@@ -87,6 +94,10 @@ def logout():
 def load_user(userid):
     return User.get(userid)
 
+# -----------------------------------------------------------------------------------------
+# MEDIA -----------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------
+
 @flapp.route('/api/media')
 @flask_login.login_required
 def media():
@@ -101,6 +112,10 @@ def media_sources():
 @flask_login.login_required
 def media_sets():
     return json.dumps(list(app.core.util.all_media_sets()), separators=(',',':'))
+
+# -----------------------------------------------------------------------------------------
+# SENTENCES -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------
 
 @flapp.route('/api/sentences/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
@@ -135,7 +150,7 @@ def _sentence_docs(api, keywords, media, start, end, count=10, sort=mcapi.MediaC
     for s in sentences:
         s['totalSentences'] = res['response']['numFound'] # hack to get total sentences count to Backbone.js
     return json.dumps(sentences, separators=(',',':'))
-    
+
 @flapp.route('/api/sentences/docs/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def sentence_docs(keywords, media, start, end):
@@ -154,7 +169,7 @@ def demo_sentence_docs(keywords):
     except Exception as exception:
         app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
-    
+
 def _sentence_numfound(api_key, keywords, media, start, end):
     user_mc = mcapi.MediaCloud(api_key)
     query = "%s AND (%s)" % (app.core.util.keywords_to_solr(keywords), app.core.util.media_to_solr(media))
@@ -192,7 +207,41 @@ def demo_sentence_numfound(keywords):
     except Exception as exception:
         app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
+
+# -----------------------------------------------------------------------------------------
+# STORIES ---------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------
+
+def _story_public_docs(api, keywords, media, start, end, count=10):
+    filter_query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
+    query = "%s AND (%s)" % (app.core.util.keywords_to_solr(keywords), filter_query)
+    app.core.logger.debug("query: _story_docs %s" % query)
+    stories = api.storyPublicList(query,rows=count)
+    return json.dumps(stories, separators=(',',':'))
     
+@flapp.route('/api/stories/public/docs/<keywords>/<media>/<start>/<end>')
+@flask_login.login_required
+def story_public_docs(keywords, media, start, end):
+    user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
+    try:
+        return _story_public_docs(user_mc, keywords, media, start, end)
+    except Exception as exception:
+        app.core.logger.error("Query failed: "+str(exception))
+        return json.dumps({'error':str(exception)}, separators=(',',':')), 400
+
+@flapp.route('/api/demo/stories/docs/<keywords>')
+def demo_story_docs(keywords):
+    media, start, end = demo_params()
+    try:
+        return _story_public_docs(mc, keywords, media, start, end)
+    except Exception as exception:
+        app.core.logger.error("Query failed: "+str(exception))
+        return json.dumps({'error':str(exception)}, separators=(',',':')), 400
+
+# -----------------------------------------------------------------------------------------
+# WORD COUNTS -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------
+
 def _wordcount(api, keywords, media, start, end):
     filter_query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
     query = "%s AND (%s)" % (app.core.util.keywords_to_solr(keywords) , filter_query)
@@ -221,17 +270,6 @@ def demo_wordcount(keywords):
 
 _wordcount_export_props = ['term','stem','count']   # pass these into _assemble_csv_response as the properties arg
 
-def _assemble_csv_response(results,properties,column_names,filename):
-    # stream back a csv
-    def stream_csv(data,props,names):
-        yield ','.join(names) + '\n'
-        for row in data:
-            attr = [ str(row[p]) for p in props]
-            yield ','.join(attr) + '\n'
-    download_filename = 'mediacloud-'+str(filename)+'-'+datetime.datetime.now().strftime('%Y%m%d%H%M%S')+'.csv'
-    return flask.Response(stream_csv(results,properties,column_names), mimetype='text/csv', 
-                headers={"Content-Disposition":"attachment;filename="+download_filename})
-
 @flapp.route('/api/wordcount/<keywords>/<media>/<start>/<end>/csv')
 @flask_login.login_required
 def wordcount_csv(keywords, media, start, end):
@@ -243,6 +281,40 @@ def wordcount_csv(keywords, media, start, end):
     except Exception as exception:
         app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
+
+# -----------------------------------------------------------------------------------------
+# HELPERS ---------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------
+
+def _sentences_allowed(key):
+    '''
+    This method tells you whether the key passed in is allowed to call sentenceList or not.
+    Public authenticated users are not allowed to call sentenceList (it throws a 403).
+    '''
+    media, start, end = demo_params()
+    user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
+    filter_query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
+    query = "* AND (%s)" % (filter_query)
+    allowed = None
+    try:
+        res = user_mc.sentenceList(query, '', 0, 0)
+        allowed = True
+    except Exception as exception:
+        allowed = False
+    app.core.logger.debug("_sentences_allowed check: sentenceList %s for key %s " % (allowed, key) )
+    return allowed
+
+
+def _assemble_csv_response(results,properties,column_names,filename):
+    # stream back a csv
+    def stream_csv(data,props,names):
+        yield ','.join(names) + '\n'
+        for row in data:
+            attr = [ str(row[p]) for p in props]
+            yield ','.join(attr) + '\n'
+    download_filename = 'mediacloud-'+str(filename)+'-'+datetime.datetime.now().strftime('%Y%m%d%H%M%S')+'.csv'
+    return flask.Response(stream_csv(results,properties,column_names), mimetype='text/csv', 
+                headers={"Content-Disposition":"attachment;filename="+download_filename})
 
 def demo_params():
     media = '{"sets":[8875027]}'
