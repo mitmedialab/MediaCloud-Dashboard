@@ -1,6 +1,7 @@
 App.SentenceView = Backbone.View.extend({
     name: 'SentenceView',
     template: _.template($('#tpl-sentence-view').html()),
+    sentenceTemplate: _.template($('#tpl-one-sentence-view').html()),
     events: {
         'click li.action-about > a': 'clickAbout',
         'click .launch-btn': 'clickLaunch'
@@ -24,7 +25,7 @@ App.SentenceView = Backbone.View.extend({
                 that.$('.count').html('(' + totalSentences + ' found)');
                 // now list some of the sentences
                 $el.html('');
-                that.addSentences(sentences.last(10),$el);
+                that.addSentences(sentences.last(10),that.sentenceTemplate,$el);
             }
         }, this);
         // only render both when >=2 queries
@@ -33,10 +34,10 @@ App.SentenceView = Backbone.View.extend({
                 $el.html('');
                 $el.append('<h3 class="first-query">'+App.config.queryNames[0]+'</h3>');
                 var query1Sentences = that.collection.models[0].get('results').get('sentences');
-                that.addSentences(query1Sentences.last(10),$el);
+                that.addSentences(query1Sentences.last(10),that.sentenceTemplate,$el);
                 $el.append('<h3 class="second-query">'+App.config.queryNames[1]+'</h3>');
                 var query2Sentences = that.collection.models[1].get('results').get('sentences');
-                that.addSentences(query2Sentences.last(10),$el);
+                that.addSentences(query2Sentences.last(10),that.sentenceTemplate,$el);
             }
             that.delegateEvents();  // gotta run this to register the events again
             that.showActionMenu();
@@ -47,13 +48,10 @@ App.SentenceView = Backbone.View.extend({
         });
         this.delegateEvents();
     },
-    addSentences: function(sentences,element){
+    addSentences: function(sentences,template,element){
         _.each(sentences, function (m) {
-            var p = $('<p>').html('<em>' + m.media() + '</em> - ' + m.date() + ': ' 
-                + '<a href="' + m.get('url') + '">' + m.escape('sentence') + '</a>'
-                );
-            element.append(p);
-        });
+            element.append( template({'sentence':m}) );
+        }, this);
     },
     clickAbout: function (evt) {
         evt.preventDefault();
@@ -73,6 +71,7 @@ App.SentenceView = App.SentenceView.extend(App.ActionedViewMixin);
 
 App.StoryView = Backbone.View.extend({
     name: 'StoryView',
+    storyTemplate: _.template($('#tpl-one-story-view').html()),
     template: _.template($('#tpl-story-view').html()),
     events: {
         'click li.action-about > a': 'clickAbout',
@@ -94,7 +93,7 @@ App.StoryView = Backbone.View.extend({
                 App.debug('App.StoryView.storyCollection: sync');
                 // now list some of the stories
                 $el.html('');
-                that.addStories(stories.last(10),$el);
+                that.addStories(stories.last(10),that.storyTemplate,$el);
             }
         }, this);
         // only render both when >=2 queries
@@ -103,10 +102,10 @@ App.StoryView = Backbone.View.extend({
                 $el.html('');
                 $el.append('<h3 class="first-query">'+App.config.queryNames[0]+'</h3>');
                 var query1Stories = that.collection.models[0].get('results').get('stories');
-                that.addSentences(query1Stories.last(10),$el);
+                that.addSentences(query1Stories.last(10),that.storyTemplate,$el);
                 $el.append('<h3 class="second-query">'+App.config.queryNames[1]+'</h3>');
                 var query2Stories = that.collection.models[1].get('results').get('stories');
-                that.addSentences(query2Stories.last(10),$el);
+                that.addSentences(query2Stories.last(10),that.storyTemplate,$el);
             }
             that.delegateEvents();  // gotta run this to register the events again
             that.showActionMenu();
@@ -117,15 +116,10 @@ App.StoryView = Backbone.View.extend({
         });
         this.delegateEvents();
     },
-    addStories: function(stories,element){
-        App.debug("AddStories!");
-        App.debug(stories);
+    addStories: function(stories,template,element){
         _.each(stories, function (m) {
-            var p = $('<p>').html('<em>' + m.getMediaSourceName() + '</em> - ' + m.date() + ': ' 
-                + '<a href="' + m.get('url') + '">' + 'link to story' + '</a>'
-                );
-            element.append(p);
-        });
+            element.append( template({'story':m}) );
+        }, this);
     },
     clickAbout: function (evt) {
         evt.preventDefault();
