@@ -82,7 +82,6 @@ def story_docs_csv(keywords, media, start, end):
     while more_stories:
         res = user_mc.storyList(keywords, query, last_processed_stories_id, 1000)
         if len(res) > 0:
-            app.core.logger.debug("  "+json.dumps(res[0]))
             last_processed_stories_id = res[len(res)-1]['processed_stories_id']
             all_stories = all_stories + res
             more_stories = True
