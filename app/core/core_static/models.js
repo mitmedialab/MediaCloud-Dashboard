@@ -612,11 +612,6 @@ App.DemoSentenceCollection = App.SentenceCollection.extend({
 App.StoryModel = Backbone.Model.extend({
     initialize: function (attributes, options) {
     },
-    media: function(){
-        //var mediaSourceId = this.get(???)
-        //return App.con.mediaSources.get('sources').get(mediaSourceId).get('name');
-        return '??????';
-    }
 });
 App.StoryModel = App.StoryModel.extend(App.DatedModelMixin);
 
