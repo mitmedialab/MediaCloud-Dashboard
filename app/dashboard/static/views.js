@@ -162,24 +162,25 @@ App.WordCountView = App.NestedView.extend({
         this.hideActionMenu();
         var $el = this.$('.panel-body');
         this.$('.wordcount-view .copy').html(_.template($('#tpl-progress').html())());
-        // add in data download links
-        var downloadUrls = this.collection.map(function(m) { 
-            return m.get('results').get('wordcounts').csvUrl();
-        });
-        this.addDownloadMenuItems(downloadUrls);
         // and render the right subview
         this.listenTo(this.collection.resources, 'resource:complete:wordcount', function () {
             that.$('.wordcount-view .copy').hide();
             if (that.collection.length >=2){
                 // only render comparison when >=2 queries
-                this.renderWordCountComparison(that.collection);
+                that.renderWordCountComparison(that.collection);
             } else {
                 // render individual word clouds for each query
                 that.renderWordCountResults(that.collection.models[0].get('results').get('wordcounts'));
             }
-            this.delegateEvents();
-            this.showActionMenu();
-            this.showLaunchControl();
+            // add in data download links
+            var downloadUrls = that.collection.map(function(m) { 
+                return m.get('results').get('wordcounts').csvUrl();
+            });
+            that.addDownloadMenuItems(downloadUrls);
+            // and clean up and prep the UI
+            that.delegateEvents();
+            that.showActionMenu();
+            that.showLaunchControl();
         });
         // Reset when the query executes
         this.listenTo(this.collection, 'execute', function () {
