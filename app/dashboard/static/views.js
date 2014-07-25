@@ -162,28 +162,21 @@ App.WordCountView = App.NestedView.extend({
         this.hideActionMenu();
         var $el = this.$('.panel-body');
         this.$('.wordcount-view .copy').html(_.template($('#tpl-progress').html())());
-
         // add in data download links
         var downloadUrls = this.collection.map(function(m) { 
             return m.get('results').get('wordcounts').csvUrl();
         });
         this.addDownloadMenuItems(downloadUrls);
-
-        // render individual word clouds for each query
-        this.listenTo(this.collection.resources, 'sync:wordcount', function (model) {
-            if (that.collection.length < 2) {
-                App.debug("App.WordCountView.sync:wordcount");
-                that.renderWordCountResults(model);
-            }
-        });
-
-        // only render comparison when >=2 queries
+        // and render the right subview
         this.listenTo(this.collection.resources, 'resource:complete:wordcount', function () {
             that.$('.wordcount-view .copy').hide();
             if (that.collection.length >=2){
+                // only render comparison when >=2 queries
                 this.renderWordCountComparison(that.collection);
+            } else {
+                // render individual word clouds for each query
+                that.renderWordCountResults(that.collection.models[0].get('results').get('wordcounts'));
             }
-            App.debug('App.WordCountComparisonView() resource:complete ' + that.cid);
             this.delegateEvents();
             this.showActionMenu();
             this.showLaunchControl();
@@ -198,10 +191,17 @@ App.WordCountView = App.NestedView.extend({
     
     renderWordCountResults: function (wordcounts) {
         App.debug('App.WordCountView.renderWordCountResults()');
-        var wordCountResultView = new App.WordCountResultView({'collection':wordcounts,'clickable':false});
+        var wordCountResultView = new App.WordCountResultView({'collection':wordcounts});
         this.addSubView(wordCountResultView);
         var $el = this.$('.viz');
         $el.append(wordCountResultView.$el);
+        this.listenTo(wordCountResultView, 'mm:refine', function (options) {
+            var model = this.collection.models[0];
+            model.refine.trigger('mm:refine', {
+                term: options.term
+                , queryCid: model.cid
+            });
+        });
     },
 
     renderWordCountComparison: function (collection) {
