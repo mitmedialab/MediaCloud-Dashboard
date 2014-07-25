@@ -17,29 +17,30 @@ App.SentenceView = Backbone.View.extend({
         var $el = this.$('.sentence-view .copy');
         progress = _.template($('#tpl-progress').html());
         $el.html(progress());
-        this.collection.resources.on('sync:sentence', function (sentences) {
-            if (that.collection.length < 2) {
-                App.debug('App.SentenceView.sentenceCollection: sync');
-                // figure out the total sentence count
-                totalSentences = sentences.last(1)[0].get('totalSentences');
-                that.$('.count').html('(' + totalSentences + ' found)');
-                // now list some of the sentences
-                $el.html('');
-                that.addSentences(sentences.last(10),that.sentenceTemplate,$el);
-            }
-        }, this);
         // only render both when >=2 queries
         this.listenTo(this.collection.resources, 'resource:complete:sentence', function () {
+            $el.html('');
+            var query1Sentences = that.collection.models[0].get('results').get('sentences');
             if (that.collection.length >= 2) {
-                $el.html('');
                 $el.append('<h3 class="first-query">'+App.config.queryNames[0]+'</h3>');
-                var query1Sentences = that.collection.models[0].get('results').get('sentences');
                 that.addSentences(query1Sentences.last(10),that.sentenceTemplate,$el);
                 $el.append('<h3 class="second-query">'+App.config.queryNames[1]+'</h3>');
                 var query2Sentences = that.collection.models[1].get('results').get('sentences');
                 that.addSentences(query2Sentences.last(10),that.sentenceTemplate,$el);
+            } else {
+                // figure out the total sentence count
+                totalSentences = query1Sentences.last(1)[0].get('totalSentences');
+                that.$('.count').html('(' + totalSentences + ' found)');
+                // now list some of the sentences
+                that.addSentences(query1Sentences.last(10),that.sentenceTemplate,$el);                
             }
-            that.delegateEvents();  // gotta run this to register the events again
+            // now that the query collection is filled in, add the download data links
+            var downloadUrls = that.collection.map(function(m) { 
+                return m.get('results').get('sentences').csvUrl();
+            });
+            // clean up and prep for display
+            that.addDownloadMenuItems(downloadUrls);
+            that.delegateEvents();
             that.showActionMenu();
             that.showLaunchControl();
         });
