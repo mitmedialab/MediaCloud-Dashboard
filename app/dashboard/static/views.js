@@ -88,26 +88,28 @@ App.StoryView = Backbone.View.extend({
         var $el = this.$('.story-view .copy');
         progress = _.template($('#tpl-progress').html());
         $el.html(progress());
-        this.collection.resources.on('sync:story', function (stories) {
-            if (that.collection.length < 2) {
-                App.debug('App.StoryView.storyCollection: sync');
-                // now list some of the stories
-                $el.html('');
-                that.addStories(stories.last(10),that.storyTemplate,$el);
-            }
-        }, this);
-        // only render both when >=2 queries
+        // add in data download links
+        var downloadUrls = this.collection.map(function(m) { 
+            return m.get('results').get('wordcounts').csvUrl();
+        });
+        this.addDownloadMenuItems(downloadUrls);
+        // render one of two lists
         this.listenTo(this.collection.resources, 'resource:complete:story', function () {
+            $el.html('');
+            var query1Stories = that.collection.models[0].get('results').get('stories');
             if (that.collection.length >= 2) {
-                $el.html('');
+                // had main and comparison queries
                 $el.append('<h3 class="first-query">'+App.config.queryNames[0]+'</h3>');
-                var query1Stories = that.collection.models[0].get('results').get('stories');
                 that.addStories(query1Stories.last(10),that.storyTemplate,$el);
                 $el.append('<h3 class="second-query">'+App.config.queryNames[1]+'</h3>');
                 var query2Stories = that.collection.models[1].get('results').get('stories');
                 that.addStories(query2Stories.last(10),that.storyTemplate,$el);
+            } else {
+                // had just a main query
+                that.addStories(query1Stories.last(10),that.storyTemplate,$el);
             }
-            that.delegateEvents();  // gotta run this to register the events again
+            // clean up and prep for display
+            that.delegateEvents();
             that.showActionMenu();
             that.showLaunchControl();
         });
