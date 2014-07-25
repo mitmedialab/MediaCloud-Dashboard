@@ -102,10 +102,10 @@ App.StoryView = Backbone.View.extend({
                 $el.html('');
                 $el.append('<h3 class="first-query">'+App.config.queryNames[0]+'</h3>');
                 var query1Stories = that.collection.models[0].get('results').get('stories');
-                that.addSentences(query1Stories.last(10),that.storyTemplate,$el);
+                that.addStories(query1Stories.last(10),that.storyTemplate,$el);
                 $el.append('<h3 class="second-query">'+App.config.queryNames[1]+'</h3>');
                 var query2Stories = that.collection.models[1].get('results').get('stories');
-                that.addSentences(query2Stories.last(10),that.storyTemplate,$el);
+                that.addStories(query2Stories.last(10),that.storyTemplate,$el);
             }
             that.delegateEvents();  // gotta run this to register the events again
             that.showActionMenu();
