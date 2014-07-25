@@ -28,6 +28,7 @@ App.UserModel = Backbone.Model.extend({
         , authenticated: false
         , error: ''
         , key: ''
+        , sentencesAllowed: false
     },
     
     initialize: function () {
@@ -44,6 +45,10 @@ App.UserModel = Backbone.Model.extend({
         this.set('username', $.cookie('mediameter_user_username'));
     },
     
+    canListSentences: function(){
+        return this.get('sentencesAllowed');
+    },
+
     onSync: function () {
         App.debug('App.UserModel.onSync()');
         if (this.get('authenticated')) {
@@ -404,9 +409,6 @@ App.MediaModel = App.NestedModel.extend({
 App.QueryModel = Backbone.Model.extend({
     initialize: function (attributes, options) {
         App.debug('App.QueryModel.initialize()');
-        App.debug(attributes);
-        App.debug(options);
-        App.debug(this.get('mediaModel'));
         this.mediaSources = options.mediaSources
         var opts = {
             mediaSources: this.mediaSources,
@@ -542,9 +544,8 @@ App.QueryCollection = Backbone.Collection.extend({
     }
 })
 
-App.SentenceModel = Backbone.Model.extend({
-    initialize: function (attributes, options) {
-    },
+// Add this to any model that has a standard "public_date" property that we want to parse into a JS date object
+App.DatedModelMixin = {
     date: function () {
         var dateString = this.get('publish_date');
         if (dateString.indexOf('T') >= 0) {
@@ -561,11 +562,17 @@ App.SentenceModel = Backbone.Model.extend({
         }
         
         return date.toLocaleDateString();
+    }
+}
+
+App.SentenceModel = Backbone.Model.extend({
+    initialize: function (attributes, options) {
     },
     media: function () {
         return this.get('medium_name');
     }
 });
+App.SentenceModel = App.SentenceModel.extend(App.DatedModelMixin);
 
 App.SentenceCollection = Backbone.Collection.extend({
     resourceType: 'sentence',
@@ -597,6 +604,52 @@ App.SentenceCollection = Backbone.Collection.extend({
 App.DemoSentenceCollection = App.SentenceCollection.extend({
     url: function () {
         var url = '/api/demo/sentences/docs/';
+        url += encodeURIComponent(this.params.get('keywords'));
+        return url;
+    }
+});
+
+App.StoryModel = Backbone.Model.extend({
+    initialize: function (attributes, options) {
+    },
+    getMediaSourceName: function(){
+        //var mediaSourceId = this.get(???)
+        //return App.con.mediaSources.get('sources').get(mediaSourceId).get('name');
+        return '??????';
+    }
+});
+App.StoryModel = App.StoryModel.extend(App.DatedModelMixin);
+
+App.StoryCollection = Backbone.Collection.extend({
+    resourceType: 'story',
+    model: App.StoryModel,
+    initialize: function (models, options) {
+        this.params = options.params;
+        this.mediaSources = options.mediaSources;
+        this.waitForLoad = $.Deferred();
+        this.on('sync', function () { this.waitForLoad.resolve(); }, this);
+    },
+    url: function () {
+        var url = '/api/stories/public/docs/';
+        url += encodeURIComponent(this.params.get('keywords'));
+        url += '/' + encodeURIComponent(JSON.stringify(this.params.get('mediaModel').queryParam()));
+        url += '/' + encodeURIComponent(this.params.get('start'));
+        url += '/' + encodeURIComponent(this.params.get('end'));
+        return url;
+    },
+    csvUrl: function () {
+        var url = '/api/stories/public/docs/';
+        url += encodeURIComponent(this.params.get('keywords'));
+        url += '/' + encodeURIComponent(JSON.stringify(this.params.get('mediaModel').queryParam()));
+        url += '/' + encodeURIComponent(this.params.get('start'));
+        url += '/' + encodeURIComponent(this.params.get('end'));
+        return url + encodeURIComponent('.csv');
+    }
+});
+
+App.DemoStoryCollection = App.StoryCollection.extend({
+    url: function () {
+        var url = '/api/demo/stories/docs/';
         url += encodeURIComponent(this.params.get('keywords'));
         return url;
     }
@@ -694,10 +747,6 @@ App.DemoDateCountCollection = App.DateCountCollection.extend({
 App.ResultModel = Backbone.Model.extend({
     children: [
         {
-            "name": "sentences"
-            , "type": App.SentenceCollection
-        },
-        {
             "name": "wordcounts"
             , "type": App.WordCountCollection
         },
@@ -708,6 +757,11 @@ App.ResultModel = Backbone.Model.extend({
     ],
     initialize: function (attributes, options) {
         App.debug('App.ResultModel.initialize()');
+        if(App.con.userModel.canListSentences()){
+            this.children.push({"name": "sentences", "type": App.SentenceCollection});
+        } else {
+            this.children.push({"name": "stories", "type": App.StoryCollection});
+        }
         // Create children collections
         _.each(this.children, function (c) {
             this.set(c.name, new c.type([], options));
@@ -736,20 +790,32 @@ App.ResultModel = Backbone.Model.extend({
 });
 
 App.DemoResultModel = App.ResultModel.extend({
+    children: [
+        {
+            "name": "wordcounts"
+            , "type": App.DemoWordCountCollection
+        },
+        {
+            "name": "datecounts"
+            , "type": App.DemoDateCountCollection
+        }
+    ],
     initialize: function (attributes, options) {
         App.debug('App.DemoResultModel.initialize()');
-        App.debug(options);
-        var sentences = new App.DemoSentenceCollection([], options);
-        var wordcounts = new App.DemoWordCountCollection([], options);
-        var datecounts = new App.DemoDateCountCollection([], options);
-        this.set('sentences', sentences);
-        this.set('wordcounts', wordcounts);
-        this.set('datecounts', datecounts);
-        // Bubble-up events sent by the individual collections
-        _.each([sentences, wordcounts, datecounts], function (m) {
-            m.on('request', this.onRequest, this);
-            m.on('error', this.onError, this);
-            m.on('sync', this.onSync, this);
+        if(App.con.userModel.canListSentences()){
+            this.children.push({"name": "sentences", "type": App.DemoSentenceCollection});
+        } else {
+            this.children.push({"name": "stories", "type": App.DemoStoryCollection});
+        }
+        // Create children collections
+        _.each(this.children, function (c) {
+            this.set(c.name, new c.type([], options));
         }, this);
-    },
+        // Bubble-up events sent by the individual collections
+        _.each(this.children, function (c) {
+            this.get(c.name).on('request', this.onRequest, this);
+            this.get(c.name).on('error', this.onError, this);
+            this.get(c.name).on('sync', this.onSync, this);
+        }, this);
+    }
 });
