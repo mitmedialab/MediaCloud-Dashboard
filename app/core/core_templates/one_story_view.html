@@ -1,7 +1,11 @@
 <script id="tpl-one-story-view" type="text/template">
 <div class="one-story-view">
     <p>
-    <b><a href="<%=story.get('url')%>"><%= story.media() %> - <%= story.date() %></a></b>
+    <b>
+    	<a href="<%=story.get('media_url')%>"><%= story.get('media_name') %></a>
+    	- 
+		<a href="<%=story.get('url')%>"><%= story.date() %></a>
+	</b>
     </p>
 </div>
 </script>

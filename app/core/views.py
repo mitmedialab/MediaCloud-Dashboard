@@ -1,6 +1,4 @@
-import datetime
-import json
-import logging
+import datetime, json, logging, traceback, sys
 from random import randint
 from operator import itemgetter
 
@@ -304,6 +302,9 @@ def _sentences_allowed(key):
     app.core.logger.debug("_sentences_allowed check: sentenceList %s for key %s " % (allowed, key) )
     return allowed
 
+def csv_escape(s):  # TODO: do this better and in one place
+    return '"%s"' % s.replace('"', '"",').strip()
+
 def assemble_csv_response(results,properties,column_names,filename):
     app.core.logger.debug("assemble_csv_response with "+str(len(results))+" results")
     app.core.logger.debug("  cols: "+' '.join(column_names))
@@ -312,10 +313,14 @@ def assemble_csv_response(results,properties,column_names,filename):
     def stream_csv(data,props,names):
         yield ','.join(names) + '\n'
         for row in data:
-            attr = [ str(row[p]) for p in props]
-            yield ','.join(attr) + '\n'
+            try:
+                attributes = [ row[p] for p in props ] 
+                yield ','.join(attributes) + '\n'
+            except Exception as e:
+                app.core.logger.error("Couldn't process a CSV row: "+str(e))
+                app.core.logger.debug(row)
     download_filename = 'mediacloud-'+str(filename)+'-'+datetime.datetime.now().strftime('%Y%m%d%H%M%S')+'.csv'
-    return flask.Response(stream_csv(results,properties,column_names), mimetype='text/csv', 
+    return flask.Response(stream_csv(results,properties,column_names), mimetype='text/csv; charset=utf-8', 
                 headers={"Content-Disposition":"attachment;filename="+download_filename})
 
 def demo_params():
