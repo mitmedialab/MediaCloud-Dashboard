@@ -931,7 +931,7 @@ App.ToolListView = Backbone.View.extend({
 // This simple helpers centralize adding download links to the action menu.  Use it as a mixin to any view that has
 // and action menu.
 App.ActionedViewMixin = {
-    _downloadUrlTemplate: _.template('<li><a role="presentation" role="menuitem" href="<%=url%>"><%=text%></a></li>'),
+    _downloadUrlTemplate: _.template('<li class="action-download"><a role="presentation" role="menuitem" href="<%=url%>"><%=text%></a></li>'),
     hideActionMenu: function(){
         this.$('.panel-heading button').hide();
     },
@@ -939,7 +939,7 @@ App.ActionedViewMixin = {
         this.$('.panel-heading button').show();
     },
     addDownloadMenuItems: function(downloadUrls,title){
-        this.$('.panel-action-list').children( 'li:not(:first)' ).remove(); // remove all except the "about" item
+        this.$('.panel-action-list li.action-download').remove();
         for(idx in downloadUrls){
             var text = "";
             if(typeof title === "undefined"){
