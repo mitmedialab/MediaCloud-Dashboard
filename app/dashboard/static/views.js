@@ -22,10 +22,12 @@ App.SentenceView = Backbone.View.extend({
             $el.html('');
             var query1Sentences = that.collection.models[0].get('results').get('sentences');
             if (that.collection.length >= 2) {
-                $el.append('<h3 class="first-query">'+App.config.queryNames[0]+'</h3>');
+                q1TotalSentences = query1Sentences.last(1)[0].get('totalSentences');
+                $el.append('<h3 class="first-query">'+App.config.queryNames[0]+' ('+q1TotalSentences+' found)</h3>');
                 that.addSentences(query1Sentences.last(10),that.sentenceTemplate,$el);
-                $el.append('<h3 class="second-query">'+App.config.queryNames[1]+'</h3>');
                 var query2Sentences = that.collection.models[1].get('results').get('sentences');
+                q2TotalSentences = query2Sentences.last(1)[0].get('totalSentences');
+                $el.append('<h3 class="second-query">'+App.config.queryNames[1]+' ('+q2TotalSentences+' found)</h3>');
                 that.addSentences(query2Sentences.last(10),that.sentenceTemplate,$el);
             } else {
                 // figure out the total sentence count
