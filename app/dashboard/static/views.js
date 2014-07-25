@@ -3,8 +3,7 @@ App.SentenceView = Backbone.View.extend({
     template: _.template($('#tpl-sentence-view').html()),
     sentenceTemplate: _.template($('#tpl-one-sentence-view').html()),
     events: {
-        'click li.action-about > a': 'clickAbout',
-        'click .launch-btn': 'clickLaunch'
+        'click li.action-about > a': 'clickAbout'
     },
     initialize: function (options) {
         this.render();
@@ -44,7 +43,6 @@ App.SentenceView = Backbone.View.extend({
             that.addDownloadMenuItems(downloadUrls);
             that.delegateEvents();
             that.showActionMenu();
-            that.showLaunchControl();
         });
         this.collection.on('execute', function () {
             $el.html(progress());
@@ -62,12 +60,6 @@ App.SentenceView = Backbone.View.extend({
             template: '#tpl-about-sentences-view'
         });
         $('body').append(this.aboutView.el);
-    },
-    clickLaunch: function(evt) {
-        window.open(App.getToolUrl('mentions'));
-    },
-    showLaunchControl: function(){
-        this.$('.launch-btn').toggle(App.con.userModel.get('authenticated')==true);
     }
 });
 App.SentenceView = App.SentenceView.extend(App.ActionedViewMixin);
@@ -77,8 +69,7 @@ App.StoryView = Backbone.View.extend({
     storyTemplate: _.template($('#tpl-one-story-view').html()),
     template: _.template($('#tpl-story-view').html()),
     events: {
-        'click li.action-about > a': 'clickAbout',
-        'click .launch-btn': 'clickLaunch'
+        'click li.action-about > a': 'clickAbout'
     },
     initialize: function (options) {
         this.render();
@@ -114,7 +105,6 @@ App.StoryView = Backbone.View.extend({
             // clean up and prep for display
             that.delegateEvents();
             that.showActionMenu();
-            that.showLaunchControl();
         });
         this.collection.on('execute', function () {
             $el.html(progress());
@@ -132,12 +122,6 @@ App.StoryView = Backbone.View.extend({
             template: '#tpl-about-stories-view'
         });
         $('body').append(this.aboutView.el);
-    },
-    clickLaunch: function(evt) {
-        window.open(App.getToolUrl('mentions'));
-    },
-    showLaunchControl: function(){
-        this.$('.launch-btn').toggle(App.con.userModel.get('authenticated')==true);
     }
 });
 App.StoryView = App.StoryView.extend(App.ActionedViewMixin);
@@ -148,7 +132,6 @@ App.WordCountView = App.NestedView.extend({
     template: _.template($('#tpl-wordcount-view').html()),
     events: {
         'click li.action-about > a': 'clickAbout',
-        'click .launch-btn': 'clickLaunch'        
     },
     initialize: function (options) {
         this.resultViews = null;
@@ -180,7 +163,6 @@ App.WordCountView = App.NestedView.extend({
             // and clean up and prep the UI
             that.delegateEvents();
             that.showActionMenu();
-            that.showLaunchControl();
         });
         // Reset when the query executes
         this.listenTo(this.collection, 'execute', function () {
@@ -219,15 +201,8 @@ App.WordCountView = App.NestedView.extend({
             template: '#tpl-about-wordcount-view'
         });
         $('body').append(this.aboutView.el);
-    },
-
-    clickLaunch: function(evt) {
-        window.open(App.getToolUrl('frequency'));
-    },
-    showLaunchControl: function(){
-        this.$('.launch-btn').toggle(App.con.userModel.get('authenticated')==true);
     }
-
+    
 });
 App.WordCountView = App.WordCountView.extend(App.ActionedViewMixin);
 
