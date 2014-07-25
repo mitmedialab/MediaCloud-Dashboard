@@ -277,7 +277,7 @@ def wordcount_csv(keywords, media, start, end):
     user_mc = mcapi.MediaCloud(api_key)
     try:
         results = json.loads(app.core.views._wordcount(user_mc, keywords, media, start, end))
-        return _assemble_csv_response(results,_wordcount_export_props,_wordcount_export_props,'wordcount')
+        return assemble_csv_response(results,_wordcount_export_props,_wordcount_export_props,'wordcount')
     except Exception as exception:
         app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
@@ -304,8 +304,10 @@ def _sentences_allowed(key):
     app.core.logger.debug("_sentences_allowed check: sentenceList %s for key %s " % (allowed, key) )
     return allowed
 
-
-def _assemble_csv_response(results,properties,column_names,filename):
+def assemble_csv_response(results,properties,column_names,filename):
+    app.core.logger.debug("assemble_csv_response with "+str(len(results))+" results")
+    app.core.logger.debug("  cols: "+' '.join(column_names))
+    app.core.logger.debug("  props: "+' '.join(properties))
     # stream back a csv
     def stream_csv(data,props,names):
         yield ','.join(names) + '\n'
