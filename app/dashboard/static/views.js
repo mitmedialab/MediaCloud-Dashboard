@@ -71,6 +71,78 @@ App.SentenceView = Backbone.View.extend({
 });
 App.SentenceView = App.SentenceView.extend(App.ActionedViewMixin);
 
+App.StoryView = Backbone.View.extend({
+    name: 'StoryView',
+    template: _.template($('#tpl-story-view').html()),
+    events: {
+        'click li.action-about > a': 'clickAbout',
+        'click .launch-btn': 'clickLaunch'
+    },
+    initialize: function (options) {
+        this.render();
+    },
+    render: function () {
+        var that = this;
+        App.debug('App.StoryView.render()');
+        this.$el.html(this.template());
+        this.hideActionMenu();
+        var $el = this.$('.story-view .copy');
+        progress = _.template($('#tpl-progress').html());
+        $el.html(progress());
+        this.collection.resources.on('sync:story', function (stories) {
+            if (that.collection.length < 2) {
+                App.debug('App.StoryView.storyCollection: sync');
+                // now list some of the stories
+                $el.html('');
+                that.addStories(stories.last(10),$el);
+            }
+        }, this);
+        // only render both when >=2 queries
+        this.listenTo(this.collection.resources, 'resource:complete:story', function () {
+            if (that.collection.length >= 2) {
+                $el.html('');
+                $el.append('<h3 class="first-query">'+App.config.queryNames[0]+'</h3>');
+                var query1Stories = that.collection.models[0].get('results').get('stories');
+                that.addSentences(query1Stories.last(10),$el);
+                $el.append('<h3 class="second-query">'+App.config.queryNames[1]+'</h3>');
+                var query2Stories = that.collection.models[1].get('results').get('stories');
+                that.addSentences(query2Stories.last(10),$el);
+            }
+            that.delegateEvents();  // gotta run this to register the events again
+            that.showActionMenu();
+            that.showLaunchControl();
+        });
+        this.collection.on('execute', function () {
+            $el.html(progress());
+        });
+        this.delegateEvents();
+    },
+    addStories: function(stories,element){
+        App.debug("AddStories!");
+        App.debug(stories);
+        _.each(stories, function (m) {
+            var p = $('<p>').html('<em>' + m.getMediaSourceName() + '</em> - ' + m.date() + ': ' 
+                + '<a href="' + m.get('url') + '">' + 'link to story' + '</a>'
+                );
+            element.append(p);
+        });
+    },
+    clickAbout: function (evt) {
+        evt.preventDefault();
+        this.aboutView = new App.AboutView({
+            template: '#tpl-about-stories-view'
+        });
+        $('body').append(this.aboutView.el);
+    },
+    clickLaunch: function(evt) {
+        window.open(App.getToolUrl('mentions'));
+    },
+    showLaunchControl: function(){
+        this.$('.launch-btn').toggle(App.con.userModel.get('authenticated')==true);
+    }
+});
+App.StoryView = App.StoryView.extend(App.ActionedViewMixin);
+
 // Wrapper view for single word clouds and comparison word cloud
 App.WordCountView = App.NestedView.extend({
     name: 'WordCountView',
@@ -577,10 +649,14 @@ App.QueryResultView = App.NestedView.extend({
         App.debug('App.QueryResultView.initialize():' + this.cid);
         this.histogramView = new App.HistogramView(options);
         this.wordCountView = new App.WordCountView(options);
-        this.sentenceView = new App.SentenceView(options);
+        if(App.con.userModel.canListSentences()){
+            this.mentionsView = new App.SentenceView(options);
+        } else {
+            this.mentionsView = new App.StoryView(options);
+        }
         this.addSubView(this.histogramView);
         this.addSubView(this.wordCountView);
-        this.addSubView(this.sentenceView);
+        this.addSubView(this.mentionsView);
         this.render();
     },
     render: function () {
@@ -588,6 +664,6 @@ App.QueryResultView = App.NestedView.extend({
         this.$el.html('');
         this.$el.append(this.histogramView.$el);
         this.$el.append(this.wordCountView.$el);
-        this.$el.append(this.sentenceView.$el);
+        this.$el.append(this.mentionsView.$el);
     }
 });
