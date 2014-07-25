@@ -206,7 +206,7 @@ App.WordCountView = App.NestedView.extend({
 
     renderWordCountComparison: function (collection) {
         App.debug('App.WordCountView.renderWordCountComparison()');
-        var wordCountComparisonView = new App.WordCountComparisonView(collection);
+        var wordCountComparisonView = new App.WordCountComparisonView({'collection':collection});
         this.addSubView(wordCountComparisonView);
         var $el = this.$('.viz');
         $el.append(wordCountComparisonView.$el);
@@ -234,131 +234,222 @@ App.WordCountView = App.WordCountView.extend(App.ActionedViewMixin);
 App.WordCountComparisonView = Backbone.View.extend({
     name: 'WordCountComparisonView',
     config: {
-        fontSize: {
-            minSize: 8
-            , maxSize: 48
-        }
+        // Use sizeRange() to read, might be dynamic in the future
+        sizeRange: { min: 10, max: 36 }
+        , height: 400
+        , padding: 10
+        , linkColor: "#428bca"
     },
 
     template: _.template($('#tpl-wordcount-comparison-view').html()),
     
-    initialize: function (collection) {
-        this.render(collection);
+    initialize: function () {
+        this.render();
     },
-
-    render: function (collection) {
-        App.debug('App.WordCountComparisonView.render()');
-        this.$el.html(this.template());
-        progress = _.template($('#tpl-progress').html());
-        this.$('.panel-body').html(progress());
+    updateStats: function () {
+        var allLeft = this.collection.at(0).get('results').get('wordcounts').toJSON();
+        var allRight = this.collection.at(1).get('results').get('wordcounts').toJSON();
+        var countSel = function (d) { return d.count };
+        var leftSum = d3.sum(allLeft, countSel);
+        var rightSum = d3.sum(allRight, countSel);
+        var topLeft = _.first(allLeft, 100);
+        var topRight = _.first(allRight, 100);
+        // Normalize
+        _.each(topLeft, function (d) {
+            d.tfnorm = d.count / leftSum;
+        });
+        _.each(topRight, function (d) {
+            d.tfnorm = d.count / rightSum;
+        })
+        // Find L - R, L int R, R - L
+        var terms = {}
+        _.each(topLeft, function (d) {
+            terms[d.stem] = d;
+            terms[d.stem].left = true;
+        });
+        _.each(topRight, function (d) {
+            if (!terms[d.stem]) {
+                terms[d.stem] = d;
+            } else {
+                terms[d.stem].tfnorm = (terms[d.stem].count + d.count) / (leftSum + rightSum);
+            }
+            terms[d.stem].right = true;
+        });
+        this.left = _.filter(terms, function (d) { return d.left && !d.right; });
+        this.right = _.filter(terms, function (d) { return d.right && !d.left; });
+        this.center = _.filter(terms, function (d) { return d.left && d.right; });
+        this.center.sort(function (a, b) {
+            return b.tfnorm - a.tfnorm;
+        });
+        this.leftExtent = d3.extent(this.left, function (d) { return d.tfnorm; });
+        this.rightExtent = d3.extent(this.right, function (d) { return d.tfnorm; });
+        this.centerExtent = d3.extent(this.center, function (d) { return d.tfnorm; })
+    },
+    render: function () {
         var that = this;
-        _.defer(function(){that.renderD3(collection);});
+        this.updateStats();
+        this.$el.html(this.template());
+        this.$('.content-text').hide();
+        _.defer(function () { 
+            that.renderSvg();
+        });
     },
-
-    renderD3: function (collection) {
-        App.debug('App.WordCountComparisonView.renderD3()');
-        this.$('.wordcount-comparison-view-content')
-            .html('')
-            .css('padding', '0');
-        var width = this.$('.wordcount-comparison-view-content').width();
-        var height = 400;
-        // supports two queries
-        // TODO: Iterate through collections instead
-        var query1Words = collection.models[0].get('results').get('wordcounts');
-        var query2Words = collection.models[1].get('results').get('wordcounts');
-
-        var topWordsQuery1 = _.first(query1Words.toJSON(), 100);
-        var topWordsQuery2 = _.first(query2Words.toJSON(), 100);
-
-        var countsQuery1 = _.pluck(topWordsQuery1, 'count');
-        var countsQuery2 = _.pluck(topWordsQuery2, 'count');
-
-        var maxQuery1 = d3.max(countsQuery1);
-        var maxQuery2 = d3.max(countsQuery2);
-
-        var maxQuery = d3.max([maxQuery1,maxQuery2]);
-        var slope = this.config.fontSize.maxSize / Math.log(maxQuery);
-
-        // get list of all words and sizes
-        wordList1 = [];
-        wordList2 = [];
-        intersectionWordList = [];
-
-        var intersection = _.filter(topWordsQuery1, function(m){
-            return _.contains(_.pluck(topWordsQuery2, 'term'), m['term']); 
-        });
-
-        _.each(intersection, function (m) {
-            intersectionWordList.push({text: m['term'], color: 'black', query1Count: 0, query2Count: 0, size: 0});
-        });
-
-        _.each(topWordsQuery1, function (m) {
-            // if in the intersection, add to intersectionList
-            if (_.contains(_.pluck(intersection, 'term'), m['term'])){
-                wordObject = _.findWhere(intersectionWordList, {text: m['term']});
-                wordObject.query1Count = m['count'];
-                wordObject.size = slope * Math.log(wordObject.query1Count + wordObject.query2Count);
-            }
-            else{
-                // add to wordList1
-                wordList1.push({text: m['term'], color: '#e14c11', query1Count: m['count'], query2Count: 0, size: slope * Math.log(m['count'])});
-            }
-        });
-
-        _.each(topWordsQuery2, function (m) {
-            // if in the intersection, add to intersectionList
-            if (_.contains(_.pluck(intersection, 'term'), m['term'])){
-                wordObject = _.findWhere(intersectionWordList, {text: m['term']});
-                wordObject.query2Count = m['count'];
-                wordObject.size = slope * Math.log(wordObject.query1Count + wordObject.query2Count);
-            }
-            else{
-                // add to wordList2
-                wordList2.push({text: m['term'], color: '#249fc9', query1Count: 0, query2Count: m['count'], size: slope * Math.log(m['count'])});
-            }
-        });
-
-        wordsList = wordList1.concat(wordList2).concat(intersectionWordList)
-
-        function getColor(d){
-            var total = d.query1Count + d.query2Count;
-            colorFill = -1*d.query1Count/total + 1*d.query2Count/total;
-            return colorFill;
+    sizeRange: function () {
+        return _.clone(this.config.sizeRange);
+    },
+    fontSize: function (term, extent, sizeRange) {
+        if (typeof(sizeRange) === 'undefined') {
+            sizeRange = this.sizeRange();
         }
-
-        var fill = d3.scale.linear()
-                .domain([-1, 1])
-                .range(["orange", "orchid"]);  
-        d3.layout.cloud().size([width, height])
-        .words(wordsList)
-        .rotate(function() { return ~~(Math.random() * 1) * 90; })
-        .font("Arial")
-        .fontSize(function(d) {return d.size; })
-        // Gradient color
-        // .fontColor(function(d) {return fill(getColor(d)); })
-        // Separate colors
-        .fontColor(function(d) {return d.color; })
-        .on("end", draw)
-        .start();
-
-        function draw(words) {
-            // var fill = d3.scale.category20();
-            var svg = d3.select('.wordcount-comparison-view-content').append('svg')
-            .attr('width', width).attr('height', height)    
-            .append("g")
-            .attr("transform", "translate("+width/2+","+height/2+")")
-            .selectAll("text")
-            .data(words)
-            .enter().append("text")
-            .style("font-size", function(d) { return d.size + "px"; })
-            .style("font-weight", 'bold')
-            .style("fill", function(d) { return d.fontColor; })
-            .attr("text-anchor", "middle")
-            .attr("transform", function(d) {
-                return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+        var size = sizeRange.min
+            + (sizeRange.max - sizeRange.min)
+                * ( Math.log(term.tfnorm) - Math.log(extent[0]) ) / ( Math.log(extent[1]) - Math.log(extent[0]) );
+        return size;
+    },
+    renderHtml: function () {
+        var that = this;
+        var container = d3.select(this.el).select('.content-text');
+        container.append('h3').text('Main');
+        container.append('div').selectAll('.left')
+            .data(this.left, function (d) { return d.stem; })
+            .enter()
+                .append('span').classed('left', true)
+                .style('font-size', function (d) {
+                    return that.fontSize(d, that.leftExtent) + 'px';
+                })
+                .style('font-weight', 'bold')
+                .text(function (d) { return d.term + ' '; });
+        container.append('h3').text('Intersection');
+        container.append('div').selectAll('.intersection')
+            .data(this.center, function (d) { return d.stem; })
+            .enter()
+                .append('span').classed('intersection', true)
+                .style('font-size', function (d) {
+                    return that.fontSize(d, that.centerExtent) + 'px';
+                })
+                .style('font-weight', 'bold')
+                .text(function (d) { return d.term + ' '; });
+        container.append('h3').text('Comparison');
+        container.append('div').selectAll('.right')
+            .data(this.right, function (d) { return d.stem; })
+            .enter()
+                .append('span').classed('right', true)
+                .style('font-size', function (d) {
+                    return that.fontSize(d, that.rightExtent) + 'px';
+                })
+                .style('font-weight', 'bold')
+                .text(function (d) { return d.term + ' '; });
+    },
+    renderSvg: function () {
+        var that = this;
+        var container = d3.select(this.el).select('.content-viz');
+        var width = this.$('.content-viz').width();
+        var innerWidth = width/3.0 - 2*this.config.padding;
+        var svg = container.append('svg')
+            .attr('height', this.config.height)
+            .attr('width', width);
+        var leftGroup = svg.append('g').classed('left-group', true)
+            .attr('transform', 'translate('+this.config.padding+')');
+        var intersectGroup = svg.append('g').classed('intersect-group', true)
+            .attr('transform', 'translate('+(innerWidth+this.config.padding)+')');
+        var rightGroup = svg.append('g').classed('right-group', true)
+            .attr('transform', 'translate('+(2.0*innerWidth+this.config.padding)+')');
+        var y = this.config.height;
+        var sizeRange = this.sizeRange();
+        var leftWords, rightWords, intersectWords;
+        while (y >= this.config.height && sizeRange.max > sizeRange.min) {
+            // Create words
+            leftWords = leftGroup.selectAll('.word')
+                .data(this.left, function (d) { return d.stem; });
+            leftWords.enter()
+                .append('text').classed('word', true).classed('left', true)
+                .attr('font-size', function (d) {
+                    return that.fontSize(d, that.leftExtent, sizeRange); });
+            rightWords = rightGroup.selectAll('.word')
+                .data(this.right, function (d) { return d.stem; });
+            rightWords.enter()
+                .append('text').classed('word', true).classed('right', true)
+                .attr('font-size', function (d) {
+                    return that.fontSize(d, that.rightExtent, sizeRange); });
+            intersectWords = intersectGroup.selectAll('.word')
+                .data(this.center, function (d) { return d.stem; });
+            intersectWords.enter()
+                .append('text').classed('word', true).classed('intersect', true)
+                .attr('font-size', function (d) {
+                    return that.fontSize(d, that.centerExtent, sizeRange); });
+            d3.selectAll('.word')
+                .text(function (d) { return d.term; })
+                .attr('font-weight', 'bold');
+            d3.selectAll('.left.word')
+                .attr('fill', App.config.queryColors[0]);
+            d3.selectAll('.right.word')
+                .attr('fill', App.config.queryColors[1]);
+            // Layout
+            y = 0;
+            y = Math.max(y, this.listCloudLayout(leftWords, innerWidth, this.leftExtent, sizeRange));
+            y = Math.max(y, this.listCloudLayout(intersectWords, innerWidth, this.centerExtent, sizeRange));
+            y = Math.max(y, this.listCloudLayout(rightWords, innerWidth, this.rightExtent, sizeRange));
+            sizeRange.max = sizeRange.max - 1;
+        }
+        d3.selectAll('.word')
+            .on('mouseover', function () {
+                d3.select(this).attr('fill', that.config.linkColor);
             })
-            .text(function(d) { return d.text; });
-        }     
+            .on('mouseout', function () {
+                var color = '#000';
+                if (d3.select(this).classed('left')) {
+                    color = App.config.queryColors[0];
+                }
+                if (d3.select(this).classed('right')) {
+                    color = App.config.queryColors[1];
+                }
+                d3.select(this).attr('fill', color);
+            });
+        d3.selectAll('.left.word')
+            .on('click', function (d) {
+                that.collection.refine.trigger('mm:refine', {
+                    term: d.term
+                    , query: 0
+                });
+            });
+        d3.selectAll('.right.word')
+            .on('click', function (d) {
+                that.collection.refine.trigger('mm:refine', {
+                    term: d.term
+                    , query: 1
+                });
+            });
+        d3.selectAll('.intersect.word')
+            .on('click', function (d) {
+                that.collection.refine.trigger('mm:refine', {
+                    term: d.term
+                    , query: 1
+                });
+            });
+    },
+    listCloudLayout: function (words, width, extent, sizeRange) {
+        var that = this;
+        var x = 0;
+        words.attr('x', function (d) {
+            var textLength = this.getComputedTextLength();
+            var fs = that.fontSize(d, extent, sizeRange);
+            var lastX = x;
+            if (x + textLength + that.config.padding > width) {
+                lastX = 0;
+            }
+            x = lastX + textLength + 0.3*fs;
+            return lastX;
+        });
+        var y = 0;
+        var lastAdded = 0;
+        words.attr('y', function (d) {
+            if (d3.select(this).attr('x') == 0) {
+                y += 1.5 * that.fontSize(d, extent, sizeRange);
+                lastAdded = 1.5 * that.fontSize(d, extent, sizeRange);
+            }
+            return y;
+        });
+        return y + lastAdded;
     }
 });
 
