@@ -88,11 +88,6 @@ App.StoryView = Backbone.View.extend({
         var $el = this.$('.story-view .copy');
         progress = _.template($('#tpl-progress').html());
         $el.html(progress());
-        // add in data download links
-        var downloadUrls = this.collection.map(function(m) { 
-            return m.get('results').get('wordcounts').csvUrl();
-        });
-        this.addDownloadMenuItems(downloadUrls);
         // render one of two lists
         this.listenTo(this.collection.resources, 'resource:complete:story', function () {
             $el.html('');
@@ -108,6 +103,11 @@ App.StoryView = Backbone.View.extend({
                 // had just a main query
                 that.addStories(query1Stories.last(10),that.storyTemplate,$el);
             }
+            // now that the query collection is filled in, add the download data links
+            var downloadUrls = that.collection.map(function(m) { 
+                return m.get('results').get('stories').csvUrl();
+            });
+            that.addDownloadMenuItems(downloadUrls);
             // clean up and prep for display
             that.delegateEvents();
             that.showActionMenu();
