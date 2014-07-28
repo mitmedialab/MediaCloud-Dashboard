@@ -939,6 +939,9 @@ App.ActionedViewMixin = {
         this.$('.panel-heading button').show();
     },
     addDownloadMenuItems: function(downloadUrls,title){
+        if(App.con.userModel.get('authenticated')==false){ // public users can't download
+            return;
+        }
         this.$('.panel-action-list li.action-download').remove();
         for(idx in downloadUrls){
             var text = "";
