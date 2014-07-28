@@ -215,6 +215,9 @@ def _story_public_docs(api, keywords, media, start, end, count=10):
     query = "%s AND (%s)" % (app.core.util.keywords_to_solr(keywords), filter_query)
     app.core.logger.debug("query: _story_docs %s" % query)
     stories = api.storyPublicList(query,rows=count)
+    # now add in the titles by calling the private API
+    for s in stories:
+        s['title']=mc.story(s['stories_id'])['title']
     return json.dumps(stories, separators=(',',':'))
     
 @flapp.route('/api/stories/public/docs/<keywords>/<media>/<start>/<end>')
@@ -314,7 +317,7 @@ def assemble_csv_response(results,properties,column_names,filename):
         yield ','.join(names) + '\n'
         for row in data:
             try:
-                attributes = [ row[p] for p in props ] 
+                attributes = [ row[p] if isinstance(row[p], str) else str(row[p]) for p in props ] 
                 yield ','.join(attributes) + '\n'
             except Exception as e:
                 app.core.logger.error("Couldn't process a CSV row: "+str(e))
