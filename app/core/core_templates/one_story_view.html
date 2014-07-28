@@ -5,8 +5,9 @@
     	<a href="<%=story.get('media_url')%>"><%= story.get('media_name') %></a>
     	- 
     	<%= story.date() %>
-    </b> 
-    <a href="<%=story.get('url')%>"><small>( view article )</small></a>
+    </b>:
+    <br />
+    <a href="<%=story.get('url')%>"><%= story.get('title') %></a>
     </p>
 </div>
 </script>
