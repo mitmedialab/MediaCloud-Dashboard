@@ -28,6 +28,7 @@ App.SentenceView = Backbone.View.extend({
                 q2TotalSentences = query2Sentences.last(1)[0].get('totalSentences');
                 $el.append('<h3 class="second-query">'+App.config.queryNames[1]+' ('+q2TotalSentences+' found)</h3>');
                 that.addSentences(query2Sentences.last(10),that.sentenceTemplate,$el);
+                that.$('.count').html('');
             } else {
                 // figure out the total sentence count
                 totalSentences = query1Sentences.last(1)[0].get('totalSentences');
@@ -202,7 +203,7 @@ App.WordCountView = App.NestedView.extend({
         });
         $('body').append(this.aboutView.el);
     }
-    
+
 });
 App.WordCountView = App.WordCountView.extend(App.ActionedViewMixin);
 
