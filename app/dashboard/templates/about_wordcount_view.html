@@ -17,6 +17,11 @@ If you have just one query, it shows you a standard word cloud.  Click on a word
 If you have two queries, it shows you a visualization helps you find the most important words in the <span class="first-query
 ">main</span>, <span class="second-query">comparison</span>, and combined queries.  The left and right columns show the top 100 words from the <span class="first-query">main</span> and <span class="second-query">comparison</span> queries.  Words the two have in common only show up in the center column.  Each column is normalized independently to the (currently, estimated) total number of unique words in the query. Columns are normalized independently, so this is not helpful for figuring out how large one query is versus another, or how skewed a word is towards one query of the other.  You can click on any word to refine the query.
 </p>
+<p>
+The comparative visualization is our implementation of the "<a href="https://github.com/Coppersmith/vennclouds">vennclouds</a>" layout demostrated in this paper:
+<br />
+Glen Coppersmith and Erin Kelly (2014). Dynamic Wordclouds and Vennclouds for Exploratory Data Analysis. Association for Computational Linguistics Workshop on Interactive Language Learning and Visualization
+</p>
             </div>
         </div>
     </div>
