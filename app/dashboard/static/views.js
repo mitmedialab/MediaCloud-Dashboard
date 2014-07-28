@@ -589,7 +589,7 @@ App.HistogramView = Backbone.View.extend({
             .enter()
                 .append('text').classed('label-year', true)
                     .text(function (d) { return d.getUTCFullYear(); })
-                    .attr('x', this.x)
+                    .attr('x', function (d) { return that.x(that.toDateString(d)); })
                     .attr('y', this.chartHeight - this.config.yearSize - 1)
                     .attr('dy', '1em')
                     .attr('font-size', this.config.yearSize)
