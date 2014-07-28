@@ -911,7 +911,7 @@ App.ToolListView = Backbone.View.extend({
                     .text('Dashboard')
                 )
             );
-        this.$el.append(
+/*        this.$el.append(
             $('<li class="mentions-color">').append(
                 $('<a>')
                     .attr('href', 'https://mentions.mediameter.org/' + path)
@@ -924,7 +924,7 @@ App.ToolListView = Backbone.View.extend({
                     .attr('href', 'https://frequency.mediameter.org/' + path)
                     .text('Frequency')
                 )
-            );
+            );*/
     }
 });
 
