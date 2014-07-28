@@ -1,9 +1,14 @@
 <script id="tpl-one-sentence-view" type="text/template">
 <div class="one-sentence-view">
     <p>
-    <b><a href="<%=sentence.get('url')%>"><%= sentence.media() %> - <%= sentence.date() %></a></b>:
+    <b>
+    	<%= sentence.media() %> 
+    	- 
+    	<%= sentence.date() %>
+    </b> 
+    <a href="<%=sentence.get('url')%>"><small>( view article )</small></a>:
     <br />
-    <%=sentence.escape('sentence')%>
+    <i>"... <%=sentence.escape('sentence')%> ..."</i>
     </p>
 </div>
 </script>
