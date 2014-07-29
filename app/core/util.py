@@ -45,7 +45,6 @@ def media_to_solr(media):
     #for tag in d['tags']:
     #    parts = ['tags_id_media:%s' % i for i in tag['tags_id']]
     #    tag_queries.append(join_query_clauses(parts, 'OR'))
-    print json.dumps(media)
     if 'sets' in d:
         parts = ['tags_id_media:%s' % i for i in d['sets']]
         tag_queries.append(join_query_clauses(parts, 'OR'))
