@@ -212,7 +212,7 @@ App.WordCountComparisonView = Backbone.View.extend({
     name: 'WordCountComparisonView',
     config: {
         // Use sizeRange() to read, might be dynamic in the future
-        sizeRange: { min: 10, max: 36 }
+        sizeRange: { min: 10, max: 24 }
         , height: 400
         , padding: 10
         , linkColor: "#428bca"
@@ -221,6 +221,7 @@ App.WordCountComparisonView = Backbone.View.extend({
     template: _.template($('#tpl-wordcount-comparison-view').html()),
     
     initialize: function () {
+        _.bindAll(this,'refineBothQueries');
         this.render();
     },
     updateStats: function () {
@@ -258,9 +259,8 @@ App.WordCountComparisonView = Backbone.View.extend({
         this.center.sort(function (a, b) {
             return b.tfnorm - a.tfnorm;
         });
-        this.leftExtent = d3.extent(this.left, function (d) { return d.tfnorm; });
-        this.rightExtent = d3.extent(this.right, function (d) { return d.tfnorm; });
-        this.centerExtent = d3.extent(this.center, function (d) { return d.tfnorm; })
+        this.all = this.left.concat(this.right);
+        this.fullExtent = d3.extent(this.all, function (d) { return d.tfnorm; })
     },
     render: function () {
         var that = this;
@@ -283,6 +283,9 @@ App.WordCountComparisonView = Backbone.View.extend({
                 * ( Math.log(term.tfnorm) - Math.log(extent[0]) ) / ( Math.log(extent[1]) - Math.log(extent[0]) );
         return size;
     },
+    termText: function(d){
+        return d.term + d.count + ' ';
+    },
     renderHtml: function () {
         var that = this;
         var container = d3.select(this.el).select('.content-text');
@@ -292,30 +295,30 @@ App.WordCountComparisonView = Backbone.View.extend({
             .enter()
                 .append('span').classed('left', true)
                 .style('font-size', function (d) {
-                    return that.fontSize(d, that.leftExtent) + 'px';
+                    return that.fontSize(d, that.fullExtent) + 'px';
                 })
                 .style('font-weight', 'bold')
-                .text(function (d) { return d.term + ' '; });
+                .text(this.termText);
         container.append('h3').text('Intersection');
         container.append('div').selectAll('.intersection')
             .data(this.center, function (d) { return d.stem; })
             .enter()
                 .append('span').classed('intersection', true)
                 .style('font-size', function (d) {
-                    return that.fontSize(d, that.centerExtent) + 'px';
+                    return that.fontSize(d, that.fullExtent) + 'px';
                 })
                 .style('font-weight', 'bold')
-                .text(function (d) { return d.term + ' '; });
+                .text(this.termText);
         container.append('h3').text('Comparison');
         container.append('div').selectAll('.right')
             .data(this.right, function (d) { return d.stem; })
             .enter()
                 .append('span').classed('right', true)
                 .style('font-size', function (d) {
-                    return that.fontSize(d, that.rightExtent) + 'px';
+                    return that.fontSize(d, that.fullExtent) + 'px';
                 })
                 .style('font-weight', 'bold')
-                .text(function (d) { return d.term + ' '; });
+                .text(this.termText);
     },
     renderSvg: function () {
         var that = this;
@@ -341,19 +344,19 @@ App.WordCountComparisonView = Backbone.View.extend({
             leftWords.enter()
                 .append('text').classed('word', true).classed('left', true)
                 .attr('font-size', function (d) {
-                    return that.fontSize(d, that.leftExtent, sizeRange); });
+                    return that.fontSize(d, that.fullExtent, sizeRange); });
             rightWords = rightGroup.selectAll('.word')
                 .data(this.right, function (d) { return d.stem; });
             rightWords.enter()
                 .append('text').classed('word', true).classed('right', true)
                 .attr('font-size', function (d) {
-                    return that.fontSize(d, that.rightExtent, sizeRange); });
+                    return that.fontSize(d, that.fullExtent, sizeRange); });
             intersectWords = intersectGroup.selectAll('.word')
                 .data(this.center, function (d) { return d.stem; });
             intersectWords.enter()
                 .append('text').classed('word', true).classed('intersect', true)
                 .attr('font-size', function (d) {
-                    return that.fontSize(d, that.centerExtent, sizeRange); });
+                    return that.fontSize(d, that.fullExtent, sizeRange); });
             d3.selectAll('.word')
                 .text(function (d) { return d.term; })
                 .attr('font-weight', 'bold');
@@ -363,14 +366,15 @@ App.WordCountComparisonView = Backbone.View.extend({
                 .attr('fill', App.config.queryColors[1]);
             // Layout
             y = 0;
-            y = Math.max(y, this.listCloudLayout(leftWords, innerWidth, this.leftExtent, sizeRange));
-            y = Math.max(y, this.listCloudLayout(intersectWords, innerWidth, this.centerExtent, sizeRange));
-            y = Math.max(y, this.listCloudLayout(rightWords, innerWidth, this.rightExtent, sizeRange));
+            y = Math.max(y, this.listCloudLayout(leftWords, innerWidth, this.fullExtent, sizeRange));
+            y = Math.max(y, this.listCloudLayout(intersectWords, innerWidth, this.fullExtent, sizeRange));
+            y = Math.max(y, this.listCloudLayout(rightWords, innerWidth, this.fullExtent, sizeRange));
             sizeRange.max = sizeRange.max - 1;
         }
         d3.selectAll('.word')
             .on('mouseover', function () {
-                d3.select(this).attr('fill', that.config.linkColor);
+                d3.select(this).attr('fill', that.config.linkColor)
+                .attr('cursor','pointer');
             })
             .on('mouseout', function () {
                 var color = '#000';
@@ -380,29 +384,20 @@ App.WordCountComparisonView = Backbone.View.extend({
                 if (d3.select(this).classed('right')) {
                     color = App.config.queryColors[1];
                 }
-                d3.select(this).attr('fill', color);
+                d3.select(this).attr('fill', color)
+                .attr('cursor','default');
             });
         d3.selectAll('.left.word')
-            .on('click', function (d) {
-                that.collection.refine.trigger('mm:refine', {
-                    term: d.term
-                    , query: 0
-                });
-            });
+            .on('click', this.refineBothQueries);
         d3.selectAll('.right.word')
-            .on('click', function (d) {
-                that.collection.refine.trigger('mm:refine', {
-                    term: d.term
-                    , query: 1
-                });
-            });
+            .on('click', this.refineBothQueries);
         d3.selectAll('.intersect.word')
-            .on('click', function (d) {
-                that.collection.refine.trigger('mm:refine', {
-                    term: d.term
-                    , query: 1
-                });
-            });
+            .on('click', this.refineBothQueries);
+    },
+    refineBothQueries: function(d){
+        this.collection.refine.trigger('mm:refine', [
+            {term: d.term, query: 0},{term: d.term, query: 1}
+        ]);
     },
     listCloudLayout: function (words, width, extent, sizeRange) {
         var that = this;
