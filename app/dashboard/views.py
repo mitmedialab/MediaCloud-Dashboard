@@ -49,13 +49,13 @@ def public_story_docs_csv(keywords, media, start, end):
     '''
     app.core.logger.debug("Starting public story docs CSV download")
     user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
-    query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
+    query = app.core.util.solr_query(keywords, media, start, end)
     all_stories = []
     last_processed_stories_id = 0
     more_stories = True
     try:
         while more_stories:
-            res = user_mc.storyPublicList(keywords, query, last_processed_stories_id, 1000)
+            res = user_mc.storyPublicList(query, '', last_processed_stories_id, 1000)
             if len(res) > 0:
                 last_processed_stories_id = res[len(res)-1]['processed_stories_id']
                 all_stories = all_stories + res
@@ -75,12 +75,12 @@ def story_docs_csv(keywords, media, start, end):
     '''
     app.core.logger.debug("Starting story docs CSV download")
     user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
-    query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
+    query = app.core.util.solr_query(keywords, app.core.util.media_to_solr, start, end)
     all_stories = []
     last_processed_stories_id = 0
     more_stories = True
     while more_stories:
-        res = user_mc.storyList(keywords, query, last_processed_stories_id, 1000)
+        res = user_mc.storyList(query, '', last_processed_stories_id, 1000)
         if len(res) > 0:
             last_processed_stories_id = res[len(res)-1]['processed_stories_id']
             all_stories = all_stories + res
