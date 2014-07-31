@@ -1,7 +1,7 @@
 import datetime, os, json, multiprocessing
 
 import mediacloud.api as mcapi
-from app.core import config
+from app.core import logger, config
 
 DATE_WILDCARD = '*'
 
@@ -18,29 +18,54 @@ _media_info = load_media_info_json()
 def no_date_specified(start,end):
     return start==DATE_WILDCARD and end==DATE_WILDCARD;
 
-def solr_query(media, start, end):
-    '''Convert a media query, start and end date into a solr query string.'''
-    date_query_args = None
-    if no_date_specified(start,end):
-        date_query_args = ''
-    else:
-        startdate = datetime.datetime.strptime(start, '%Y-%m-%d').date()
-        enddate = datetime.datetime.strptime(end, '%Y-%m-%d').date()
-        date_query_args = '+publish_date:[%sT00:00:00Z TO %sT23:59:59Z] AND ' % (
-            startdate.strftime('%Y-%m-%d'), enddate.strftime('%Y-%m-%d'))
-    query = '%s (%s)' % ( date_query_args, media )
-    return query
+def date_is_specified(start,end):
+    return not no_date_specified(start,end)
+
+def media_is_specified(media):
+    return not (len(media)==0 or media.strip()=="{}")
+
+def solr_query(keywords, media, start, end):
+    '''Convert keywords, media query, start and end date into a solr query string.'''
+    query_args = []
+    keyword_query_args = keywords_to_solr(keywords)
+    #logger.debug('keyword_query_args: '+keyword_query_args)
+    query_args.append( keyword_query_args )
+    if date_is_specified(start,end):
+        date_query_args = _solr_date_query_part(start,end)
+        #logger.debug('date_query_args: '+date_query_args)
+        query_args.append( date_query_args )
+    media_query = media_to_solr(media)
+    if media_is_specified(media_query):
+        media_query_args = '(%s)' % ( media_query )
+        #logger.debug('media_query_args: '+media_query_args)
+        query_args.append( media_query_args )
+    query = ' AND '.join(query_args)
+    return query.strip()
+
+def _solr_date_query_part(start,end):
+    startdate = datetime.datetime.strptime(start, '%Y-%m-%d').date()
+    enddate = datetime.datetime.strptime(end, '%Y-%m-%d').date()
+    date_query_args = '(+publish_date:[%sT00:00:00Z TO %sT23:59:59Z])' % (
+        startdate.strftime('%Y-%m-%d'), enddate.strftime('%Y-%m-%d'))
+    return date_query_args
 
 def solr_date_queries(media, start, end):
     '''Return a list of solr queries, one for each day between start and end
     (inclusive).'''
+    queries = []
     startdate = datetime.datetime.strptime(start, '%Y-%m-%d').date()
     enddate = datetime.datetime.strptime(end, '%Y-%m-%d').date()
     num_days = (enddate - startdate).days + 1
     dates = [startdate + datetime.timedelta(x) for x in range(num_days)]
     dates = [date.strftime('%Y-%m-%d') for date in dates]
-    query_format = "+publish_date:[%sT00:00:00Z TO %sT23:59:59Z] AND %s"
-    queries = [(date, query_format % (date, date, media)) for date in dates]
+    for date in dates:
+        query_args = []
+        query_args.append( _solr_date_query_part(date,date) )
+        if media_is_specified(media):
+            media_query_args = '(%s)' % ( media )
+            query_args.append( media_query_args )
+        query = ' AND '.join(query_args)
+        queries.append( query )
     return queries
 
 def media_to_solr(media):
@@ -106,7 +131,7 @@ def num_found_worker(arg):
     mc_key, keywords, date, filter_query = arg
     mc = mcapi.MediaCloud(mc_key)
     query = "%s AND (%s)" % (keywords_to_solr(keywords), filter_query)
-    app.core.logger.debug("query: sentenceList: %s" % query)
+    logger.debug("query: sentenceList: %s" % query)
     res = mc.sentenceList(query, '', 0, 0)
     return {
         'date': date
