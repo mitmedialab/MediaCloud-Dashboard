@@ -137,6 +137,7 @@ def _sentence_docs(api, keywords, media, start, end, count=10, sort=mcapi.MediaC
         # so first we need to know how many senteces there are
         sentence_counts = json.loads(_sentence_numfound(api._auth_token, keywords, media, start, end))
         sentence_total = sum([day['numFound'] for day in sentence_counts])
+        sentence_total = min(sentence_total,5000)   # don't offset too far into results otherwise query takes a LONG time to return
         try:
             start_index = randint(0,sentence_total-count)
         except Exception as exception:
