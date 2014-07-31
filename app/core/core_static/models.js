@@ -18,6 +18,39 @@ App.NestedModel = Backbone.Model.extend({
     }
 })
 
+/**
+ * If you model queries the server with query params, use this base class
+ */
+App.QueryParamDrivenCollection = Backbone.Collection.extend({
+
+    _getWildcardedParam: function(paramName){
+        var raw = this.params.get(paramName);
+        var value = ( (raw===undefined) || (raw.length==0) ) ? '*' : raw;
+        return encodeURIComponent(value);
+    },
+
+    _getStartParam: function(){
+        return this._getWildcardedParam('start');
+    },
+
+    _getEndParam: function(){
+        return this._getWildcardedParam('end');
+    },
+
+    _getDateParamUrlParts: function(){
+        return [ this._getStartParam(), this._getEndParam() ];
+    },
+
+    getQueryParamUrl: function(){
+        var urlParts = [ 
+            encodeURIComponent(this.params.get('keywords')),
+            encodeURIComponent(JSON.stringify(this.params.get('mediaModel').queryParam()))
+        ].concat( this._getDateParamUrlParts() );
+        return urlParts.join('/');
+    }
+
+});
+
 App.UserModel = Backbone.Model.extend({
     
     id: 'user',
@@ -574,7 +607,7 @@ App.SentenceModel = Backbone.Model.extend({
 });
 App.SentenceModel = App.SentenceModel.extend(App.DatedModelMixin);
 
-App.SentenceCollection = Backbone.Collection.extend({
+App.SentenceCollection = App.QueryParamDrivenCollection.extend({
     resourceType: 'sentence',
     model: App.SentenceModel,
     initialize: function (models, options) {
@@ -584,20 +617,10 @@ App.SentenceCollection = Backbone.Collection.extend({
         this.on('sync', function () { this.waitForLoad.resolve(); }, this);
     },
     url: function () {
-        var url = '/api/sentences/docs/';
-        url += encodeURIComponent(this.params.get('keywords'));
-        url += '/' + encodeURIComponent(JSON.stringify(this.params.get('mediaModel').queryParam()));
-        url += '/' + encodeURIComponent(this.params.get('start'));
-        url += '/' + encodeURIComponent(this.params.get('end'));
-        return url;
+        return '/api/sentences/docs/' + this.getQueryParamUrl();
     },
     csvUrl: function () {
-        var url = '/api/stories/docs/';
-        url += encodeURIComponent(this.params.get('keywords'));
-        url += '/' + encodeURIComponent(JSON.stringify(this.params.get('mediaModel').queryParam()));
-        url += '/' + encodeURIComponent(this.params.get('start'));
-        url += '/' + encodeURIComponent(this.params.get('end'));
-        return url + encodeURIComponent('.csv');
+        return '/api/stories/docs/' + this.getQueryParamUrl() + '.csv';
     }
 });
 
@@ -615,7 +638,7 @@ App.StoryModel = Backbone.Model.extend({
 });
 App.StoryModel = App.StoryModel.extend(App.DatedModelMixin);
 
-App.StoryCollection = Backbone.Collection.extend({
+App.StoryCollection = App.QueryParamDrivenCollection.extend({
     resourceType: 'story',
     model: App.StoryModel,
     initialize: function (models, options) {
@@ -625,20 +648,10 @@ App.StoryCollection = Backbone.Collection.extend({
         this.on('sync', function () { this.waitForLoad.resolve(); }, this);
     },
     url: function () {
-        var url = '/api/stories/public/docs/';
-        url += encodeURIComponent(this.params.get('keywords'));
-        url += '/' + encodeURIComponent(JSON.stringify(this.params.get('mediaModel').queryParam()));
-        url += '/' + encodeURIComponent(this.params.get('start'));
-        url += '/' + encodeURIComponent(this.params.get('end'));
-        return url;
+        return '/api/stories/public/docs/' + this.getQueryParamUrl();
     },
     csvUrl: function () {
-        var url = '/api/stories/public/docs/';
-        url += encodeURIComponent(this.params.get('keywords'));
-        url += '/' + encodeURIComponent(JSON.stringify(this.params.get('mediaModel').queryParam()));
-        url += '/' + encodeURIComponent(this.params.get('start'));
-        url += '/' + encodeURIComponent(this.params.get('end'));
-        return url + encodeURIComponent('.csv');
+        return '/api/stories/public/docs/' + this.getQueryParamUrl() + '.csv';
     }
 });
 
@@ -651,28 +664,17 @@ App.DemoStoryCollection = App.StoryCollection.extend({
 });
 
 App.WordCountModel = Backbone.Model.extend({});
-App.WordCountCollection = Backbone.Collection.extend({
+App.WordCountCollection = App.QueryParamDrivenCollection.extend({
     resourceType: 'wordcount',
     model: App.WordCountModel,
     initialize: function (models, options) {
         this.params = options.params;
     },
     url: function () {
-        var url = '/api/wordcount/';
-        url += encodeURIComponent(this.params.get('keywords'));
-        url += '/' + encodeURIComponent(JSON.stringify(this.params.get('mediaModel').queryParam()));
-        url += '/' + encodeURIComponent(this.params.get('start'));
-        url += '/' + encodeURIComponent(this.params.get('end'));
-        return url;
+        return '/api/wordcount/' + this.getQueryParamUrl();
     },
     csvUrl: function(){
-        return [ '/api', 'wordcount',
-                 encodeURIComponent(this.params.get('keywords')),
-                 encodeURIComponent(JSON.stringify(this.params.get('mediaModel').queryParam())),
-                 encodeURIComponent(this.params.get('start')),
-                 encodeURIComponent(this.params.get('end')),
-                 'csv'
-        ].join('/');
+        return '/api/wordcount/' + this.getQueryParamUrl() + '/csv';
     }
 });
 
@@ -700,28 +702,17 @@ App.DateCountModel = Backbone.Model.extend({
     },
 });
 
-App.DateCountCollection = Backbone.Collection.extend({
+App.DateCountCollection = App.QueryParamDrivenCollection.extend({
     resourceType: 'datecount',
     model: App.DateCountModel,
     initialize: function (models, options) {
         this.params = options.params;
     },
     url: function () {
-        return ['/api', 'sentences', 'numfound'
-            , this.params.get('keywords')
-            , JSON.stringify(this.params.get('mediaModel').queryParam())
-            , this.params.get('start')
-            , this.params.get('end')
-        ].join('/');
+        return '/api/sentences/numfound/' + this.getQueryParamUrl();
     },
     csvUrl: function(){
-        return ['/api', 'sentences', 'numfound'
-            , this.params.get('keywords')
-            , encodeURIComponent(JSON.stringify(this.params.get('mediaModel').queryParam()))
-            , this.params.get('start')
-            , this.params.get('end')
-            , 'csv'
-        ].join('/')
+        return '/api/sentences/numfound/' + this.getQueryParamUrl() + '/csv';
     }
 });
 

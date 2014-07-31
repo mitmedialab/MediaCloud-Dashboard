@@ -3,6 +3,8 @@ import datetime, os, json, multiprocessing
 import mediacloud.api as mcapi
 from app.core import config
 
+DATE_WILDCARD = '*'
+
 def load_media_info_json():
     base_dir = os.path.dirname(os.path.realpath(__file__))
     static_data_dir = os.path.join(base_dir, 'core_static', 'data')
@@ -13,15 +15,20 @@ def load_media_info_json():
     return media_info
 _media_info = load_media_info_json()
 
+def no_date_specified(start,end):
+    return start==DATE_WILDCARD and end==DATE_WILDCARD;
+
 def solr_query(media, start, end):
     '''Convert a media query, start and end date into a solr query string.'''
-    startdate = datetime.datetime.strptime(start, '%Y-%m-%d').date()
-    enddate = datetime.datetime.strptime(end, '%Y-%m-%d').date()
-    query = '+publish_date:[%sT00:00:00Z TO %sT23:59:59Z] AND (%s)' % (
-        startdate.strftime('%Y-%m-%d')
-        , enddate.strftime('%Y-%m-%d')
-        , media
-    )
+    date_query_args = None
+    if no_date_specified(start,end):
+        date_query_args = ''
+    else:
+        startdate = datetime.datetime.strptime(start, '%Y-%m-%d').date()
+        enddate = datetime.datetime.strptime(end, '%Y-%m-%d').date()
+        date_query_args = '+publish_date:[%sT00:00:00Z TO %sT23:59:59Z] AND ' % (
+            startdate.strftime('%Y-%m-%d'), enddate.strftime('%Y-%m-%d'))
+    query = '%s (%s)' % ( date_query_args, media )
     return query
 
 def solr_date_queries(media, start, end):
