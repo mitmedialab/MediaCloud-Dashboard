@@ -119,8 +119,7 @@ def media_sets():
 @flask_login.login_required
 def sentences(keywords, media, start, end):
     user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
-    filter_query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
-    query = "%s AND (%s)" % (app.core.util.keywords_to_solr(keywords), filter_query)
+    query = app.core.util.solr_query(keywords, media, start, end)
     app.core.logger.debug("query: sentences %s" % query)
     try:
         res = user_mc.sentenceList(query, '', 0, 10)
@@ -130,8 +129,7 @@ def sentences(keywords, media, start, end):
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
 
 def _sentence_docs(api, keywords, media, start, end, count=10, sort=mcapi.MediaCloud.SORT_RANDOM):
-    filter_query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
-    query = "%s AND (%s)" % (app.core.util.keywords_to_solr(keywords), filter_query)
+    query = app.core.util.solr_query(keywords, media, start, end)
     app.core.logger.debug("query: _sentence_docs %s" % query)
     start_index = 0
     if sort==mcapi.MediaCloud.SORT_RANDOM :
@@ -170,7 +168,12 @@ def demo_sentence_docs(keywords):
 
 def _sentence_numfound(api_key, keywords, media, start, end):
     user_mc = mcapi.MediaCloud(api_key)
-    query = "%s AND (%s)" % (app.core.util.keywords_to_solr(keywords), app.core.util.media_to_solr(media))
+    query_args = []
+    query_args.append( app.core.util.keywords_to_solr(keywords) )
+    app.core.logger.debug('MEDIA ' + media)
+    if app.core.util.media_is_specified(media):
+        query_args.append( app.core.util.media_to_solr(media) )
+    query = " AND ".join(query_args)
     app.core.logger.debug("query: _sentence_numfound: %s" % query)
     if app.core.util.no_date_specified(start,end):  # HACK: if no date, just return last year
         start = (datetime.datetime.now() - datetime.timedelta(days=365)).strftime('%Y-%m-%d')
@@ -195,6 +198,7 @@ def _sentence_numfound(api_key, keywords, media, start, end):
 @flask_login.login_required
 def sentence_numfound(keywords, media, start, end):
     api_key = flask_login.current_user.get_id()
+    app.core.logger.debug("request: /api/sentences/numfound/")
     try:
         return _sentence_numfound(api_key, keywords, media, start, end)
     except Exception as exception:
@@ -215,8 +219,7 @@ def demo_sentence_numfound(keywords):
 # -----------------------------------------------------------------------------------------
 
 def _story_public_docs(api, keywords, media, start, end, count=10):
-    filter_query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
-    query = "%s AND (%s)" % (app.core.util.keywords_to_solr(keywords), filter_query)
+    query = app.core.util.solr_query(keywords, media, start, end)
     app.core.logger.debug("query: _story_docs %s" % query)
     stories = api.storyPublicList(query,rows=count)
     # now add in the titles by calling the private API
@@ -248,8 +251,7 @@ def demo_story_docs(keywords):
 # -----------------------------------------------------------------------------------------
 
 def _wordcount(api, keywords, media, start, end):
-    filter_query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
-    query = "%s AND (%s)" % (app.core.util.keywords_to_solr(keywords) , filter_query)
+    query = app.core.util.solr_query(keywords, media, start, end)
     app.core.logger.debug("query: _wordcount: %s" % query)
     res = api.wordCount(query)
     return json.dumps(res, separators=(',',':'))
@@ -298,8 +300,7 @@ def _sentences_allowed(key):
     '''
     media, start, end = demo_params()
     user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
-    filter_query = app.core.util.solr_query(app.core.util.media_to_solr(media), start, end)
-    query = "* AND (%s)" % (filter_query)
+    query = app.core.util.solr_query('*', media, start, end)
     allowed = None
     try:
         res = user_mc.sentenceList(query, '', 0, 0)
