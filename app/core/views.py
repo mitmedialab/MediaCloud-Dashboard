@@ -172,8 +172,12 @@ def _sentence_numfound(api_key, keywords, media, start, end):
     user_mc = mcapi.MediaCloud(api_key)
     query = "%s AND (%s)" % (app.core.util.keywords_to_solr(keywords), app.core.util.media_to_solr(media))
     app.core.logger.debug("query: _sentence_numfound: %s" % query)
-    start = datetime.datetime.strptime(start, '%Y-%m-%d').strftime('%Y-%m-%d')
-    end = (datetime.datetime.strptime(end, '%Y-%m-%d')+datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+    if app.core.util.no_date_specified(start,end):  # HACK: if no date, just return last year
+        start = (datetime.datetime.now() - datetime.timedelta(days=365)).strftime('%Y-%m-%d')
+        end = datetime.datetime.now().strftime('%Y-%m-%d')
+    else:
+        start = datetime.datetime.strptime(start, '%Y-%m-%d').strftime('%Y-%m-%d')
+        end = (datetime.datetime.strptime(end, '%Y-%m-%d')+datetime.timedelta(days=1)).strftime('%Y-%m-%d')
     response = user_mc.sentenceCount(query, solr_filter='', split=True, split_daily=True, split_start_date=start, split_end_date=end)
     del response['split']['gap']
     del response['split']['start']
