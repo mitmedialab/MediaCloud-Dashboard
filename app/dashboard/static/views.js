@@ -483,8 +483,9 @@ App.HistogramView = Backbone.View.extend({
         }, this);
     },
     renderViz: function () {
-        App.debug('App.HistogramView.renderChart');
-        this.renderChart();
+        App.debug('App.HistogramView.renderViz');
+        // draw the chart
+        this.renderHighChart();
         // now that the query collection is filled in, add the download data links
         var downloadUrls = this.collection.map(function(m) { 
             return m.get('results').get('datecounts').csvUrl();
@@ -494,8 +495,8 @@ App.HistogramView = Backbone.View.extend({
         this.delegateEvents();  // gotta run this to register the events again
         this.showActionMenu();
     },
-    renderChart: function() {
-        App.debug('App.HistogramView.renderViz');
+    renderHighChart: function() {
+        App.debug('App.HistogramView.renderHighChart');
         var datasets = this.collection.map(function (queryModel) {
             return queryModel.get('results').get('datecounts').toJSON();
         });
@@ -514,7 +515,9 @@ App.HistogramView = Backbone.View.extend({
             allSeries.push({
                 name: App.config.queryNames[idx],
                 color: App.config.queryColors[idx],
-                data: _.map(item, function(d){ return d.numFound; })
+                data: _.map(item, function(d){ return d.numFound; }),
+                pointStart: item[0].dateObj.getTime(),
+                pointInterval: 24 * 3600 * 1000 // one day
             });
         });
         var series1 = _.map(datasets[0], function(item){ return item.numFound; });
@@ -525,22 +528,24 @@ App.HistogramView = Backbone.View.extend({
             },
             chart: {
                 type: 'spline',
-                height: '180'
+                height: '180',
+                zoomType: 'x'
             },
             xAxis: {
                 type: 'datetime',
                 dateTimeLabelFormats: {
-                    millisecond: '%b %e %Y',
-                    second: '%b %e %Y',
-                    minute: '%b %e %Y',
-                    hour: '%b %e %Y',
-                    day: '%b %e %Y',
-                    week: '%b %e %Y',
-                    month: '%b %e %Y',
-                    year: '%b %e %Y'
+                    millisecond: '%m/%e/%y',
+                    second: '%m/%e/%y',
+                    minute: '%m/%e/%y',
+                    hour: '%m/%e/%y',
+                    day: '%m/%e/%y',
+                    week: '%m/%e/%y',
+                    month: '%m/%y',
+                    year: '%Y'
                 }
             },
             yAxis: {
+                min: 0,
                 title: {
                     text: 'Sentences'
                 }
