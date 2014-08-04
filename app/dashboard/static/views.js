@@ -475,11 +475,78 @@ App.HistogramView = Backbone.View.extend({
         this.$('.copy').html(progress());
         this.$('.viz').hide();
         // TODO allow for multiple results
-        this.collection.resources.on('resource:complete:datecount', this.renderD3, this);
+        //this.collection.resources.on('resource:complete:datecount', this.renderD3, this);
+        this.collection.resources.on('resource:complete:datecount', this.renderViz, this);
         this.listenTo(this.collection, 'execute', function () {
             this.$('.copy').html(progress()).show();
             this.$('.viz').html('');
         }, this);
+    },
+    renderViz: function () {
+        App.debug('App.HistogramView.renderChart');
+        this.renderChart();
+        // now that the query collection is filled in, add the download data links
+        var downloadUrls = this.collection.map(function(m) { 
+            return m.get('results').get('datecounts').csvUrl();
+        });
+        this.addDownloadMenuItems(downloadUrls);
+        // register an about click handler
+        this.delegateEvents();  // gotta run this to register the events again
+        this.showActionMenu();
+    },
+    renderChart: function() {
+        App.debug('App.HistogramView.renderViz');
+        var datasets = this.collection.map(function (queryModel) {
+            return queryModel.get('results').get('datecounts').toJSON();
+        });
+        App.debug(datasets);
+        // set up the html container
+        this.$('.copy').hide();
+        this.$('.viz')
+            .html('')
+            .css('padding', '0')
+            .show();
+        // figure out the xAxis labels
+        var dates = _.map(datasets[0], function(item){ return item.dateObj; });
+        // generate the series
+        var allSeries = [];
+        _.each(datasets, function(item,idx){
+            allSeries.push({
+                name: App.config.queryNames[idx],
+                color: App.config.queryColors[idx],
+                data: _.map(item, function(d){ return d.numFound; })
+            });
+        });
+        var series1 = _.map(datasets[0], function(item){ return item.numFound; });
+        // set it all up 
+        this.$('.viz').highcharts({
+            title: {
+                text: ''
+            },
+            chart: {
+                type: 'spline',
+                height: '180'
+            },
+            xAxis: {
+                type: 'datetime',
+                dateTimeLabelFormats: {
+                    millisecond: '%b %e %Y',
+                    second: '%b %e %Y',
+                    minute: '%b %e %Y',
+                    hour: '%b %e %Y',
+                    day: '%b %e %Y',
+                    week: '%b %e %Y',
+                    month: '%b %e %Y',
+                    year: '%b %e %Y'
+                }
+            },
+            yAxis: {
+                title: {
+                    text: 'Sentences'
+                }
+            },
+            series: allSeries
+        });
     },
     renderD3: function () {
         App.debug('App.HistogramView.renderD3()');
