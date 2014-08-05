@@ -8,6 +8,11 @@ App.SentenceView = Backbone.View.extend({
     initialize: function (options) {
         this.render();
     },
+    formatNumber: function(num){
+        var parts = num.toString().split(".");
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return parts.join(".");
+    },
     render: function () {
         var that = this;
         App.debug('App.SentenceView.render()');
@@ -22,17 +27,17 @@ App.SentenceView = Backbone.View.extend({
             var query1Sentences = that.collection.models[0].get('results').get('sentences');
             if (that.collection.length >= 2) {
                 q1TotalSentences = query1Sentences.last(1)[0].get('totalSentences');
-                $el.append('<h3 class="first-query">'+App.config.queryNames[0]+' ('+q1TotalSentences+' found)</h3>');
+                $el.append('<h3 class="first-query">'+App.config.queryNames[0]+' ('+that.formatNumber(q1TotalSentences)+' found)</h3>');
                 that.addSentences(query1Sentences.last(10),that.sentenceTemplate,$el);
                 var query2Sentences = that.collection.models[1].get('results').get('sentences');
                 q2TotalSentences = query2Sentences.last(1)[0].get('totalSentences');
-                $el.append('<h3 class="second-query">'+App.config.queryNames[1]+' ('+q2TotalSentences+' found)</h3>');
+                $el.append('<h3 class="second-query">'+App.config.queryNames[1]+' ('+that.formatNumber(q2TotalSentences)+' found)</h3>');
                 that.addSentences(query2Sentences.last(10),that.sentenceTemplate,$el);
                 that.$('.count').html('');
             } else {
                 // figure out the total sentence count
                 totalSentences = query1Sentences.last(1)[0].get('totalSentences');
-                that.$('.count').html('(' + totalSentences + ' found)');
+                that.$('.count').html('(' + that.formatNumber(totalSentences) + ' found)');
                 // now list some of the sentences
                 that.addSentences(query1Sentences.last(10),that.sentenceTemplate,$el);                
             }
