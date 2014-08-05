@@ -500,7 +500,6 @@ App.HistogramView = Backbone.View.extend({
         var datasets = this.collection.map(function (queryModel) {
             return queryModel.get('results').get('datecounts').toJSON();
         });
-        App.debug(datasets);
         // set up the html container
         this.$('.copy').hide();
         this.$('.viz')
