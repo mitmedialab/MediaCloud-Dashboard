@@ -101,6 +101,11 @@ def load_user(userid):
 def media():
     return json.dumps({'sets':app.core.util.all_media_sets()}, separators=(',',':'));
 
+@flapp.route('/api/media/sources/search/<str>')
+@flask_login.login_required
+def media_search(str):
+    return json.dumps(mc.mediaList(name_like=str))
+
 @flapp.route('/api/media/sources')
 @flask_login.login_required
 def media_sources():

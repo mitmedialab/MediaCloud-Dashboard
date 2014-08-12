@@ -555,7 +555,7 @@ App.MediaSelectView = App.NestedView.extend({
                 $('.media-input', that.$el).typeahead(null, {
                     name: 'sources',
                     displayKey: 'name',
-                    source: that.mediaSources.get('sources').getSuggestions().ttAdapter()
+                    source: that.mediaSources.get('sources').getRemoteSuggestionEngine().ttAdapter()
                 });
                 // Listen to custom typeahead events
                 that.$('.media-input').bind(
