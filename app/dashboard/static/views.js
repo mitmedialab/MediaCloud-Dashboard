@@ -524,7 +524,7 @@ App.HistogramView = Backbone.View.extend({
                 pointInterval: 24 * 3600 * 1000 // one day
             });
         });
-        var series1 = _.map(datasets[0], function(item){ return item.numFound; });
+        var showLineMarkers = (allSeries[0].data.length < 30);   // don't show dots on line if more than N data points
         // set it all up 
         this.$('.viz').highcharts({
             title: {
@@ -534,6 +534,13 @@ App.HistogramView = Backbone.View.extend({
                 type: 'spline',
                 height: '180',
                 zoomType: 'x'
+            },
+            plotOptions: {
+                series: {
+                    marker: {
+                        enabled: showLineMarkers
+                    }
+                }
             },
             xAxis: {
                 type: 'datetime',
