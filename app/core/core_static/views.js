@@ -375,18 +375,22 @@ App.QueryListView = App.NestedView.extend({
         this.updateNumQueries(collection);
     },
     updateNumQueries: function (collection) {
-        if (collection.length == 1) {
-            this.$('.query-views').addClass('one');
-            this.$('.query-views').removeClass('two');
-        } else {
-            this.$('.query-views').addClass('two');
-            this.$('.query-views').removeClass('one');
-        }
-        this.$('.query-views .query-title').eq(0).addClass('first-query');
-        this.$('.query-views .query-title').eq(1)
-            .html('Comparison Query')
-            .removeClass('first-query')
-            .addClass('second-query');
+        var that = this;
+        // Query views may not be rendered yet, so defer
+        _.defer(function () {
+            if (collection.length == 1) {
+                that.$('.query-views').addClass('one');
+                that.$('.query-views').removeClass('two');
+            } else {
+                that.$('.query-views').addClass('two');
+                that.$('.query-views').removeClass('one');
+            }
+            that.$('.query-views .query-title').eq(0).addClass('first-query');
+            that.$('.query-views .query-title').eq(1)
+                .html('Comparison Query')
+                .removeClass('first-query')
+                .addClass('second-query');
+        });
     }
 });
 
