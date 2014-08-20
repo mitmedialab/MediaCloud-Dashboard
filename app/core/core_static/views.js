@@ -724,7 +724,7 @@ App.DateRangeView = Backbone.View.extend({
                 that.onContentChange();
                 start.hide();
             }).on('keydown', function (event) {
-                if (e.keyCode == 9) {
+                if (event.keyCode == 9) {
                     start.hide();
                 }
             }).data('datepicker');
@@ -734,7 +734,7 @@ App.DateRangeView = Backbone.View.extend({
                 that.onContentChange();
                 end.hide();
             }).on('keydown', function (event) {
-                if (e.keyCode == 9) {
+                if (event.keyCode == 9) {
                     end.hide();
                 }
             }).data('datepicker');
