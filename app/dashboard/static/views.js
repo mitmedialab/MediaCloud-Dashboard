@@ -486,6 +486,11 @@ App.HistogramView = Backbone.View.extend({
             this.$('.copy').html(progress()).show();
             this.$('.viz').html('');
         }, this);
+        this.listenTo(
+            this.collection.subqueryResources,
+            'resource:complete:wordcount',
+            this.onSubqueryWordcounts
+        );
     },
     renderViz: function () {
         App.debug('App.HistogramView.renderViz');
@@ -502,6 +507,7 @@ App.HistogramView = Backbone.View.extend({
     },
     renderHighChart: function() {
         App.debug('App.HistogramView.renderHighChart');
+        var that = this;
         var datasets = this.collection.map(function (queryModel) {
             return queryModel.get('results').get('datecounts').toJSON();
         });
@@ -517,6 +523,7 @@ App.HistogramView = Backbone.View.extend({
         var allSeries = [];
         _.each(datasets, function(item,idx){
             allSeries.push({
+                id: idx,
                 name: App.config.queryNames[idx],
                 color: App.config.queryColors[idx],
                 data: _.map(item, function(d){ return d.numFound; }),
@@ -539,6 +546,25 @@ App.HistogramView = Backbone.View.extend({
                 series: {
                     marker: {
                         enabled: showLineMarkers
+                    },
+                    point: {
+                        events: {
+                            click: function (event) {
+                                var date =Highcharts.dateFormat(
+                                    '%Y-%m-%d'
+                                    , this.x
+                                );
+                                var result = that.collection.at(this.series._i);
+                                var attributes = {
+                                    start: date
+                                    , end: date
+                                };
+                                result.subqueryListener.trigger('mm:subquery', {
+                                    queryCid: result.cid
+                                    , attributes: attributes
+                                });
+                            }
+                        }
                     }
                 }
             },
@@ -782,6 +808,12 @@ App.HistogramView = Backbone.View.extend({
             template: '#tpl-about-histogram-view'
         });
         $('body').append(this.aboutView.el);
+    },
+    onSubqueryWordcounts: function () {
+        this.$('.viz .subquery').remove();
+        wordcounts = this.collection.subquery.get('results').get('wordcounts');
+        subqueryView = new App.WordCountResultView({collection:wordcounts});
+        subqueryView.$el.addClass('subquery').appendTo(this.$('.viz'));
     }
 });
 App.HistogramView = App.HistogramView.extend(App.ActionedViewMixin);
