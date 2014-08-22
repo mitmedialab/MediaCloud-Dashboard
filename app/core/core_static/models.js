@@ -441,6 +441,7 @@ App.QueryModel = Backbone.Model.extend({
     initialize: function (attributes, options) {
         App.debug('App.QueryModel.initialize()');
         this.mediaSources = options.mediaSources
+        this.subquery = options.subquery;
         var opts = {
             mediaSources: this.mediaSources,
             params: this.get('params')
@@ -485,9 +486,14 @@ App.QueryCollection = Backbone.Collection.extend({
         this.each(function (m) {
             this.onAdd(m, this);
         }, this);
+        // Subquery event aggregators
+        this.subqueryListener = _.extend({}, Backbone.Events);
+        this.subqueryResources = new ResourceListener();
+        // Listeners
         this.listenTo(this, 'add', this.onAdd);
         this.listenTo(this, 'remove', this.onRemove);
         this.listenTo(this.refine, 'mm:refine', this.onRefine);
+        this.listenTo(this.subqueryListener, 'mm:subquery', this.onSubquery);
     },
     onAdd: function (model, collection, options) {
         // When adding a QueryModel, listen to it's ResultModel
@@ -495,6 +501,7 @@ App.QueryCollection = Backbone.Collection.extend({
         collection.updateNames();
         // Add the refine query event aggregator
         model.refine = this.refine;
+        model.subqueryListener = this.subqueryListener;
     },
     onRemove: function (model, collection, options) {
         // Unlisten when we remove
@@ -520,6 +527,22 @@ App.QueryCollection = Backbone.Collection.extend({
             }
         }, this);
         this.execute();
+    },
+    onSubquery: function (options) {
+        var that = this;
+        var q = []
+        if (typeof(options.length) !== 'undefined') {
+            q = options;
+        } else {
+            q.push(options);
+        }
+        // TODO expand to multiple subqueries
+        var q = this.get(options.queryCid);
+        var subParams = q.get('params').toJSON();
+        _.extend(subParams, options.attributes);
+        this.subquery = new App.QueryModel(subParams, { mediaSources: q.mediaSources, parse: true });
+        this.subqueryResources.listen(this.subquery.get('results'));
+        this.subquery.execute();
     },
     execute: function () {
         App.debug('App.QueryCollection.execute()');
