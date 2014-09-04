@@ -116,6 +116,17 @@ def media_sources():
 def media_sets():
     return json.dumps(list(app.core.util.all_media_sets()), separators=(',',':'))
 
+@flapp.route('/api/media/tags/single/<tags_id>')
+@flask_login.login_required
+def media_single_tags(tags_id):
+    return json.dumps(mc.tag(tags_id))
+
+@flapp.route('/api/media/tags/search/<query>')
+@flask_login.login_required
+def media_search_tags(query):
+    return '[{"tag_sets_id":5,"show_on_stories":null,"label":"U.S. Mainstream Media","tag":"ap_english_us_top25_20100110","tags_id":8875027,"show_on_media":1,"description":"Top U.S. mainstream media according Google Ad Planner\'s measure of unique monthly users."}]'
+    #return json.dumps(mc.tagList())
+
 # -----------------------------------------------------------------------------------------
 # SENTENCES -------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------

@@ -457,7 +457,7 @@ App.SimpleTagListView = App.NestedView.extend({
     onAdd: function (model, collection, options) {
         App.debug('App.SimpleTagListView.onAdd()');
         App.debug(model);
-        var itemView = new App.ItemView({model: model});
+        var itemView = new App.ItemView({model: model, display: 'label'});
         itemView.on('removeClick', this.onRemoveClick);
         this.$('.simple-tag-list-view-content').append(itemView.el);
     },
@@ -483,24 +483,19 @@ App.SimpleTagSelectView = App.NestedView.extend({
         var that = this;
         _.bindAll(this, 'onTextEntered');
         _.bindAll(this, 'onExplore');
-        this.mediaSources.deferred.done(function () {
-            that.render();
-            if (!that.disabled) {
-                App.debug('Creating typeahead');
-                $('.simple-tag-input', that.$el).typeahead(null, {
-                    name: 'tags',
-                    displayKey: 'name',
-                    source: that.mediaSources.get('tags').getSuggestions().ttAdapter()
-                });
-                // Listen to custom typeahead events
-                that.$('.simple-tag-input').bind(
-                    'typeahead:selected',
-                    function () { that.onTextEntered(); });
-                that.$('.simple-tag-input').bind(
-                    'typeahead:autocompleted',
-                    function () { that.onTextEntered(); });
-            }
-        });
+        that.render();
+        if (!that.disabled) {
+            App.debug('Creating typeahead');
+            $('.simple-tag-input', that.$el).typeahead(null, {
+                name: 'tags',
+                displayKey: 'label',
+                source: that.mediaSources.get('tags').getRemoteSuggestionEngine().ttAdapter()
+            });
+            // Listen to custom typeahead events
+            that.$('.simple-tag-input').bind(
+                'typeahead:selected',
+                function (event, suggestion) { that.onTextEntered(event, suggestion); });
+        }
     },
     render: function () {
         App.debug('App.SimpleTagSelectView.render()');
@@ -515,19 +510,15 @@ App.SimpleTagSelectView = App.NestedView.extend({
             this.$('button').attr('disabled', 'disabled');
         }
     },
-    onTextEntered: function (event) {
+    onTextEntered: function (event, suggestion) {
         App.debug('App.SimpleTagSelectView.textEntered()');
         if (event) { event.preventDefault(); }
-        var name = $('.simple-tag-input.tt-input', this.$el).typeahead('val');
         $('.simple-tag-input.tt-input', this.$el).typeahead('val', '');
         var $el = this.$el;
         _.defer(function () {
             $('.simple-tag-input', $el).focus();
         });
-        source = this.mediaSources.get('tags').getByName(name);
-        if (source) {
-            this.model.get('tags').add(source);
-        }
+        this.model.get('tags').add(suggestion);
     },
     onExplore: function (event) {
         App.debug('App.SimpleTagSelectView.onExplore()');
@@ -552,24 +543,22 @@ App.MediaSelectView = App.NestedView.extend({
         var that = this;
         _.bindAll(this, 'onTextEntered');
         _.bindAll(this, 'onExplore');
-        this.mediaSources.deferred.done(function () {
-            that.render();
-            if (!that.disabled) {
-                App.debug('Creating typeahead');
-                $('.media-input', that.$el).typeahead(null, {
-                    name: 'sources',
-                    displayKey: 'name',
-                    source: that.mediaSources.get('sources').getRemoteSuggestionEngine().ttAdapter()
-                });
-                // Listen to custom typeahead events
-                that.$('.media-input').bind(
-                    'typeahead:selected',
-                    function () { that.onTextEntered(); });
-                that.$('.media-input').bind(
-                    'typeahead:autocompleted',
-                    function () { that.onTextEntered(); });
-            }
-        });
+        that.render();
+        if (!that.disabled) {
+            App.debug('Creating typeahead');
+            $('.media-input', that.$el).typeahead(null, {
+                name: 'sources',
+                displayKey: 'name',
+                source: that.mediaSources.get('sources').getRemoteSuggestionEngine().ttAdapter(),
+            });
+            // Listen to custom typeahead events
+            that.$('.media-input').bind(
+                'typeahead:selected',
+                function (event, suggestion) { that.onTextEntered(event, suggestion); });
+//            that.$('.media-input').bind(
+//               'typeahead:autocompleted',
+//                function () { that.onTextEntered(); });
+        }
     },
     render: function () {
         App.debug('App.MediaSelectView.render()');
@@ -585,19 +574,16 @@ App.MediaSelectView = App.NestedView.extend({
             this.$('button').attr('disabled', 'disabled');
         }
     },
-    onTextEntered: function (event) {
+    onTextEntered: function (event, suggestion) {
         App.debug('App.MediaSelectView.textEntered()');
+        var that = this;
         if (event) { event.preventDefault(); }
-        var name = $('.media-input.tt-input', this.$el).typeahead('val');
         $('.media-input.tt-input', this.$el).typeahead('val', '');
         var $el = this.$el;
         _.defer(function () {
             $('.media-input', $el).focus();
         });
-        source = this.mediaSources.get('sources').nameToSource[name];
-        if (source) {
-            this.model.get('sources').add(source);
-        }
+        that.model.get('sources').add(suggestion);
     },
     onExplore: function (event) {
         App.debug('App.MediaSelectView.onExplore()');
@@ -674,7 +660,7 @@ App.MediaListView = App.NestedView.extend({
     onAdd: function (model, collection, options) {
         App.debug('App.MediaListView.onAdd()');
         App.debug(model);
-        var itemView = new App.ItemView({model: model});
+        var itemView = new App.ItemView({ model: model, display: 'name' });
         itemView.on('removeClick', this.onRemoveClick);
         this.$('.media-list-view-content').append(itemView.el);
     },
