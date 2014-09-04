@@ -51,6 +51,46 @@ App.QueryParamDrivenCollection = Backbone.Collection.extend({
 
 });
 
+/* Mix in to a Collection to add:
+ * getDeferred(id, [context])
+ *   Return a Deferred which resolves to the model with the given id.
+*/
+App.DeferredCollectionMixin = {
+    getDeferred: function (id, context) {
+        var d = $.Deferred();
+        // See if it's already loaded
+        m = this.get(id);
+        if (typeof(m) === 'undefined') {
+            // Fetch asynchronously
+            var idAttribute = 'id';
+            if (typeof(this.model.prototype.idAttribute) === 'undefined') {
+                idAttribute = this.model.idAttribute;
+            }
+            var attributes = {};
+            attributes[idAttribute] = id;
+            m = new this.model(
+                attributes
+                , { collection: this }
+            );
+            this.listenTo(m, 'sync', function () {
+                if (typeof(context) !== 'undefined') {
+                    d.resolveWith(context, [m]);
+                } else {
+                    d.resolve(m);
+                }
+            });
+            m.fetch();
+        } else {
+            if (typeof(context) !== 'undefined') {
+                d.resolveWith(context, [m]);
+            } else {
+                d.resolve(m);
+            }
+        }
+        return d;
+    }
+}
+
 App.UserModel = Backbone.Model.extend({
     
     id: 'user',
@@ -152,10 +192,6 @@ App.UserModel = Backbone.Model.extend({
 })
 
 App.MediaSourceModel = Backbone.Model.extend({
-    urlRoot: '/api/media/sources',
-    url: function () {
-        return this.get('media_id');
-    },
     idAttribute: 'media_id',
     initialize: function (attributes, options) {
         this.set('type', 'media source');
@@ -189,9 +225,10 @@ App.MediaSourceCollection = Backbone.Collection.extend({
         return this.suggestRemote;
     }
 });
+App.MediaSourceCollection = App.MediaSourceCollection.extend(App.DeferredCollectionMixin);
 
 App.TagModel = Backbone.Model.extend({
-    url: '/api/tags/single',
+    url: '/api/media/tags/single',
     idAttribute: 'tags_id',
     initialize: function (options) {},
     clone: function () {
@@ -237,10 +274,11 @@ App.TagCollection = Backbone.Collection.extend({
         return cloneCollection;
     }
 });
+App.TagCollection = App.TagCollection.extend(App.DeferredCollectionMixin);
 
 App.SimpleTagModel = Backbone.Model.extend({
+    urlRoot: '/api/media/tags/single',
     initialize: function (options) {}
-
 });
 
 App.SimpleTagCollection = Backbone.Collection.extend({
@@ -265,6 +303,18 @@ App.SimpleTagCollection = Backbone.Collection.extend({
     getByName: function (nameToFind){
         return this.where({ name: nameToFind })[0];
     },
+    getRemoteSuggestionEngine: function () {
+        App.debug('SimpleTagCollection.getRemoteSuggestionEngine()');
+        if( !this.suggestRemote) {
+            this.suggestRemote = new Bloodhound({
+              datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+              queryTokenizer: Bloodhound.tokenizers.whitespace,
+              remote: '/api/media/tags/search/%QUERY'
+            });
+            this.suggestRemote.initialize();
+        }
+        return this.suggestRemote;
+    },
     clone: function () {
         var cloneCollection = new App.SimpleTagCollection();
         this.each(function (m) {
@@ -273,6 +323,7 @@ App.SimpleTagCollection = Backbone.Collection.extend({
         return cloneCollection;
     }
 });
+App.SimpleTagCollection = App.SimpleTagCollection.extend(App.DeferredCollectionMixin);
 
 App.TagSetModel = App.NestedModel.extend({
     url: '/api/tag_sets/single',
@@ -340,7 +391,7 @@ App.TagSetCollection = Backbone.Collection.extend({
         return cloneCollection;
     }
 })
-
+App.TagSetCollection = App.TagSetCollection.extend(App.DeferredCollectionMixin);
 
 /**
  * This handles specifying media individually and by set.
@@ -359,6 +410,7 @@ App.MediaModel = App.NestedModel.extend({
         this.set('tag_sets', new App.TagSetCollection());
         this.set('tags', new App.SimpleTagCollection());
         this.deferred = $.Deferred();
+        this.deferred.resolve();
         this.on('sync', this.onSync, this);
         _.bindAll(this, 'onSync');
     },
@@ -377,7 +429,6 @@ App.MediaModel = App.NestedModel.extend({
                 }));
             });
         });
-        this.deferred.resolve();
     },
     clone: function () {
         App.debug('App.MediaModel.clone()');

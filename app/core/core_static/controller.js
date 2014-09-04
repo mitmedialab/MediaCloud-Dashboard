@@ -45,17 +45,6 @@ App.con = App.Controller = {
 
     onSignIn: function () {
         App.debug('App.Controller.onSignIn()');
-        if (App.con.mediaSources.get('sources').length == 0) {
-            $.ajax('/static/core/data/media.json', {
-                "dataType": "json",
-                "success": function (data) {
-                    App.debug('Received media json:');
-                    App.con.mediaSources.set(App.con.mediaSources.parse(data));
-                    App.con.mediaSources.trigger('sync');
-                    App.con.mediaSourceData = data;
-                }
-            })
-        }
         App.con.router.navigate('', true);
     },
     
@@ -100,13 +89,11 @@ App.con = App.Controller = {
         }
         // Defaults media
         App.con.mediaModel = new App.MediaModel();
-        App.con.mediaSources.deferred.then(function () {
-            App.debug('Adding default media');
-            //var tagSet = App.con.mediaSources.get('tag_sets').get(5).cloneEmpty();
-            //tagSet.get('tags').add(App.con.mediaSources.get('tag_sets').get(5).get('tags').get(8875027).clone());
-            //App.con.mediaModel.get('tag_sets').add(tagSet);
-            var tag = App.con.mediaSources.get('tags').get(8875027).clone();
-            App.con.mediaModel.get('tags').add(tag);
+        //var tagSet = App.con.mediaSources.get('tag_sets').get(5).cloneEmpty();
+        //tagSet.get('tags').add(App.con.mediaSources.get('tag_sets').get(5).get('tags').get(8875027).clone());
+        //App.con.mediaModel.get('tag_sets').add(tagSet);
+        App.con.mediaSources.get('tags').getDeferred(8875027).then(function (m) {
+            App.con.mediaModel.get('tags').add(m);
         });
         // Default tags
         // Defaults dates
