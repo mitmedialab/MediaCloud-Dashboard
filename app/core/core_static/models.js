@@ -307,7 +307,7 @@ App.SimpleTagCollection = Backbone.Collection.extend({
         App.debug('SimpleTagCollection.getRemoteSuggestionEngine()');
         if( !this.suggestRemote) {
             this.suggestRemote = new Bloodhound({
-              datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+              datumTokenizer: Bloodhound.tokenizers.obj.whitespace('label'),
               queryTokenizer: Bloodhound.tokenizers.whitespace,
               remote: '/api/media/tags/search/%QUERY'
             });

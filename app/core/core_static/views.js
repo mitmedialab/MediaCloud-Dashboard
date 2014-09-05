@@ -457,7 +457,10 @@ App.SimpleTagListView = App.NestedView.extend({
     onAdd: function (model, collection, options) {
         App.debug('App.SimpleTagListView.onAdd()');
         App.debug(model);
-        var itemView = new App.ItemView({model: model, display: 'label'});
+        var itemView = new App.ItemView({
+            model: model
+            , display: function (m) { return m.get('tag_set_label') + ': ' + m.get('label'); }
+        });
         itemView.on('removeClick', this.onRemoveClick);
         this.$('.simple-tag-list-view-content').append(itemView.el);
     },
@@ -488,7 +491,7 @@ App.SimpleTagSelectView = App.NestedView.extend({
             App.debug('Creating typeahead');
             $('.simple-tag-input', that.$el).typeahead(null, {
                 name: 'tags',
-                displayKey: 'label',
+                displayKey: function (d) { return d.tag_set_label + ': ' + d.label; },
                 source: that.mediaSources.get('tags').getRemoteSuggestionEngine().ttAdapter()
             });
             // Listen to custom typeahead events
@@ -618,7 +621,9 @@ App.ItemView = Backbone.View.extend({
         this.$el.addClass('label');
         this.$el.addClass('label-default');
         var data = {}
-        if (this.display) {
+        if (this.display && typeof(this.display === 'function')) {
+            data.name = this.display(this.model);
+        } else if (this.dispaly) {
             data.name = this.model.get(this.display);
         } else {
             data.name = this.model.get('name');
