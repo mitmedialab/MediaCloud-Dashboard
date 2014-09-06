@@ -745,6 +745,7 @@ App.WordCountCollection = App.QueryParamDrivenCollection.extend({
         this.params = options.params;
     },
     url: function () {
+        console.log(this.getQueryParamUrl());
         return '/api/wordcount/' + this.getQueryParamUrl();
     },
     csvUrl: function(){

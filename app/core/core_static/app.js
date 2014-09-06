@@ -1,7 +1,7 @@
 App = {
     
     config: {
-        debug: false
+        debug: true
         , datepickerOptions: {
             format: 'yyyy-mm-dd'
         },
@@ -11,7 +11,7 @@ App = {
         queryNames: ['Main Query', 'Comparison Query'],
         cookieOpts: {
             'path': '/',
-            'domain': 'mediameter.org'
+            'domain': 'www.localhost'
         }
     },
     
