@@ -283,6 +283,7 @@ App.SimpleTagModel = Backbone.Model.extend({
 
 App.SimpleTagCollection = Backbone.Collection.extend({
     model: App.SimpleTagModel,
+    url: '/api/media/tags',
     initialize: function (options) {
         App.debug('App.SimpleTagCollection.initialize()');
     },
@@ -366,6 +367,7 @@ App.TagSetCollection = Backbone.Collection.extend({
     initialize: function (options) {
         var that = this;
     },
+    url: '/api/media/sets',
     getSuggestions: function () {
         App.debug('TagSetCollection.getSuggestions()');
         if (!this.suggest) {

@@ -503,11 +503,6 @@ App.SimpleTagSelectView = App.NestedView.extend({
     render: function () {
         App.debug('App.SimpleTagSelectView.render()');
         this.$el.html(this.template());
-        this.exploreView = new App.ExploreListView({
-            collection: this.mediaSources.get('tag_sets')
-            , ExploreView: App.TagSetExploreView
-        });
-        $('body').append(this.exploreView.el);
         if (this.disabled) {
             this.$('.simple-tag-input').attr('disabled', 'disabled');
             this.$('button').attr('disabled', 'disabled');
@@ -526,7 +521,19 @@ App.SimpleTagSelectView = App.NestedView.extend({
     onExplore: function (event) {
         App.debug('App.SimpleTagSelectView.onExplore()');
         event.preventDefault();
-        this.exploreView.show();
+        var that = this;
+        this.mediaSources.get('tag_sets').fetch({
+            success: function () {
+                if (typeof(that.exploreView) === 'undefined') {
+                    that.exploreView = new App.ExploreListView({
+                        collection: that.mediaSources.get('tag_sets')
+                        , ExploreView: App.TagSetExploreView
+                    });
+                    $('body').append(that.exploreView.el);
+                }
+                that.exploreView.show();
+            }
+        });
     }
 });
 
@@ -621,7 +628,7 @@ App.ItemView = Backbone.View.extend({
         this.$el.addClass('label');
         this.$el.addClass('label-default');
         var data = {}
-        if (this.display && typeof(this.display === 'function')) {
+        if (this.display && typeof(this.display) === 'function') {
             data.name = this.display(this.model);
         } else if (this.dispaly) {
             data.name = this.model.get(this.display);
@@ -794,6 +801,10 @@ App.ExploreListView = Backbone.View.extend({
     initialize: function (options) {
         this.ExploreView = options.ExploreView
         this.page = options.page;
+        var that = this;
+        this.collection.fetch({
+            success: function () { that.render(); }
+        });
         this.render();
     },
     render: function () {
