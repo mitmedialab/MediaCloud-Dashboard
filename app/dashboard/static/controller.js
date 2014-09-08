@@ -109,8 +109,8 @@ _.extend(App.Controller, {
         } else {
             App.con.queryCollection.reset();
         }
-        // When sources are loaded, populate the media models from the url
-        App.con.mediaSources.deferred.then(function() {
+        // Load media
+        App.con.mediaSources.getDeferred(JSON.parse(media)).then(function() {
             // Add a media model for each query
             // TODO this should really happen in MediaCollection/MediaModel
             _.each($.parseJSON(media), function (d, i) {
