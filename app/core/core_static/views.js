@@ -573,12 +573,6 @@ App.MediaSelectView = App.NestedView.extend({
     render: function () {
         App.debug('App.MediaSelectView.render()');
         this.$el.html(this.template());
-        this.exploreView = new App.ExploreListView({
-            collection: this.mediaSources.get('sources'),
-            ExploreView: App.SourceExploreView,
-            page: true
-        });
-        $('body').append(this.exploreView.el);
         if (this.disabled) {
             this.$('.media-input').attr('disabled', 'disabled');
             this.$('button').attr('disabled', 'disabled');
@@ -598,7 +592,20 @@ App.MediaSelectView = App.NestedView.extend({
     onExplore: function (event) {
         App.debug('App.MediaSelectView.onExplore()');
         event.preventDefault();
-        this.exploreView.show();
+        var that = this;
+        this.mediaSources.get('sources').fetch({
+            success: function () {
+                if (typeof(that.exploreView) === 'undefined') {
+                    that.exploreView = new App.ExploreListView({
+                        collection: that.mediaSources.get('sources')
+                        , ExploreView: App.SourceExploreView
+                        , page: true
+                    });
+                    $('body').append(that.exploreView.el);
+                }
+                that.exploreView.show();
+            }
+        });
     }
 });
 
@@ -672,7 +679,7 @@ App.MediaListView = App.NestedView.extend({
     onAdd: function (model, collection, options) {
         App.debug('App.MediaListView.onAdd()');
         App.debug(model);
-        var itemView = new App.ItemView({ model: model, display: 'name' });
+        var itemView = new App.ItemView({model: model, display: 'name' });
         itemView.on('removeClick', this.onRemoveClick);
         this.$('.media-list-view-content').append(itemView.el);
     },
@@ -799,15 +806,14 @@ App.ExploreListView = Backbone.View.extend({
     name: 'ExploreListView',
     template: _.template($('#tpl-explore-list-view').html()),
     initialize: function (options) {
+        App.debug('App.ExploreListView.initialize()');
         this.ExploreView = options.ExploreView
         this.page = options.page;
         var that = this;
-        this.collection.fetch({
-            success: function () { that.render(); }
-        });
         this.render();
     },
     render: function () {
+        App.debug('App.ExploreListView.render()');
         var that = this;
         this.$el.html(this.template());
         if (this.page) {
@@ -836,6 +842,7 @@ App.ExploreListView = Backbone.View.extend({
         this.$('.modal-body').append(v.el);
     },
     show: function () {
+        App.debug('App.ExploreListView.show()');
         var that = this;
         if (this.page) {
             if (typeof(this.currentPage) === 'undefined') {
@@ -859,6 +866,7 @@ App.ExploreListView = Backbone.View.extend({
         });
     },
     showPage: function (a) {
+        App.debug('App.ExploreListView.showPage()');
         var that = this;
         if (typeof(a) === 'undefined') {
             a = 'A';
