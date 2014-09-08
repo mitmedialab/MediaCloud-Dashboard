@@ -196,7 +196,7 @@ App.con = App.Controller = {
         startList = $.parseJSON(start);
         endList = $.parseJSON(end);
         if (!App.con.userModel.get('authenticated')) {
-            App.con.navigate('login', true);
+            App.con.router.navigate('login', true);
             return;
         }
         // Create query collection

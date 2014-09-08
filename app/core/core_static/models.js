@@ -447,8 +447,8 @@ App.MediaModel = App.NestedModel.extend({
                 that.get('tags').add(new App.SimpleTagModel({
                     'id': tag.get('tags_id'),
                     'tag_sets_id': tagSet.get('tag_sets_id'),
-                    'tagName': tag.get('tag'),
-                    'name': tagSet.getLabel()+" - "+tag.getLabel()
+                    'label': tag.get('label'),
+                    'tag_set_label': tagSet.get('label'),
                 }));
             });
         });

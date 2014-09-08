@@ -679,7 +679,7 @@ App.MediaListView = App.NestedView.extend({
     onAdd: function (model, collection, options) {
         App.debug('App.MediaListView.onAdd()');
         App.debug(model);
-        var itemView = new App.ItemView({ model: model, display: 'name' });
+        var itemView = new App.ItemView({model: model, display: 'name' });
         itemView.on('removeClick', this.onRemoveClick);
         this.$('.media-list-view-content').append(itemView.el);
     },
