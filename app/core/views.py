@@ -116,6 +116,11 @@ def media_sources():
 def media_sets():
     return json.dumps(list(app.core.util.all_media_sets()), separators=(',',':'))
 
+@flapp.route('/api/media/sources/single/<media_id>')
+@flask_login.login_required
+def media_single_source(media_id):
+    return json.dumps(mc.media(media_id))
+
 @flapp.route('/api/media/tags/single/<tags_id>')
 @flask_login.login_required
 def media_single_tags(tags_id):

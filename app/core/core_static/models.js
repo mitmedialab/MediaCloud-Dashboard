@@ -57,37 +57,56 @@ App.QueryParamDrivenCollection = Backbone.Collection.extend({
 */
 App.DeferredCollectionMixin = {
     getDeferred: function (id, context) {
-        var d = $.Deferred();
-        // See if it's already loaded
-        m = this.get(id);
-        if (typeof(m) === 'undefined') {
-            // Fetch asynchronously
-            var idAttribute = 'id';
-            if (typeof(this.model.prototype.idAttribute) === 'undefined') {
-                idAttribute = this.model.idAttribute;
-            }
-            var attributes = {};
-            attributes[idAttribute] = id;
-            m = new this.model(
-                attributes
-                , { collection: this }
-            );
-            this.listenTo(m, 'sync', function () {
+        App.debug('App.DeferredCollectionMixin.getDeferred()');
+        App.debug(id);
+        var that = this;
+        ids = []
+        if (typeof(id.length) === 'undefined') {
+            ids.push(id);
+        } else {
+            ids = id;
+        }
+        // allDone holds a chain of Deferreds
+        // Start with already resolved placeholder
+        var allDone = $.Deferred();
+        allDone.resolve();
+        _.each(ids, function (id) {
+            var d = $.Deferred();
+            // See if it's already loaded
+            m = this.get(id);
+            if (typeof(m) === 'undefined') {
+                // Fetch asynchronously
+                var idAttribute = 'id';
+                if (typeof(this.model.prototype.idAttribute) !== 'undefined') {
+                    idAttribute = this.model.prototype.idAttribute;
+                }
+                var attributes = {};
+                attributes[idAttribute] = id;
+                m = new this.model(
+                    attributes
+                );
+                m.fetch({
+                    success: function (m, response, options) {
+                        that.add(m);
+                        if (typeof(context) !== 'undefined') {
+                            d.resolveWith(context, [m]);
+                        } else {
+                            d.resolve(m);
+                        }
+                    },
+                    error: function (m, response, options) {
+                    }
+                });
+            } else {
                 if (typeof(context) !== 'undefined') {
                     d.resolveWith(context, [m]);
                 } else {
                     d.resolve(m);
                 }
-            });
-            m.fetch();
-        } else {
-            if (typeof(context) !== 'undefined') {
-                d.resolveWith(context, [m]);
-            } else {
-                d.resolve(m);
             }
-        }
-        return d;
+            allDone = $.when(d, allDone);
+        }, this);
+        return allDone;
     }
 }
 
@@ -193,6 +212,7 @@ App.UserModel = Backbone.Model.extend({
 
 App.MediaSourceModel = Backbone.Model.extend({
     idAttribute: 'media_id',
+    urlRoot: '/api/media/sources/single',
     initialize: function (attributes, options) {
         this.set('type', 'media source');
     }
@@ -407,6 +427,7 @@ App.MediaModel = App.NestedModel.extend({
     },
     initialize: function () {
         App.debug('App.MediaModel.initialize()');
+        this.syncDone = $.Deferred();
         var that = this;
         this.set('sources', new App.MediaSourceCollection());
         this.set('tag_sets', new App.TagSetCollection());
@@ -431,6 +452,7 @@ App.MediaModel = App.NestedModel.extend({
                 }));
             });
         });
+        this.syncDone.resolve();
     },
     clone: function () {
         App.debug('App.MediaModel.clone()');
@@ -442,6 +464,34 @@ App.MediaModel = App.NestedModel.extend({
         cloneModel.set('tag_sets', this.get('tag_sets').clone());
         cloneModel.deferred.resolve();
         return cloneModel;
+    },
+    getDeferred: function (data) {
+        // Load sources and tags according to an object like:
+        // {sources:[1],sets:[2,3]}
+        // Return a Deferred
+        var that = this;
+        allSources = {};
+        allSets = {};
+        if (typeof(data.length) !== undefined) {
+            _.each(data, function (datum) {
+                if (datum.sources) {
+                    _.each(datum.sources, function (id) {
+                        allSources[id] = true;
+                    });
+                }
+                if (datum.sets) {
+                    _.each(datum.sets, function (id) {
+                        allSets[id] = true;
+                    });
+                }
+            }, this);
+        } else {
+            if (data.sources) { allSources[data.sources] = true; }
+            if (data.sets) { allSets[data.sets] = true; }
+        }
+        var sourcesDone = this.get('sources').getDeferred(_.keys(allSources));
+        var setsDone = this.get('tags').getDeferred(_.keys(allSets));
+        return $.when(sourcesDone, setsDone);
     },
     subset: function (o) {
         // Map path to model
