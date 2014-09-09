@@ -448,7 +448,7 @@ App.MediaModel = App.NestedModel.extend({
                     'id': tag.get('tags_id'),
                     'tag_sets_id': tagSet.get('tag_sets_id'),
                     'label': tag.get('label'),
-                    'tag_set_label': tagSet.get('label'),
+                    'tag_set_label': tagSet.get('label')
                 }));
             });
         });
@@ -530,7 +530,7 @@ App.MediaModel = App.NestedModel.extend({
         }
         var sets = this.get('tags');
         if (sets && sets.length > 0) {
-            qp.sets = sets.pluck('id');
+            qp.sets = sets.pluck('tags_id');
         }
         return qp;
     }
