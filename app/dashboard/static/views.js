@@ -528,7 +528,7 @@ App.HistogramView = Backbone.View.extend({
                 color: App.config.queryColors[idx],
                 data: _.map(item, function(d){ return d.numFound; }),
                 pointStart: item[0].dateObj.getTime(),
-                pointInterval: 24 * 3600 * 1000 // one day
+                pointInterval: item[1].dateObj.getTime() - item[0].dateObj.getTime()
             });
         });
         var showLineMarkers = (allSeries[0].data.length < 30);   // don't show dots on line if more than N data points
