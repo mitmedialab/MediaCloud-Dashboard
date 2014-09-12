@@ -202,7 +202,7 @@ def _sentence_numfound(api_key, keywords, media, start, end):
     else:
         start = datetime.datetime.strptime(start, '%Y-%m-%d').strftime('%Y-%m-%d')
         end = (datetime.datetime.strptime(end, '%Y-%m-%d')+datetime.timedelta(days=1)).strftime('%Y-%m-%d')
-    response = user_mc.sentenceCount(query, solr_filter='', split=True, split_daily=True, split_start_date=start, split_end_date=end)
+    response = user_mc.sentenceCount(query, solr_filter='', split=True, split_daily=False, split_start_date=start, split_end_date=end)
     del response['split']['gap']
     del response['split']['start']
     del response['split']['end']
