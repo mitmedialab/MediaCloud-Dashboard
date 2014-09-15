@@ -24,14 +24,14 @@ App.SentenceView = Backbone.View.extend({
         // only render both when >=2 queries
         this.listenTo(this.collection.resources, 'resource:complete:sentence', function () {
             $el.html('');
-            var query1Sentences = that.collection.models[0].get('results').get('sentences');
+            var query1Sentences = that.collection.at(0).get('results').get('sentences');
             if (that.collection.length >= 2) {
                 q1TotalSentences = query1Sentences.last(1)[0].get('totalSentences');
-                $el.append('<h3 class="first-query">'+App.config.queryNames[0]+' ('+that.formatNumber(q1TotalSentences)+' found)</h3>');
+                $el.append('<h3 class="first-query">'+that.collection.at(0).get('params').get('keywords')+' ('+that.formatNumber(q1TotalSentences)+' found)</h3>');
                 that.addSentences(query1Sentences.last(10),that.sentenceTemplate,$el);
                 var query2Sentences = that.collection.models[1].get('results').get('sentences');
                 q2TotalSentences = query2Sentences.last(1)[0].get('totalSentences');
-                $el.append('<h3 class="second-query">'+App.config.queryNames[1]+' ('+that.formatNumber(q2TotalSentences)+' found)</h3>');
+                $el.append('<h3 class="second-query">'+that.collection.at(1).get('params').get('keywords')+' ('+that.formatNumber(q2TotalSentences)+' found)</h3>');
                 that.addSentences(query2Sentences.last(10),that.sentenceTemplate,$el);
                 that.$('.count').html('');
             } else {
@@ -94,9 +94,9 @@ App.StoryView = Backbone.View.extend({
             var query1Stories = that.collection.models[0].get('results').get('stories');
             if (that.collection.length >= 2) {
                 // had main and comparison queries
-                $el.append('<h3 class="first-query">'+App.config.queryNames[0]+'</h3>');
+                $el.append('<h3 class="first-query">'+that.collection.at(0).get('params').get('keywords')+'</h3>');
                 that.addStories(query1Stories.last(10),that.storyTemplate,$el);
-                $el.append('<h3 class="second-query">'+App.config.queryNames[1]+'</h3>');
+                $el.append('<h3 class="second-query">'+that.collection.at(1).get('params').get('keywords')+'</h3>');
                 var query2Stories = that.collection.models[1].get('results').get('stories');
                 that.addStories(query2Stories.last(10),that.storyTemplate,$el);
             } else {
