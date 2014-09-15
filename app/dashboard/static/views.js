@@ -524,7 +524,7 @@ App.HistogramView = Backbone.View.extend({
         _.each(datasets, function(item,idx){
             allSeries.push({
                 id: idx,
-                name: App.config.queryNames[idx],
+                name: that.collection.at(idx).get('params').get('keywords'),
                 color: App.config.queryColors[idx],
                 data: _.map(item, function(d){ return d.numFound; }),
                 pointStart: item[0].dateObj.getTime(),
