@@ -222,6 +222,16 @@ App.QueryView = App.NestedView.extend({
                 .append(topRow)
                 .append(middleRow)
                 .append(bottomRow);
+            // Update title of query based on search term
+            that.$('.keyword-view-keywords').on('change keyup paste', function () {
+                console.log('updated');
+                console.log($(this).val());
+                if ($(this).val() !== '') {
+                    that.$('.query-title').text($(this).val());
+                } else {
+                    that.$('.query-title').text('Query');
+                }
+            });
         });
     },
     onCopyInput: function (evt) {
@@ -387,7 +397,6 @@ App.QueryListView = App.NestedView.extend({
             }
             that.$('.query-views .query-title').eq(0).addClass('first-query');
             that.$('.query-views .query-title').eq(1)
-                .html('Comparison Query')
                 .removeClass('first-query')
                 .addClass('second-query');
         });
