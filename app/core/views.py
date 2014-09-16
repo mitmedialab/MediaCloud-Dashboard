@@ -310,6 +310,13 @@ def wordcount_csv(keywords, media, start, end):
         app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
 
+@flapp.route('/export/svg', methods=['POST'])
+def export_svg():
+    response = make_response(request.form['content'])
+    disposition = "attachment; filename=%d" % request.form['filename']
+    response.headers["Content-Disposition"] = disposition
+    return response
+
 # -----------------------------------------------------------------------------------------
 # HELPERS ---------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------
