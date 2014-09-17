@@ -312,8 +312,8 @@ def wordcount_csv(keywords, media, start, end):
 
 @flapp.route('/export/svg', methods=['POST'])
 def export_svg():
-    response = make_response(request.form['content'])
-    disposition = "attachment; filename=%d" % request.form['filename']
+    response = flapp.make_response(flask.request.form['content'])
+    disposition = "attachment; filename=%s" % flask.request.form['filename']
     response.headers["Content-Disposition"] = disposition
     return response
 
