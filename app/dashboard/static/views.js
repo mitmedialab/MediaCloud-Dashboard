@@ -142,6 +142,7 @@ App.WordCountView = App.NestedView.extend({
     initialize: function (options) {
         this.resultViews = null;
         this.comparisonViews = null;
+        _.bindAll(this, 'clickSvg');
         this.render();
     },
     render: function () {
@@ -166,6 +167,9 @@ App.WordCountView = App.NestedView.extend({
                 return m.get('results').get('wordcounts').csvUrl();
             });
             that.addDownloadMenuItems(downloadUrls);
+            // Add download SVG option
+            that.addDownloadMenuItems([''], 'Download as SVG', 'svg-download');
+            that.$('a.svg-download').on('click', that.clickSvg);
             // and clean up and prep the UI
             that.delegateEvents();
             that.showActionMenu();
@@ -207,8 +211,16 @@ App.WordCountView = App.NestedView.extend({
             template: '#tpl-about-wordcount-view'
         });
         $('body').append(this.aboutView.el);
-    }
+    },
 
+    clickSvg: function (evt) {
+        evt.preventDefault();
+        var s = new XMLSerializer();
+        var data = s.serializeToString(this.$('svg').get(0));
+        this.$('.svg-download input[name="content"]').val(data);
+        this.$('.svg-download').submit();
+    }
+    
 });
 App.WordCountView = App.WordCountView.extend(App.ActionedViewMixin);
 

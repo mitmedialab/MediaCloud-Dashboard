@@ -1,4 +1,8 @@
 <script id="tpl-wordcount-view" type="text/template">
+    <form class="svg-download" method="post" action="/export/svg">
+    <input type="hidden" name="content"/>
+    <input type="hidden" name="filename" value="frequency.svg"/>
+    </form>
     <div class="wordcount-view panel panel-default">
         <div class="panel-heading">
             <div class="btn-group pull-right">
