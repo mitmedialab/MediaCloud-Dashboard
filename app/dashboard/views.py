@@ -75,7 +75,7 @@ def story_docs_csv(keywords, media, start, end):
     '''
     app.core.logger.debug("Starting story docs CSV download")
     user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
-    query = app.core.util.solr_query(keywords, app.core.util.media_to_solr, start, end)
+    query = app.core.util.solr_query(keywords, media, start, end)
     all_stories = []
     last_processed_stories_id = 0
     more_stories = True
