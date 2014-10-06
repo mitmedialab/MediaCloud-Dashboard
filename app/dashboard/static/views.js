@@ -534,13 +534,15 @@ App.HistogramView = Backbone.View.extend({
         // generate the series
         var allSeries = [];
         _.each(datasets, function(item,idx){
+            var intervalMs = item[1].dateObj.getTime() - item[0].dateObj.getTime();
+            var intervalDays = intervalMs / (1000 * 60 * 60 * 24);
             allSeries.push({
-                id: idx,
+                id: idx, 
                 name: that.collection.at(idx).get('params').get('keywords'),
                 color: App.config.queryColors[idx],
-                data: _.map(item, function(d){ return d.numFound; }),
+                data: _.map(item, function(d){ return d.numFound / intervalDays; }),
                 pointStart: item[0].dateObj.getTime(),
-                pointInterval: item[1].dateObj.getTime() - item[0].dateObj.getTime()
+                pointInterval: intervalMs
             });
         });
         var showLineMarkers = (allSeries[0].data.length < 30);   // don't show dots on line if more than N data points
@@ -596,7 +598,7 @@ App.HistogramView = Backbone.View.extend({
             yAxis: {
                 min: 0,
                 title: {
-                    text: 'Sentences'
+                    text: 'Sentences/day'
                 }
             },
             series: allSeries
