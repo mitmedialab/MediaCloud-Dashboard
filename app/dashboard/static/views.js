@@ -359,19 +359,23 @@ App.WordCountComparisonView = Backbone.View.extend({
             leftWords = leftGroup.selectAll('.word')
                 .data(this.left, function (d) { return d.stem; });
             leftWords.enter()
-                .append('text').classed('word', true).classed('left', true)
+                .append('text').classed('word', true).classed('left', true);
+            leftWords
                 .attr('font-size', function (d) {
                     return that.fontSize(d, that.fullExtent, sizeRange); });
             rightWords = rightGroup.selectAll('.word')
                 .data(this.right, function (d) { return d.stem; });
             rightWords.enter()
-                .append('text').classed('word', true).classed('right', true)
+                .append('text').classed('word', true).classed('right', true);
+            rightWords
                 .attr('font-size', function (d) {
                     return that.fontSize(d, that.fullExtent, sizeRange); });
             intersectWords = intersectGroup.selectAll('.word')
                 .data(this.center, function (d) { return d.stem; });
             intersectWords.enter()
-                .append('text').classed('word', true).classed('intersect', true)
+                .append('text').classed('word', true).classed('intersect', true);
+            console.log(intersectWords);
+            intersectWords
                 .attr('font-size', function (d) {
                     return that.fontSize(d, that.fullExtent, sizeRange); });
             d3.selectAll('.word')
@@ -383,9 +387,18 @@ App.WordCountComparisonView = Backbone.View.extend({
                 .attr('fill', App.config.queryColors[1]);
             // Layout
             y = 0;
-            y = Math.max(y, this.listCloudLayout(leftWords, innerWidth, this.fullExtent, sizeRange));
-            y = Math.max(y, this.listCloudLayout(intersectWords, innerWidth, this.fullExtent, sizeRange));
-            y = Math.max(y, this.listCloudLayout(rightWords, innerWidth, this.fullExtent, sizeRange));
+            leftHeight = this.listCloudLayout(leftWords, innerWidth, this.fullExtent, sizeRange);
+            intersectHeight = this.listCloudLayout(intersectWords, innerWidth, this.fullExtent, sizeRange);
+            rightHeight = this.listCloudLayout(rightWords, innerWidth, this.fullExtent, sizeRange);
+            y = Math.max(y, leftHeight);
+            y = Math.max(y, intersectHeight);
+            y = Math.max(y, rightHeight);
+            App.debug('Layout');
+            App.debug('leftHeight: ' + leftHeight);
+            App.debug('intersectHeight: ' + intersectHeight);
+            App.debug('rightHeight: ' + rightHeight);
+            App.debug('y: ' + y);
+            App.debug('Max size: ' + sizeRange.max);
             sizeRange.max = sizeRange.max - 1;
         }
         d3.selectAll('.word')
