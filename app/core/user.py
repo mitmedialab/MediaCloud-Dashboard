@@ -1,4 +1,5 @@
 import hashlib
+import datetime
 
 from flask_login import UserMixin, AnonymousUserMixin
 
@@ -10,6 +11,7 @@ class User(UserMixin):
         self.name = name
         self.id = userid
         self.active = active
+        self.created = datetime.datetime.now()
         
     def is_active(self):
         return self.active
@@ -32,6 +34,10 @@ def authenticate_user_key(username, key):
     try:
         user = User(username, key)
         User.cached[key] = user
+        # Invalidate if over 10 minutes old
+        if datetime.datetime.now() - user.created > datetime.timedelta(minutes=10):
+            del User.cached[key]
+            return AnonymousUserMixin()
         return user
     except Exception:
         return AnonymousUserMixin()
