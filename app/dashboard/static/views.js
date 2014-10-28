@@ -184,7 +184,7 @@ App.WordCountView = App.NestedView.extend({
     
     renderWordCountResults: function (wordcounts) {
         App.debug('App.WordCountView.renderWordCountResults()');
-        var wordCountResultView = new App.WordCountResultView({'collection':wordcounts});
+        var wordCountResultView = new App.WordCountOrderedView({'collection':wordcounts});
         this.addSubView(wordCountResultView);
         var $el = this.$('.viz');
         $el.append(wordCountResultView.$el);
@@ -223,6 +223,136 @@ App.WordCountView = App.NestedView.extend({
     
 });
 App.WordCountView = App.WordCountView.extend(App.ActionedViewMixin);
+
+App.WordCountOrderedView = Backbone.View.extend({
+    name: 'WordCountOrderedView',
+    config: {
+        // Use sizeRange() to read, might be dynamic in the future
+        sizeRange: { min: 10, max: 64 }
+        , height: 400
+        , padding: 10
+        , linkColor: "#428bca"
+    },
+
+    template: _.template($('#tpl-wordcount-ordered-view').html()),
+    
+    initialize: function () {
+        _.bindAll(this,'refineBothQueries');
+        this.render();
+    },
+    updateStats: function () {
+        this.all = this.collection.toJSON();
+        var countSel = function (d) { return d.count };
+        var allSum = d3.sum(this.all, countSel);
+        this.center = _.first(this.all, 100);
+        // Normalize
+        _.each(this.center, function (d) {
+            d.tfnorm = d.count / allSum;
+        });
+        this.fullExtent = d3.extent(this.all, function (d) { return d.tfnorm; })
+    },
+    render: function () {
+        var that = this;
+        this.updateStats();
+        this.$el.html(this.template());
+        this.$('.content-text').hide();
+        _.defer(function () { 
+            that.renderSvg();
+        });
+    },
+    sizeRange: function () {
+        return _.clone(this.config.sizeRange);
+    },
+    fontSize: function (term, extent, sizeRange) {
+        if (typeof(sizeRange) === 'undefined') {
+            sizeRange = this.sizeRange();
+        }
+        var size = sizeRange.min
+            + (sizeRange.max - sizeRange.min)
+                * ( Math.log(term.tfnorm) - Math.log(extent[0]) ) / ( Math.log(extent[1]) - Math.log(extent[0]) );
+        return size;
+    },
+    termText: function(d){
+        return d.term + d.count + ' ';
+    },
+    renderSvg: function () {
+        var that = this;
+        var container = d3.select(this.el).select('.content-viz');
+        var width = this.$('.content-viz').width();
+        var innerWidth = width - 2*this.config.padding;
+        var svg = container.append('svg')
+            .attr('height', this.config.height)
+            .attr('width', width);
+        var intersectGroup = svg.append('g').classed('intersect-group', true)
+            .attr('transform', 'translate('+(this.config.padding)+')');
+        var y = this.config.height;
+        var sizeRange = this.sizeRange();
+        var intersectWords;
+        while (y >= this.config.height && sizeRange.max > sizeRange.min) {
+            // Create words
+            intersectWords = intersectGroup.selectAll('.word')
+                .data(this.center, function (d) { return d.stem; });
+            intersectWords.enter()
+                .append('text').classed('word', true).classed('intersect', true);
+            intersectWords
+                .attr('font-size', function (d) {
+                    return that.fontSize(d, that.fullExtent, sizeRange); });
+            d3.selectAll('.word')
+                .text(function (d) { return d.term; })
+                .attr('font-weight', 'bold')
+                .attr('fill', App.config.queryColors[0]);
+            // Layout
+            y = 0;
+            intersectHeight = this.listCloudLayout(intersectWords, innerWidth, this.fullExtent, sizeRange);
+            y = Math.max(y, intersectHeight);
+            sizeRange.max = sizeRange.max - 1;
+        }
+        if (y < this.config.height) {
+            svg.attr('height', y);
+        }
+        d3.selectAll('.word')
+            .on('mouseover', function () {
+                d3.select(this).attr('fill', that.config.linkColor)
+                .attr('cursor','pointer');
+            })
+            .on('mouseout', function () {
+                var color = App.config.queryColors[0];
+                d3.select(this).attr('fill', color)
+                .attr('cursor','default');
+            });
+        d3.selectAll('.intersect.word')
+            .on('click', this.refineBothQueries);
+    },
+    refineBothQueries: function(d){
+        this.collection.refine.trigger('mm:refine', [
+            {term: d.term, query: 0},{term: d.term, query: 1}
+        ]);
+    },
+    listCloudLayout: function (words, width, extent, sizeRange) {
+        var that = this;
+        var x = 0;
+        words.attr('x', function (d) {
+            var textLength = this.getComputedTextLength();
+            var fs = that.fontSize(d, extent, sizeRange);
+            var lastX = x;
+            if (x + textLength + that.config.padding > width) {
+                lastX = 0;
+            }
+            x = lastX + textLength + 0.3*fs;
+            return lastX;
+        });
+        var y = -0.5 * that.fontSize(that.center[0], extent, sizeRange);
+        var lastAdded = 0;
+        words.attr('y', function (d) {
+            if (d3.select(this).attr('x') == 0) {
+                y += 1.5 * that.fontSize(d, extent, sizeRange);
+                lastAdded = 1.5 * that.fontSize(d, extent, sizeRange);
+            }
+            return y;
+        });
+        return y + lastAdded;
+    }
+});
 
 // View for comparison word cloud
 App.WordCountComparisonView = Backbone.View.extend({
@@ -374,7 +504,6 @@ App.WordCountComparisonView = Backbone.View.extend({
                 .data(this.center, function (d) { return d.stem; });
             intersectWords.enter()
                 .append('text').classed('word', true).classed('intersect', true);
-            console.log(intersectWords);
             intersectWords
                 .attr('font-size', function (d) {
                     return that.fontSize(d, that.fullExtent, sizeRange); });
@@ -393,12 +522,6 @@ App.WordCountComparisonView = Backbone.View.extend({
             y = Math.max(y, leftHeight);
             y = Math.max(y, intersectHeight);
             y = Math.max(y, rightHeight);
-            App.debug('Layout');
-            App.debug('leftHeight: ' + leftHeight);
-            App.debug('intersectHeight: ' + intersectHeight);
-            App.debug('rightHeight: ' + rightHeight);
-            App.debug('y: ' + y);
-            App.debug('Max size: ' + sizeRange.max);
             sizeRange.max = sizeRange.max - 1;
         }
         d3.selectAll('.word')
