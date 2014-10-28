@@ -65,6 +65,7 @@ import app.core.views
 # Import tool-specific code
 try:
     modules = config.get('custom', 'modules').split(',')
+    modules = [m.strip() for m in modules]
     for m in modules:
         if len(m) > 0:
             importlib.import_module(m)
