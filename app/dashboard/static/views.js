@@ -524,6 +524,9 @@ App.WordCountComparisonView = Backbone.View.extend({
             y = Math.max(y, rightHeight);
             sizeRange.max = sizeRange.max - 1;
         }
+        if (y < this.config.height) {
+            svg.attr('height', y);
+        }
         d3.selectAll('.word')
             .on('mouseover', function () {
                 d3.select(this).attr('fill', that.config.linkColor)
@@ -565,7 +568,7 @@ App.WordCountComparisonView = Backbone.View.extend({
             x = lastX + textLength + 0.3*fs;
             return lastX;
         });
-        var y = 0;
+        var y = -0.5 * sizeRange.max;
         var lastAdded = 0;
         words.attr('y', function (d) {
             if (d3.select(this).attr('x') == 0) {
