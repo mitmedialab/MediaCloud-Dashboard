@@ -24,13 +24,30 @@ App.con = App.Controller = {
         _.bindAll(this, 'onSignIn');
         _.bindAll(this, 'onSignOut');
         // Listener for events
+        App.con.queryCollection.resources.on('error', function (model_or_controller, request) {
+            App.debug('Received error: ' + request.status);
+            App.con.userModel.signOut();
+        });
         App.con.userModel.on('signin', App.con.onSignIn);
         App.con.userModel.on('signout', App.con.onSignOut);
         App.con.userModel.on('unauthorized', App.con.onSignOut);
         // Start navigation and log user in
         App.con.userModel.signIn({
-            "success": function() { _.defer(function () { Backbone.history.start(); }); }
-            , "error": function() { _.defer(function () { Backbone.history.start(); }); }
+            "success": function(model, response) {
+                _.defer(function () {
+                    console.log(model);
+                    console.log(response);
+                    Backbone.history.start();
+                });
+            }
+            , "error": function(model, response) {
+                _.defer(function () {
+                    App.debug('Error logging in');
+                    console.log(response);
+                    Backbone.history.start();
+                    App.con.router.navigate('login', true);
+                });
+            }
         });
     },
     

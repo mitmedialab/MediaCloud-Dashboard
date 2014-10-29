@@ -195,6 +195,7 @@ App.UserModel = Backbone.Model.extend({
               error: options.error
             });
         } else {
+            App.debug('No key or user/pass provided');
             if (options.error) {
                 options.error();
             }
@@ -203,10 +204,16 @@ App.UserModel = Backbone.Model.extend({
     
     signOut: function () {
         App.debug('App.UserModel.signOut()')
+        var that = this;
         $.removeCookie('mediameter_user_key', App.config.cookieOpts);
         $.removeCookie('mediameter_user_username', App.config.cookieOpts);
         this.set('id', 'logout');
-        this.fetch({type: 'post'});
+        this.fetch({
+            type: 'post'
+            , error: function () {
+                that.trigger('signout');
+            }
+        });
     }
 })
 
@@ -376,7 +383,7 @@ App.TagSetModel = App.NestedModel.extend({
     queryParam: function () {
         qp = {
             tag_sets_id: this.get('tag_sets_id')
-            , tags_id: this.get('tags').pluck('tags_id')
+            , tags_id: this.get('tags').pluck('id')
         }
         return qp;
     }
@@ -530,7 +537,7 @@ App.MediaModel = App.NestedModel.extend({
         }
         var sets = this.get('tags');
         if (sets && sets.length > 0) {
-            qp.sets = sets.pluck('tags_id');
+            qp.sets = sets.pluck('id');
         }
         return qp;
     }
@@ -795,6 +802,7 @@ App.WordCountCollection = App.QueryParamDrivenCollection.extend({
         this.params = options.params;
     },
     url: function () {
+        console.log(this.getQueryParamUrl());
         return '/api/wordcount/' + this.getQueryParamUrl();
     },
     csvUrl: function(){

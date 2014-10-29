@@ -1,6 +1,8 @@
 import hashlib
+import datetime
 
 from flask_login import UserMixin, AnonymousUserMixin
+import mediacloud as mcapi
 
 from app.core import db, mc
 
@@ -10,6 +12,7 @@ class User(UserMixin):
         self.name = name
         self.id = userid
         self.active = active
+        self.created = datetime.datetime.now()
         
     def is_active(self):
         return self.active
@@ -29,19 +32,18 @@ class User(UserMixin):
 User.cached = {}
 
 def authenticate_user_key(username, key):
-    try:
+    user_mc = mcapi.MediaCloud(key)
+    if user_mc.verifyUserAuthToken():
         user = User(username, key)
-        User.cached[key] = user
+        User.cached[user.id] = user
         return user
-    except Exception:
-        return AnonymousUserMixin()
-        
+    return AnonymousUserMixin()
 
 def authenticate_user(username, password):
     try:
         key = mc.userAuthToken(username, password)
         user = User(username, key)
-        User.cached[key] = user
+        User.cached[user.id] = user
         return user
     except Exception:
         return AnonymousUserMixin()
