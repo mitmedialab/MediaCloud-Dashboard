@@ -629,10 +629,10 @@ App.QueryCollection = Backbone.Collection.extend({
             if (typeof(options.term) !== 'undefined') {
                 if (typeof(options.query) !== 'undefined') {
                     var params = this.at(options.query).get('params');
-                    params.set('keywords', params.get('keywords')+" AND "+options.term);
+                    params.set('keywords', '(' + params.get('keywords')+") AND "+options.term);
                 } else if (typeof(options.queryCid) !== 'undefined') {
                     var params = this.get({cid:options.queryCid}).get('params');
-                    params.set('keywords', params.get('keywords')+" AND "+options.term);
+                    params.set('keywords', '(' + params.get('keywords')+") AND "+options.term);
                 }
             }
         }, this);
