@@ -324,9 +324,7 @@ App.WordCountOrderedView = Backbone.View.extend({
             .on('click', this.refineBothQueries);
     },
     refineBothQueries: function(d){
-        this.collection.refine.trigger('mm:refine', [
-            {term: d.term, query: 0},{term: d.term, query: 1}
-        ]);
+        this.trigger('mm:refine', {term: d.term, query: 0});
     },
     listCloudLayout: function (words, width, extent, sizeRange) {
         var that = this;
