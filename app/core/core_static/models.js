@@ -384,7 +384,7 @@ App.TagSetModel = App.NestedModel.extend({
     queryParam: function () {
         qp = {
             tag_sets_id: this.get('tag_sets_id')
-            , tags_id: this.get('tags').pluck('tag_id')
+            , tags_id: this.get('tags').pluck('tags_id')
         }
         return qp;
     }
@@ -538,7 +538,7 @@ App.MediaModel = App.NestedModel.extend({
         }
         var sets = this.get('tags');
         if (sets && sets.length > 0) {
-            qp.sets = sets.pluck('tag_id');
+            qp.sets = sets.pluck('tags_id');
         }
         return qp;
     }
