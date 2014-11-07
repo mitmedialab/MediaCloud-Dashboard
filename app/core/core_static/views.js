@@ -33,6 +33,52 @@ App.NestedView = Backbone.View.extend({
 });
 
 /**
+ * View to display error messages
+ */
+App.ErrorListView = Backbone.View.extend({
+    name: 'ErrorListView',
+    template: _.template($('#tpl-error-view').html()),
+    initialize: function (options) {
+        App.debug('App.ErrorListView.initialize()');
+        this.listenTo(this.collection, 'add', this.onAdd);
+        this.listenTo(this.collection, 'remove', this.onRemove);
+        this.render();
+    },
+    render: function () {
+        this.$el.html(this.template);
+        this.setVisibility();
+    },
+    onAdd: function (model) {
+        var view = new App.ErrorView({"model":model});
+        this.$('ul').append(view.$el);
+        this.setVisibility();
+    },
+    onRemove: function () {
+        this.setVisibility();
+    },
+    setVisibility: function () {
+        if (this.collection.length == 0) {
+            this.$el.hide();
+        } else {
+            this.$el.show();
+        }
+    }
+});
+
+/**
+ * Single error message
+ */
+App.ErrorView = Backbone.View.extend({
+    tagName: 'li',
+    initialize: function (options) {
+        this.render();
+    },
+    render: function () {
+        this.$el.html(this.model.get('message'));
+    }
+})
+
+/**
  * Login form.
  */
 App.LoginView = App.NestedView.extend({

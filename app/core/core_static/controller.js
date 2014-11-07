@@ -35,8 +35,6 @@ App.con = App.Controller = {
         App.con.userModel.signIn({
             "success": function(model, response) {
                 _.defer(function () {
-                    console.log(model);
-                    console.log(response);
                     Backbone.history.start();
                 });
             }
@@ -128,6 +126,10 @@ App.con = App.Controller = {
             mediaSources: App.con.mediaSources
             , parse: true
         };
+        App.con.errorListView = App.con.vm.getView(
+            App.ErrorListView
+            , { collection: App.con.getErrorCollection() }
+        );
         App.con.queryCollection.reset();
         App.con.queryModel = new App.QueryModel(attributes, options);
         App.con.queryCollection.add(App.con.queryModel);
@@ -139,7 +141,10 @@ App.con = App.Controller = {
             }
         );
         App.con.queryCollection.on('execute', App.con.onQuery, this);
-        App.con.vm.showView(App.con.queryListView);
+        App.con.vm.showViews([
+            App.con.errorListView
+            , App.con.queryListView
+        ]);
     },
     
     routeDemo: function () {
@@ -257,5 +262,12 @@ App.con = App.Controller = {
             App.con.queryCollection.on('add', App.con.onQueryAdd, App.con);
             App.con.showResults(App.con.queryCollection);
         });
+    },
+    
+    getErrorCollection: function () {
+        if (typeof(this.errorCollection) === 'undefined') {
+            this.errorCollection = new Backbone.Collection();
+        }
+        return this.errorCollection;
     }
 };
