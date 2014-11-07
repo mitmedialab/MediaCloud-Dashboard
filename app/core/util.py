@@ -29,7 +29,7 @@ def solr_query(keywords, media, start, end):
     query_args = []
     keyword_query_args = keywords_to_solr(keywords)
     #logger.debug('keyword_query_args: '+keyword_query_args)
-    if len(keyword_query_args > 0):
+    if len(keyword_query_args) > 0:
         query_args.append( keyword_query_args )
     if date_is_specified(start,end):
         date_query_args = _solr_date_query_part(start,end)
