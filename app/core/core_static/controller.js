@@ -26,7 +26,14 @@ App.con = App.Controller = {
         // Listener for events
         App.con.queryCollection.resources.on('error', function (model_or_controller, request) {
             App.debug('Received error: ' + request.status);
-            App.con.userModel.signOut();
+            if (request.status == 401 || request.status == 403) {
+                App.con.userModel.signOut();
+            } else {
+                var error = new Backbone.Model({
+                    "message": request.responseText
+                });
+                App.con.getErrorCollection().add(error);
+            }
         });
         App.con.userModel.on('signin', App.con.onSignIn);
         App.con.userModel.on('signout', App.con.onSignOut);
