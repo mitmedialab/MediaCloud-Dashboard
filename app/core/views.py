@@ -206,7 +206,9 @@ def demo_sentence_docs(keywords):
 def _sentence_numfound(api_key, keywords, media, start, end):
     user_mc = mcapi.MediaCloud(api_key)
     query_args = []
-    query_args.append( app.core.util.keywords_to_solr(keywords) )
+    kw = app.core.util.keywords_to_solr(keywords)
+    if len(kw.strip()) > 0:
+        query_args.append(kw)
     app.core.logger.debug('MEDIA ' + media)
     if app.core.util.media_is_specified(media):
         query_args.append( app.core.util.media_to_solr(media) )
