@@ -148,6 +148,16 @@ body {
     margin-bottom: 0;
 }
 
+.error-view {
+    color: red;
+}
+.error-view .panel-default {
+    border-color: red;
+}
+.error-view ul {
+    margin: 0;
+}
+
 /* Bootstrap customization ****************************************************/
 
 .panel-default {
