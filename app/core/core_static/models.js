@@ -663,7 +663,15 @@ App.QueryCollection = Backbone.Collection.extend({
         this.trigger('execute', this);
     },
     keywords: function () {
-        var allKeywords = this.map(function(m) { return m.get('params').get('keywords'); });
+        var allKeywords = this.map(
+            function(m) {
+                var kw = m.get('params').get('keywords');
+                if (kw.length == 0) {
+                    kw = " ";
+                }
+                return kw;
+            }
+        );
         return JSON.stringify(allKeywords);
     },
     start: function () {
