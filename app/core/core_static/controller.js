@@ -4,7 +4,6 @@ App.con = App.Controller = {
         App.debug('App.Controller.initialize()');
         App.instance = this;
         // Set up error handling
-        $( document ).ajaxError(App.Controller.onAjaxError);
         // Create models
         App.con.userModel = new App.UserModel();
         App.con.mediaSources = new App.MediaModel({parse:true});
@@ -56,15 +55,6 @@ App.con = App.Controller = {
         });
     },
     
-    onAjaxError: function(event, jqxhr, settings, thrownError) {
-        var responseJson = $.parseJSON(jqxhr.responseText);
-        var errorMsg = 'Sorry, we had an error!';
-        if('error' in responseJson){
-            errorMsg = responseJson['error'];
-        }
-        alert(errorMsg);
-    },
-
     onSignIn: function () {
         App.debug('App.Controller.onSignIn()');
         App.con.router.navigate('', true);
