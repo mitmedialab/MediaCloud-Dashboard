@@ -6,6 +6,7 @@ import flask
 import flask_login
 import mediacloud
 import mediacloud.api as mcapi
+import mediacloud.error as mcerror
 import pymongo
 
 from app.core import config, flapp, login_manager, mc, mc_key
@@ -144,6 +145,11 @@ def sentences(keywords, media, start, end):
     try:
         res = user_mc.sentenceList(query, '', 0, 10)
         return json.dumps(res, separators=(',',':'))
+    except mcerror.MCException as exception:
+        app.core.logger.error("Query failed: "+str(exception))
+        content = json.dumps({'error':str(exception)}, separators=(',',':'))
+        status_code = exception.status_code
+        return content, status_code
     except Exception as exception:
         app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
@@ -174,6 +180,11 @@ def sentence_docs(keywords, media, start, end):
     user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
     try:
         return _sentence_docs(user_mc, keywords, media, start, end)
+    except mcerror.MCException as exception:
+        app.core.logger.error("Query failed: "+str(exception))
+        content = json.dumps({'error':str(exception)}, separators=(',',':'))
+        status_code = exception.status_code
+        return content, status_code
     except Exception as exception:
         app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
@@ -183,6 +194,11 @@ def demo_sentence_docs(keywords):
     media, start, end = demo_params()
     try:
         return _sentence_docs(mc, keywords, media, start, end)
+    except mcerror.MCException as exception:
+        app.core.logger.error("Query failed: "+str(exception))
+        content = json.dumps({'error':str(exception)}, separators=(',',':'))
+        status_code = exception.status_code
+        return content, status_code
     except Exception as exception:
         app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
@@ -222,6 +238,11 @@ def sentence_numfound(keywords, media, start, end):
     app.core.logger.debug("request: /api/sentences/numfound/")
     try:
         return _sentence_numfound(api_key, keywords, media, start, end)
+    except mcerror.MCException as exception:
+        app.core.logger.error("Query failed: "+str(exception))
+        content = json.dumps({'error':str(exception)}, separators=(',',':'))
+        status_code = exception.status_code
+        return content, status_code
     except Exception as exception:
         app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
@@ -231,6 +252,11 @@ def demo_sentence_numfound(keywords):
     media, start, end = demo_params()
     try:
         return _sentence_numfound(mc_key, keywords, media, start, end)
+    except mcerror.MCException as exception:
+        app.core.logger.error("Query failed: "+str(exception))
+        content = json.dumps({'error':str(exception)}, separators=(',',':'))
+        status_code = exception.status_code
+        return content, status_code
     except Exception as exception:
         app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
@@ -254,6 +280,11 @@ def story_public_docs(keywords, media, start, end):
     user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
     try:
         return _story_public_docs(user_mc, keywords, media, start, end)
+    except mcerror.MCException as exception:
+        app.core.logger.error("Query failed: "+str(exception))
+        content = json.dumps({'error':str(exception)}, separators=(',',':'))
+        status_code = exception.status_code
+        return content, status_code
     except Exception as exception:
         app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
@@ -263,6 +294,11 @@ def demo_story_docs(keywords):
     media, start, end = demo_params()
     try:
         return _story_public_docs(mc, keywords, media, start, end)
+    except mcerror.MCException as exception:
+        app.core.logger.error("Query failed: "+str(exception))
+        content = json.dumps({'error':str(exception)}, separators=(',',':'))
+        status_code = exception.status_code
+        return content, status_code
     except Exception as exception:
         app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
@@ -283,6 +319,11 @@ def wordcount(keywords, media, start, end):
     user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
     try:
         return _wordcount(user_mc, keywords, media, start, end)
+    except mcerror.MCException as exception:
+        app.core.logger.error("Query failed: "+str(exception))
+        content = json.dumps({'error':str(exception)}, separators=(',',':'))
+        status_code = exception.status_code
+        return content, status_code
     except Exception as exception:
         app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
@@ -292,6 +333,11 @@ def demo_wordcount(keywords):
     media, start, end = demo_params()
     try:
         return _wordcount(mc, keywords, media, start, end)
+    except mcerror.MCException as exception:
+        app.core.logger.error("Query failed: "+str(exception))
+        content = json.dumps({'error':str(exception)}, separators=(',',':'))
+        status_code = exception.status_code
+        return content, status_code
     except Exception as exception:
         app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
@@ -306,6 +352,11 @@ def wordcount_csv(keywords, media, start, end):
     try:
         results = json.loads(app.core.views._wordcount(user_mc, keywords, media, start, end))
         return assemble_csv_response(results,_wordcount_export_props,_wordcount_export_props,'wordcount')
+    except mcerror.MCException as exception:
+        app.core.logger.error("Query failed: "+str(exception))
+        content = json.dumps({'error':str(exception)}, separators=(',',':'))
+        status_code = exception.status_code
+        return content, status_code
     except Exception as exception:
         app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
@@ -333,6 +384,11 @@ def _sentences_allowed(key):
     try:
         res = user_mc.sentenceList(query, '', 0, 0)
         allowed = True
+    except mcerror.MCException as exception:
+        app.core.logger.error("Query failed: "+str(exception))
+        content = json.dumps({'error':str(exception)}, separators=(',',':'))
+        status_code = exception.status_code
+        return content, status_code
     except Exception as exception:
         allowed = False
     app.core.logger.debug("_sentences_allowed check: sentenceList %s for key %s " % (allowed, key) )

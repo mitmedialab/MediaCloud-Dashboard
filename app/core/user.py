@@ -33,7 +33,7 @@ User.cached = {}
 
 def authenticate_user_key(username, key):
     user_mc = mcapi.MediaCloud(key)
-    if user_mc.verifyUserAuthToken():
+    if user_mc.verifyAuthToken():
         user = User(username, key)
         User.cached[user.id] = user
         return user
