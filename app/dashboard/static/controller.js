@@ -9,8 +9,13 @@ _.extend(App.Controller, {
             { collection: queryCollection },
             true
         );
+        var errorListView = App.con.vm.getView(
+            App.ErrorListView,
+            { collection: App.con.getErrorCollection() }
+        );
         App.con.vm.showViews([
-            App.con.queryListView
+            errorListView
+            , App.con.queryListView
             , resultView
         ]);
         resultView.render();
