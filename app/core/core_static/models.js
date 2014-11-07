@@ -42,8 +42,12 @@ App.QueryParamDrivenCollection = Backbone.Collection.extend({
     },
 
     getQueryParamUrl: function(){
+        var kw = this.params.get('keywords');
+        if (kw.length == 0) {
+            kw = " ";
+        }
         var urlParts = [ 
-            encodeURIComponent(this.params.get('keywords')),
+            encodeURIComponent(kw),
             encodeURIComponent(JSON.stringify(this.params.get('mediaModel').queryParam()))
         ].concat( this._getDateParamUrlParts() );
         return urlParts.join('/');
