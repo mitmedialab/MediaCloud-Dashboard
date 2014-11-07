@@ -28,8 +28,9 @@ App.con = App.Controller = {
             if (request.status == 401 || request.status == 403) {
                 App.con.userModel.signOut();
             } else {
+                var content = JSON.parse(request.responseText);
                 var error = new Backbone.Model({
-                    "message": request.responseText
+                    "message": content.error
                 });
                 App.con.getErrorCollection().add(error);
             }
@@ -68,6 +69,7 @@ App.con = App.Controller = {
     onQuery: function (queryCollection) {
         App.debug('App.Controller.onQuery()');
         App.debug(queryCollection);
+        App.con.errorCollection.reset();
         var path = queryCollection.dashboardUrl();
         App.debug('Path: ' + path);
         App.con.router.navigate(path);
