@@ -79,7 +79,7 @@ def media_to_solr(media):
     #    parts = ['tags_id_media:%s' % i for i in tag['tags_id']]
     #    tag_queries.append(join_query_clauses(parts, 'OR'))
     if 'sets' in d:
-        parts = ['tags_id_media:%s' % i for i in d['sets']]
+        parts = ['tags_id_media:%s' % i for i in d['sets']] + ['tags_id_stories:%s' % i for i in d['sets']]
         tag_queries.append(join_query_clauses(parts, 'OR'))
 
     tag_query = join_query_clauses(tag_queries, 'OR')
@@ -89,6 +89,7 @@ def media_to_solr(media):
     if len(tag_query) > 0:
         queries.append(tag_query)
     query = join_query_clauses(queries, 'OR')
+    logger.debug("media_to_solr: "+query)
     return query
 
 def keywords_to_solr(keywords):
