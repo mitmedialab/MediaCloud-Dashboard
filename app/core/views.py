@@ -397,7 +397,7 @@ def _sentences_allowed(key):
     return allowed
 
 def csv_escape(s):  # TODO: do this better and in one place
-    return '"%s"' % s.replace('"', '"",').strip()
+    return u"\"%s\"" % s.replace('"', '""').strip()
 
 def assemble_csv_response(results,properties,column_names,filename):
     app.core.logger.debug("assemble_csv_response with "+str(len(results))+" results")
@@ -408,11 +408,11 @@ def assemble_csv_response(results,properties,column_names,filename):
         yield ','.join(names) + '\n'
         for row in data:
             try:
-                attributes = [ row[p] if isinstance(row[p], str) else str(row[p]) for p in props ] 
+                attributes = [ csv_escape(row[p]) for p in props]
                 yield ','.join(attributes) + '\n'
             except Exception as e:
                 app.core.logger.error("Couldn't process a CSV row: "+str(e))
-                app.core.logger.debug(row)
+                app.core.logger.debug(" | ".join([row[p] for p in props]))
     download_filename = 'mediacloud-'+str(filename)+'-'+datetime.datetime.now().strftime('%Y%m%d%H%M%S')+'.csv'
     return flask.Response(stream_csv(results,properties,column_names), mimetype='text/csv; charset=utf-8', 
                 headers={"Content-Disposition":"attachment;filename="+download_filename})
