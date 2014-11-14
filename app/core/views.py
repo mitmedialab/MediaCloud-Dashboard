@@ -139,11 +139,10 @@ def media_search_tags(query):
 @flapp.route('/api/sentences/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def sentences(keywords, media, start, end):
-    user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
     query = app.core.util.solr_query(keywords, media, start, end)
     app.core.logger.debug("query: sentences %s" % query)
     try:
-        res = user_mc.sentenceList(query, '', 0, 10)
+        res = mc.sentenceList(query, '', 0, 10)
         return json.dumps(res, separators=(',',':'))
     except mcerror.MCException as exception:
         app.core.logger.error("Query failed: "+str(exception))
@@ -177,9 +176,8 @@ def _sentence_docs(api, keywords, media, start, end, count=10, sort=mcapi.MediaC
 @flapp.route('/api/sentences/docs/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def sentence_docs(keywords, media, start, end):
-    user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
     try:
-        return _sentence_docs(user_mc, keywords, media, start, end)
+        return _sentence_docs(mc, keywords, media, start, end)
     except mcerror.MCException as exception:
         app.core.logger.error("Query failed: "+str(exception))
         content = json.dumps({'error':str(exception)}, separators=(',',':'))
