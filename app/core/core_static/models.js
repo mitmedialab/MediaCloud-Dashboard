@@ -114,6 +114,18 @@ App.DeferredCollectionMixin = {
     }
 }
 
+/**
+ * Mixin to allow generation of unique ids.
+ */
+App.UidMixin = {
+    nextUid: 1,
+    getUid: function () {
+        var uid = this.nextUid;
+        this.nextUid += 1;
+        return uid;
+    }
+};
+
 App.UserModel = Backbone.Model.extend({
     
     id: 'user',
@@ -566,6 +578,40 @@ App.QueryModel = Backbone.Model.extend({
             this.ResultModel = App.ResultModel;
         }
         this.set('results', new this.ResultModel({}, opts));
+        this.set('queryUid', this.getUid());
+    },
+    getName: function () {
+        var name = this.get('name');
+        if (typeof(name) !== 'undefined') {
+            return name;
+        }
+        name = 'Query ' + this.alphaLabel(this.get('queryUid'));
+        return name;
+    },
+    // Convert n (>= 1) into an alpha label: A, B, .. Z, AA, AB, ...
+    alphaLabel: function (n) {
+        var tokens = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        var base = tokens.length;
+        var label = '';
+        // Determine lenth of symbol
+        var d = 1;
+        var dsum = base;
+        while (dsum < n) {
+            d += 1;
+            dsum += Math.pow(base, d);
+        }
+        // Determine index into labels of length d
+        var m = n - (dsum - Math.pow(base, d));
+        // Convert to 0-based
+        m -= 1;
+        // Construct label
+        var r;
+        while (label.length < d) {
+            var r = m % base;
+            label = tokens[r] + label;
+            m = (m - r) / base;
+        }
+        return label;
     },
     parse: function (response, options) {
         response.params = new Backbone.Model({
@@ -586,6 +632,7 @@ App.QueryModel = Backbone.Model.extend({
         this.trigger('model:execute', this);
     }
 });
+App.QueryModel = App.QueryModel.extend(App.UidMixin);
 
 /**
  * Holds a set of queries, each specifying criteria that are part of the search.
@@ -613,7 +660,6 @@ App.QueryCollection = Backbone.Collection.extend({
     onAdd: function (model, collection, options) {
         // When adding a QueryModel, listen to it's ResultModel
         this.resources.listen(model.get('results'));
-        collection.updateNames();
         // Add the refine query event aggregator
         model.refine = this.refine;
         model.subqueryListener = this.subqueryListener;
@@ -621,7 +667,6 @@ App.QueryCollection = Backbone.Collection.extend({
     onRemove: function (model, collection, options) {
         // Unlisten when we remove
         this.resources.unlisten(model.get('results'));
-        collection.updateNames();
     },
     onRefine: function (options) {
         var q = []
@@ -712,14 +757,18 @@ App.QueryCollection = Backbone.Collection.extend({
             , this.end()
         ].join('/');
     },
-    updateNames: function () {
-        this.each(function (m, i) {
-            if (i < App.config.queryNames.length) {
-                m.set('name', App.config.queryNames[i]);
-            }
-        })
+    alphaLabel: function (n) {
+        var m;
+        var tokens = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        label = '';
+        while (n > 0) {
+            m = n % 26;
+            label += tokens[m];
+            n = Math.round((m - n) / 26.0);
+        }
     }
 })
+App.QueryModel = App.QueryModel.extend(App.UidMixin);
 
 // Add this to any model that has a standard "public_date" property that we want to parse into a JS date object
 App.DatedModelMixin = {
