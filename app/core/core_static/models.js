@@ -578,7 +578,11 @@ App.QueryModel = Backbone.Model.extend({
             this.ResultModel = App.ResultModel;
         }
         this.set('results', new this.ResultModel({}, opts));
-        this.set('queryUid', this.getUid());
+        this.set('queryUid', App.QueryModel.getUid());
+        this.listenTo(this, 'change:name', this.onChangeName);
+    },
+    onChangeName: function () {
+        this.trigger('mm:namechange');
     },
     getName: function () {
         var name = this.get('name');
@@ -632,7 +636,7 @@ App.QueryModel = Backbone.Model.extend({
         this.trigger('model:execute', this);
     }
 });
-App.QueryModel = App.QueryModel.extend(App.UidMixin);
+_.extend(App.QueryModel, App.UidMixin);
 
 /**
  * Holds a set of queries, each specifying criteria that are part of the search.
