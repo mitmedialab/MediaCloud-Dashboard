@@ -1,5 +1,29 @@
 <script id="tpl-query-view" type="text/template">
-    <h3 class="query-title first-query">Query</h3>
+    <h3 class="first-query">
+        <span class="query-title">Query</span>
+        &nbsp;
+        <a class="edit" href=""><span class="glyphicon glyphicon-edit"></span></a>
+    </h3>
     <div class="query-view-content">
+    </div>
+    <div class="modal mm-edit-query-label fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Edit query label</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Query label</label>
+                        <input type="text" class="form-control"/>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
     </div>
 </script>

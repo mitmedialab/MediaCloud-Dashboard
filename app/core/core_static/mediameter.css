@@ -316,10 +316,10 @@ input.form-control, select.form-control, textarea.form-control {
 .tag-set-explore-view p {
     margin-top: 10px;
 }
-.first-query {
+.first-query, .first-query a {
     color: #e14c11;
 }
-.second-query {
+.second-query, .second-query a {
     color: #249fc9;
 }
 
