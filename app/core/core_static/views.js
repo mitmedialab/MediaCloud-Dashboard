@@ -216,6 +216,7 @@ App.QueryView = App.NestedView.extend({
         App.debug(options);
         _.bindAll(this, 'onCopyInput');
         _.bindAll(this, 'onRemoveInput');
+        _.bindAll(this, 'onNameModalSubmit');
         this.mediaSources = options.mediaSources;
         this.mediaSelectView = new App.MediaSelectView({
             model: this.model.get('params').get('mediaModel')
@@ -268,22 +269,39 @@ App.QueryView = App.NestedView.extend({
                 .append(topRow)
                 .append(middleRow)
                 .append(bottomRow);
-            // Update title of query based on search term
-            that.$('.keyword-view-keywords').on('change keyup paste', function () {
-                console.log('updated');
-                console.log($(this).val());
-                if ($(this).val() !== '') {
-                    that.$('.query-title').text($(this).val());
-                } else {
-                    that.$('.query-title').text('Query');
+            that.updateTitle();
+            that.listenTo(that.model, 'mm:namechange', that.updateTitle);
+            // In order for the modal to show up above all page content
+            // it needs to be directly under the body.
+            that.nameModal$ = that.$('.mm-edit-query-label');
+            $('body').append(that.nameModal$.remove());
+            that.$('h3 a').on('click', function (event) {
+                event.preventDefault();
+                that.nameModal$.find('input').val(that.model.get('name'));
+                that.nameModal$.modal('show');
+            })
+            // Listen for submit of label dialog
+            that.nameModal$.find('.btn-primary').on('click', that.onNameModalSubmit);
+            that.nameModal$.find('input').on('keypress', function (event) {
+                if (event.which == 13) {
+                    that.onNameModalSubmit();
                 }
             });
         });
+    },
+    updateTitle: function () {
+        this.$('.query-title').text(this.model.getName());
+    },
+    onNameModalSubmit: function () {
+        console.log(this);
+        this.model.set('name', this.nameModal$.find('input').val());
+        this.nameModal$.modal('hide');
     },
     onCopyInput: function (evt) {
         App.debug('App.QueryView.onCopyInput()');
         evt.preventDefault();
         var newMedia = this.model.get('params').get('mediaModel');
+        delete newMedia['queryUid'];
         var attr = {
             start: this.model.get('params').get('start'),
             end: this.model.get('params').get('end'),
@@ -441,8 +459,8 @@ App.QueryListView = App.NestedView.extend({
                 that.$('.query-views').addClass('two');
                 that.$('.query-views').removeClass('one');
             }
-            that.$('.query-views .query-title').eq(0).addClass('first-query');
-            that.$('.query-views .query-title').eq(1)
+            that.$('.query-views h3').eq(0).addClass('first-query');
+            that.$('.query-views h3').eq(1)
                 .removeClass('first-query')
                 .addClass('second-query');
         });
