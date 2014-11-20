@@ -592,6 +592,17 @@ App.QueryModel = Backbone.Model.extend({
         name = 'Query ' + this.alphaLabel(this.get('queryUid'));
         return name;
     },
+    getColor: function () {
+        // TODO redo color assignment for >2 queries
+        // https://github.com/c4fcm/MediaMeter-Dashboard/issues/150
+        var color = App.config.queryColors[0];
+        this.collection.each(function (m, idx) {
+            if (this.cid === m.cid) {
+                color = App.config.queryColors[idx];
+            }
+        }, this);
+        return color;
+    },
     // Convert n (>= 1) into an alpha label: A, B, .. Z, AA, AB, ...
     alphaLabel: function (n) {
         var tokens = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
