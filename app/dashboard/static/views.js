@@ -675,7 +675,7 @@ App.HistogramView = Backbone.View.extend({
             var intervalDays = intervalMs / (1000 * 60 * 60 * 24);
             allSeries.push({
                 id: idx, 
-                name: that.collection.at(idx).get('params').get('keywords'),
+                name: that.collection.at(idx).getName(),
                 color: App.config.queryColors[idx],
                 data: _.map(item, function(d){ return d.numFound / intervalDays; }),
                 pointStart: item[0].dateObj.getTime(),
