@@ -279,6 +279,7 @@ App.QueryView = App.NestedView.extend({
                 event.preventDefault();
                 that.nameModal$.find('input').val(that.model.get('name'));
                 that.nameModal$.modal('show');
+                that.nameModal$.find('input').focus();
             })
             // Listen for submit of label dialog
             that.nameModal$.find('.btn-primary').on('click', that.onNameModalSubmit);
