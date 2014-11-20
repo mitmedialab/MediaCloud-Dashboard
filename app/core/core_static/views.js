@@ -275,11 +275,13 @@ App.QueryView = App.NestedView.extend({
             // it needs to be directly under the body.
             that.nameModal$ = that.$('.mm-edit-query-label');
             $('body').append(that.nameModal$.remove());
+            that.nameModal$.on('shown.bs.modal', function () {
+                that.nameModal$.find('input').focus();
+            });
             that.$('h3 a').on('click', function (event) {
                 event.preventDefault();
                 that.nameModal$.find('input').val(that.model.get('name'));
                 that.nameModal$.modal('show');
-                that.nameModal$.find('input').focus();
             })
             // Listen for submit of label dialog
             that.nameModal$.find('.btn-primary').on('click', that.onNameModalSubmit);
