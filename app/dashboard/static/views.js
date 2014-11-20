@@ -160,7 +160,7 @@ App.WordCountView = App.NestedView.extend({
                 that.renderWordCountComparison(that.collection);
             } else {
                 // render individual word clouds for each query
-                that.renderWordCountResults(that.collection.models[0].get('results').get('wordcounts'));
+                that.renderWordCountResults(that.collection.at(0));
             }
             // add in data download links
             var downloadUrls = that.collection.map(function(m) { 
@@ -182,9 +182,9 @@ App.WordCountView = App.NestedView.extend({
         }, this);
     },
     
-    renderWordCountResults: function (wordcounts) {
+    renderWordCountResults: function (queryModel) {
         App.debug('App.WordCountView.renderWordCountResults()');
-        var wordCountResultView = new App.WordCountOrderedView({'collection':wordcounts});
+        var wordCountResultView = new App.WordCountOrderedView({'model':queryModel});
         this.addSubView(wordCountResultView);
         var $el = this.$('.viz');
         $el.append(wordCountResultView.$el);
@@ -232,6 +232,7 @@ App.WordCountOrderedView = Backbone.View.extend({
         , height: 400
         , padding: 10
         , linkColor: "#428bca"
+        , labelSize: 16
     },
 
     template: _.template($('#tpl-wordcount-ordered-view').html()),
@@ -241,7 +242,8 @@ App.WordCountOrderedView = Backbone.View.extend({
         this.render();
     },
     updateStats: function () {
-        this.all = this.collection.toJSON();
+        console.log(this.model);
+        this.all = this.model.get('results').get('wordcounts').toJSON();
         var countSel = function (d) { return d.count };
         var allSum = d3.sum(this.all, countSel);
         this.center = _.first(this.all, 100);
@@ -285,12 +287,29 @@ App.WordCountOrderedView = Backbone.View.extend({
             .attr('width', width);
         var intersectGroup = svg.append('g').classed('intersect-group', true)
             .attr('transform', 'translate('+(this.config.padding)+')');
-        var y = this.config.height;
         var sizeRange = this.sizeRange();
         var intersectWords;
-        while (y >= this.config.height && sizeRange.max > sizeRange.min) {
+        var label = intersectGroup.append('text')
+            .text(this.model.getName())
+            .attr('font-size', this.config.labelSize)
+            .attr('font-weight', 'bold')
+            .attr('text-anchor', 'middle')
+            .attr('x', innerWidth/2.0 + this.config.labelSize/2.0)
+            .attr('y', this.config.padding + this.config.labelSize);
+        var legendXoff = -this.config.labelSize/2.0 - label[0][0].getBBox().width/2.0;
+        var legendYoff = (1 + 0.25)*this.config.labelSize/2.0
+        intersectGroup.append('circle')
+            .attr('r', 0.7*this.config.labelSize/2.0)
+            .attr('cy', this.config.padding + legendYoff)
+            .attr('cx', innerWidth/2.0 + legendXoff)
+            .attr('fill', this.model.getColor());
+        var y = this.config.height;
+        var wordListHeight = this.config.height - 1.5*this.config.labelSize - 2*this.config.padding;
+        var wordList = intersectGroup.append('g')
+            .attr('transform', 'translate(0,' + (1.5*this.config.labelSize) + ')');
+        while (y >= wordListHeight && sizeRange.max > sizeRange.min) {
             // Create words
-            intersectWords = intersectGroup.selectAll('.word')
+            intersectWords = wordList.selectAll('.word')
                 .data(this.center, function (d) { return d.stem; });
             intersectWords.enter()
                 .append('text').classed('word', true).classed('intersect', true);
@@ -308,7 +327,7 @@ App.WordCountOrderedView = Backbone.View.extend({
             sizeRange.max = sizeRange.max - 1;
         }
         if (y < this.config.height) {
-            svg.attr('height', y);
+            svg.attr('height', y + 1.5*this.config.labelSize);
         }
         d3.selectAll('.word')
             .on('mouseover', function () {
