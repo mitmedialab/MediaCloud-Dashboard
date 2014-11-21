@@ -380,6 +380,7 @@ App.WordCountComparisonView = Backbone.View.extend({
         , height: 400
         , padding: 10
         , linkColor: "#428bca"
+        , labelSize: 16
     },
 
     template: _.template($('#tpl-wordcount-comparison-view').html()),
@@ -501,23 +502,72 @@ App.WordCountComparisonView = Backbone.View.extend({
         var y = this.config.height;
         var sizeRange = this.sizeRange();
         var leftWords, rightWords, intersectWords;
-        while (y >= this.config.height && sizeRange.max > sizeRange.min) {
+        var label = intersectGroup.append('text')
+            .text('Both')
+            .attr('font-size', this.config.labelSize)
+            .attr('font-weight', 'bold')
+            .attr('text-anchor', 'middle')
+            .attr('x', innerWidth/2.0 + this.config.labelSize/2.0)
+            .attr('y', this.config.padding + this.config.labelSize);
+        var legendXoff = -this.config.labelSize/2.0 - label[0][0].getBBox().width/2.0;
+        var legendYoff = (1 + 0.25)*this.config.labelSize/2.0
+        intersectGroup.append('circle')
+            .attr('r', 0.7*this.config.labelSize/2.0)
+            .attr('cy', this.config.padding + legendYoff)
+            .attr('cx', innerWidth/2.0 + legendXoff)
+            .attr('fill', '#000000');
+        label = leftGroup.append('text')
+            .text(this.collection.at(0).getName())
+            .attr('font-size', this.config.labelSize)
+            .attr('font-weight', 'bold')
+            .attr('text-anchor', 'middle')
+            .attr('x', innerWidth/2.0 + this.config.labelSize/2.0)
+            .attr('y', this.config.padding + this.config.labelSize);
+        var legendXoff = -this.config.labelSize/2.0 - label[0][0].getBBox().width/2.0;
+        var legendYoff = (1 + 0.25)*this.config.labelSize/2.0
+        leftGroup.append('circle')
+            .attr('r', 0.7*this.config.labelSize/2.0)
+            .attr('cy', this.config.padding + legendYoff)
+            .attr('cx', innerWidth/2.0 + legendXoff)
+            .attr('fill', this.collection.at(0).getColor());
+        var label = rightGroup.append('text')
+            .text(this.collection.at(1).getName())
+            .attr('font-size', this.config.labelSize)
+            .attr('font-weight', 'bold')
+            .attr('text-anchor', 'middle')
+            .attr('x', innerWidth/2.0 + this.config.labelSize/2.0)
+            .attr('y', this.config.padding + this.config.labelSize);
+        var legendXoff = -this.config.labelSize/2.0 - label[0][0].getBBox().width/2.0;
+        var legendYoff = (1 + 0.25)*this.config.labelSize/2.0
+        rightGroup.append('circle')
+            .attr('r', 0.7*this.config.labelSize/2.0)
+            .attr('cy', this.config.padding + legendYoff)
+            .attr('cx', innerWidth/2.0 + legendXoff)
+            .attr('fill', this.collection.at(1).getColor());
+        var wordListHeight = this.config.height - 1.5*this.config.labelSize - 2*this.config.padding;
+        var intersectList = intersectGroup.append('g')
+            .attr('transform', 'translate(0,' + (2*this.config.labelSize) + ')');
+        var leftList = leftGroup.append('g')
+            .attr('transform', 'translate(0,' + (2*this.config.labelSize) + ')');
+        var rightList = rightGroup.append('g')
+            .attr('transform', 'translate(0,' + (2*this.config.labelSize) + ')');
+        while (y >= wordListHeight && sizeRange.max > sizeRange.min) {
             // Create words
-            leftWords = leftGroup.selectAll('.word')
+            leftWords = leftList.selectAll('.word')
                 .data(this.left, function (d) { return d.stem; });
             leftWords.enter()
                 .append('text').classed('word', true).classed('left', true);
             leftWords
                 .attr('font-size', function (d) {
                     return that.fontSize(d, that.fullExtent, sizeRange); });
-            rightWords = rightGroup.selectAll('.word')
+            rightWords = rightList.selectAll('.word')
                 .data(this.right, function (d) { return d.stem; });
             rightWords.enter()
                 .append('text').classed('word', true).classed('right', true);
             rightWords
                 .attr('font-size', function (d) {
                     return that.fontSize(d, that.fullExtent, sizeRange); });
-            intersectWords = intersectGroup.selectAll('.word')
+            intersectWords = intersectList.selectAll('.word')
                 .data(this.center, function (d) { return d.stem; });
             intersectWords.enter()
                 .append('text').classed('word', true).classed('intersect', true);
@@ -542,7 +592,7 @@ App.WordCountComparisonView = Backbone.View.extend({
             sizeRange.max = sizeRange.max - 1;
         }
         if (y < this.config.height) {
-            svg.attr('height', y);
+            svg.attr('height', y + 2*this.config.labelSize);
         }
         d3.selectAll('.word')
             .on('mouseover', function () {
