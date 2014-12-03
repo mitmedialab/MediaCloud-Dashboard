@@ -97,7 +97,7 @@ App.LoginView = App.NestedView.extend({
     },
     
     events: {
-        'click button': 'login'
+        'submit form': 'login'
     },
     
     render: function () {
@@ -112,15 +112,20 @@ App.LoginView = App.NestedView.extend({
     
     login: function (event) {
         App.debug('App.LoginView.login()');
-        event.preventDefault();
-        username = $('input[name=username]', this.$el).val();
-        password = $('input[name=password]', this.$el).val();
-        $('input[name=username]', this.$el).val('');
-        $('input[name=password]', this.$el).val('');
-        this.model.signIn({username:username, password:password});
-        var progress = _.template($('#tpl-progress').html());
-        this.$('.message').html(progress());
-        this.$('form').hide();
+        // Allow default to enable passsword saving
+        // See: http://stackoverflow.com/questions/5430129/how-to-make-chrome-remember-password-for-an-ajax-form
+        //event.preventDefault();
+        var that = this;
+        _.defer(function () {
+            username = $('input[name=username]', that.$el).val();
+            password = $('input[name=password]', that.$el).val();
+            $('input[name=username]', that.$el).val('');
+            $('input[name=password]', that.$el).val('');
+            that.model.signIn({username:username, password:password});
+            var progress = _.template($('#tpl-progress').html());
+            that.$('.message').html(progress());
+            that.$('form').hide();
+        });
     },
     
     error: function (message) {
