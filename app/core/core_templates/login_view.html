@@ -1,4 +1,12 @@
 <script id="tpl-login-view" type="text/template">
+    <!-- chrome autofill hack, see: http://stackoverflow.com/questions/5430129/how-to-make-chrome-remember-password-for-an-ajax-form -->
+    <iframe
+        id="loginTarget"
+        name="loginTarget"
+        src="/static/core/blank.html"
+        style="display:none">
+    </iframe>
+    
     <div class="row">
         <div class="col-sm-6 center-block">
             <div class="panel panel-default">
@@ -7,7 +15,7 @@
                 </div>
                 <div class="panel-body">
                     <div class="message"></div>
-                    <form class="form" role="form">
+                    <form class="form" role="form" method="post" target="loginTarget">
                         <p>
                         Sign in with your MediaCloud userame and password.
                         Learn how to <a href="http://mediacloud.org/get-involved">request an account</a> 
