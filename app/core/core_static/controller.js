@@ -4,6 +4,8 @@ App.con = App.Controller = {
         App.debug('App.Controller.initialize()');
         App.instance = this;
         // Set up error handling
+        // Get initial fragment
+        App.con.fragment = window.location.hash.substring(1);
         // Create models
         App.con.userModel = new App.UserModel();
         App.con.mediaSources = new App.MediaModel({parse:true});
@@ -37,7 +39,7 @@ App.con = App.Controller = {
         });
         App.con.userModel.on('signin', App.con.onSignIn);
         App.con.userModel.on('signout', App.con.onSignOut);
-        App.con.userModel.on('unauthorized', App.con.onSignOut);
+        App.con.userModel.on('unauthorized', App.con.onUnauthorized);
         // Start navigation and log user in
         App.con.userModel.signIn({
             "success": function(model, response) {
@@ -48,7 +50,6 @@ App.con = App.Controller = {
             , "error": function(model, response) {
                 _.defer(function () {
                     App.debug('Error logging in');
-                    console.log(response);
                     Backbone.history.start();
                     App.con.router.navigate('login', true);
                 });
@@ -59,10 +60,24 @@ App.con = App.Controller = {
     onSignIn: function () {
         App.debug('App.Controller.onSignIn()');
         App.con.router.navigate('', true);
+        if (typeof(App.con.fragment) !== 'undefined'
+            && App.con.fragment !== ''
+            && App.con.fragment != 'login'
+        ) {
+            App.con.router.navigate(App.con.fragment, true);
+            delete App.con.fragment;
+        } else {
+            App.con.router.navigate('', true);
+        }
     },
     
     onSignOut: function () {
         App.debug('App.Controller.onSignOut()');
+        App.con.router.navigate('login', true);
+    },
+    
+    onUnauthorized: function () {
+        App.debug('App.Controller.onUnauthorized()');
         App.con.router.navigate('login', true);
     },
     
