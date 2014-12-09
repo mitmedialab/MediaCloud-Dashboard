@@ -242,7 +242,6 @@ App.WordCountOrderedView = Backbone.View.extend({
         this.render();
     },
     updateStats: function () {
-        console.log(this.model);
         this.all = this.model.get('results').get('wordcounts').toJSON();
         var countSel = function (d) { return d.count };
         var allSum = d3.sum(this.all, countSel);
@@ -425,6 +424,7 @@ App.WordCountComparisonView = Backbone.View.extend({
             return b.tfnorm - a.tfnorm;
         });
         this.all = this.left.concat(this.right);
+        this.all = this.all.concat(this.center);
         this.fullExtent = d3.extent(this.all, function (d) { return d.tfnorm; })
     },
     render: function () {
@@ -553,27 +553,33 @@ App.WordCountComparisonView = Backbone.View.extend({
             .attr('transform', 'translate(0,' + (2*this.config.labelSize) + ')');
         while (y >= wordListHeight && sizeRange.max > sizeRange.min) {
             // Create words
-            leftWords = leftList.selectAll('.word')
-                .data(this.left, function (d) { return d.stem; });
-            leftWords.enter()
-                .append('text').classed('word', true).classed('left', true);
-            leftWords
-                .attr('font-size', function (d) {
-                    return that.fontSize(d, that.fullExtent, sizeRange); });
-            rightWords = rightList.selectAll('.word')
-                .data(this.right, function (d) { return d.stem; });
-            rightWords.enter()
-                .append('text').classed('word', true).classed('right', true);
-            rightWords
-                .attr('font-size', function (d) {
-                    return that.fontSize(d, that.fullExtent, sizeRange); });
-            intersectWords = intersectList.selectAll('.word')
-                .data(this.center, function (d) { return d.stem; });
-            intersectWords.enter()
-                .append('text').classed('word', true).classed('intersect', true);
-            intersectWords
-                .attr('font-size', function (d) {
-                    return that.fontSize(d, that.fullExtent, sizeRange); });
+            if (this.left.length > 0) {
+                leftWords = leftList.selectAll('.word')
+                    .data(this.left, function (d) { return d.stem; });
+                leftWords.enter()
+                    .append('text').classed('word', true).classed('left', true);
+                leftWords
+                    .attr('font-size', function (d) {
+                        return that.fontSize(d, that.fullExtent, sizeRange); });
+            }
+            if (this.right.length > 0) {
+                rightWords = rightList.selectAll('.word')
+                    .data(this.right, function (d) { return d.stem; });
+                rightWords.enter()
+                    .append('text').classed('word', true).classed('right', true);
+                rightWords
+                    .attr('font-size', function (d) {
+                        return that.fontSize(d, that.fullExtent, sizeRange); });
+            }
+            if (this.center.length > 0) {
+                intersectWords = intersectList.selectAll('.word')
+                    .data(this.center, function (d) { return d.stem; });
+                intersectWords.enter()
+                    .append('text').classed('word', true).classed('intersect', true);
+                intersectWords
+                    .attr('font-size', function (d) {
+                        return that.fontSize(d, that.fullExtent, sizeRange); });
+            }
             d3.selectAll('.word')
                 .text(function (d) { return d.term; })
                 .attr('font-weight', 'bold');
@@ -623,8 +629,15 @@ App.WordCountComparisonView = Backbone.View.extend({
         ]);
     },
     listCloudLayout: function (words, width, extent, sizeRange) {
+        App.debug('App.WordCountComparisonView()');
+        App.debug(extent);
+        App.debug(sizeRange);
+        App.debug(words);
         var that = this;
         var x = 0;
+        if (typeof(words) === 'undefined') {
+            return 0;
+        }
         words.attr('x', function (d) {
             var textLength = this.getComputedTextLength();
             var fs = that.fontSize(d, extent, sizeRange);
