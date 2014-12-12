@@ -222,15 +222,24 @@ App.con = App.Controller = {
         App.con.vm.showView(App.con.queryListView);
     },
     
-    routeDemoQuery: function (keywords, media, start, end) {
+    routeDemoQuery: function (keywords, media, start, end, qinfo) {
         App.debug('Route: demoQuery ------------------------------------------------------------------------------------------------------------------------');
     },
     
-    routeQuery: function (keywords, media, start, end) {
+    routeQuery: function (keywords, media, start, end, qinfo) {
         App.debug('Route: query ------------------------------------------------------------------------------------------------------------------------');
-        keywordList = $.parseJSON(keywords);
-        startList = $.parseJSON(start);
-        endList = $.parseJSON(end);
+        var keywordList = $.parseJSON(keywords);
+        var startList = $.parseJSON(start);
+        var endList = $.parseJSON(end);
+        if (typeof(qinfo) !== 'undefined' && qinfo !== null) {
+            var qinfoList = $.parseJSON(qinfo);
+        } else {
+            // Fill qinfoList with empty objects
+            var qinfoList = [];
+            _.each(keywordList, function () {
+                qinfoList.push({});
+            });
+        }
         if (!App.con.userModel.get('authenticated')) {
             App.con.router.navigate('login', true);
             return;
@@ -248,6 +257,7 @@ App.con = App.Controller = {
                     , mediaModel: mediaModel
                     , start: startList[i]
                     , end: endList[i]
+                    , qinfo: qinfoList[i]
                 }, {
                     mediaSources: App.con.mediaSources
                     , parse: true
