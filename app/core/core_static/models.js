@@ -577,6 +577,12 @@ App.QueryModel = Backbone.Model.extend({
         if (typeof(this.ResultModel) == 'undefined') {
             this.ResultModel = App.ResultModel;
         }
+        var info = this.get('qinfo');
+        if (info) {
+            if (info.name) {
+                this.set('name', info.name);
+            }
+        }
         this.set('results', new this.ResultModel({}, opts));
         this.set('queryUid', App.QueryModel.getUid());
         this.listenTo(this, 'change:name', this.onChangeName);
@@ -645,6 +651,15 @@ App.QueryModel = Backbone.Model.extend({
         App.debug('App.QueryModel.execute()');
         this.get('results').fetch();
         this.trigger('model:execute', this);
+    },
+    getInfo: function () {
+        var info = {
+            "uid": this.get('queryUid')
+        };
+        if (this.get('name')) {
+            info.name = this.get('name');
+        }
+        return info;
     }
 });
 _.extend(App.QueryModel, App.UidMixin);
@@ -750,6 +765,10 @@ App.QueryCollection = Backbone.Collection.extend({
         var allMedia = this.map(function (m) { return m.get('params').get('mediaModel').queryParam(); });
         return JSON.stringify(allMedia);
     },
+    info: function () {
+        var allInfo = this.map(function(m) { return m.getInfo(); });
+        return JSON.stringify(allInfo);
+    },
     dashboardUrl: function () {
         if (this.length == 0) {
             return '';
@@ -760,6 +779,7 @@ App.QueryCollection = Backbone.Collection.extend({
             , this.media()
             , this.start()
             , this.end()
+            , this.info()
         ].join('/');
         return path;
     },
@@ -770,6 +790,7 @@ App.QueryCollection = Backbone.Collection.extend({
             , this.media()
             , this.start()
             , this.end()
+            , this.info()
         ].join('/');
     },
     alphaLabel: function (n) {
@@ -879,7 +900,6 @@ App.WordCountCollection = App.QueryParamDrivenCollection.extend({
         this.params = options.params;
     },
     url: function () {
-        console.log(this.getQueryParamUrl());
         return '/api/wordcount/' + this.getQueryParamUrl();
     },
     csvUrl: function(){
