@@ -301,7 +301,6 @@ App.QueryView = App.NestedView.extend({
         this.$('.query-title').text(this.model.getName());
     },
     onNameModalSubmit: function () {
-        console.log(this);
         this.model.set('name', this.nameModal$.find('input').val());
         this.nameModal$.modal('hide');
     },
@@ -342,6 +341,7 @@ App.DemoQueryView = App.NestedView.extend({
         App.debug(options);
         _.bindAll(this, 'onDemoCopyInput');
         _.bindAll(this, 'onDemoRemoveInput');
+        _.bindAll(this, 'onNameModalSubmit');
         this.mediaSources = options.mediaSources;
         this.dateRangeView = new App.DateRangeView({
             model: this.model, disabled: true
@@ -368,7 +368,7 @@ App.DemoQueryView = App.NestedView.extend({
         // Assume the media sources are loaded already
         this.$el.html(this.template());
         // Replace loading with sub views
-        that = this;
+        var that = this;
         this.mediaSources.deferred.done(function () {
             that.$el.html(that.template());
             // Replace loading with sub views
@@ -383,6 +383,37 @@ App.DemoQueryView = App.NestedView.extend({
                 .append(topRow)
                 .append(bottomRow);
         });
+        // Defer until after this view has been added to the DOM
+        _.defer(function () {
+            that.updateTitle();
+            that.listenTo(that.model, 'mm:namechange', that.updateTitle);
+            // In order for the modal to show up above all page content
+            // it needs to be directly under the body.
+            that.nameModal$ = that.$('.mm-edit-query-label');
+             $('body').append(that.nameModal$.remove());
+            that.nameModal$.on('shown.bs.modal', function () {
+                that.nameModal$.find('input').focus();
+            });
+            that.$('h3 a').on('click', function (event) {
+                event.preventDefault();
+                that.nameModal$.find('input').val(that.model.get('name'));
+                that.nameModal$.modal('show');
+            })
+            // Listen for submit of label dialog
+            that.nameModal$.find('.btn-primary').on('click', that.onNameModalSubmit);
+            that.nameModal$.find('input').on('keypress', function (event) {
+                if (event.which == 13) {
+                    that.onNameModalSubmit();
+                }
+            });
+        });
+    },
+    updateTitle: function () {
+        this.$('.query-title').text(this.model.getName());
+    },
+    onNameModalSubmit: function () {
+        this.model.set('name', this.nameModal$.find('input').val());
+        this.nameModal$.modal('hide');
     },
     onDemoCopyInput: function (evt) {
         App.debug('App.DemoQueryView.onCopyInput()');

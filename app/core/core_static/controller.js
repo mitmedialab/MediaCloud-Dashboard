@@ -37,24 +37,12 @@ App.con = App.Controller = {
                 App.con.getErrorCollection().add(error);
             }
         });
+        // Start navigation and log user in
         App.con.userModel.on('signin', App.con.onSignIn);
         App.con.userModel.on('signout', App.con.onSignOut);
         App.con.userModel.on('unauthorized', App.con.onUnauthorized);
-        // Start navigation and log user in
-        App.con.userModel.signIn({
-            "success": function(model, response) {
-                _.defer(function () {
-                    Backbone.history.start();
-                });
-            }
-            , "error": function(model, response) {
-                _.defer(function () {
-                    App.debug('Error logging in');
-                    Backbone.history.start();
-                    App.con.router.navigate('login', true);
-                });
-            }
-        });
+        Backbone.history.start();
+        App.con.userModel.signIn({});
     },
     
     onSignIn: function () {
@@ -241,6 +229,7 @@ App.con = App.Controller = {
             });
         }
         if (!App.con.userModel.get('authenticated')) {
+            console.log('--')
             App.con.router.navigate('login', true);
             return;
         }
