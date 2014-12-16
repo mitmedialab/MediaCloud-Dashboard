@@ -22,7 +22,7 @@ _.extend(App.Controller, {
         App.debug("done------------------------------------------------------------------------------------------------------------------------")
     },
     
-    routeDemoQuery: function (keywords, media, start, end) {
+    routeDemoQuery: function (keywords, media, start, end, qinfo) {
         App.debug('Route: demoQuery ------------------------------------------------------------------------------------------------------------------------');
         // Defaults media
         App.con.mediaSources = new App.MediaModel();
@@ -51,6 +51,15 @@ _.extend(App.Controller, {
         keywordList = $.parseJSON(keywords);
         startList = $.parseJSON(start);
         endList = $.parseJSON(end);
+        if (typeof(qinfo) !== 'undefined' && qinfo !== null) {
+            var qinfoList = $.parseJSON(qinfo);
+        } else {
+            // Fill qinfoList with empty objects
+            var qinfoList = [];
+            _.each(keywordList, function () {
+                qinfoList.push({});
+            });
+        }
         // Create query collection
         if (!App.con.queryCollection) {
             App.con.queryCollection = new App.QueryCollection();
@@ -68,6 +77,7 @@ _.extend(App.Controller, {
                     , mediaModel: mediaModel
                     , start: startList[i]
                     , end: endList[i]
+                    , qinfo: qinfoList[i]
                 }, {
                     mediaSources: App.con.mediaSources
                     , parse: true
@@ -99,11 +109,20 @@ _.extend(App.Controller, {
         App.con.showResults(App.con.queryCollection);
     },
     
-    routeQuery: function (keywords, media, start, end) {
+    routeQuery: function (keywords, media, start, end, qinfo) {
         App.debug('Route: query ------------------------------------------------------------------------------------------------------------------------');
         keywordList = $.parseJSON(keywords);
         startList = $.parseJSON(start);
         endList = $.parseJSON(end);
+        if (typeof(qinfo) !== 'undefined' && qinfo !== null) {
+            var qinfoList = $.parseJSON(qinfo);
+        } else {
+            // Fill qinfoList with empty objects
+            var qinfoList = [];
+            _.each(keywordList, function () {
+                qinfoList.push({});
+            });
+        }
         if (!App.con.userModel.get('authenticated')) {
             this.navigate('login', true);
             return;
@@ -125,6 +144,7 @@ _.extend(App.Controller, {
                     , mediaModel: mediaModel
                     , start: startList[i]
                     , end: endList[i]
+                    , qinfo: qinfoList[i]
                 }, {
                     mediaSources: App.con.mediaSources
                     , parse: true
