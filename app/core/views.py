@@ -130,7 +130,7 @@ def media_single_tags(tags_id):
 @flapp.route('/api/media/tags/search/<query>')
 @flask_login.login_required
 def media_search_tags(query):
-    return json.dumps(mc.tagList(name_like=query))
+    return json.dumps(mc.tagList(name_like=query,public_only=True))
 
 # -----------------------------------------------------------------------------------------
 # SENTENCES -------------------------------------------------------------------------------
