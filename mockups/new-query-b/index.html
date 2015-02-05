@@ -67,11 +67,16 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-sm-12">
-                                            <button class="btn btn-default" onclick="$('.query-view').show(); return false;">
+                                            <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                                 <span class="glyphicon glyphicon-plus"></span>
+                                                &nbsp
+                                                Comparison
                                             </button>
-                                            &nbsp;
-                                            <strong>Compare</strong>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li><a href="#" onclick="$('.query-view').show(); return false;">Keyword</a></li>
+                                                <li><a href="#" onclick="$('.query-view').show(); return false;">Date</a></li>
+                                                <li><a href="#" onclick="$('.query-view').show(); return false;">Source</a></li>
+                                            </ul>
                                         </div>
                                     </div>
                                 </div>
