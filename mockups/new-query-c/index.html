@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Media Meter Dashboard</title>
+        <link rel="stylesheet" type="text/css" href="static/core/lib/bootstrap/css/bootstrap.min.css"/>
+        <link rel="stylesheet" type="text/css" href="static/core/lib/typeahead.js-bootstrap/typeahead.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,700" type="text/css">
+        <link rel="stylesheet" type="text/css" href="static/core/mediameter.css"/>
+        <link rel="stylesheet" type="text/css" href="static/dashboard/style.css"/>
+    </head>
+    <body>
+        <div class="header">
+            <div class="brand-toolbar">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-8 links"></div>
+                        <div class="col-sm-4 controls"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="branding">
+                <div class="container">
+                    <h1>
+                        <a href="http://dashboard.mediameter.org/"><img src="static/core/img/mm-logo-65-orange.png" /></a>
+                        <strong>Media Meter</strong>
+                        Dashboard
+                        <small class="pull-right">Powered by <a href="http://mediacloud.org">Media Cloud</a></small>
+                    </h1>
+                </div>
+            </div>
+            <div class="app-toolbar">
+                <div class="container">
+                </div>
+            </div>
+        </div>
+        <div class="drawer">
+            <div class="container">
+            </div>
+        </div>
+        <div class="messages">
+            <div class="container">
+            </div>
+        </div>
+        <div class="content">
+            <div class="container">
+                <div class="messages"></div>
+                    <form role="form">
+
+                        <div class="row" id="query-list-wrapper">
+
+                            <div class="query-wrapper first-query-wrapper" id="query1">
+                                <span class="query-title">Query 1 &nbsp;
+                                <span class="glyphicon glyphicon-edit"></span> </span>
+                                <div class="query-view-content">
+                                    <div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <div class="input-group">
+                                                <div class="query-phrase">match these words:</div>
+                                                <textarea class="form-control" width="100%" rows="1" cols="60">obama AND economy</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <div class="query-phrase">in these media sources:</div>
+                                            <ul class="query-media-list">
+                                                <li>Collections: U.S. Mainstream Media
+                                                    <a tabindex="-1" class="remove" href="#" onclick="$(this).parent().hide();"><span class="glyphicon glyphicon-remove-circle"></span></a>
+                                                </li>
+                                                <li class="source-that-got-added" style="display:none;">BBC World News
+                                                    <a tabindex="-1" class="remove" href="#" onclick="$(this).parent().hide();"><span class="glyphicon glyphicon-remove-circle"></span></a>
+                                                </li>
+                                                <li class="add-sources-action"><a href="#" onclick="$('.add-sources-content').show();$('.add-sources-action').hide();$('.add-sources-field').focus();">add more</a></li>
+                                            </ul>
+                                            <div class="input-group add-sources-content" style="display:none;">
+                                                <input placeholder="search for media sources" type="text" class="simple-tag-input form-control add-sources-field" autocomplete="off" maxsize="50"/>
+                                                 <span class="input-group-btn">
+                                                    <button class="btn btn-default" type="button" onclick="$('.add-sources-content').hide();$('.add-sources-action').show();$('.source-that-got-added').show();">add it</button>
+                                                  </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <div class="query-phrase">between these dates:</div>
+                                            <div class="input-group">
+                                                <input
+                                                    class="date-range-start form-control"
+                                                    value="2015-01-01"/>
+                                                <div class="input-group-addon">and</div>
+                                                <input
+                                                  class="date-range-end form-control"
+                                                  value="2015-01-31"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> <!-- query wrapper -->
+
+                            <div class="query-wrapper" id="query2">
+                                <span class="query-title">Query 2 &nbsp;
+                                <span class="glyphicon glyphicon-edit"></span> </span>
+                                <div class="query-view-content">
+                                    <div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <div class="input-group">
+                                                <div class="query-phrase">match these words:</div>
+                                                <textarea class="form-control" width="100%" rows="1" cols="60">obama AND economy</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <div class="query-phrase">in these media sources:</div>
+                                            <ul class="query-media-list">
+                                                <li>Collections: U.S. Mainstream Media
+                                                    <a tabindex="-1" class="remove" href="#" onclick="$(this).parent().hide();"><span class="glyphicon glyphicon-remove-circle"></span></a>
+                                                </li>
+                                                <li class="source-that-got-added" style="display:none;">BBC World News
+                                                    <a tabindex="-1" class="remove" href="#" onclick="$(this).parent().hide();"><span class="glyphicon glyphicon-remove-circle"></span></a>
+                                                </li>
+                                                <li class="add-sources-action"><a href="#" onclick="$('.add-sources-content').show();$('.add-sources-action').hide();$('.add-sources-field').focus();">add more</a></li>
+                                            </ul>
+                                            <div class="input-group add-sources-content" style="display:none;">
+                                                <input placeholder="search for media sources" type="text" class="simple-tag-input form-control add-sources-field" autocomplete="off" maxsize="50"/>
+                                                 <span class="input-group-btn">
+                                                    <button class="btn btn-default" type="button" onclick="$('.add-sources-content').hide();$('.add-sources-action').show();$('.source-that-got-added').show();">add it</button>
+                                                  </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <div class="query-phrase">between these dates:</div>
+                                            <div class="input-group">
+                                                <input
+                                                    class="date-range-start form-control"
+                                                    value="2015-01-01"/>
+                                                <div class="input-group-addon">and</div>
+                                                <input
+                                                  class="date-range-end form-control"
+                                                  value="2015-01-31"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> <!-- query wrapper -->
+
+                            <div class="query-wrapper" id="query3">
+                                <span class="query-title">Query 3 &nbsp;
+                                <span class="glyphicon glyphicon-edit"></span> </span>
+                                <div class="query-view-content">
+                                    <div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <div class="input-group">
+                                                <div class="query-phrase">match these words:</div>
+                                                <textarea class="form-control" width="100%" rows="1" cols="60">obama AND economy</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <div class="query-phrase">in these media sources:</div>
+                                            <ul class="query-media-list">
+                                                <li>Collections: U.S. Mainstream Media
+                                                    <a tabindex="-1" class="remove" href="#" onclick="$(this).parent().hide();"><span class="glyphicon glyphicon-remove-circle"></span></a>
+                                                </li>
+                                                <li class="source-that-got-added" style="display:none;">BBC World News
+                                                    <a tabindex="-1" class="remove" href="#" onclick="$(this).parent().hide();"><span class="glyphicon glyphicon-remove-circle"></span></a>
+                                                </li>
+                                                <li class="add-sources-action"><a href="#" onclick="$('.add-sources-content').show();$('.add-sources-action').hide();$('.add-sources-field').focus();">add more</a></li>
+                                            </ul>
+                                            <div class="input-group add-sources-content" style="display:none;">
+                                                <input placeholder="search for media sources" type="text" class="simple-tag-input form-control add-sources-field" autocomplete="off" maxsize="50"/>
+                                                 <span class="input-group-btn">
+                                                    <button class="btn btn-default" type="button" onclick="$('.add-sources-content').hide();$('.add-sources-action').show();$('.source-that-got-added').show();">add it</button>
+                                                  </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <div class="query-phrase">between these dates:</div>
+                                            <div class="input-group">
+                                                <input
+                                                    class="date-range-start form-control"
+                                                    value="2015-01-01"/>
+                                                <div class="input-group-addon">and</div>
+                                                <input
+                                                  class="date-range-end form-control"
+                                                  value="2015-01-31"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> <!-- query wrapper -->
+
+                            <div class="query-wrapper" id="query4">
+                                <span class="query-title">Query 4 &nbsp;
+                                <span class="glyphicon glyphicon-edit"></span> </span>
+                                <div class="query-view-content">
+                                    <div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <div class="input-group">
+                                                <div class="query-phrase">match these words:</div>
+                                                <textarea class="form-control" width="100%" rows="1" cols="60">obama AND economy</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <div class="query-phrase">in these media sources:</div>
+                                            <ul class="query-media-list">
+                                                <li>Collections: U.S. Mainstream Media
+                                                    <a tabindex="-1" class="remove" href="#" onclick="$(this).parent().hide();"><span class="glyphicon glyphicon-remove-circle"></span></a>
+                                                </li>
+                                                <li class="source-that-got-added" style="display:none;">BBC World News
+                                                    <a tabindex="-1" class="remove" href="#" onclick="$(this).parent().hide();"><span class="glyphicon glyphicon-remove-circle"></span></a>
+                                                </li>
+                                                <li class="add-sources-action"><a href="#" onclick="$('.add-sources-content').show();$('.add-sources-action').hide();$('.add-sources-field').focus();">add more</a></li>
+                                            </ul>
+                                            <div class="input-group add-sources-content" style="display:none;">
+                                                <input placeholder="search for media sources" type="text" class="simple-tag-input form-control add-sources-field" autocomplete="off" maxsize="50"/>
+                                                 <span class="input-group-btn">
+                                                    <button class="btn btn-default" type="button" onclick="$('.add-sources-content').hide();$('.add-sources-action').show();$('.source-that-got-added').show();">add it</button>
+                                                  </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <div class="query-phrase">between these dates:</div>
+                                            <div class="input-group">
+                                                <input
+                                                    class="date-range-start form-control"
+                                                    value="2015-01-01"/>
+                                                <div class="input-group-addon">and</div>
+                                                <input
+                                                  class="date-range-end form-control"
+                                                  value="2015-01-31"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> <!-- query wrapper -->
+
+                        </div>  <!-- row of queries -->
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group last-element" style="margin-top:20px;">
+                                    <button type="submit" class="btn btn-primary">Run Query</button>
+                                    &nbsp; &nbsp;
+                                    <button type="button" class="btn btn-default">Add Another Query</button>
+                                </div>
+                            </div>                    
+                        </div>
+
+                        <div class="row">
+                            <div style="margin: 20px 0px; border: 1px solid black; padding: 20px;">
+                            query results, in boxes, go down here..
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <h3>About Media Meter</h3>
+                        <p>
+What was covered in the news this week? Did the issues you care about get the
+attention you think they deserved? Did the media talk about these topics in the
+way you want them to? Who set the narrative for the current breaking story?
+                        </p>
+                        <p>
+<a href="http://mediameter.org">MediaMeter</a> is a suite of tools built on top of the 
+<a href="http://mediacloud.org">Media Cloud</a> online news database. A number of tools 
+make up the suite, all driven by a query you author to specify media sources, a date range, 
+and some keywords.
+                        </p>
+                    </div>
+                    <div class="col-sm-2 col-sm-offset-1">
+                        <h3>Contact</h3>
+<p>
+If you have feedback or questions, you can get in touch with us at
+<a href="mailto:mediameter@media.mit.edu">mediameter@media.mit.edu</a>.
+</p>
+<p>
+Please enter any bugs or <a href="https://github.com/c4fcm/MediaMeter-Dashboard/issues">issues on GitHub</a>.
+</p>
+                    </div>
+                    <div class="col-sm-4 col-sm-offset-1">
+                        <h3><a href="http://civic.mit.edu"><img class="img-responsive" src="static/core/img/civic.png"/></a></h3>
+                        <h3><a href="http://cyber.law.harvard.edu"><img class="img-responsive" src="static/core/img/berkman.png"/></a></h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="static/core/lib/jquery/js/jquery-2.1.1.min.js"></script>
+        <script type="text/javascript" src="static/core/lib/jquery/js/jquery.cookie-1.4.1.js"></script>
+        <script type="text/javascript" src="static/core/lib/underscore/underscore-1.6.0-min.js"></script>
+        <script type="text/javascript" src="static/core/lib/backbone/backbone-1.1.2-min.js"></script>
+        <script type="text/javascript" src="static/core/lib/bootstrap/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="static/core/lib/typeahead/typeahead.bundle.min.js"></script>
+        <script type="text/javascript" src="static/core/lib/datepicker/js/bootstrap-datepicker.js"></script>
+        <script type="text/javascript" src="static/core/lib/d3/js/d3-3.4.11.min.js"></script>
+        <script type="text/javascript" src="static/core/lib/d3-cloud/js/d3-cloud-civic.js"></script>
+        <script type="text/javascript">
+var substringMatcher = function(strs) {
+  return function findMatches(q, cb) {
+    var matches, substrRegex;
+ 
+    // an array that will be populated with substring matches
+    matches = [];
+ 
+    // regex used to determine if a string contains the substring `q`
+    substrRegex = new RegExp(q, 'i');
+ 
+    // iterate through the pool of strings and for any string that
+    // contains the substring `q`, add it to the `matches` array
+    $.each(strs, function(i, str) {
+      if (substrRegex.test(str)) {
+        // the typeahead jQuery plugin expects suggestions to a
+        // JavaScript object, refer to typeahead docs for more info
+        matches.push({ value: str });
+      }
+    });
+ 
+    cb(matches);
+  };
+};
+
+var sources = [
+    "The Boston Globe",
+    "The Boston Herald",
+    "Boston Magazine",
+    "boston.com"
+];
+
+var tags = [
+    "Collections: U.S. Technoroti Political Blogs 2008",
+    "Collections: U.S. Yahoo Political Blogs 2008",
+    "Collections: Internet and Democracy Blogs",
+    "Collections: U.S. Popular Blogs",
+    "Collections: Tech Blogs"
+];
+
+$('.simple-tag-select-view input').typeahead({
+    hint: true,
+    highlight: false,
+    minLength: 1
+    },
+    {
+        name: 'tags',
+        displayKey: 'value',
+        source: substringMatcher(tags)
+    });
+$('.media-select-view input').typeahead({
+    hint: true,
+    highlight: false,
+    minLength: 1
+    },
+    {
+        name: 'tags',
+        displayKey: 'value',
+        source: substringMatcher(sources)
+    });
+$('.date-range-start').datepicker({format: 'yyyy-mm-dd'});
+$('.date-range-end').datepicker({format: 'yyyy-mm-dd'});
+
+$('.simple-tag-select-view input').on('typeahead:selected', function () {
+    $el = $(this);
+    setTimeout(function () {
+        $el.val('');
+    }, 0);
+    $el.parents('.query-view-content').find('.label').css('display', 'block');
+});
+        </script>
+    </body>
+</html>
