@@ -460,3 +460,9 @@ div.query-wrapper .form-group {
 div.first-query-wrapper {
     border-left: 0px;
 }
+div.add-sources-content {
+    margin-top: 5px;
+}
+#add-query-btn {
+    font-weight: normal;
+}
