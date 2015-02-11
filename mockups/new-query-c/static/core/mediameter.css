@@ -432,7 +432,7 @@ ul.query-media-list {
     list-style: none;
     margin: 0;
     padding: 0;
-    width: 100%;
+    width: 300px;
 }
 ul.query-media-list li {
     display:inline-block;
@@ -465,4 +465,17 @@ div.add-sources-content {
 }
 #add-query-btn {
     font-weight: normal;
+}
+.query-remove {
+    color:#777777;
+}
+.query-remove:hover {
+    color:#000000;
+}
+a > small > span.glyphicon {
+    color:#777777;
+    margin-left: 2px;
+}
+a > small > span.glyphicon:hover {
+    color:#000000;
 }

@@ -49,13 +49,22 @@
                         <div class="row" id="query-list-wrapper">
 
                             <div class="query-wrapper first-query-wrapper" id="query1">
-                                <span class="query-title">Query 1 &nbsp;
-                                <span class="glyphicon glyphicon-edit"></span> </span>
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <span class="pull-right">
+                                            <a href="#" onclick="hideQuery(this);"><span class="glyphicon glyphicon-remove query-remove"></span></a>
+                                        </span>
+                                        <span class="query-title">Search 
+                                            <span class="query-number">1</span> &nbsp;
+                                            <span class="glyphicon glyphicon-edit"></span>
+                                        </span>
+                                    </div>
+                                </div>
                                 <div class="query-view-content">
                                     <div class="row">
                                         <div class="col-sm-12 form-group">
                                             <div class="input-group">
-                                                <div class="query-phrase">match these words:</div>
+                                                <div class="query-phrase">search for these words:</div>
                                                 <textarea class="form-control" width="100%" rows="1" cols="60">obama AND economy</textarea>
                                             </div>
                                         </div>
@@ -65,10 +74,10 @@
                                             <div class="query-phrase">in these media sources:</div>
                                             <ul class="query-media-list">
                                                 <li>Collections: U.S. Mainstream Media
-                                                    <a tabindex="-1" class="remove" href="#" onclick="hideParentLi(this);"><span class="glyphicon glyphicon-remove-circle"></span></a>
+                                                    <a tabindex="-1" class="remove" href="#" onclick="hideParentLi(this);"><small><span class="glyphicon glyphicon-remove"></span></small></a>
                                                 </li>
                                                 <li class="source-that-got-added" style="display:none;">BBC World News
-                                                    <a tabindex="-1" class="remove" href="#" onclick="hideParentLi(this);"><span class="glyphicon glyphicon-remove-circle"></span></a>
+                                                    <a tabindex="-1" class="remove" href="#" onclick="hideParentLi(this);"><small><span class="glyphicon glyphicon-remove"></span></small></a>
                                                 </li>
                                                 <li class="add-sources-action"><a href="#" onclick="showAddSource(this);">add more</a></li>
                                             </ul>
@@ -82,15 +91,17 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-sm-12 form-group">
-                                            <div class="query-phrase">between these dates:</div>
-                                            <div class="input-group">
-                                                <input
-                                                    class="date-range-start form-control"
-                                                    value="2015-01-01"/>
-                                                <div class="input-group-addon">and</div>
-                                                <input
-                                                  class="date-range-end form-control"
-                                                  value="2015-01-31"/>
+                                            <div style="width:360px">
+                                                <div class="query-phrase">between these dates:</div>
+                                                <div class="input-group">
+                                                    <input
+                                                        class="date-range-start form-control"
+                                                        value="2015-01-01"/>
+                                                    <div class="input-group-addon">and</div>
+                                                    <input
+                                                      class="date-range-end form-control"
+                                                      value="2015-01-31"/>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -102,9 +113,10 @@
                         <div class="row">
                             <div class="col-sm-12">
                                 <div class="form-group last-element" style="margin-top:20px;">
-                                    <button type="submit" class="btn btn-primary">Run Query</button>
+                                    <button id="runOneBtn" type="submit" class="btn btn-primary">Run Search</button>
+                                    <button id="runManyBtn" style="display:none" type="submit" class="btn btn-primary">Compare Searches</button>
                                     &nbsp; &nbsp;
-                                    <button type="button" id="add-query-btn" class="btn btn-default" onclick="addAnotherQuery();">Add Another Query</button>
+                                    <button type="button" id="add-query-btn" class="btn btn-default" onclick="addAnotherQuery();">Add Another Search</button>
                                 </div>
                             </div>                    
                         </div>
@@ -253,11 +265,27 @@ var queryCount = 2;
 function addAnotherQuery(){
     var newQuery = $($('.query-wrapper')[0]).clone();
     newQuery.removeClass('first-query-wrapper').attr('id','query'+queryCount);
-    newQuery.find('.query-title').html("Query "+queryCount);
+    newQuery.find('.query-number').html(queryCount);
     newQuery.find('.date-range-start').datepicker({format: 'yyyy-mm-dd'});
     newQuery.find('.date-range-end').datepicker({format: 'yyyy-mm-dd'});
     $('#query-list-wrapper').append(newQuery);
     queryCount++;
+    newQuery.show();
+    updateSingleOrMultiple();
+}
+function updateSingleOrMultiple(){
+    if($('.query-wrapper:visible').length>1){
+        $('#runOneBtn').hide();
+        $('#runManyBtn').show();
+    } else {
+        $('#runOneBtn').show();
+        $('#runManyBtn').hide();
+    }
+}
+function hideQuery(elem){
+    var queryWrapper = $(elem).closest('.query-wrapper');
+    queryWrapper.hide();
+    updateSingleOrMultiple();
 }
         </script>
     </body>
