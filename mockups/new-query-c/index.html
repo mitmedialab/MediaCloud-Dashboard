@@ -111,7 +111,7 @@
                         </div>  <!-- row of queries -->
 
                         <div class="row">
-                            <div class="col-sm-12">
+                            <div class="col-sm-8">
                                 <div class="form-group last-element" style="margin-top:20px;">
                                     <button id="runOneBtn" type="submit" class="btn btn-primary">Run Search</button>
                                     <button id="runManyBtn" style="display:none" type="submit" class="btn btn-primary">Compare Searches</button>
@@ -119,6 +119,11 @@
                                     <button type="button" id="add-query-btn" class="btn btn-default" onclick="addAnotherQuery();">Add Another Search</button>
                                 </div>
                             </div>                    
+                            <div class="col-sm-4">
+                                <div class="pull-right" id="scrollRightNote" style="display:none;">
+                                <i style="color:#777777;">scroll right to see the rest of your searches &rarr;</i>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="row">
@@ -274,12 +279,18 @@ function addAnotherQuery(){
     updateSingleOrMultiple();
 }
 function updateSingleOrMultiple(){
-    if($('.query-wrapper:visible').length>1){
+    var visibleQueryCount = $('.query-wrapper:visible').length;
+    if(visibleQueryCount>1){
         $('#runOneBtn').hide();
         $('#runManyBtn').show();
     } else {
         $('#runOneBtn').show();
         $('#runManyBtn').hide();
+    }
+    if(visibleQueryCount>3){
+        $('#scrollRightNote').fadeIn();
+    } else {
+        $('#scrollRightNote').fadeOut();
     }
 }
 function hideQuery(elem){

@@ -430,9 +430,8 @@ div.query-phrase {
 }
 ul.query-media-list {
     list-style: none;
-    margin: 0;
-    padding: 0;
-    width: 300px;
+    margin: 0px;
+    padding: 0px;
 }
 ul.query-media-list li {
     display:inline-block;
@@ -443,16 +442,21 @@ ul.query-media-list li {
     border: 1px solid #bbbbbb;
 }
 div#query-list-wrapper {
+    display: block;
     overflow: scroll;
     width: auto;
     overflow-x: scroll;
     vertical-align: top;
+    white-space:nowrap;
 }
 div.query-wrapper {
     border-left: 1px solid #bbbbbb;
     padding: 0px 10px;
     display: inline-block;
-    width: 380px;
+    width: 410px;
+    white-space:normal;
+    vertical-align: top;
+    overflow: visible; 
 }
 div.query-wrapper .form-group {
     margin-bottom: 5px;
