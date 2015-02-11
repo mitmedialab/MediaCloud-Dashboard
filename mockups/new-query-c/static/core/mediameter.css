@@ -436,7 +436,7 @@ ul.query-media-list {
 }
 ul.query-media-list li {
     display:inline-block;
-    margin: 0px 5px 0px 0px;
+    margin: 5px 5px 0px 0px;
     padding: 5px;
     background-color: #ffffff;
     border-radius: .25em;
@@ -446,7 +446,7 @@ div#query-list-wrapper {
     overflow: scroll;
     width: auto;
     overflow-x: scroll;
-    white-space: nowrap;
+    vertical-align: top;
 }
 div.query-wrapper {
     border-left: 1px solid #bbbbbb;
