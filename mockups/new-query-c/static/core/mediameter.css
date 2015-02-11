@@ -453,7 +453,7 @@ div.query-wrapper {
     border-left: 1px solid #bbbbbb;
     padding: 0px 10px;
     display: inline-block;
-    width: 410px;
+    width: 380px;
     white-space:normal;
     vertical-align: top;
     overflow: visible; 
@@ -482,4 +482,14 @@ a > small > span.glyphicon {
 }
 a > small > span.glyphicon:hover {
     color:#000000;
+}
+.propagate-btn {
+    display: inline-block;
+    margin-left: 5px;
+    font-size: 10px;
+    color:#777777;    
+}
+.propagate-btn:hover {
+    color: #000000;
+    cursor: pointer;
 }
