@@ -13,7 +13,7 @@ media coverage and let users identify interesting trends for more in-depth analy
 * flask-login
 * flask-wtf
 * pymongo
-* [https://github.com/c4fcm/MediaCloud-API-Client](MediaCloud-API-Client)
+* [MediaCloud-API-Client](https://github.com/c4fcm/MediaCloud-API-Client)
 
 ### Creating a module
 
