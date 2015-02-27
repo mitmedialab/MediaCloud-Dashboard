@@ -11,7 +11,7 @@ media coverage and let users identify interesting trends for more in-depth analy
 
 * flask
 * flask-login
-* flack-wtf
+* flask-wtf
 * pymongo
 
 ### Creating a module
