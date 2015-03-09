@@ -1051,6 +1051,18 @@ App.HistogramView = Backbone.View.extend({
 });
 App.HistogramView = App.HistogramView.extend(App.ActionedViewMixin);
 
+App.TopicView = App.NestedView.extend({
+    name: 'TopicView',
+    template: _.template($('#tpl-topic-view').html()),
+    initialize: function (options) {
+        this.render();
+    },
+    render: function () {
+        this.$el.html(this.template());
+    }
+});
+App.TopicView = App.TopicView.extend(App.ActionedViewMixin);
+
 App.QueryResultView = App.NestedView.extend({
     name: 'QueryResultView',
     tagName: 'div',
@@ -1059,6 +1071,7 @@ App.QueryResultView = App.NestedView.extend({
         App.debug('App.QueryResultView.initialize():' + this.cid);
         this.histogramView = new App.HistogramView(options);
         this.wordCountView = new App.WordCountView(options);
+        this.topicView = new App.TopicView(options);
         if(App.con.userModel.canListSentences()){
             this.mentionsView = new App.SentenceView(options);
         } else {
@@ -1066,6 +1079,7 @@ App.QueryResultView = App.NestedView.extend({
         }
         this.addSubView(this.histogramView);
         this.addSubView(this.wordCountView);
+        this.addSubView(this.topicView);
         this.addSubView(this.mentionsView);
         this.render();
     },
@@ -1074,6 +1088,7 @@ App.QueryResultView = App.NestedView.extend({
         this.$el.html('');
         this.$el.append(this.histogramView.$el);
         this.$el.append(this.wordCountView.$el);
+        this.$el.append(this.topicView.$el);
         this.$el.append(this.mentionsView.$el);
     }
 });
