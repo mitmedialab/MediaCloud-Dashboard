@@ -508,6 +508,7 @@ li:nth-child(6) .query-color {
 }
 .query-pager.right {
     text-align: left;
+    position: relative;
 }
 
 .query-controls {

@@ -580,17 +580,18 @@ $('.simple-tag-select-view input').on('typeahead:selected', function () {
 var queryIndex = 0;
 var queryWidth = $('.reference .query-view').width();
 var carouselWidth = $('.query-views .query-carousel-window').width();
+var carouselPad = 2 * parseInt($('.query-carousel-window').css('padding-left')) + 2;
 var updateComplete = function () {
     var queryPad = 2 * parseInt($('.reference .query-view').css('padding-left'));
-    var carouselPad = 2 * parseInt($('.query-carousel-window').css('padding-left')) + 2;
     toShow = Math.floor(carouselWidth / (queryWidth + queryPad));
-    console.log(Math.round(carouselWidth % (queryWidth + queryPad)) + 'px');
     $('.query-carousel-window')
         .css('width', (toShow * (queryWidth + queryPad) + carouselPad) + 'px')
         .css('float', 'left')
-        .css('left', Math.round(carouselWidth % (queryWidth + queryPad)) + 'px');
+        .css('left', Math.round((carouselWidth % (queryWidth + queryPad)) / 2) + 'px');
     $('.query-pager.left')
-        .css('left', Math.round(carouselWidth % (queryWidth + queryPad)) + 'px');
+        .css('left', Math.round((carouselWidth % (queryWidth + queryPad)) / 2) + 'px');
+    $('.query-pager.right')
+        .css('left', '-' + Math.round((carouselWidth % (queryWidth + queryPad)) / 2) + 'px');
     $('.query-views .query-view').width(queryWidth + 'px');    
     var queries = $('.query-views .query-view');
     for (var i = 0; i < queryIndex; i++) {
@@ -604,7 +605,6 @@ var updateComplete = function () {
     }
 };
 var updateQueries = function (change) {
-    console.log("updateQueries");
     var queries = $('.query-views .query-view');
     var visQueries = queries.filter(":visible");
     var width = visQueries.width();
@@ -613,8 +613,6 @@ var updateQueries = function (change) {
     var queryPad = 2 * parseInt($('.reference .query-view').css('padding-left'));
     toShow = Math.floor(carouselWidth / (queryWidth + queryPad));
     if (typeof(change) != "undefined" && change > 0 && queryIndex < queries.length - toShow) {
-        console.log('positive change');
-        console.log(change);
         var rightIndex = queryIndex + toShow;
         $('.query-carousel-window').css('overflow', 'hidden');
         $(queries[rightIndex])
@@ -627,7 +625,6 @@ var updateQueries = function (change) {
             $('.query-carousel-window').css('overflow', 'visible');
             $(queries[rightIndex]).css('margin-right', '0');
             queryIndex += change;
-            console.log(queryIndex);
             queryIndex = Math.max(queryIndex, 0);
             queryIndex = Math.min(queryIndex, 3);
             $('.query-carousel').css('left', '0');
