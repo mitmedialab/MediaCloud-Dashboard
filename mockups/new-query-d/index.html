@@ -51,21 +51,38 @@
                 </div>
             </div>
             <div class="content">
-                <div class="container">
+                <div class="container reference">
+                    <div class="query-list-view-content">
+                        <div class="row">
+                            <div class="col-sm-1">
+                            </div>
+                            <div class="query-carousel-container col-sm-10">
+                                <div class="query-carousel well">
+                                    <div class="query-view col-sm-4">
+                                        &nbsp;
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="container-fluid">
                 
     <div class="" id="query-list">
         <div class="query-list-view-content">
             <div class="messages"></div>
             <form role="form">
                 <div class="query-views row">
-                    <div class="col-sm-1">
-                        <button type="button" class="btn btn-default query-nav" onclick="queryIndex = Math.max(0, queryIndex - 1); updateQueries();">&lt;</button>
+                    <div class="col-sm-1 query-pager left">
+                        <button type="button" class="btn btn-default query-nav" onclick="updateQueries(-1);">&laquo;</button>
                     </div>
-                    <div class="col-sm-10">
-                        <div class="row">
+                    <div class="query-carousel-container col-sm-10">
+                        <div class="query-carousel-window well">
+                            <div class="query-carousel">
                         
                             <!-- Query view -->
-                            <div id="lorem" class="well col-sm-4">
+                            <div id="lorem" class="query-view col-sm-4">
                                 <div class="query-view-content">
                                     <div class="row">
                                         <div class="col-sm-8">
@@ -125,7 +142,7 @@
                             </div>
                             <!-- Query view -->
                             <!-- Query view -->
-                            <div id="lorem" class="well col-sm-4">
+                            <div id="lorem" class="query-view col-sm-4">
                                 <div class="query-view-content">
                                     <div class="row">
                                         <div class="col-sm-8">
@@ -185,7 +202,7 @@
                             </div>
                             <!-- Query view -->
                             <!-- Query view -->
-                            <div id="lorem" class="well col-sm-4">
+                            <div id="lorem" class="query-view col-sm-4">
                                 <div class="query-view-content">
                                     <div class="row">
                                         <div class="col-sm-8">
@@ -245,7 +262,7 @@
                             </div>
                             <!-- Query view -->
                             <!-- Query view -->
-                            <div id="lorem" class="well col-sm-4">
+                            <div id="lorem" class="query-view col-sm-4">
                                 <div class="query-view-content">
                                     <div class="row">
                                         <div class="col-sm-8">
@@ -305,7 +322,7 @@
                             </div>
                             <!-- Query view -->
                             <!-- Query view -->
-                            <div id="lorem" class="well col-sm-4">
+                            <div id="lorem" class="query-view col-sm-4">
                                 <div class="query-view-content">
                                     <div class="row">
                                         <div class="col-sm-8">
@@ -365,7 +382,7 @@
                             </div>
                             <!-- Query view -->
                             <!-- Query view -->
-                            <div id="lorem" class="well col-sm-4">
+                            <div id="lorem" class="query-view col-sm-4">
                                 <div class="query-view-content">
                                     <div class="row">
                                         <div class="col-sm-8">
@@ -425,11 +442,12 @@
                             </div>
                             <!-- Query view -->
                             
+                            </div>
                         </div>
                     </div>
 
-                    <div class="col-sm-1">
-                        <button type="button" class="btn btn-default query-nav" onclick="queryIndex = Math.min(3, queryIndex+1); updateQueries();">&gt;</button>
+                    <div class="col-sm-1 query-pager right">
+                        <button type="button" class="btn btn-default query-nav" onclick="updateQueries(1);">&raquo;</button>
                     </div>
                 </div>
                 <div class="submit-row row">
@@ -560,19 +578,83 @@ $('.simple-tag-select-view input').on('typeahead:selected', function () {
 });
 
 var queryIndex = 0;
-var updateQueries = function () {
-    var queries = $('.query-views .well');
+var queryWidth = $('.reference .query-view').width();
+var carouselWidth = $('.query-views .query-carousel-window').width();
+var updateComplete = function () {
+    var queryPad = 2 * parseInt($('.reference .query-view').css('padding-left'));
+    var carouselPad = 2 * parseInt($('.query-carousel-window').css('padding-left')) + 2;
+    toShow = Math.floor(carouselWidth / (queryWidth + queryPad));
+    console.log(Math.round(carouselWidth % (queryWidth + queryPad)) + 'px');
+    $('.query-carousel-window')
+        .css('width', (toShow * (queryWidth + queryPad) + carouselPad) + 'px')
+        .css('float', 'left')
+        .css('left', Math.round(carouselWidth % (queryWidth + queryPad)) + 'px');
+    $('.query-pager.left')
+        .css('left', Math.round(carouselWidth % (queryWidth + queryPad)) + 'px');
+    $('.query-views .query-view').width(queryWidth + 'px');    
+    var queries = $('.query-views .query-view');
     for (var i = 0; i < queryIndex; i++) {
-        $(queries.get(i)).css('display', 'none');
+        $(queries.get(i)).removeClass('visible')
     }
-    for (i = queryIndex; i < Math.min(queryIndex + 3, 6); i++) {
-        $(queries.get(i)).css('display', 'block');
+    for (i = queryIndex; i < Math.min(queryIndex + toShow, 6); i++) {
+        $(queries.get(i)).addClass('visible');
     }
-    for (i = queryIndex + 3; i < 6; i++) {
-        $(queries.get(i)).css('display', 'none');
+    for (i = queryIndex + toShow; i < 6; i++) {
+        $(queries.get(i)).removeClass('visible');
     }
 };
-updateQueries();
+var updateQueries = function (change) {
+    console.log("updateQueries");
+    var queries = $('.query-views .query-view');
+    var visQueries = queries.filter(":visible");
+    var width = visQueries.width();
+    var margin = parseInt(visQueries.css('padding-left')) * 2;
+    var queryWidth = $('.reference .query-view').width();
+    var queryPad = 2 * parseInt($('.reference .query-view').css('padding-left'));
+    toShow = Math.floor(carouselWidth / (queryWidth + queryPad));
+    if (typeof(change) != "undefined" && change > 0 && queryIndex < queries.length - toShow) {
+        console.log('positive change');
+        console.log(change);
+        var rightIndex = queryIndex + toShow;
+        $('.query-carousel-window').css('overflow', 'hidden');
+        $(queries[rightIndex])
+            .css('margin-right', '-100%')
+            .addClass('visible');
+        $('.query-views .query-carousel').animate({
+            'left': "-" + (width + margin) + "px"
+        }, 250, null, function () {
+            console.log('positive chagne done');
+            $('.query-carousel-window').css('overflow', 'visible');
+            $(queries[rightIndex]).css('margin-right', '0');
+            queryIndex += change;
+            console.log(queryIndex);
+            queryIndex = Math.max(queryIndex, 0);
+            queryIndex = Math.min(queryIndex, 3);
+            $('.query-carousel').css('left', '0');
+            updateComplete();
+        });
+    } else if (typeof(change) != "undefined" && change < 0 && queryIndex > 0) {
+        var rightIndex = queryIndex + toShow - 1;
+        var leftIndex = queryIndex - 1;
+        $('.query-carousel-window').css('overflow', 'hidden');
+        $(queries[rightIndex])
+            .css('margin-right', '-100%');
+        $(queries[leftIndex])
+            .addClass('visible');
+        $('.query-carousel').css('left', "-" + (width + margin) + "px");
+        $('.query-views .query-carousel').animate({
+            'left': "0"
+        }, 250, null, function () {
+            $('.query-carousel-window').css('overflow', 'visible');
+            $(queries[rightIndex]).css('margin-right', '0');
+            queryIndex += change;
+            queryIndex = Math.max(queryIndex, 0);
+            queryIndex = Math.min(queryIndex, 3);
+            updateComplete();
+        });
+    }
+};
+updateComplete();
         </script>
     </body>
 </html>

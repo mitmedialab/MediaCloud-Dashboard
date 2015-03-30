@@ -469,3 +469,48 @@ li:nth-child(6) .query-color {
 .submit-row {
     margin-bottom: 15px;
 }
+
+.query-pager {
+    text-align: center;
+}
+
+.query-carousel-container {
+}
+
+.query-carousel-window {
+    position: relative;
+}
+
+.query-carousel {
+    position: relative;
+    left: 0;
+}
+
+.query-view {
+    display: none;
+}
+
+.visible {
+    display: block !important;
+}
+
+.reference {
+    height: 1px;
+    margin-bottom: -1px;
+    overflow: hidden;
+    visibility: hidden;
+}
+
+.query-pager.left {
+    text-align: right;
+    position: relative;
+    z-index:2;
+}
+.query-pager.right {
+    text-align: left;
+}
+
+.query-controls {
+    text-align: right;
+}
+
