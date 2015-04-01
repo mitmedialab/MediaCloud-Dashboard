@@ -403,7 +403,6 @@ input.form-control, select.form-control, textarea.form-control {
 }
 
 .simple-tag-select-view {
-    float: left;
 }
 
 li .query-title {
@@ -422,10 +421,6 @@ li:nth-child(3) .query-title {
     display: inline;
 }
 
-.query-view-content .list-group {
-    margin-bottom: 0;
-}
-
 .query-view-content h3 {
     margin-top: 0;
 }
@@ -442,23 +437,34 @@ li:nth-child(3) .query-title {
     font-weight: bold;
 }
 
-li:first-child .query-color
+li:first-child .query-color,
+.query-container > :first-child .query-color
 {
     color: #e14c11;
 }
-li:nth-child(2) .query-color {
+li:nth-child(2) .query-color,
+.query-container > :nth-child(2) .query-color
+{
     color: #249fc9;  
 }
-li:nth-child(3) .query-color {
+li:nth-child(3) .query-color,
+.query-container > :nth-child(3) .query-color
+{
     color: #ffab26;
 }
-li:nth-child(4) .query-color {
+li:nth-child(4) .query-color,
+.query-container > :nth-child(4) .query-color
+{
     color: #14c11e;
 }
-li:nth-child(5) .query-color {
+li:nth-child(5) .query-color,
+.query-container > :nth-child(5) .query-color
+{
     color: #49fc92;  
 }
-li:nth-child(6) .query-color {
+li:nth-child(6) .query-color,
+.query-container > :nth-child(6) .query-color
+{
     color: #fab26f;
 }
 
@@ -515,3 +521,16 @@ li:nth-child(6) .query-color {
     text-align: right;
 }
 
+.query-view label {
+    font-weight: normal;
+    font-style: italic;
+}
+
+.query-view .list-group {
+}
+
+.query-view .add-more {
+    margin-top: -20px;
+    padding-bottom: 6px;
+    text-align: center;
+}
