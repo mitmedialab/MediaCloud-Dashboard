@@ -323,6 +323,14 @@ input.form-control, select.form-control, textarea.form-control {
     color: #249fc9;
 }
 
+/* Persistent header, see: https://css-tricks.com/persistent-headers/ */
+.floating-header {
+    position: fixed;
+    top: 0;
+    visibility: hidden;
+}
+/* End persistent header */
+
 /* Sub-Brand styles ***************************************************/
 
 .dashboard-color {
@@ -334,4 +342,3 @@ input.form-control, select.form-control, textarea.form-control {
 .frequency-color {
     background-color: rgb(85,134,138);
 }
-
