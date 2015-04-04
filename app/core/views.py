@@ -398,6 +398,7 @@ def csv_escape(s):  # TODO: do this better and in one place
     return u"\"%s\"" % s.replace('"', '""').strip()
 
 def assemble_csv_response(results,properties,column_names,filename):
+    app.core.logger.setLevel(logging.DEBUG)
     app.core.logger.debug("assemble_csv_response with "+str(len(results))+" results")
     app.core.logger.debug("  cols: "+' '.join(column_names))
     app.core.logger.debug("  props: "+' '.join(properties))
@@ -406,7 +407,7 @@ def assemble_csv_response(results,properties,column_names,filename):
         yield ','.join(names) + '\n'
         for row in data:
             try:
-                attributes = [ csv_escape(row[p]) for p in props]
+                attributes = [ csv_escape(str(row[p])) for p in props]
                 yield ','.join(attributes) + '\n'
             except Exception as e:
                 app.core.logger.error("Couldn't process a CSV row: "+str(e))
