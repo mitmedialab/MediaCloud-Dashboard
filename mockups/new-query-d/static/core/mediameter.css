@@ -347,51 +347,11 @@ input.form-control, select.form-control, textarea.form-control {
 }
 /* End persistent header */
 
-.nav-tabs {
-    background: #f2f2f2;
-    border-bottom-color: #777;
-}
-.nav-tabs > li > a {
-    border-radius: 0;
-}
-.nav-tabs > li > a {
-    border-right: solid 1px #777;
-}
-.nav-tabs > li > a:hover {
-    border-right: solid 1px #777;
-}
-.nav-tabs > li.active {
-    border: none;
-    border-right: solid 1px #777;
-}
-.nav-tabs > li.active:first-child {
-    border-left: none;
-}
-.nav-tabs > li > a {
-    margin-right: 0;
-}
-.nav-tabs > li.active > a,
-.nav-tabs > li.active > a:focus,
-.nav-tabs > li.active > a:hover,
-.nav-tabs > li > a:hover
-{
-    background: #f2f2f2;
-}
-.nav-tabs > li > a,
-.nav-tabs > li > a:hover {
-    border-bottom-color: #777;
-}
 
+/* QueryListView */
 .query-views .form-group
 {
     margin-bottom: 6px;
-}
-
-.query-views .form-control,
-.query-views .input-group-addon
-{
-}
-.query-views button.btn {
 }
 .query-views .label {
     padding: 2px 5px 1px 5px;
@@ -401,10 +361,33 @@ input.form-control, select.form-control, textarea.form-control {
     overflow: hidden;
     padding-bottom: 4px;
 }
-
-.simple-tag-select-view {
+.query-carousel-window {
+    position: relative;
+}
+.query-carousel {
+    position: relative;
+    left: 0;
+}
+.query-pager {
+    text-align: center;
+}
+.query-pager.left {
+    text-align: right;
+    position: relative;
+    z-index:2;
+}
+.query-pager.right {
+    text-align: left;
+    position: relative;
+}
+.submit-row {
+    margin-bottom: 15px;
 }
 
+/* QueryView */
+.query-view {
+    display: none;
+}
 li .query-title {
     font-weight: bold;
 }
@@ -420,15 +403,26 @@ li:nth-child(3) .query-title {
 .nav > li > a.edit {
     display: inline;
 }
-
 .query-view-content h3 {
     margin-top: 0;
 }
+.query-controls {
+    text-align: right;
+}
+.query-view label {
+    font-weight: normal;
+    font-style: italic;
+}
+.query-view .add-more {
+    margin-top: -20px;
+    padding-bottom: 6px;
+    text-align: center;
+}
 
+/* QueryLegendView */
 .query-legend {
     display: inline;
 }
-
 .query-legend li {
     display: inline-block;
     margin: 5px 20px;
@@ -436,7 +430,20 @@ li:nth-child(3) .query-title {
     font-size: inherit;
     font-weight: bold;
 }
+.query-nav {
+    margin-top: 10em;
+}
 
+/* Global styling */
+.reference {
+    height: 1px;
+    margin-bottom: -1px;
+    overflow: hidden;
+    visibility: hidden;
+}
+.visible {
+    display: block !important;
+}
 li:first-child .query-color,
 .query-container > :first-child .query-color
 {
@@ -466,71 +473,4 @@ li:nth-child(6) .query-color,
 .query-container > :nth-child(6) .query-color
 {
     color: #fab26f;
-}
-
-.query-nav {
-    margin-top: 10em;
-}
-
-.submit-row {
-    margin-bottom: 15px;
-}
-
-.query-pager {
-    text-align: center;
-}
-
-.query-carousel-container {
-}
-
-.query-carousel-window {
-    position: relative;
-}
-
-.query-carousel {
-    position: relative;
-    left: 0;
-}
-
-.query-view {
-    display: none;
-}
-
-.visible {
-    display: block !important;
-}
-
-.reference {
-    height: 1px;
-    margin-bottom: -1px;
-    overflow: hidden;
-    visibility: hidden;
-}
-
-.query-pager.left {
-    text-align: right;
-    position: relative;
-    z-index:2;
-}
-.query-pager.right {
-    text-align: left;
-    position: relative;
-}
-
-.query-controls {
-    text-align: right;
-}
-
-.query-view label {
-    font-weight: normal;
-    font-style: italic;
-}
-
-.query-view .list-group {
-}
-
-.query-view .add-more {
-    margin-top: -20px;
-    padding-bottom: 6px;
-    text-align: center;
 }
