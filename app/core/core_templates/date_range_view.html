@@ -1,14 +1,18 @@
 <script id="tpl-date-range-view" type="text/template">
-  <div class="col-sm-2 form-group">
-    <label>From</label>
-    <input
-      class="date-range-start form-control"
-      placeholder="From" />
-  </div>
-  <div class="col-sm-2 form-group">
-    <label>To</label>
-    <input
-      class="date-range-end form-control"
-      placeholder="To" />
+  <div class="row date-range-view">
+      <div class="col-sm-12">
+          <label>For dates:</label>
+          <div class="form-group">
+              <div class="input-group">
+                  <input
+                      class="date-range-start form-control"
+                      value="2015-01-01"/>
+                  <span class="input-group-addon">to</span>
+                  <input
+                    class="date-range-end form-control"
+                    value="2015-01-31"/>
+              </div>
+          </div>
+      </div>
   </div>
 </script>

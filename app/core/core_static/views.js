@@ -260,20 +260,11 @@ App.QueryView = App.NestedView.extend({
         this.mediaSources.deferred.done(function () {
             that.$el.html(that.template());
             // Replace loading with sub views
-            var topRow = $('<div>').addClass('row')
+            that.$('.query-view-content')
                 .append(that.keywordView.el)
-                .append(that.dateRangeView.el)
-                .append(that.controlsView.el);
-            var middleRow = $('<div>').addClass('row')
-                .append(that.mediaSelectView.el)
-                .append(that.mediaListView.el);
-            var bottomRow = $('<div>').addClass('row')
-                .append(that.simpleTagSelectView.el)
-                .append(that.simpleTagListView.el);
-            that.$('.query-view-content').html('')
-                .append(topRow)
-                .append(middleRow)
-                .append(bottomRow);
+                .append(that.mediaListView.el)
+                .append(that.dateRangeView.el);
+            /*
             that.updateTitle();
             that.listenTo(that.model, 'mm:namechange', that.updateTitle);
             // In order for the modal to show up above all page content
@@ -295,6 +286,7 @@ App.QueryView = App.NestedView.extend({
                     that.onNameModalSubmit();
                 }
             });
+            */
         });
     },
     updateTitle: function () {
@@ -458,7 +450,7 @@ App.QueryListView = App.NestedView.extend({
         // Show loading
         this.$el.html(this.template());
         progress = _.template($('#tpl-progress').html());
-        this.$('.query-list-view-content').html(progress());
+        this.$('.container-fluid .query-list-view-content').html(progress());
         var that = this;
         this.mediaSources.deferred.done(function () {
             that.$el.html(that.template());
@@ -479,7 +471,7 @@ App.QueryListView = App.NestedView.extend({
             mediaSources: this.mediaSources
         });
         this.addSubView(queryView);
-        this.$('.query-views').append(queryView.$el);
+        this.$('.query-carousel').append(queryView.$el);
         // TODO this is a hack to only allow two queries, but we can get data
         // for more once the viz can handle it.
         this.updateNumQueries(collection);
@@ -734,7 +726,7 @@ App.SourceExploreView = Backbone.View.extend({
 
 App.ItemView = Backbone.View.extend({
     name:'ItemView',
-    tagName: 'span',
+    tagName: 'li',
     events: {
         'click .remove': 'onClickRemove'
     },
@@ -744,8 +736,7 @@ App.ItemView = Backbone.View.extend({
         _.bindAll(this, 'onClickRemove');
     },
     render: function () {
-        this.$el.addClass('label');
-        this.$el.addClass('label-default');
+        this.$el.addClass('list-group-item');
         var data = {}
         if (this.display && typeof(this.display) === 'function') {
             data.name = this.display(this.model);
@@ -775,6 +766,7 @@ App.MediaListView = App.NestedView.extend({
         this.render();
         // Add listeners
         this.model.get('sources').on('add', this.onAdd, this);
+        this.model.get('tags').on('add', this.onAddTag, this);
         // Set listener context
     },
     render: function () {
@@ -787,11 +779,22 @@ App.MediaListView = App.NestedView.extend({
         this.model.get('sources').each(function (m) {
             that.onAdd(m, that.model.get('sources'), {});
         });
+        this.model.get('tags').each(function (m) {
+            that.onAddTag(m, that.model.get('tags'), {});
+        });
     },
     onAdd: function (model, collection, options) {
         App.debug('App.MediaListView.onAdd()');
-        App.debug(model);
         var itemView = new App.ItemView({model: model, display: 'name' });
+        itemView.on('removeClick', this.onRemoveClick);
+        this.$('.media-list-view-content').append(itemView.el);
+    },
+    onAddTag: function (model, collection, options) {
+        App.debug('App.MediaListView.onAdd()');
+        var itemView = new App.ItemView({
+            model: model
+            , display: function (m) { return m.get('tag_set_label') + ': ' + m.get('label'); }
+        });
         itemView.on('removeClick', this.onRemoveClick);
         this.$('.media-list-view-content').append(itemView.el);
     },

@@ -1,12 +1,21 @@
 <script id="tpl-query-list-view" type="text/template">
-    <div class="panel panel-default" id="query-list">
-        <div class="panel-heading">
-            <h2 class="panel-title">Query builder</h2>
-        </div>
-        <div class="query-list-view-content panel-body">
+    <div id="query-list">
+        <div class="query-list-view-content">
             <div class="messages"></div>
             <form role="form">
-                <div class="query-views">
+                <div class="query-views row">
+                    <div class="col-sm-1 query-pager left">
+                        <button type="button" class="btn btn-default query-nav" onclick="updateQueries(-1);">&laquo;</button>
+                    </div>
+                    <div class="query-carousel-container col-sm-10">
+                        <div class="query-carousel-window well">
+                            <div class="query-carousel query-container">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-1 query-pager right">
+                        <button type="button" class="btn btn-default query-nav" onclick="updateQueries(1);">&raquo;</button>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-sm-12">

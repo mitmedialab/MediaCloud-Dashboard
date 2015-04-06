@@ -12,7 +12,10 @@ App.con = App.Controller = {
         App.con.queryCollection = new App.QueryCollection();
         // Create view manager and app-level views
         App.con.vm = new App.ViewManager({
-            "selector": '.content .container'
+            "selector": '.content .container-fixed'
+        });
+        App.con.queryVm = new App.ViewManager({
+            "selector": ".content .container-fluid"
         });
         App.con.controlsView = new App.ControlsView({ userModel: App.con.userModel });
         App.con.toolView = new App.ToolListView({
@@ -128,14 +131,14 @@ App.con = App.Controller = {
             mediaSources: App.con.mediaSources
             , parse: true
         };
-        App.con.errorListView = App.con.vm.getView(
+        App.con.errorListView = App.con.queryVm.getView(
             App.ErrorListView
             , { collection: App.con.getErrorCollection() }
         );
         App.con.queryCollection.reset();
         App.con.queryModel = new App.QueryModel(attributes, options);
         App.con.queryCollection.add(App.con.queryModel);
-        App.con.queryListView = App.con.vm.getView(
+        App.con.queryListView = App.con.queryVm.getView(
             App.QueryListView
             , {
                 collection: App.con.queryCollection
@@ -143,7 +146,7 @@ App.con = App.Controller = {
             }
         );
         App.con.queryCollection.on('execute', App.con.onQuery, this);
-        App.con.vm.showViews([
+        App.con.queryVm.showViews([
             App.con.errorListView
             , App.con.queryListView
         ]);
@@ -199,7 +202,7 @@ App.con = App.Controller = {
         }
         App.con.queryModel = new App.QueryModel(attributes, options);
         App.con.queryCollection.add(App.con.queryModel);
-        App.con.queryListView = App.con.vm.getView(
+        App.con.queryListView = App.con.queryVm.getView(
             App.DemoQueryListView
             , {
                 collection: App.con.queryCollection
@@ -207,7 +210,7 @@ App.con = App.Controller = {
             }
         );
         App.con.queryCollection.on('execute', App.con.onDemoQuery, this);
-        App.con.vm.showView(App.con.queryListView);
+        App.con.queryVm.showView(App.con.queryListView);
     },
     
     routeDemoQuery: function (keywords, media, start, end, qinfo) {

@@ -80,7 +80,18 @@
             </div>
         </div>
         <div class="content">
-            <div class="container">
+            <div class="container reference">
+                <!-- Contents not shown but used for screen geometry calculations. -->
+                {% block reference_content %}
+                {{ reference_content |safe }}
+                {% endblock %}
+            </div>
+            <div class="container-fluid">
+                {% block fluid_content %}
+                {{ fluid_content |safe }}
+                {% endblock %}
+            </div>
+            <div class="container container-fixed">
                 {% block content %}
                 {{ content |safe }}
                 {% endblock %}
