@@ -350,15 +350,6 @@ input.form-control, select.form-control, textarea.form-control {
 li .query-title {
     font-weight: bold;
 }
-li:first-child .query-title {
-    color: #e14c11;
-}
-li:nth-child(2) .query-title {
-    color: #249fc9;  
-}
-li:nth-child(3) .query-title {
-    color: #ffab26;
-}
 .nav > li > a.edit {
     display: inline;
 }
@@ -434,12 +425,6 @@ li:nth-child(3) .query-title {
 }
 .tag-set-explore-view p {
     margin-top: 10px;
-}
-.first-query, .first-query a {
-    color: #e14c11;
-}
-.second-query, .second-query a {
-    color: #249fc9;
 }
 
 /* Persistent header, see: https://css-tricks.com/persistent-headers/ */

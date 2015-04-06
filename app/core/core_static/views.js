@@ -213,8 +213,8 @@ App.QueryView = App.NestedView.extend({
     name:'QueryView',
     template: _.template($('#tpl-query-view').html()),
     events: {
-        'click button.copy': 'onCopyInput',
-        'click button.remove': 'onRemoveInput'
+        'click a.duplicate': 'onCopyInput',
+        'click a.remove': 'onRemoveInput'
     },
     initialize: function (options) {
         App.debug('App.QueryView.initialize()');
@@ -264,7 +264,6 @@ App.QueryView = App.NestedView.extend({
                 .append(that.keywordView.el)
                 .append(that.mediaListView.el)
                 .append(that.dateRangeView.el);
-            /*
             that.updateTitle();
             that.listenTo(that.model, 'mm:namechange', that.updateTitle);
             // In order for the modal to show up above all page content
@@ -274,7 +273,7 @@ App.QueryView = App.NestedView.extend({
             that.nameModal$.on('shown.bs.modal', function () {
                 that.nameModal$.find('input').focus();
             });
-            that.$('h3 a').on('click', function (event) {
+            that.$('a.edit').on('click', function (event) {
                 event.preventDefault();
                 that.nameModal$.find('input').val(that.model.get('name'));
                 that.nameModal$.modal('show');
@@ -286,7 +285,6 @@ App.QueryView = App.NestedView.extend({
                     that.onNameModalSubmit();
                 }
             });
-            */
         });
     },
     updateTitle: function () {
@@ -313,6 +311,7 @@ App.QueryView = App.NestedView.extend({
             , ResultModel: this.model.ResultModel
         };
         var newModel = new App.QueryModel(attr, opts);
+        newModel.set('name', "Copy of " + this.model.getName());
         this.model.collection.add(newModel);
     },
     onRemoveInput: function (evt) {
