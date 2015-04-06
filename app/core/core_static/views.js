@@ -434,8 +434,11 @@ App.QueryListView = App.NestedView.extend({
     name:'QueryListView',
     id:'query-builder',
     template: _.template($('#tpl-query-list-view').html()),
+    refTemplate: _.template($('#tpl-query-list-view-reference').html()),
     events: {
-        "click .btn-primary": 'onQuery'
+        "click .btn-primary": 'onQuery',
+        "click .query-pager.left": 'onPagerLeft',
+        "click .query-pager.right": 'onPagerRight'
     },
     initialize: function (options) {
         App.debug('App.QueryListView.initialize()');
@@ -448,6 +451,8 @@ App.QueryListView = App.NestedView.extend({
     render: function () {
         // Show loading
         this.$el.html(this.template());
+        $('.reference .query-list').remove();
+        $('.reference').append(this.refTemplate());
         progress = _.template($('#tpl-progress').html());
         this.$('.container-fluid .query-list-view-content').html(progress());
         var that = this;
@@ -457,6 +462,7 @@ App.QueryListView = App.NestedView.extend({
             that.collection.each(function (m) {
                 that.onAdd(m, that.collection)
             });
+            _.defer(function () { that.initializeCarousel(); });
         });
     },
     onQuery: function (ev) {
@@ -474,9 +480,11 @@ App.QueryListView = App.NestedView.extend({
         // TODO this is a hack to only allow two queries, but we can get data
         // for more once the viz can handle it.
         this.updateNumQueries(collection);
+        this.updateCarousel(0);
     },
     onRemove: function (model, collection, options) {
         this.updateNumQueries(collection);
+        this.updateCarousel(0);
     },
     updateNumQueries: function (collection) {
         var that = this;
@@ -494,6 +502,104 @@ App.QueryListView = App.NestedView.extend({
                 .removeClass('first-query')
                 .addClass('second-query');
         });
+    },
+    initializeCarousel: function () {
+        this.queryIndex = 0;
+        this.queryWidth = $('.reference .query-view').width();
+        this.carouselWidth = $('.query-views .query-carousel-window').width();
+        this.carouselPad = 2 * parseInt($('.query-carousel-window').css('padding-left')) + 2;
+        this.onCarouselUpdated();
+    },
+    onCarouselUpdated: function () {
+        App.debug("QueryListView.onCarouselUpdated()");
+        var queries = this.$('.query-view');
+        var queryPad = 2 * parseInt($('.reference .query-view').css('padding-left'));
+        toShow = Math.floor(this.carouselWidth / (this.queryWidth + queryPad));
+        $('.query-carousel-window')
+            .css('width', (toShow * (this.queryWidth + queryPad) + this.carouselPad) + 'px')
+            .css('float', 'left')
+            .css('left', Math.round((this.carouselWidth % (this.queryWidth + queryPad)) / 2) + 'px');
+        $('.query-pager.left')
+            .css('left', Math.round((this.carouselWidth % (this.queryWidth + queryPad)) / 2) + 'px');
+        $('.query-pager.right')
+            .css('left', '-' + Math.round((this.carouselWidth % (this.queryWidth + queryPad)) / 2) + 'px');
+        $('.query-views .query-view').width(this.queryWidth + 'px');    
+        var queries = $('.query-views .query-view');
+        for (var i = 0; i < this.queryIndex; i++) {
+            $(queries.get(i)).removeClass('visible')
+        }
+        for (i = this.queryIndex; i < Math.min(this.queryIndex + toShow, this.collection.length); i++) {
+            $(queries.get(i)).addClass('visible');
+        }
+        for (i = this.queryIndex + toShow; i < this.collection.length; i++) {
+            $(queries.get(i)).removeClass('visible');
+        }
+        if (this.queryIndex > 0) {
+            this.$('.query-pager.left button').removeAttr('disabled');
+        } else {
+            this.$('.query-pager.left button').attr('disabled', 'disabled');
+        }
+        if (this.queryIndex + toShow < this.collection.length) {
+            this.$('.query-pager.right button').removeAttr('disabled');
+        } else {
+            this.$('.query-pager.right button').attr('disabled', 'disabled');
+        }
+    },
+    updateCarousel: function (change) {
+        console.log(this.queryIndex);
+        console.log(change);
+        var that = this;
+        var queries = this.$('.query-views .query-view');
+        var visQueries = queries.filter(":visible");
+        var width = visQueries.width();
+        var margin = parseInt(visQueries.css('padding-left')) * 2;
+        var queryPad = 2 * parseInt($('.reference .query-view').css('padding-left'));
+        toShow = Math.floor(this.carouselWidth / (this.queryWidth + queryPad));
+        if (typeof(change) != "undefined" && change > 0 && this.queryIndex < queries.length - toShow) {
+            var rightIndex = this.queryIndex + toShow;
+            $('.query-carousel-window').css('overflow', 'hidden');
+            $(queries[rightIndex])
+                .css('margin-right', '-100%')
+                .addClass('visible');
+            $('.query-views .query-carousel').animate({
+                'left': "-" + (width + margin) + "px"
+            }, 250, null, function () {
+                $('.query-carousel-window').css('overflow', 'visible');
+                $(queries[rightIndex]).css('margin-right', '0');
+                that.queryIndex += change;
+                that.queryIndex = Math.max(that.queryIndex, 0);
+                that.queryIndex = Math.min(that.queryIndex, toShow);
+                $('.query-carousel').css('left', '0');
+                that.onCarouselUpdated();
+            });
+        } else if (typeof(change) != "undefined" && change < 0 && this.queryIndex > 0) {
+            var rightIndex = this.queryIndex + toShow - 1;
+            var leftIndex = this.queryIndex - 1;
+            $('.query-carousel-window').css('overflow', 'hidden');
+            $(queries[rightIndex])
+                .css('margin-right', '-100%');
+            $(queries[leftIndex])
+                .addClass('visible');
+            $('.query-carousel').css('left', "-" + (width + margin) + "px");
+            $('.query-views .query-carousel').animate({
+                'left': "0"
+            }, 250, null, function () {
+                $('.query-carousel-window').css('overflow', 'visible');
+                $(queries[rightIndex]).css('margin-right', '0');
+                that.queryIndex += change;
+                that.queryIndex = Math.max(that.queryIndex, 0);
+                that.queryIndex = Math.min(that.queryIndex, toShow);
+                that.onCarouselUpdated();
+            });
+        } else {
+            that.onCarouselUpdated();
+        }
+    },
+    onPagerLeft: function () {
+        this.updateCarousel(-1);
+    },
+    onPagerRight: function () {
+        this.updateCarousel(1);
     }
 });
 

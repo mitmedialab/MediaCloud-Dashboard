@@ -318,7 +318,6 @@ input.form-control, select.form-control, textarea.form-control {
     padding-bottom: 4px;
 }
 .query-carousel-window {
-    float: left;
     position: relative;
 }
 .query-carousel {
@@ -327,6 +326,9 @@ input.form-control, select.form-control, textarea.form-control {
 }
 .query-pager {
     text-align: center;
+}
+.query-pager button {
+    margin-top: 10em;
 }
 .query-pager.left {
     text-align: right;
@@ -344,8 +346,11 @@ input.form-control, select.form-control, textarea.form-control {
     border-bottom: solid 1px #ccc;
     margin-bottom: 20px;
 }
-.xquery-view {
+.query-view {
     display: none;
+}
+.reference .query-view {
+    display: block;
 }
 li .query-title {
     font-weight: bold;
