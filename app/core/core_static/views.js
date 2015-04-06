@@ -231,22 +231,12 @@ App.QueryView = App.NestedView.extend({
             model: this.model.get('params').get('mediaModel')
         });
 
-        this.simpleTagSelectView = new App.SimpleTagSelectView({
-            model: this.model.get('params').get('mediaModel')
-            , mediaSources: this.mediaSources
-        });
-        this.simpleTagListView = new App.SimpleTagListView({
-            model: this.model.get('params').get('mediaModel')
-        });
-
         this.dateRangeView = new App.DateRangeView({ model: this.model });
         this.keywordView = new App.KeywordView({model: this.model});
         this.controlsView = new App.QueryControlsView();
         this.model.on('remove', this.close, this);
         this.addSubView(this.mediaSelectView);
         this.addSubView(this.mediaListView);
-        this.addSubView(this.simpleTagSelectView);
-        this.addSubView(this.simpleTagListView);
         this.addSubView(this.dateRangeView);
         this.addSubView(this.controlsView);
         this.render();
@@ -263,6 +253,7 @@ App.QueryView = App.NestedView.extend({
             that.$('.query-view-content')
                 .append(that.keywordView.el)
                 .append(that.mediaListView.el)
+                .append(that.mediaSelectView.el)
                 .append(that.dateRangeView.el);
             that.updateTitle();
             that.listenTo(that.model, 'mm:namechange', that.updateTitle);
@@ -546,8 +537,6 @@ App.QueryListView = App.NestedView.extend({
         }
     },
     updateCarousel: function (change) {
-        console.log(this.queryIndex);
-        console.log(change);
         var that = this;
         var queries = this.$('.query-views .query-view');
         var visQueries = queries.filter(":visible");
@@ -752,12 +741,15 @@ App.MediaSelectView = App.NestedView.extend({
     events: {
         'click button': 'onTextEntered'
         , 'click a.explore': 'onExplore'
+        , 'click .add-more a': 'onAddMore'
     },
     initialize: function (options) {
         App.debug('App.MediaSelectView.initialize()');
         App.debug(options);
         this.mediaSources = options.mediaSources;
         this.disabled = options.disabled;
+        this.listenTo(this.model.get('sources'), 'all', this.updateVisibility);
+        this.listenTo(this.model.get('tags'), 'all', this.updateVisibility);
         // Set deferred callbacks
         var that = this;
         _.bindAll(this, 'onTextEntered');
@@ -779,9 +771,26 @@ App.MediaSelectView = App.NestedView.extend({
 //                function () { that.onTextEntered(); });
         }
     },
+    updateVisibility: function () {
+        App.debug('App.MediaSelectView.updateVisibility()')
+        console.log(this.model);
+        if (this.model.get('tags').length == 0 && this.model.get('sources').length == 0) {
+            this.$('.add-more a').text("select media");
+        } else {
+            this.$('.add-more a').text("add media");
+        }
+        this.$('.add-more').css('display', 'none');
+        this.$('.media-input').css('display', 'none');
+        if (this.isOpen) {
+            this.$('.media-input').css('display', 'block');
+        } else {
+            this.$('.add-more').css('display', 'block');
+        }
+    },
     render: function () {
         App.debug('App.MediaSelectView.render()');
         this.$el.html(this.template());
+        this.updateVisibility();
         if (this.disabled) {
             this.$('.media-input').attr('disabled', 'disabled');
             this.$('button').attr('disabled', 'disabled');
@@ -815,6 +824,11 @@ App.MediaSelectView = App.NestedView.extend({
                 that.exploreView.show();
             }
         });
+    },
+    onAddMore: function (event) {
+        event.preventDefault();
+        this.$('.add-more').hide();
+        this.$('.media-input').show();
     }
 });
 
@@ -887,6 +901,8 @@ App.MediaListView = App.NestedView.extend({
         this.model.get('tags').each(function (m) {
             that.onAddTag(m, that.model.get('tags'), {});
         });
+        this.listenTo(this.model.get('sources'), 'all', this.onChange);
+        this.listenTo(this.model.get('tags'), 'all', this.onChange);
     },
     onAdd: function (model, collection, options) {
         App.debug('App.MediaListView.onAdd()');
@@ -907,7 +923,19 @@ App.MediaListView = App.NestedView.extend({
         App.debug('App.MediaListView.onRemoveClick()');
         // Figure out which collection to remove from,
         // otherwise we might remove the wrong thing.
+        // The model can only be in one of the following,
+        // no harm in removing from both.
         this.model.get('sources').remove(model);
+        this.model.get('tags').remove(model);
+    },
+    onChange: function () {
+        if (this.model.get('sources').length == 0 && this.model.get('tags').length == 0) {
+            this.$('.all-media').show();
+            this.$('.media-list-view-content').hide();
+        } else {
+            this.$('.all-media').hide();
+            this.$('.media-list-view-content').show();
+        }
     }
 });
 
