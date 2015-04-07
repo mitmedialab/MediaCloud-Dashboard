@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Media Meter Dashboard</title>
+        <link rel="stylesheet" type="text/css" href="static/core/lib/bootstrap/css/bootstrap.min.css"/>
+        <link rel="stylesheet" type="text/css" href="static/core/lib/typeahead.js-bootstrap/typeahead.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,700" type="text/css">
+        <link rel="stylesheet" type="text/css" href="static/core/mediameter.css"/>
+        <link rel="stylesheet" type="text/css" href="static/dashboard/style.css"/>
+    </head>
+    <body>
+        <div class="header">
+            <div class="brand-toolbar">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-8 links"></div>
+                        <div class="col-sm-4 controls"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="branding">
+                <div class="container">
+                    <h1>
+                        <a href="http://dashboard.mediameter.org/"><img src="static/core/img/mm-logo-65-orange.png" /></a>
+                        <strong>Media Meter</strong>
+                        Dashboard
+                        <small class="pull-right">Powered by <a href="http://mediacloud.org">Media Cloud</a></small>
+                    </h1>
+                </div>
+            </div>
+            <div class="app-toolbar">
+                <div class="container">
+                </div>
+            </div>
+        </div>
+        <div class="persist-area">
+            <div class="drawer persist-header">
+                <div class="container">
+                    <ul class="query-legend">
+                        <li><span class="glyphicon glyphicon-certificate query-color"></span> Net Neutrality</li>
+                        <li><span class="glyphicon glyphicon-certificate query-color"></span> Open Internet</li>
+                        <li><span class="glyphicon glyphicon-certificate query-color"></span> Title II</li>
+                        <li><span class="glyphicon glyphicon-certificate query-color"></span> Common Carrier</li>
+                        <li><span class="glyphicon glyphicon-certificate query-color"></span> Slow Lane</li>
+                        <li><span class="glyphicon glyphicon-certificate query-color"></span> FCC</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="messages">
+                <div class="container">
+                </div>
+            </div>
+            <div class="content">
+                <div class="container reference">
+                    <div class="query-list-view-content">
+                        <div class="row">
+                            <div class="col-sm-1">
+                            </div>
+                            <div class="query-carousel-container col-sm-10">
+                                <div class="query-carousel well">
+                                    <div class="query-view col-sm-4">
+                                        &nbsp;
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="container-fluid">
+                
+    <div class="" id="query-list">
+        <div class="query-list-view-content">
+            <div class="messages"></div>
+            <form role="form">
+                <div class="query-views row">
+                    <div class="col-sm-1 query-pager left">
+                        <button type="button" class="btn btn-default query-nav" onclick="updateQueries(-1);">&laquo;</button>
+                    </div>
+                    <div class="query-carousel-container col-sm-10">
+                        <div class="query-carousel-window well">
+                            <div class="query-carousel query-container">
+                        
+                            <!-- Query view -->
+                            <div id="lorem" class="query-view col-sm-4">
+                                <div class="query-view-content">
+                                    <div class="row">
+                                        <div class="col-sm-8">
+                                            <h3><span class="glyphicon glyphicon-certificate query-color"></span> Net Neutrality</h3>
+                                        </div>
+                                        <div class="query-controls col-sm-4">
+                                            <a href=""><span class="glyphicon glyphicon-edit"></span></a>&nbsp;
+                                            <a href=""><span class="glyphicon glyphicon-duplicate"></span></a>&nbsp;
+                                            <a href=""><span class="glyphicon glyphicon-remove"></a></span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <label>Search for:</label>
+                                            <div class="keyword-view form-group">
+                                                <input type="text" class="keyword-view-keywords form-control" placeholder="keywords" value="&quot;net neutrality&quot;">
+                                            </div>
+                                        </div>
+                                    </div>
+        
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <label>In media:</label>
+                                            <ul class="list-group">
+                                                <li class="list-group-item">Collections: U.S. Mainstream Media</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 add-more">
+                                            <a href="">add more</a>
+                                        </div>
+                                    </div>
+                                    <!--
+                                    <div class="row">
+                                        <div class="col-sm-12 simple-tag-select-view">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <input placeholder="add media" type="text" class="simple-tag-input form-control" autocomplete="off" size="50"/>
+                                                    <span class="input-group-btn">
+                                                        <button class="btn btn-default">+</button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    -->
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <label>For dates:</label>
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <input
+                                                        class="date-range-start form-control"
+                                                        value="2015-01-01"/>
+                                                    <span class="input-group-addon">to</span>
+                                                    <input
+                                                      class="date-range-end form-control"
+                                                      value="2015-01-31"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <!-- Query view -->
+                            <!-- Query view -->
+                            <div id="lorem" class="query-view col-sm-4">
+                                <div class="query-view-content">
+                                    <div class="row">
+                                        <div class="col-sm-8">
+                                            <h3><span class="glyphicon glyphicon-certificate query-color"></span> Open Internet</h3>
+                                        </div>
+                                        <div class="query-controls col-sm-4">
+                                            <a href=""><span class="glyphicon glyphicon-edit"></span></a>&nbsp;
+                                            <a href=""><span class="glyphicon glyphicon-duplicate"></span></a>&nbsp;
+                                            <a href=""><span class="glyphicon glyphicon-remove"></a></span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <label>Search for:</label>
+                                            <div class="keyword-view form-group">
+                                                <input type="text" class="keyword-view-keywords form-control" placeholder="keywords" value="&quot;open internet&quot;">
+                                            </div>
+                                        </div>
+                                    </div>
+        
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <label>In media:</label>
+                                            <ul class="list-group">
+                                                <li class="list-group-item">Collections: U.S. Mainstream Media</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <!--
+                                    <div class="row">
+                                        <div class="col-sm-12 add-more">
+                                            <a href="">add more</a>
+                                        </div>
+                                    </div>
+                                    -->
+                                    <div class="row">
+                                        <div class="col-sm-12 simple-tag-select-view">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <input placeholder="add media" type="text" class="simple-tag-input form-control" autocomplete="off" size="50"/>
+                                                    <span class="input-group-btn">
+                                                        <button class="btn btn-default">+</button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <label>For dates:</label>
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <input
+                                                        class="date-range-start form-control"
+                                                        value="2015-01-01"/>
+                                                    <span class="input-group-addon">to</span>
+                                                    <input
+                                                      class="date-range-end form-control"
+                                                      value="2015-01-31"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <!-- Query view -->
+                            <!-- Query view -->
+                            <div id="lorem" class="query-view col-sm-4">
+                                <div class="query-view-content">
+                                    <div class="row">
+                                        <div class="col-sm-8">
+                                            <h3><span class="glyphicon glyphicon-certificate query-color"></span> Title II</h3>
+                                        </div>
+                                        <div class="query-controls col-sm-4">
+                                            <a href=""><span class="glyphicon glyphicon-edit"></span></a>&nbsp;
+                                            <a href=""><span class="glyphicon glyphicon-duplicate"></span></a>&nbsp;
+                                            <a href=""><span class="glyphicon glyphicon-remove"></a></span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <label>Search for:</label>
+                                            <div class="keyword-view form-group">
+                                                <input type="text" class="keyword-view-keywords form-control" placeholder="keywords" value="&quot;title ii&quot;">
+                                            </div>
+                                        </div>
+                                    </div>
+        
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <label>In media:</label>
+                                            <ul class="list-group">
+                                                <li class="list-group-item">Collections: U.S. Mainstream Media</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 add-more">
+                                            <a href="">add more</a>
+                                        </div>
+                                    </div>
+                                    <!--
+                                    <div class="row">
+                                        <div class="col-sm-12 simple-tag-select-view">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <input placeholder="add media" type="text" class="simple-tag-input form-control" autocomplete="off" size="50"/>
+                                                    <span class="input-group-btn">
+                                                        <button class="btn btn-default">+</button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    -->
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <label>For dates:</label>
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <input
+                                                        class="date-range-start form-control"
+                                                        value="2015-01-01"/>
+                                                    <span class="input-group-addon">to</span>
+                                                    <input
+                                                      class="date-range-end form-control"
+                                                      value="2015-01-31"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <!-- Query view -->
+                            <!-- Query view -->
+                            <div id="lorem" class="query-view col-sm-4">
+                                <div class="query-view-content">
+                                    <div class="row">
+                                        <div class="col-sm-8">
+                                            <h3><span class="glyphicon glyphicon-certificate query-color"></span> Common Carrier</h3>
+                                        </div>
+                                        <div class="query-controls col-sm-4">
+                                            <a href=""><span class="glyphicon glyphicon-edit"></span></a>&nbsp;
+                                            <a href=""><span class="glyphicon glyphicon-duplicate"></span></a>&nbsp;
+                                            <a href=""><span class="glyphicon glyphicon-remove"></a></span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <label>Search for:</label>
+                                            <div class="keyword-view form-group">
+                                                <input type="text" class="keyword-view-keywords form-control" placeholder="keywords" value="&quot;common carrier&quot;">
+                                            </div>
+                                        </div>
+                                    </div>
+        
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <label>In media:</label>
+                                            <ul class="list-group">
+                                                <li class="list-group-item">Collections: U.S. Mainstream Media</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 add-more">
+                                            <a href="">add more</a>
+                                        </div>
+                                    </div>
+                                    <!--
+                                    <div class="row">
+                                        <div class="col-sm-12 simple-tag-select-view">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <input placeholder="add media" type="text" class="simple-tag-input form-control" autocomplete="off" size="50"/>
+                                                    <span class="input-group-btn">
+                                                        <button class="btn btn-default">+</button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    -->
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <label>For dates:</label>
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <input
+                                                        class="date-range-start form-control"
+                                                        value="2015-01-01"/>
+                                                    <span class="input-group-addon">to</span>
+                                                    <input
+                                                      class="date-range-end form-control"
+                                                      value="2015-01-31"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <!-- Query view -->
+                            <!-- Query view -->
+                            <div id="lorem" class="query-view col-sm-4">
+                                <div class="query-view-content">
+                                    <div class="row">
+                                        <div class="col-sm-8">
+                                            <h3><span class="glyphicon glyphicon-certificate query-color"></span> Slow Lane</h3>
+                                        </div>
+                                        <div class="query-controls col-sm-4">
+                                            <a href=""><span class="glyphicon glyphicon-edit"></span></a>&nbsp;
+                                            <a href=""><span class="glyphicon glyphicon-duplicate"></span></a>&nbsp;
+                                            <a href=""><span class="glyphicon glyphicon-remove"></a></span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <label>Search for:</label>
+                                            <div class="keyword-view form-group">
+                                                <input type="text" class="keyword-view-keywords form-control" placeholder="keywords" value="&quot;slow lane&quot;">
+                                            </div>
+                                        </div>
+                                    </div>
+        
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <label>In media:</label>
+                                            <ul class="list-group">
+                                                <li class="list-group-item">Collections: U.S. Mainstream Media</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 add-more">
+                                            <a href="">add more</a>
+                                        </div>
+                                    </div>
+                                    <!--
+                                    <div class="row">
+                                        <div class="col-sm-12 simple-tag-select-view">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <input placeholder="add media" type="text" class="simple-tag-input form-control" autocomplete="off" size="50"/>
+                                                    <span class="input-group-btn">
+                                                        <button class="btn btn-default">+</button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    -->
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <label>For dates:</label>
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <input
+                                                        class="date-range-start form-control"
+                                                        value="2015-01-01"/>
+                                                    <span class="input-group-addon">to</span>
+                                                    <input
+                                                      class="date-range-end form-control"
+                                                      value="2015-01-31"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <!-- Query view -->
+                            <!-- Query view -->
+                            <div id="lorem" class="query-view col-sm-4">
+                                <div class="query-view-content">
+                                    <div class="row">
+                                        <div class="col-sm-8">
+                                            <h3><span class="glyphicon glyphicon-certificate query-color"></span> FCC</h3>
+                                        </div>
+                                        <div class="query-controls col-sm-4">
+                                            <a href=""><span class="glyphicon glyphicon-edit"></span></a>&nbsp;
+                                            <a href=""><span class="glyphicon glyphicon-duplicate"></span></a>&nbsp;
+                                            <a href=""><span class="glyphicon glyphicon-remove"></a></span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <label>Search for:</label>
+                                            <div class="keyword-view form-group">
+                                                <input type="text" class="keyword-view-keywords form-control" placeholder="keywords" value="&quot;fcc&quot;">
+                                            </div>
+                                        </div>
+                                    </div>
+        
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <label>In media:</label>
+                                            <ul class="list-group">
+                                                <li class="list-group-item">Collections: U.S. Mainstream Media</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 add-more">
+                                            <a href="">add more</a>
+                                        </div>
+                                    </div>
+                                    <!--
+                                    <div class="row">
+                                        <div class="col-sm-12 simple-tag-select-view">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <input placeholder="add media" type="text" class="simple-tag-input form-control" autocomplete="off" size="50"/>
+                                                    <span class="input-group-btn">
+                                                        <button class="btn btn-default">+</button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    -->
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <label>For dates:</label>
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <input
+                                                        class="date-range-start form-control"
+                                                        value="2015-01-01"/>
+                                                    <span class="input-group-addon">to</span>
+                                                    <input
+                                                      class="date-range-end form-control"
+                                                      value="2015-01-31"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <!-- Query view -->
+                            
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-1 query-pager right">
+                        <button type="button" class="btn btn-default query-nav" onclick="updateQueries(1);">&raquo;</button>
+                    </div>
+                </div>
+                <div class="submit-row row">
+                    <div class="col-sm-12">
+                        <div class="form-group last-element">
+                            <button type="submit" class="btn btn-primary">Query</button>
+                        </div>
+                    </div>                    
+                </div>
+            </form>
+        </div>
+    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <h3>About Media Meter</h3>
+                        <p>
+What was covered in the news this week? Did the issues you care about get the
+attention you think they deserved? Did the media talk about these topics in the
+way you want them to? Who set the narrative for the current breaking story?
+                        </p>
+                        <p>
+<a href="http://mediameter.org">MediaMeter</a> is a suite of tools built on top of the 
+<a href="http://mediacloud.org">Media Cloud</a> online news database. A number of tools 
+make up the suite, all driven by a query you author to specify media sources, a date range, 
+and some keywords.
+                        </p>
+                    </div>
+                    <div class="col-sm-2 col-sm-offset-1">
+                        <h3>Contact</h3>
+<p>
+If you have feedback or questions, you can get in touch with us at
+<a href="mailto:mediameter@media.mit.edu">mediameter@media.mit.edu</a>.
+</p>
+<p>
+Please enter any bugs or <a href="https://github.com/c4fcm/MediaMeter-Dashboard/issues">issues on GitHub</a>.
+</p>
+                    </div>
+                    <div class="col-sm-4 col-sm-offset-1">
+                        <h3><a href="http://civic.mit.edu"><img class="img-responsive" src="static/core/img/civic.png"/></a></h3>
+                        <h3><a href="http://cyber.law.harvard.edu"><img class="img-responsive" src="static/core/img/berkman.png"/></a></h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="static/core/lib/jquery/js/jquery-2.1.1.min.js"></script>
+        <script type="text/javascript" src="static/core/lib/jquery/js/jquery.cookie-1.4.1.js"></script>
+        <script type="text/javascript" src="static/core/lib/underscore/underscore-1.6.0-min.js"></script>
+        <script type="text/javascript" src="static/core/lib/backbone/backbone-1.1.2-min.js"></script>
+        <script type="text/javascript" src="static/core/lib/bootstrap/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="static/core/lib/typeahead/typeahead.bundle.min.js"></script>
+        <script type="text/javascript" src="static/core/lib/datepicker/js/bootstrap-datepicker.js"></script>
+        <script type="text/javascript" src="static/core/lib/d3/js/d3-3.4.11.min.js"></script>
+        <script type="text/javascript" src="static/core/lib/d3-cloud/js/d3-cloud-civic.js"></script>
+        <script type="text/javascript" src="static/core/lib/persist/persist.js"></script>
+        <script type="text/javascript">
+var substringMatcher = function(strs) {
+  return function findMatches(q, cb) {
+    var matches, substrRegex;
+ 
+    // an array that will be populated with substring matches
+    matches = [];
+ 
+    // regex used to determine if a string contains the substring `q`
+    substrRegex = new RegExp(q, 'i');
+ 
+    // iterate through the pool of strings and for any string that
+    // contains the substring `q`, add it to the `matches` array
+    $.each(strs, function(i, str) {
+      if (substrRegex.test(str)) {
+        // the typeahead jQuery plugin expects suggestions to a
+        // JavaScript object, refer to typeahead docs for more info
+        matches.push({ value: str });
+      }
+    });
+ 
+    cb(matches);
+  };
+};
+
+var sources = [
+    "The Boston Globe",
+    "The Boston Herald",
+    "Boston Magazine",
+    "boston.com"
+];
+
+var tags = [
+    "Collections: U.S. Technoroti Political Blogs 2008",
+    "Collections: U.S. Yahoo Political Blogs 2008",
+    "Collections: Internet and Democracy Blogs",
+    "Collections: U.S. Popular Blogs",
+    "Collections: Tech Blogs"
+];
+$('.simple-tag-select-view input').typeahead({
+    hint: true,
+    highlight: false,
+    minLength: 1
+    },
+    {
+        name: 'tags',
+        displayKey: 'value',
+        source: substringMatcher(tags)
+    });
+$('.media-select-view input').typeahead({
+    hint: true,
+    highlight: false,
+    minLength: 1
+    },
+    {
+        name: 'tags',
+        displayKey: 'value',
+        source: substringMatcher(sources)
+    });
+$('.date-range-start').datepicker({format: 'yyyy-mm-dd'});
+$('.date-range-end').datepicker({format: 'yyyy-mm-dd'});
+
+$('.simple-tag-select-view input').on('typeahead:selected', function () {
+    $el = $(this);
+    setTimeout(function () {
+        $el.val('');
+    }, 0);
+    $el.parents('.query-view-content').find('.label').css('display', 'block');
+});
+
+var queryIndex = 0;
+var queryWidth = $('.reference .query-view').width();
+var carouselWidth = $('.query-views .query-carousel-window').width();
+var carouselPad = 2 * parseInt($('.query-carousel-window').css('padding-left')) + 2;
+var updateComplete = function () {
+    var queryPad = 2 * parseInt($('.reference .query-view').css('padding-left'));
+    toShow = Math.floor(carouselWidth / (queryWidth + queryPad));
+    $('.query-carousel-window')
+        .css('width', (toShow * (queryWidth + queryPad) + carouselPad) + 'px')
+        .css('float', 'left')
+        .css('left', Math.round((carouselWidth % (queryWidth + queryPad)) / 2) + 'px');
+    $('.query-pager.left')
+        .css('left', Math.round((carouselWidth % (queryWidth + queryPad)) / 2) + 'px');
+    $('.query-pager.right')
+        .css('left', '-' + Math.round((carouselWidth % (queryWidth + queryPad)) / 2) + 'px');
+    $('.query-views .query-view').width(queryWidth + 'px');    
+    var queries = $('.query-views .query-view');
+    for (var i = 0; i < queryIndex; i++) {
+        $(queries.get(i)).removeClass('visible')
+    }
+    for (i = queryIndex; i < Math.min(queryIndex + toShow, 6); i++) {
+        $(queries.get(i)).addClass('visible');
+    }
+    for (i = queryIndex + toShow; i < 6; i++) {
+        $(queries.get(i)).removeClass('visible');
+    }
+};
+var updateQueries = function (change) {
+    var queries = $('.query-views .query-view');
+    var visQueries = queries.filter(":visible");
+    var width = visQueries.width();
+    var margin = parseInt(visQueries.css('padding-left')) * 2;
+    var queryWidth = $('.reference .query-view').width();
+    var queryPad = 2 * parseInt($('.reference .query-view').css('padding-left'));
+    toShow = Math.floor(carouselWidth / (queryWidth + queryPad));
+    if (typeof(change) != "undefined" && change > 0 && queryIndex < queries.length - toShow) {
+        var rightIndex = queryIndex + toShow;
+        $('.query-carousel-window').css('overflow', 'hidden');
+        $(queries[rightIndex])
+            .css('margin-right', '-100%')
+            .addClass('visible');
+        $('.query-views .query-carousel').animate({
+            'left': "-" + (width + margin) + "px"
+        }, 250, null, function () {
+            console.log('positive chagne done');
+            $('.query-carousel-window').css('overflow', 'visible');
+            $(queries[rightIndex]).css('margin-right', '0');
+            queryIndex += change;
+            queryIndex = Math.max(queryIndex, 0);
+            queryIndex = Math.min(queryIndex, 3);
+            $('.query-carousel').css('left', '0');
+            updateComplete();
+        });
+    } else if (typeof(change) != "undefined" && change < 0 && queryIndex > 0) {
+        var rightIndex = queryIndex + toShow - 1;
+        var leftIndex = queryIndex - 1;
+        $('.query-carousel-window').css('overflow', 'hidden');
+        $(queries[rightIndex])
+            .css('margin-right', '-100%');
+        $(queries[leftIndex])
+            .addClass('visible');
+        $('.query-carousel').css('left', "-" + (width + margin) + "px");
+        $('.query-views .query-carousel').animate({
+            'left': "0"
+        }, 250, null, function () {
+            $('.query-carousel-window').css('overflow', 'visible');
+            $(queries[rightIndex]).css('margin-right', '0');
+            queryIndex += change;
+            queryIndex = Math.max(queryIndex, 0);
+            queryIndex = Math.min(queryIndex, 3);
+            updateComplete();
+        });
+    }
+};
+updateComplete();
+        </script>
+    </body>
+</html>

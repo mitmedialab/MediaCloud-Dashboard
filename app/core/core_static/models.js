@@ -276,8 +276,6 @@ App.TagModel = Backbone.Model.extend({
     initialize: function (options) {},
     clone: function () {
         var cloneModel = new App.TagModel();
-        cloneModel.set('tags_id', this.get('tags_id'));
-        cloneModel.set('tag_sets_id', this.get('tag_sets_id'));
         cloneModel.set('tag', this.get('tag'));
         cloneModel.set('label', this.get('label'));
         return cloneModel;
@@ -286,38 +284,6 @@ App.TagModel = Backbone.Model.extend({
         return (this.get('label')!=null) ? this.get('label') : this.get('tag');
     }
 });
-
-App.TagCollection = Backbone.Collection.extend({
-    model: App.TagModel,
-    initialize: function (options) {
-    },
-    getSuggestions: function () {
-        App.debug('TagCollection.getSuggestions()');
-        if (!this.suggest) {
-            App.debug('Creating new suggestion engine');
-            var suggest = new Bloodhound({
-                datumTokenizer: function (d) {
-                    return Bloodhound.tokenizers.whitespace(d.label);
-                },
-                queryTokenizer: Bloodhound.tokenizers.whitespace,
-                local: this.toJSON()
-            });
-            suggest.initialize();
-            this.suggest = suggest;
-        } else {
-            App.debug('Reusing suggestion engine');
-        }
-        return this.suggest;
-    },
-    clone: function () {
-        var cloneCollection = new App.TagCollection();
-        this.each(function (m) {
-            cloneCollection.add(m.clone());
-        });
-        return cloneCollection;
-    }
-});
-App.TagCollection = App.TagCollection.extend(App.DeferredCollectionMixin);
 
 App.SimpleTagModel = Backbone.Model.extend({
     urlRoot: '/api/media/tags/single',
@@ -374,35 +340,16 @@ App.TagSetModel = App.NestedModel.extend({
     url: '/api/tag_sets/single',
     idAttribute: 'tag_sets_id',
     attributeModels: {
-        'tags': App.TagCollection
+        'tags': App.SimpleTagCollection
     },
     initialize: function (options) {
         if (!this.get('tags')) {
             // TODO this should be moved into defaults
-            this.set('tags', new App.TagCollection());
+            this.set('tags', new App.SimpleTagCollection());
         }
     },
-    clone: function () {
-        newModel = this.cloneEmpty();
-        newModel.set('tags', this.get('tags').clone());
-        return newModel;
-    },
-    cloneEmpty: function () {
-        newModel = new App.TagSetModel();
-        newModel.set('tag_sets_id', this.get('tag_sets_id'));
-        newModel.set('name', this.get('name'));
-        newModel.set('label', this.get('label'));
-        return newModel;
-    },
-    getLabel: function(){
+    getLabel: function() {
         return (this.get('label')!=null) ? this.get('label') : this.get('name');
-    },
-    queryParam: function () {
-        qp = {
-            tag_sets_id: this.get('tag_sets_id')
-            , tags_id: this.get('tags').pluck('tags_id')
-        }
-        return qp;
     }
 });
 
@@ -425,16 +372,6 @@ App.TagSetCollection = Backbone.Collection.extend({
             this.suggest.initialize();
         }
         return this.suggest;
-    },
-    queryParam: function () {
-        return this.map(function (m) { return m.queryParam(); });
-    },
-    clone: function () {
-        var cloneCollection = new App.TagSetCollection();
-        this.each(function (m) {
-            cloneCollection.add(m.clone());
-        });
-        return cloneCollection;
     }
 })
 App.TagSetCollection = App.TagSetCollection.extend(App.DeferredCollectionMixin);
@@ -446,7 +383,6 @@ App.MediaModel = App.NestedModel.extend({
     urlRoot: '/api/media',
     attributeModels: {
         sources: App.MediaSourceCollection
-        , tag_sets: App.TagSetCollection
         , tags: App.SimpleTagCollection
     },
     initialize: function () {
@@ -454,7 +390,6 @@ App.MediaModel = App.NestedModel.extend({
         this.syncDone = $.Deferred();
         var that = this;
         this.set('sources', new App.MediaSourceCollection());
-        this.set('tag_sets', new App.TagSetCollection());
         this.set('tags', new App.SimpleTagCollection());
         this.deferred = $.Deferred();
         this.deferred.resolve();
@@ -465,17 +400,6 @@ App.MediaModel = App.NestedModel.extend({
         App.debug("MediaModel.onSync");
         var that = this;
         App.debug(this);
-        // turn the tag_sets info from the server into tags information
-        this.get('tag_sets').each(function(tagSet){
-            tagSet.get('tags').each(function(tag){
-                that.get('tags').add(new App.SimpleTagModel({
-                    'id': tag.get('tags_id'),
-                    'tag_sets_id': tagSet.get('tag_sets_id'),
-                    'label': tag.get('label'),
-                    'tag_set_label': tagSet.get('label')
-                }));
-            });
-        });
         this.syncDone.resolve();
     },
     clone: function () {
@@ -485,7 +409,6 @@ App.MediaModel = App.NestedModel.extend({
             cloneModel.get('sources').add(m);
         });
         cloneModel.set('tags', this.get('tags').clone());
-        cloneModel.set('tag_sets', this.get('tag_sets').clone());
         cloneModel.deferred.resolve();
         return cloneModel;
     },
@@ -521,20 +444,11 @@ App.MediaModel = App.NestedModel.extend({
         // Map path to model
         // Return a copy of this media model containing a subset of the
         // sources and sets according to an object like:
-        // {sources:[1],tags:[{'tag_sets_id:23', 'tags_id:[4,5]'}]}
+        // {sources:[1],sets:[4]}
+        // "sources" contains media source ids. "sets" contains media tag ids.
         App.debug('App.MediaModel.subset()');
         var that = this;
         media = new App.MediaModel();
-        // Copy the source/tag from this MediaModel to a new one
-        _.each(o.tags, function (tagParam) {
-            var set = that.get('tag_sets').get(tagParam.tag_sets_id);
-            var newSet = set.cloneEmpty();
-            media.get('tag_sets').add(newSet);
-            _.each(tagParam.tags_id, function (id) {
-                var cloneTag = set.get('tags').get(id).clone();
-                newSet.get('tags').add(cloneTag);
-            });
-        });
         _.each(o.sets, function(id){
             var tag = that.get('tags').get({id:id});
             media.get('tags').add(tag);

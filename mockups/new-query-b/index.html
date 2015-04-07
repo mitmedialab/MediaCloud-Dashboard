@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Media Meter Dashboard</title>
+        <link rel="stylesheet" type="text/css" href="static/core/lib/bootstrap/css/bootstrap.min.css"/>
+        <link rel="stylesheet" type="text/css" href="static/core/lib/typeahead.js-bootstrap/typeahead.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,700" type="text/css">
+        <link rel="stylesheet" type="text/css" href="static/core/mediameter.css"/>
+        <link rel="stylesheet" type="text/css" href="static/dashboard/style.css"/>
+    </head>
+    <body>
+        <div class="header">
+            <div class="brand-toolbar">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-8 links"></div>
+                        <div class="col-sm-4 controls"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="branding">
+                <div class="container">
+                    <h1>
+                        <a href="http://dashboard.mediameter.org/"><img src="static/core/img/mm-logo-65-orange.png" /></a>
+                        <strong>Media Meter</strong>
+                        Dashboard
+                        <small class="pull-right">Powered by <a href="http://mediacloud.org">Media Cloud</a></small>
+                    </h1>
+                </div>
+            </div>
+            <div class="app-toolbar">
+                <div class="container">
+                </div>
+            </div>
+        </div>
+        <div class="drawer">
+            <div class="container">
+            </div>
+        </div>
+        <div class="messages">
+            <div class="container">
+            </div>
+        </div>
+        <div class="content">
+            <div class="container">
+    <div class="panel panel-default" id="query-list">
+        <div class="panel-heading">
+            <h2 class="panel-title">Query builder</h2>
+        </div>
+        <div class="query-list-view-content panel-body">
+            <div class="messages"></div>
+            <form role="form">
+                <div class="query-views">
+                    <!-- Query view -->
+                    <div id="lorem" class="tab-pane fade in active">
+                        <div class="query-view-content">
+                            <div class="row">
+                                <div class="col-sm-2">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <h3 class="query-title">
+                                                Base Query
+                                                &nbsp;
+                                                <a class="edit" href=""><span class="glyphicon glyphicon-edit"></span></a>
+                                            </h3>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                <span class="glyphicon glyphicon-plus"></span>
+                                                &nbsp
+                                                Comparison
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li><a href="#" onclick="$('.query-view').show(); return false;">Keyword</a></li>
+                                                <li><a href="#" onclick="$('.query-view').show(); return false;">Date</a></li>
+                                                <li><a href="#" onclick="$('.query-view').show(); return false;">Source</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-10">
+                                    <div class="row">
+                                        <div class="keyword-view form-group col-sm-12">
+                                            <div class="input-group">
+                                                <input type="text" class="keyword-view-keywords form-control" placeholder="keywords">
+                                                <span class="input-group-btn">
+                                                    <button tabindex="-1" class="btn btn-default" type="button">?</button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="simple-tag-select-view col-sm-6 form-group">
+                                            <div class="input-group">
+                                                <input placeholder="media" type="text" class="simple-tag-input form-control" autocomplete="off" size="50"/>
+                                                <span class="input-group-btn">
+                                                    <button tabindex="-1" class="btn btn-default" type="button">+</button>
+                                                    <button tabindex="-1" class="btn btn-default" type="button">?</button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3 form-group">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">from</span>
+                                                <input
+                                                    class="date-range-start form-control"
+                                                    value="2015-01-01"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3 form-group">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">to</span>
+                                                <input
+                                                  class="date-range-end form-control"
+                                                  value="2015-01-31"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="simple-tag-list-view col-sm-12">
+                                            <div class="form-group">
+                                                <div class="simple-tag-list-view-content">
+                                                    <span class="label label-default">
+                                            Collections: U.S. Mainstream Media
+                                            &nbsp;
+                                            <a tabindex="-1" class="remove" href=""><span class="glyphicon glyphicon-remove-circle"></span></a>
+                                                    </span>
+                                                    <span class="label label-default" style="display:none">
+                                            Collections: U.S. Popular Blogs
+                                            &nbsp;
+                                            <a tabindex="-1" class="remove" href=""><span class="glyphicon glyphicon-remove-circle"></span></a>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    
+                    <!-- Query view -->
+                    <div class="col-sm-3 query-view first-query">
+                        <div class="row">
+                            <h3 class="query-title">Lorem</span>
+                            &nbsp;
+                            <a class="edit" href=""><span class="glyphicon glyphicon-edit"></span></a>
+                            &nbsp;
+                            <a class="delete" href=""><span class="glyphicon glyphicon-remove-circle"></span></a>
+                        </div>
+                        <div class="row form-group">
+                            <div class="input-group">
+                                <input type="text" class="keyword-view-keywords form-control" placeholder="keywords" value="foo">
+                                <span class="input-group-btn">
+                                    <button tabindex="-1" class="btn btn-default" type="button">?</button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-sm-offset-1 query-view second-query">
+                        <div class="row">
+                            <h3 class="query-title">Ipsum</span>
+                            &nbsp;
+                            <a class="edit" href=""><span class="glyphicon glyphicon-edit"></span></a>
+                            &nbsp;
+                            <a class="delete" href=""><span class="glyphicon glyphicon-remove-circle"></span></a>
+                        </div>
+                        <div class="row form-group">
+                            <div class="input-group">
+                                <input type="text" class="keyword-view-keywords form-control" placeholder="keywords" value="bar">
+                                <span class="input-group-btn">
+                                    <button tabindex="-1" class="btn btn-default" type="button">?</button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-sm-offset-1 query-view third-query" style="display:none">
+                        <div class="row">
+                            <h3 class="query-title">Dolor</span>
+                            &nbsp;
+                            <a class="edit" href=""><span class="glyphicon glyphicon-edit"></span></a>
+                            &nbsp;
+                            <a class="delete" href=""><span class="glyphicon glyphicon-remove-circle"></span></a>
+                        </div>
+                        <div class="row form-group">
+                            <div class="input-group">
+                                <input type="text" class="keyword-view-keywords form-control" placeholder="keywords" value="baz">
+                                <span class="input-group-btn">
+                                    <button tabindex="-1" class="btn btn-default" type="button">?</button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group last-element">
+                            <button type="submit" class="btn btn-primary">Query</button>
+                        </div>
+                    </div>                    
+                </div>
+            </form>
+        </div>
+    </div>
+            </div>
+        </div>
+        <div class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <h3>About Media Meter</h3>
+                        <p>
+What was covered in the news this week? Did the issues you care about get the
+attention you think they deserved? Did the media talk about these topics in the
+way you want them to? Who set the narrative for the current breaking story?
+                        </p>
+                        <p>
+<a href="http://mediameter.org">MediaMeter</a> is a suite of tools built on top of the 
+<a href="http://mediacloud.org">Media Cloud</a> online news database. A number of tools 
+make up the suite, all driven by a query you author to specify media sources, a date range, 
+and some keywords.
+                        </p>
+                    </div>
+                    <div class="col-sm-2 col-sm-offset-1">
+                        <h3>Contact</h3>
+<p>
+If you have feedback or questions, you can get in touch with us at
+<a href="mailto:mediameter@media.mit.edu">mediameter@media.mit.edu</a>.
+</p>
+<p>
+Please enter any bugs or <a href="https://github.com/c4fcm/MediaMeter-Dashboard/issues">issues on GitHub</a>.
+</p>
+                    </div>
+                    <div class="col-sm-4 col-sm-offset-1">
+                        <h3><a href="http://civic.mit.edu"><img class="img-responsive" src="static/core/img/civic.png"/></a></h3>
+                        <h3><a href="http://cyber.law.harvard.edu"><img class="img-responsive" src="static/core/img/berkman.png"/></a></h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="static/core/lib/jquery/js/jquery-2.1.1.min.js"></script>
+        <script type="text/javascript" src="static/core/lib/jquery/js/jquery.cookie-1.4.1.js"></script>
+        <script type="text/javascript" src="static/core/lib/underscore/underscore-1.6.0-min.js"></script>
+        <script type="text/javascript" src="static/core/lib/backbone/backbone-1.1.2-min.js"></script>
+        <script type="text/javascript" src="static/core/lib/bootstrap/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="static/core/lib/typeahead/typeahead.bundle.min.js"></script>
+        <script type="text/javascript" src="static/core/lib/datepicker/js/bootstrap-datepicker.js"></script>
+        <script type="text/javascript" src="static/core/lib/d3/js/d3-3.4.11.min.js"></script>
+        <script type="text/javascript" src="static/core/lib/d3-cloud/js/d3-cloud-civic.js"></script>
+        <script type="text/javascript">
+var substringMatcher = function(strs) {
+  return function findMatches(q, cb) {
+    var matches, substrRegex;
+ 
+    // an array that will be populated with substring matches
+    matches = [];
+ 
+    // regex used to determine if a string contains the substring `q`
+    substrRegex = new RegExp(q, 'i');
+ 
+    // iterate through the pool of strings and for any string that
+    // contains the substring `q`, add it to the `matches` array
+    $.each(strs, function(i, str) {
+      if (substrRegex.test(str)) {
+        // the typeahead jQuery plugin expects suggestions to a
+        // JavaScript object, refer to typeahead docs for more info
+        matches.push({ value: str });
+      }
+    });
+ 
+    cb(matches);
+  };
+};
+
+var sources = [
+    "The Boston Globe",
+    "The Boston Herald",
+    "Boston Magazine",
+    "boston.com"
+];
+
+var tags = [
+    "Collections: U.S. Technoroti Political Blogs 2008",
+    "Collections: U.S. Yahoo Political Blogs 2008",
+    "Collections: Internet and Democracy Blogs",
+    "Collections: U.S. Popular Blogs",
+    "Collections: Tech Blogs"
+];
+
+$('.simple-tag-select-view input').typeahead({
+    hint: true,
+    highlight: false,
+    minLength: 1
+    },
+    {
+        name: 'tags',
+        displayKey: 'value',
+        source: substringMatcher(tags)
+    });
+$('.media-select-view input').typeahead({
+    hint: true,
+    highlight: false,
+    minLength: 1
+    },
+    {
+        name: 'tags',
+        displayKey: 'value',
+        source: substringMatcher(sources)
+    });
+$('.date-range-start').datepicker({format: 'yyyy-mm-dd'});
+$('.date-range-end').datepicker({format: 'yyyy-mm-dd'});
+
+$('.simple-tag-select-view input').on('typeahead:selected', function () {
+    $el = $(this);
+    setTimeout(function () {
+        $el.val('');
+    }, 0);
+    $el.parents('.query-view-content').find('.label').css('display', 'block');
+});
+        </script>
+    </body>
+</html>

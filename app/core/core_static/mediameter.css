@@ -32,6 +32,17 @@ svg {
     margin: 0;
 }
 
+.reference {
+    height: 1px;
+    margin-bottom: -1px;
+    overflow: hidden;
+    visibility: hidden;
+}
+
+.visible {
+    display: block !important;
+}
+
 /* Brand Style ****************************************************************/
 
 .brand-toolbar {
@@ -49,6 +60,37 @@ svg {
 .btn-primary {
     background: #e14c11;
     color: #fff;
+}
+
+li:first-child .query-color,
+.query-container > :first-child .query-color
+{
+    color: #e14c11;
+}
+li:nth-child(2) .query-color,
+.query-container > :nth-child(2) .query-color
+{
+    color: #249fc9;  
+}
+li:nth-child(3) .query-color,
+.query-container > :nth-child(3) .query-color
+{
+    color: #ffab26;
+}
+li:nth-child(4) .query-color,
+.query-container > :nth-child(4) .query-color
+{
+    color: #14c11e;
+}
+li:nth-child(5) .query-color,
+.query-container > :nth-child(5) .query-color
+{
+    color: #49fc92;  
+}
+li:nth-child(6) .query-color,
+.query-container > :nth-child(6) .query-color
+{
+    color: #fab26f;
 }
 
 /* Layout *********************************************************************/
@@ -263,9 +305,73 @@ input.form-control, select.form-control, textarea.form-control {
 .query-views .query-title {
     margin-top: 0;
 }
-.query-views > div {
+.query-views .form-group
+{
+    margin-bottom: 6px;
+}
+.query-views .label {
+    padding: 2px 5px 1px 5px;
+}
+
+.simple-tag-list-view-content {
+    overflow: hidden;
+    padding-bottom: 4px;
+}
+.query-carousel-window {
+    position: relative;
+}
+.query-carousel {
+    position: relative;
+    left: 0;
+}
+.query-pager {
+    text-align: center;
+}
+.query-pager button {
+    margin-top: 10em;
+}
+.query-pager.left {
+    text-align: right;
+    position: relative;
+    z-index:2;
+}
+.query-pager.right {
+    text-align: left;
+    position: relative;
+}
+.submit-row {
+    margin-bottom: 15px;
+}
+.query-views {
     border-bottom: solid 1px #ccc;
     margin-bottom: 20px;
+}
+.query-view {
+    display: none;
+}
+.reference .query-view {
+    display: block;
+}
+li .query-title {
+    font-weight: bold;
+}
+.nav > li > a.edit {
+    display: inline;
+}
+.query-view-content h3 {
+    margin-top: 0;
+}
+.query-controls {
+    text-align: right;
+}
+.query-view label {
+    font-weight: normal;
+    font-style: italic;
+}
+.query-view .add-more {
+    margin-top: -20px;
+    padding-bottom: 6px;
+    text-align: center;
 }
 .keyword-view label {
     display: block;
@@ -274,6 +380,15 @@ input.form-control, select.form-control, textarea.form-control {
 .keyword-view .form-help {
     display: block;
     float: right;
+}
+.media-list-view .list-group-item {
+    position: relative;
+    padding-right: 45px;
+}
+.media-list-view a.remove {
+    position: absolute;
+    top: 10px;
+    right: 15px;
 }
 .media-select-view span.explore,
 .simple-tag-select-view span.explore {
@@ -316,12 +431,14 @@ input.form-control, select.form-control, textarea.form-control {
 .tag-set-explore-view p {
     margin-top: 10px;
 }
-.first-query, .first-query a {
-    color: #e14c11;
+
+/* Persistent header, see: https://css-tricks.com/persistent-headers/ */
+.floating-header {
+    position: fixed;
+    top: 0;
+    visibility: hidden;
 }
-.second-query, .second-query a {
-    color: #249fc9;
-}
+/* End persistent header */
 
 /* Sub-Brand styles ***************************************************/
 
@@ -334,4 +451,3 @@ input.form-control, select.form-control, textarea.form-control {
 .frequency-color {
     background-color: rgb(85,134,138);
 }
-
