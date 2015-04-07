@@ -99,6 +99,7 @@ App.con = App.Controller = {
         App.debug('Route: login');
         App.con.loginView = App.con.vm.getView(App.LoginView, { model: App.con.userModel });
         App.con.vm.showView(App.con.loginView);
+        App.con.queryVm.showViews([]);
     },
     
     routeHome: function () {
@@ -143,10 +144,12 @@ App.con = App.Controller = {
             }
         );
         App.con.queryCollection.on('execute', App.con.onQuery, this);
+        App.debug("Showing query list");
         App.con.queryVm.showViews([
             App.con.errorListView
             , App.con.queryListView
         ]);
+        App.con.vm.showViews([]);
     },
     
     routeDemo: function () {
@@ -229,7 +232,6 @@ App.con = App.Controller = {
             });
         }
         if (!App.con.userModel.get('authenticated')) {
-            console.log('--')
             App.con.router.navigate('login', true);
             return;
         }
@@ -261,7 +263,7 @@ App.con = App.Controller = {
                 });
             });
             App.con.queryCollection.execute();
-            App.con.queryListView = App.con.vm.getView(
+            App.con.queryListView = App.con.queryVm.getView(
                 App.QueryListView
                 , {
                     collection: App.con.queryCollection
