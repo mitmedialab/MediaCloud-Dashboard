@@ -9,13 +9,15 @@ _.extend(App.Controller, {
             { collection: queryCollection },
             true
         );
-        var errorListView = App.con.vm.getView(
+        var errorListView = App.con.queryVm.getView(
             App.ErrorListView,
             { collection: App.con.getErrorCollection() }
         );
-        App.con.vm.showViews([
+        App.con.queryVm.showViews([
             errorListView
             , App.con.queryListView
+        ]);
+        App.con.vm.showViews([
             , resultView
         ]);
         resultView.render();
@@ -182,14 +184,11 @@ _.extend(App.Controller, {
             mediaSources: App.con.mediaSources
         };
         var queryCollection = new App.QueryCollection([], opts);
-        console.log(queryCollection.length);
         var queryModel = new App.QueryModel({}, opts);
         queryCollection.add(queryModel);
-        console.log(queryCollection.length);
         var datecounts = queryModel.get('results').get('datecounts')
         datecounts.url = '/static/data/test/datecounts.json';
         datecounts.fetch({ parse:true });
-        console.log(queryCollection.length);
         var histogramView = new App.HistogramView({collection:queryCollection});
         App.con.vm.showViews([
             histogramView
@@ -211,7 +210,7 @@ _.extend(App.Controller, {
 
         wordcounts.fetch({
             parse:true
-            , success:function (collection) { console.log(collection); }
+            , success:function (collection) { }
         });
         var wordCountView = new App.DebugWordCountView({collection:queryCollection});
         App.con.vm.showViews([
@@ -236,7 +235,7 @@ _.extend(App.Controller, {
         wordcounts.url = '/static/data/test/wordcounts.json';
         wordcounts.fetch({
             parse:true
-            , success:function (collection) { console.log(collection); }
+            , success:function (collection) { }
         });
         var queryModel2 = new App.QueryModel({}, opts);
         queryCollection.add(queryModel2);
@@ -246,7 +245,7 @@ _.extend(App.Controller, {
 
         wordcounts2.fetch({
             parse:true
-            , success:function (collection) { console.log(collection); }
+            , success:function (collection) { }
         });
 
         var wordCountView = new App.WordCountComparisonView({collection:queryCollection

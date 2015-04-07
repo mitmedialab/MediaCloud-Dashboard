@@ -506,6 +506,10 @@ App.QueryListView = App.NestedView.extend({
         var queries = this.$('.query-view');
         var queryPad = 2 * parseInt($('.reference .query-view').css('padding-left'));
         toShow = Math.floor(this.carouselWidth / (this.queryWidth + queryPad));
+        console.log(this.carouselWidth);
+        console.log(this.queryWidth);
+        console.log(queryPad);
+        console.log(toShow);
         $('.query-carousel-window')
             .css('width', (toShow * (this.queryWidth + queryPad) + this.carouselPad) + 'px')
             .css('float', 'left')
