@@ -35,6 +35,7 @@ App.ViewManager.prototype = {
     initialize: function (options) {
         this.views = [];
         this.viewMap = {};
+        this.options = _.clone(App.ViewManager.prototype.options);
         this.options = _.extend(this.options, options);
     },
     closeView: function (view) {
