@@ -506,10 +506,6 @@ App.QueryListView = App.NestedView.extend({
         var queries = this.$('.query-view');
         var queryPad = 2 * parseInt($('.reference .query-view').css('padding-left'));
         toShow = Math.floor(this.carouselWidth / (this.queryWidth + queryPad));
-        console.log(this.carouselWidth);
-        console.log(this.queryWidth);
-        console.log(queryPad);
-        console.log(toShow);
         $('.query-carousel-window')
             .css('width', (toShow * (this.queryWidth + queryPad) + this.carouselPad) + 'px')
             .css('float', 'left')
@@ -778,7 +774,6 @@ App.MediaSelectView = App.NestedView.extend({
     },
     updateVisibility: function () {
         App.debug('App.MediaSelectView.updateVisibility()')
-        console.log(this.model);
         if (this.model.get('tags').length == 0 && this.model.get('sources').length == 0) {
             this.$('.add-more a').text("select media");
         } else {
@@ -807,8 +802,6 @@ App.MediaSelectView = App.NestedView.extend({
         if (event) { event.preventDefault(); }
         $('.media-input.tt-input', this.$el).typeahead('val', '');
         var $el = this.$el;
-        console.log('suggestion');
-        console.log(suggestion);
         if (suggestion.tags_id) {
             that.model.get('tags').add(suggestion);
         } else {
