@@ -52,7 +52,7 @@ App.ViewManager.prototype = {
      * constructor or create one if none exists.
      */
     getView: function (type, options, reuse) {
-        App.debug('App.Router.getView()');
+        App.debug('App.ViewManager.getView()');
         // Ensure the view lookup exits 
         if (!this.viewsByType) {
             this.viewsByType = {}
@@ -99,10 +99,11 @@ App.ViewManager.prototype = {
             }
         });
         // Replace active view list
-        $('.content').html();
+        $(this.options.selector).html();
         this.views = views;
+        that = this;
         _.each(this.views, function (v) {
-            $(this.options.selector).append(v.el);
+            $(that.options.selector).append(v.el);
         }, this);
     },
     showView: function (view) {
@@ -115,6 +116,6 @@ App.ViewManager.prototype = {
             this.views.push(view);
             this.viewMap[view.cid] = view;
         }
-        $('.content').append(view.el);
+        $(this.options.selector).append(view.el);
     }
 };
