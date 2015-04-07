@@ -109,9 +109,6 @@ App.con = App.Controller = {
         }
         // Defaults media
         App.con.mediaModel = new App.MediaModel();
-        //var tagSet = App.con.mediaSources.get('tag_sets').get(5).cloneEmpty();
-        //tagSet.get('tags').add(App.con.mediaSources.get('tag_sets').get(5).get('tags').get(8875027).clone());
-        //App.con.mediaModel.get('tag_sets').add(tagSet);
         App.con.mediaSources.get('tags').getDeferred(8875027).then(function (m) {
             App.con.mediaModel.get('tags').add(m);
         });
@@ -261,9 +258,6 @@ App.con = App.Controller = {
                 });
                 subset.get('tags').each(function(simpleTag){
                     mediaModel.get('tags').add(simpleTag);
-                });
-                subset.get('tag_sets').each(function (m) {
-                    mediaModel.get('tag_sets').add(m);
                 });
             });
             App.con.queryCollection.execute();

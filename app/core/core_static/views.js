@@ -757,18 +757,19 @@ App.MediaSelectView = App.NestedView.extend({
         that.render();
         if (!that.disabled) {
             App.debug('Creating typeahead');
-            $('.media-input', that.$el).typeahead(null, {
-                name: 'sources',
+            that.$('.media-input input').typeahead(null, {
+                name: 'Sources',
                 displayKey: 'name',
                 source: that.mediaSources.get('sources').getRemoteSuggestionEngine().ttAdapter(),
+            }, {
+                name: 'Tags',
+                displayKey: function (d) { return d.tag_set_label + ': ' + d.label; },
+                source: that.mediaSources.get('tags').getRemoteSuggestionEngine().ttAdapter()
             });
             // Listen to custom typeahead events
             that.$('.media-input').bind(
                 'typeahead:selected',
                 function (event, suggestion) { that.onTextEntered(event, suggestion); });
-//            that.$('.media-input').bind(
-//               'typeahead:autocompleted',
-//                function () { that.onTextEntered(); });
         }
     },
     updateVisibility: function () {
@@ -802,10 +803,13 @@ App.MediaSelectView = App.NestedView.extend({
         if (event) { event.preventDefault(); }
         $('.media-input.tt-input', this.$el).typeahead('val', '');
         var $el = this.$el;
-        _.defer(function () {
-            $('.media-input', $el).focus();
-        });
-        that.model.get('sources').add(suggestion);
+        console.log('suggestion');
+        console.log(suggestion);
+        if (suggestion.tags_id) {
+            that.model.get('tags').add(suggestion);
+        } else {
+            that.model.get('sources').add(suggestion);
+        }
     },
     onExplore: function (event) {
         App.debug('App.MediaSelectView.onExplore()');
@@ -903,10 +907,20 @@ App.MediaListView = App.NestedView.extend({
         });
         this.listenTo(this.model.get('sources'), 'all', this.onChange);
         this.listenTo(this.model.get('tags'), 'all', this.onChange);
+        this.onChange();
     },
     onAdd: function (model, collection, options) {
         App.debug('App.MediaListView.onAdd()');
-        var itemView = new App.ItemView({model: model, display: 'name' });
+        var itemView = new App.ItemView({
+            model: model,
+            display: function (model) {
+                if (model.get("name")) {
+                    return model.get("name");
+                } else {
+                    return model.tag_set_label + ': ' + model.label;
+                }
+            }
+        });
         itemView.on('removeClick', this.onRemoveClick);
         this.$('.media-list-view-content').append(itemView.el);
     },
