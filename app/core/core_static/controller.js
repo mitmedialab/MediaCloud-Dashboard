@@ -9,6 +9,9 @@ App.con = App.Controller = {
         // Create models
         App.con.userModel = new App.UserModel();
         App.con.mediaSources = new App.MediaModel({parse:true});
+        App.con.mediaExplorer = new App.MediaExploreView({
+            mediaSources: App.con.mediaSources
+        });
         App.con.queryCollection = new App.QueryCollection();
         // Create view manager and app-level views
         App.con.vm = new App.ViewManager({

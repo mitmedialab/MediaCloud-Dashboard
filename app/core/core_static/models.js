@@ -384,6 +384,7 @@ App.MediaModel = App.NestedModel.extend({
     attributeModels: {
         sources: App.MediaSourceCollection
         , tags: App.SimpleTagCollection
+        , tag_sets: App.TagSetCollection
     },
     initialize: function () {
         App.debug('App.MediaModel.initialize()');
@@ -391,6 +392,7 @@ App.MediaModel = App.NestedModel.extend({
         var that = this;
         this.set('sources', new App.MediaSourceCollection());
         this.set('tags', new App.SimpleTagCollection());
+        this.set('tag_sets', new App.TagSetCollection());
         this.deferred = $.Deferred();
         this.deferred.resolve();
         this.on('sync', this.onSync, this);
