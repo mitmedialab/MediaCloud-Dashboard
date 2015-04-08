@@ -288,7 +288,10 @@ App.TagModel = Backbone.Model.extend({
 App.SimpleTagModel = Backbone.Model.extend({
     urlRoot: '/api/media/tags/single',
     idAttribute: 'tags_id',
-    initialize: function (options) {}
+    initialize: function (options) {},
+    getLabel: function(){
+        return (this.get('label')!=null) ? this.get('label') : this.get('tag');
+    }
 });
 
 App.SimpleTagCollection = Backbone.Collection.extend({

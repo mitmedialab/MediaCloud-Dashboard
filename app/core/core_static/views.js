@@ -1004,20 +1004,33 @@ App.MediaExploreView = Backbone.View.extend({
             , page: true
             , cssId: "media-explore-sources"
         });
+        this.tagListView = new App.ExploreListView({
+            collection: this.mediaSources.get('tag_sets')
+            , ExploreView: App.TagSetExploreView
+            , cssId: "media-explore-tags"
+        });
         this.render();
     },
     render: function () {
         App.debug('App.MediaExploreView.render()');
         $('body').append(this.el);
         this.$el.html(this.template());
-        this.$('.tab-content').append(this.sourceListView.el);
+        this.sourceListView.$el.addClass("active");
+        this.$('.tab-content')
+            .append(this.sourceListView.el)
+            .append(this.tagListView.el);
+        this.sourceListView.$('.explore-list-view-content').html(_.template($('#tpl-progress').html())());
     },
     show: function () {
         App.debug('App.MediaExploreView.show()');
         var that = this;
         this.$('.modal').modal('show');
-        this.mediaSources.get('sources').fetch().then(function () {
+        $.when(
+            this.mediaSources.get('sources').fetch()
+            , this.mediaSources.get('tag_sets').fetch()
+        ).then(function () {
             that.sourceListView.showPage("A");
+            that.tagListView.showAll();
         });
     }
 });
@@ -1037,7 +1050,8 @@ App.ExploreListView = Backbone.View.extend({
     render: function () {
         App.debug('App.ExploreListView.render()');
         var that = this;
-        this.$el.html(this.template({cssId: this.cssId}));
+        this.$el.addClass("tab-pane").attr("role", "tabpanel").attr("id", this.cssId);
+        this.$el.html(this.template());
         if (this.page) {
             var alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
             _.each(alpha, function (a) {
@@ -1052,8 +1066,8 @@ App.ExploreListView = Backbone.View.extend({
                 });
             });
         } else {
-            this.$el.html(_.template($('#tpl-progress').html())());
-            this.$el.addClass('no-page');
+            this.$('.explore-list-view-content').html(_.template($('#tpl-progress').html())());
+            this.$('.explore-list-view-content').addClass('no-page');
         }
     },
     onAdd: function (m) {
@@ -1065,7 +1079,7 @@ App.ExploreListView = Backbone.View.extend({
     showAll: function () {
         App.debug('App.ExploreListView.showAll()');
         var that = this;
-        this.$el.html('');
+        this.$('.explore-list-view-content').html('');
         this.collection.each(function (m) {
             that.onAdd(m);
         });
