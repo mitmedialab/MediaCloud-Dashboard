@@ -276,6 +276,7 @@ App.QueryView = App.NestedView.extend({
                     that.onNameModalSubmit();
                 }
             });
+            that.$('.query-color').css('color', that.model.getColor());
         });
     },
     updateTitle: function () {
