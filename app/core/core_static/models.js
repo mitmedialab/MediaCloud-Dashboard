@@ -288,7 +288,10 @@ App.TagModel = Backbone.Model.extend({
 App.SimpleTagModel = Backbone.Model.extend({
     urlRoot: '/api/media/tags/single',
     idAttribute: 'tags_id',
-    initialize: function (options) {}
+    initialize: function (options) {},
+    getLabel: function(){
+        return (this.get('label')!=null) ? this.get('label') : this.get('tag');
+    }
 });
 
 App.SimpleTagCollection = Backbone.Collection.extend({
@@ -384,6 +387,7 @@ App.MediaModel = App.NestedModel.extend({
     attributeModels: {
         sources: App.MediaSourceCollection
         , tags: App.SimpleTagCollection
+        , tag_sets: App.TagSetCollection
     },
     initialize: function () {
         App.debug('App.MediaModel.initialize()');
@@ -391,6 +395,7 @@ App.MediaModel = App.NestedModel.extend({
         var that = this;
         this.set('sources', new App.MediaSourceCollection());
         this.set('tags', new App.SimpleTagCollection());
+        this.set('tag_sets', new App.TagSetCollection());
         this.deferred = $.Deferred();
         this.deferred.resolve();
         this.on('sync', this.onSync, this);
@@ -513,15 +518,7 @@ App.QueryModel = Backbone.Model.extend({
         return name;
     },
     getColor: function () {
-        // TODO redo color assignment for >2 queries
-        // https://github.com/c4fcm/MediaMeter-Dashboard/issues/150
-        var color = App.config.queryColors[0];
-        this.collection.each(function (m, idx) {
-            if (this.cid === m.cid) {
-                color = App.config.queryColors[idx];
-            }
-        }, this);
-        return color;
+        return PrimeColor.getColorHex(this.get('queryUid'));
     },
     // Convert n (>= 1) into an alpha label: A, B, .. Z, AA, AB, ...
     alphaLabel: function (n) {

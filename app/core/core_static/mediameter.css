@@ -416,7 +416,7 @@ li .query-title {
     display: none !important;
 }
 .explore-list-view .alpha-links {
-    margin: 0;
+    margin: 15px 0;
     padding: 0;
     display: inline-block;
     list-style: none;
@@ -431,6 +431,10 @@ li .query-title {
 }
 .explore-list-view .source-explore-view {
     margin-top: 10px;
+}
+.explore-list-view-content {
+    max-height: 400px;
+    overflow: auto;
 }
 .tag-set-explore-view p {
     margin-top: 10px;
