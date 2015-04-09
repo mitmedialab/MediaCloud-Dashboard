@@ -159,13 +159,15 @@ App.LegendView = Backbone.View.extend({
         var that = this;
         console.log('Adding legend model')
         $('.query-legend').each(function () {
-            console.log('    boop');
             var $el = $(this);
             var li = $('<li>');
             li.html('<span class="glyphicon glyphicon-certificate query-color"></span> <span class="query-title"></span>');
             $('.query-title', li).text(model.getName());
             $('.query-color', li).css('color', model.getColor());
             $el.append(li);
+            that.listenTo(model, 'change', function () {
+                $('.query-title', li).text(model.getName());
+            })
             that.listenTo(model, 'remove', function () {
                 li.remove();
             });
