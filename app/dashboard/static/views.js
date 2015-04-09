@@ -24,15 +24,19 @@ App.SentenceView = Backbone.View.extend({
         // only render both when >=2 queries
         this.listenTo(this.collection.resources, 'resource:complete:sentence', function () {
             $el.html('');
+            var queryCount = that.collection.length;
             var query1Sentences = that.collection.at(0).get('results').get('sentences');
-            if (that.collection.length >= 2) {
+            if (queryCount >= 2) {
                 q1TotalSentences = query1Sentences.last(1)[0].get('totalSentences');
                 $el.append('<h3 class="first-query">'+that.collection.at(0).getName() +' ('+that.formatNumber(q1TotalSentences)+' found)</h3>');
                 that.addSentences(query1Sentences.last(10),that.sentenceTemplate,$el);
-                var query2Sentences = that.collection.models[1].get('results').get('sentences');
-                q2TotalSentences = query2Sentences.last(1)[0].get('totalSentences');
-                $el.append('<h3 class="second-query">'+that.collection.at(1).getName() +' ('+that.formatNumber(q2TotalSentences)+' found)</h3>');
-                that.addSentences(query2Sentences.last(10),that.sentenceTemplate,$el);
+                var querySentences;
+                for (i = 1; i < queryCount; i++) {
+                    querySentences = that.collection.at(i).get('results').get('sentences');
+                    totalSentences = querySentences.last(i)[0].get('totalSentences');
+                    $el.append('<h3 class="query "' + i + '>'+that.collection.at(i).getName() +' ('+that.formatNumber(totalSentences)+' found)</h3>'); 
+                    that.addSentences(querySentences.last(10), that.sentenceTemplate, $el);
+                }
                 that.$('.count').html('');
             } else {
                 // figure out the total sentence count
@@ -384,13 +388,17 @@ App.WordCountComparisonView = Backbone.View.extend({
 
     template: _.template($('#tpl-wordcount-comparison-view').html()),
     
+    events: {'change select#left-select' :'changeQuery', 'change select#right-select' :'changeQuery'},
+
     initialize: function () {
         _.bindAll(this,'refineBothQueries');
+        this.leftQuery = 0;
+        this.rightQuery = 1;
         this.render();
     },
     updateStats: function () {
-        var allLeft = this.collection.at(0).get('results').get('wordcounts').toJSON();
-        var allRight = this.collection.at(1).get('results').get('wordcounts').toJSON();
+        var allLeft = this.collection.at(this.leftQuery).get('results').get('wordcounts').toJSON();
+        var allRight = this.collection.at(this.rightQuery).get('results').get('wordcounts').toJSON();
         var countSel = function (d) { return d.count };
         var leftSum = d3.sum(allLeft, countSel);
         var rightSum = d3.sum(allRight, countSel);
@@ -433,8 +441,55 @@ App.WordCountComparisonView = Backbone.View.extend({
         this.$el.html(this.template());
         this.$('.content-text').hide();
         _.defer(function () { 
+            //query-dropdown
+            var queryNumber = -1;
+            that.collection.each(function(queryModel){
+                queryNumber++;
+                if (queryNumber === that.leftQuery){
+                    that.$('.dropdown-left #left-select').append("<option class=selection selected='selected' id="+ queryNumber+" value='" + queryNumber + "'>"+queryModel.getName() + "</option>");
+                }
+                else {
+                    that.$('.dropdown-left #left-select').append("<option class=selection id="+ queryNumber+" value='" + queryNumber + "'>"+queryModel.getName() + "</option>");
+                }
+                if (queryNumber === that.rightQuery){
+                    that.$('.dropdown-right #right-select').append("<option class=selection selected='selected' id=" + queryNumber + " value='" + queryNumber + "'>"+queryModel.getName() + "</option>");
+                }
+                else{
+                    that.$('.dropdown-right #right-select').append("<option class=selection id=" + queryNumber + " value='" + queryNumber + "'>"+queryModel.getName() + "</option>");
+                }
+                });
             that.renderSvg();
         });
+    },
+    changeQuery: function(ev) {
+        var currentValue = parseInt($(ev.currentTarget).val());
+        console.log(currentValue)
+        if ($(ev.currentTarget).attr('id') === "left-select") this.leftQuery = currentValue;
+        else this.rightQuery = currentValue;
+        this.updateStats();
+        this.$el.html(this.template());
+        this.$('.content-text').hide();
+        var that = this;
+        _.defer(function(){
+            //query-dropdown
+            var queryNumber = -1;
+            that.collection.each(function(queryModel){
+                queryNumber++;
+                if (queryNumber === that.leftQuery){
+                    that.$('.dropdown-left #left-select').append("<option class=selection selected='selected' id="+ queryNumber+" value='" + queryNumber + "'>"+queryModel.getName() + "</option>");
+                }
+                else {
+                    that.$('.dropdown-left #left-select').append("<option class=selection id="+ queryNumber+" value='" + queryNumber + "'>"+queryModel.getName() + "</option>");
+                }
+                if (queryNumber === that.rightQuery){
+                    that.$('.dropdown-right #right-select').append("<option class=selection selected='selected' id=" + queryNumber + " value='" + queryNumber + "'>"+queryModel.getName() + "</option>");
+                }
+                else{
+                    that.$('.dropdown-right #right-select').append("<option class=selection id=" + queryNumber + " value='" + queryNumber + "'>"+queryModel.getName() + "</option>");
+                }
+            });
+            that.renderSvg();
+        })
     },
     sizeRange: function () {
         return _.clone(this.config.sizeRange);
@@ -517,7 +572,7 @@ App.WordCountComparisonView = Backbone.View.extend({
             .attr('cx', innerWidth/2.0 + legendXoff)
             .attr('fill', '#000000');
         label = leftGroup.append('text')
-            .text(this.collection.at(0).getName())
+            .text(this.collection.at(this.leftQuery).getName())
             .attr('font-size', this.config.labelSize)
             .attr('font-weight', 'bold')
             .attr('text-anchor', 'middle')
@@ -531,7 +586,7 @@ App.WordCountComparisonView = Backbone.View.extend({
             .attr('cx', innerWidth/2.0 + legendXoff)
             .attr('fill', this.collection.at(0).getColor());
         var label = rightGroup.append('text')
-            .text(this.collection.at(1).getName())
+            .text(this.collection.at(this.rightQuery).getName())
             .attr('font-size', this.config.labelSize)
             .attr('font-weight', 'bold')
             .attr('text-anchor', 'middle')
