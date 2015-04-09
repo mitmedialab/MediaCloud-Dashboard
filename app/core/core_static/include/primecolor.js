@@ -17,7 +17,6 @@ PrimeColor = {
         var g = (i * 101) % 256;
         var b = (i * 167) % 256;
         r = (r + this.seed.red) % 256;
-        r = 8;
         g = (g + this.seed.green) % 256;
         b = (b + this.seed.blue) % 256;
         rh = r.toString(16);

@@ -15,6 +15,9 @@ App.con = App.Controller = {
             mediaSources: App.con.mediaSources
         });
         App.con.queryCollection = new App.QueryCollection();
+        App.con.legendView = new App.LegendView({
+            collection: App.con.queryCollection
+        });
         // Create view manager and app-level views
         App.con.vm = new App.ViewManager({
             "selector": '.content .container-fixed'
@@ -28,6 +31,7 @@ App.con = App.Controller = {
         });
         $('.brand-toolbar .links').append(App.con.toolView.el);
         $('.controls').append(App.con.controlsView.el);
+        $('.drawer .container').html(App.con.legendView.el);
         App.con.router = new App.Router();
         // Bind event handlers
         _.bindAll(this, 'onSignIn');
@@ -139,6 +143,7 @@ App.con = App.Controller = {
             , { collection: App.con.getErrorCollection() }
         );
         App.con.queryCollection.reset();
+        App.QueryModel.nextUid = 1;
         App.con.queryModel = new App.QueryModel(attributes, options);
         App.con.queryCollection.add(App.con.queryModel);
         App.con.queryListView = App.con.queryVm.getView(

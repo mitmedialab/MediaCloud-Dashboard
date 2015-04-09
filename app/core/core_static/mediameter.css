@@ -200,6 +200,21 @@ body {
     margin: 0;
 }
 
+/* QueryLegendView */
+.query-legend {
+    display: inline;
+}
+.query-legend li {
+    display: inline-block;
+    margin: 5px 20px;
+    text-transform: uppercase;
+    font-size: inherit;
+    font-weight: bold;
+}
+.query-nav {
+    margin-top: 10em;
+}
+
 /* Bootstrap customization ****************************************************/
 
 .panel-default {

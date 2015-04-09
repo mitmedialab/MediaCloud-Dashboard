@@ -7,7 +7,7 @@
 	 var el             = $(this),
 	     offset         = el.offset(),
 	     scrollTop      = $(window).scrollTop(),
-	     floatingHeader = $(".floatingHeader", this)
+	     floatingHeader = $(".floating-header", this)
 	 
 	 if ((scrollTop > offset.top) && (scrollTop < offset.top + el.height())) {
 	     floatingHeader.css({
@@ -31,7 +31,7 @@
 	 clonedHeaderRow
 	   .before(clonedHeaderRow.clone())
 	   .css("width", clonedHeaderRow.width())
-	   .addClass("floatingHeader");
+	   .addClass("floating-header");
 	   
      });
      
