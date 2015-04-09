@@ -63,76 +63,78 @@
                 </div>
             </div>
         </div>
-        <div class="drawer">
-            <div class="container">
-                {% block drawer %}{% endblock %}
-            </div>
-        </div>
-        <div class="messages">
-            <div class="container">
-                {% with messages = get_flashed_messages() %}
-                    {% if messages %}
-                        <ul class="flashes">
-                        {% for message in messages %}
-                            <li>{{ message }}</li>
-                        {% endfor %}
-                        </ul>
-                    {% endif %}
-                {% endwith %}
-            </div>
-        </div>
-        <div class="content">
-            <div class="container reference">
-                <!-- Contents not shown but used for screen geometry calculations. -->
-                {% block reference_content %}
-                {{ reference_content |safe }}
-                {% endblock %}
-            </div>
-            <div class="container-fluid">
-                {% block fluid_content %}
-                {{ fluid_content |safe }}
-                {% endblock %}
-            </div>
-            <div class="container container-fixed">
-                {% block content %}
-                {{ content |safe }}
-                {% endblock %}
-            </div>
-        </div>
-        <div class="footer">
-            <div class="container">
-                {% block footer %}
-                <div class="row">
-                    <div class="col-sm-4">
-                        <h3>About Media Meter</h3>
-                        <p>
-What was covered in the news this week? Did the issues you care about get the
-attention you think they deserved? Did the media talk about these topics in the
-way you want them to? Who set the narrative for the current breaking story?
-                        </p>
-                        <p>
-<a href="http://mediameter.org">MediaMeter</a> is a suite of tools built on top of the 
-<a href="http://mediacloud.org">Media Cloud</a> online news database. A number of tools 
-make up the suite, all driven by a query you author to specify media sources, a date range, 
-and some keywords.
-                        </p>
-                    </div>
-                    <div class="col-sm-2 col-sm-offset-1">
-                        <h3>Contact</h3>
-<p>
-If you have feedback or questions, you can get in touch with us at
-<a href="mailto:mediameter@media.mit.edu">mediameter@media.mit.edu</a>.
-</p>
-<p>
-Please enter any bugs or <a href="https://github.com/c4fcm/MediaMeter-Dashboard/issues">issues on GitHub</a>.
-</p>
-                    </div>
-                    <div class="col-sm-4 col-sm-offset-1">
-                        <h3><a href="http://civic.mit.edu"><img class="img-responsive" src="static/core/img/civic.png"/></a></h3>
-                        <h3><a href="http://cyber.law.harvard.edu"><img class="img-responsive" src="static/core/img/berkman.png"/></a></h3>
-                    </div>
+        <div class="persist-area">
+            <div class="drawer persist-header">
+                <div class="container">
+                    {% block drawer %}{% endblock %}
                 </div>
-                {% endblock %}
+            </div>
+            <div class="messages">
+                <div class="container">
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            <ul class="flashes">
+                            {% for message in messages %}
+                                <li>{{ message }}</li>
+                            {% endfor %}
+                            </ul>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+            <div class="content">
+                <div class="container reference">
+                    <!-- Contents not shown but used for screen geometry calculations. -->
+                    {% block reference_content %}
+                    {{ reference_content |safe }}
+                    {% endblock %}
+                </div>
+                <div class="container-fluid">
+                    {% block fluid_content %}
+                    {{ fluid_content |safe }}
+                    {% endblock %}
+                </div>
+                <div class="container container-fixed">
+                    {% block content %}
+                    {{ content |safe }}
+                    {% endblock %}
+                </div>
+            </div>
+            <div class="footer">
+                <div class="container">
+                    {% block footer %}
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <h3>About Media Meter</h3>
+                            <p>
+    What was covered in the news this week? Did the issues you care about get the
+    attention you think they deserved? Did the media talk about these topics in the
+    way you want them to? Who set the narrative for the current breaking story?
+                            </p>
+                            <p>
+    <a href="http://mediameter.org">MediaMeter</a> is a suite of tools built on top of the 
+    <a href="http://mediacloud.org">Media Cloud</a> online news database. A number of tools 
+    make up the suite, all driven by a query you author to specify media sources, a date range, 
+    and some keywords.
+                            </p>
+                        </div>
+                        <div class="col-sm-2 col-sm-offset-1">
+                            <h3>Contact</h3>
+    <p>
+    If you have feedback or questions, you can get in touch with us at
+    <a href="mailto:mediameter@media.mit.edu">mediameter@media.mit.edu</a>.
+    </p>
+    <p>
+    Please enter any bugs or <a href="https://github.com/c4fcm/MediaMeter-Dashboard/issues">issues on GitHub</a>.
+    </p>
+                        </div>
+                        <div class="col-sm-4 col-sm-offset-1">
+                            <h3><a href="http://civic.mit.edu"><img class="img-responsive" src="static/core/img/civic.png"/></a></h3>
+                            <h3><a href="http://cyber.law.harvard.edu"><img class="img-responsive" src="static/core/img/berkman.png"/></a></h3>
+                        </div>
+                    </div>
+                    {% endblock %}
+                </div>
             </div>
         </div>
         <script type="text/javascript" src="static/core/lib/jquery/js/jquery-2.1.1.min.js"></script>

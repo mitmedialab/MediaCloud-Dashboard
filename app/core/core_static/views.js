@@ -135,6 +135,44 @@ App.LoginView = App.NestedView.extend({
     }
 });
 
+App.LegendView = Backbone.View.extend({
+    name: 'LegendView',
+    tagName: 'ul',
+    initialize: function (options) {
+        this.render();
+    },
+    render: function () {
+        var that = this;
+        this.$el.addClass('query-legend');
+        this.collection.each(function (model) {
+            this.onAdd(model);
+        });
+        this.listenTo(this.collection, "add", this.onAdd);
+        this.listenTo(this.collection, "reset", function () {
+            $('.query-legend').html("");
+            that.collection.each(function (model) {
+                that.onAdd(model);
+            });
+        });
+    },
+    onAdd: function (model) {
+        var that = this;
+        console.log('Adding legend model')
+        $('.query-legend').each(function () {
+            console.log('    boop');
+            var $el = $(this);
+            var li = $('<li>');
+            li.html('<span class="glyphicon glyphicon-certificate query-color"></span> <span class="query-title"></span>');
+            $('.query-title', li).text(model.getName());
+            $('.query-color', li).css('color', model.getColor());
+            $el.append(li);
+            that.listenTo(model, 'remove', function () {
+                li.remove();
+            });
+        });
+    }
+});
+
 /**
  * Controls drop-down menu
  */

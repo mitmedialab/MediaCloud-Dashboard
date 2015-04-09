@@ -518,7 +518,7 @@ App.QueryModel = Backbone.Model.extend({
         return name;
     },
     getColor: function () {
-        return PrimeColor.getColorHex(this.get('queryUid'));
+        return PrimeColor.getColorHex(this.get('queryUid') - 1);
     },
     // Convert n (>= 1) into an alpha label: A, B, .. Z, AA, AB, ...
     alphaLabel: function (n) {
