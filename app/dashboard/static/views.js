@@ -21,20 +21,19 @@ App.SentenceView = Backbone.View.extend({
         var $el = this.$('.sentence-view .copy');
         progress = _.template($('#tpl-progress').html());
         $el.html(progress());
-        // only render both when >=2 queries
         this.listenTo(this.collection.resources, 'resource:complete:sentence', function () {
             $el.html('');
             var queryCount = that.collection.length;
             var query1Sentences = that.collection.at(0).get('results').get('sentences');
             if (queryCount >= 2) {
-                q1TotalSentences = query1Sentences.last(1)[0].get('totalSentences');
-                $el.append('<h3 class="first-query">'+that.collection.at(0).getName() +' ('+that.formatNumber(q1TotalSentences)+' found)</h3>');
-                that.addSentences(query1Sentences.last(10),that.sentenceTemplate,$el);
-                var querySentences;
-                for (i = 1; i < queryCount; i++) {
+                for (i = 0; i < queryCount; i++) {
                     querySentences = that.collection.at(i).get('results').get('sentences');
-                    totalSentences = querySentences.last(i)[0].get('totalSentences');
-                    $el.append('<h3 class="query "' + i + '>'+that.collection.at(i).getName() +' ('+that.formatNumber(totalSentences)+' found)</h3>'); 
+                    totalSentences = querySentences.last(queryCount - i)[0].get('totalSentences');
+                    var $title = $('<h3>')
+                        .text(that.collection.at(i).getName()
+                              + ' (' + that.formatNumber(totalSentences) + ' found)')
+                        .css('color', that.collection.at(i).getColor());
+                    $el.append($title);
                     that.addSentences(querySentences.last(10), that.sentenceTemplate, $el);
                 }
                 that.$('.count').html('');
