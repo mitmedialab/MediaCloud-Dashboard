@@ -394,6 +394,8 @@ App.WordCountComparisonView = Backbone.View.extend({
         _.bindAll(this,'refineBothQueries');
         this.leftQuery = 0;
         this.rightQuery = 1;
+        this.leftModel = this.collection.at(0);
+        this.rightModel = this.collection.at(1);
         this.render();
     },
     updateStats: function () {
@@ -463,9 +465,13 @@ App.WordCountComparisonView = Backbone.View.extend({
     },
     changeQuery: function(ev) {
         var currentValue = parseInt($(ev.currentTarget).val());
-        console.log(currentValue)
-        if ($(ev.currentTarget).attr('id') === "left-select") this.leftQuery = currentValue;
-        else this.rightQuery = currentValue;
+        if ($(ev.currentTarget).attr('id') === "left-select") {
+            this.leftQuery = currentValue;
+            this.leftModel = this.collection.at(this.leftQuery);
+        } else {
+            this.rightQuery = currentValue;
+            this.rightModel = this.collection.at(this.rightQuery);
+        }
         this.updateStats();
         this.$el.html(this.template());
         this.$('.content-text').hide();
@@ -584,7 +590,7 @@ App.WordCountComparisonView = Backbone.View.extend({
             .attr('r', 0.7*this.config.labelSize/2.0)
             .attr('cy', this.config.padding + legendYoff)
             .attr('cx', innerWidth/2.0 + legendXoff)
-            .attr('fill', this.collection.at(0).getColor());
+            .attr('fill', this.leftModel.getColor());
         var label = rightGroup.append('text')
             .text(this.collection.at(this.rightQuery).getName())
             .attr('font-size', this.config.labelSize)
@@ -598,7 +604,7 @@ App.WordCountComparisonView = Backbone.View.extend({
             .attr('r', 0.7*this.config.labelSize/2.0)
             .attr('cy', this.config.padding + legendYoff)
             .attr('cx', innerWidth/2.0 + legendXoff)
-            .attr('fill', this.collection.at(1).getColor());
+            .attr('fill', this.rightModel.getColor());
         var wordListHeight = this.config.height - 1.5*this.config.labelSize - 2*this.config.padding;
         var intersectList = intersectGroup.append('g')
             .attr('transform', 'translate(0,' + (2*this.config.labelSize) + ')');
@@ -639,9 +645,9 @@ App.WordCountComparisonView = Backbone.View.extend({
                 .text(function (d) { return d.term; })
                 .attr('font-weight', 'bold');
             d3.selectAll('.left.word')
-                .attr('fill', App.config.queryColors[0]);
+                .attr('fill', this.leftModel.getColor());
             d3.selectAll('.right.word')
-                .attr('fill', App.config.queryColors[1]);
+                .attr('fill', this.rightModel.getColor());
             // Layout
             y = 0;
             leftHeight = this.listCloudLayout(leftWords, innerWidth, this.fullExtent, sizeRange);
@@ -663,10 +669,10 @@ App.WordCountComparisonView = Backbone.View.extend({
             .on('mouseout', function () {
                 var color = '#000';
                 if (d3.select(this).classed('left')) {
-                    color = App.config.queryColors[0];
+                    color = that.leftModel.getColor();
                 }
                 if (d3.select(this).classed('right')) {
-                    color = App.config.queryColors[1];
+                    color = that.rightModel.getColor();
                 }
                 d3.select(this).attr('fill', color)
                 .attr('cursor','default');

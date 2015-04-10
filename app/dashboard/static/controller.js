@@ -185,10 +185,20 @@ _.extend(App.Controller, {
         };
         var queryCollection = new App.QueryCollection([], opts);
         var queryModel = new App.QueryModel({}, opts);
+        var queryModel2 = new App.QueryModel({}, opts);
+        var queryModel3 = new App.QueryModel({}, opts);
         queryCollection.add(queryModel);
-        var datecounts = queryModel.get('results').get('datecounts')
-        datecounts.url = '/static/data/test/datecounts.json';
+        queryCollection.add(queryModel2);
+        queryCollection.add(queryModel3);
+        var datecounts = queryModel.get('results').get('datecounts');
+        var datecounts2 = queryModel2.get('results').get('datecounts');
+        var datecounts3 = queryModel3.get('results').get('datecounts');
+        datecounts.url = '/static/core/data/test/datecounts.json';
+        datecounts2.url = '/static/core/data/test/datecounts-2.json';
+        datecounts3.url = '/static/core/data/test/datecounts-3.json';
         datecounts.fetch({ parse:true });
+        datecounts2.fetch({ parse:true });
+        datecounts3.fetch({ parse:true });
         var histogramView = new App.HistogramView({collection:queryCollection});
         App.con.vm.showViews([
             histogramView
