@@ -30,7 +30,6 @@ App.SentenceView = Backbone.View.extend({
                     querySentences = that.collection.at(i).get('results').get('sentences');
                     var totalSentences = 0;
                     if (querySentences.length > 0) {
-                        console.log(querySentences.last());
                         totalSentences = querySentences.last().get('totalSentences');
                     }
                     var $title = $('<h3>')
