@@ -45,7 +45,7 @@ flapp.secret_key = 'put secret key here'
 
 # Create media cloud api
 mc_key = config.get('mediacloud','key')
-mc = mcapi.MediaCloud(mc_key)
+mc = mcapi.AdminMediaCloud(mc_key)
 logger.info("Connected to MediaCloud with default key %s" % (mc_key))
 #logging.getLogger('MediaCloud').setLevel(logging.DEBUG)
 
@@ -56,7 +56,7 @@ login_manager.init_app(flapp)
 # Connect to db
 host = config.get('database', 'host')
 database = config.get('database', 'database')
-db = pymongo.Connection(host)[database]
+db = pymongo.MongoClient(host)[database]
 logger.info("Connected to DB %s@%s" % (database,host))
 
 # Set up routes and content
