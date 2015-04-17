@@ -1212,24 +1212,20 @@ App.ActionedViewMixin = {
     showActionMenu: function(){
         this.$('.panel-heading button').show();
     },
-    addDownloadMenuItems: function(downloadUrls,title,cssClass){
+    addDownloadMenuItems: function(downloadInfo,title,cssClass){
         if(App.con.userModel.get('authenticated')==false){ // public users can't download
             return;
         }
         this.$('.panel-action-list li.action-download').remove();
-        for(idx in downloadUrls){
+        for(idx in downloadInfo){
             var text = "";
             if(typeof title === "undefined"){
-                if(idx==0){
-                    name = '<span class="first-query">'+App.config.queryNames[0]+'</span>';
-                } else {
-                    name = '<span class="second-query">'+App.config.queryNames[1]+'</span>';
-                }
+                name = '<span class="">'+downloadInfo[idx].name+'</span>';
                 text = "Download "+name+" Data CSV";
             } else {
                 text = title;
             }
-            var element = this._downloadUrlTemplate({url:downloadUrls[idx],'text':text,'cssClass':cssClass});
+            var element = this._downloadUrlTemplate({url:downloadInfo[idx].url,'text':text,'cssClass':cssClass});
             this.$('.panel-action-list').append(element);  
         }
     }

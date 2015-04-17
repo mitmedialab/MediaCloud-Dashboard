@@ -48,11 +48,14 @@ App.SentenceView = Backbone.View.extend({
                 that.addSentences(query1Sentences.last(10),that.sentenceTemplate,$el);                
             }
             // now that the query collection is filled in, add the download data links
-            var downloadUrls = that.collection.map(function(m) { 
-                return m.get('results').get('sentences').csvUrl();
+            var downloadInfo = that.collection.map(function(m) { 
+                return {
+                    'url':m.get('results').get('sentences').csvUrl(),
+                    'name':m.getName()
+                };
             });
             // clean up and prep for display
-            that.addDownloadMenuItems(downloadUrls);
+            that.addDownloadMenuItems(downloadInfo);
             that.delegateEvents();
             that.showActionMenu();
         });
@@ -110,10 +113,13 @@ App.StoryView = Backbone.View.extend({
                 that.addStories(query1Stories.last(10),that.storyTemplate,$el);
             }
             // now that the query collection is filled in, add the download data links
-            var downloadUrls = that.collection.map(function(m) { 
-                return m.get('results').get('stories').csvUrl();
+            var downloadInfo = that.collection.map(function(m) { 
+                return {
+                    'url':m.get('results').get('stories').csvUrl(),
+                    'name':m.getName()
+                };
             });
-            that.addDownloadMenuItems(downloadUrls);
+            that.addDownloadMenuItems(downloadInfo);
             // clean up and prep for display
             that.delegateEvents();
             that.showActionMenu();
@@ -169,10 +175,15 @@ App.WordCountView = App.NestedView.extend({
                 that.renderWordCountResults(that.collection.at(0));
             }
             // add in data download links
-            var downloadUrls = that.collection.map(function(m) { 
-                return m.get('results').get('wordcounts').csvUrl();
+            App.debug("!!!");
+            App.debug(that.collection);
+            var downloadInfo = that.collection.map(function(m) { 
+                return {
+                    'url':m.get('results').get('wordcounts').csvUrl(),
+                    'name':m.getName()
+                };
             });
-            that.addDownloadMenuItems(downloadUrls);
+            that.addDownloadMenuItems(downloadInfo);
             // Add download SVG option
             that.addDownloadMenuItems([''], 'Download as SVG', 'svg-download');
             that.$('a.svg-download').on('click', that.clickSvg);
@@ -791,10 +802,13 @@ App.HistogramView = Backbone.View.extend({
         // draw the chart
         this.renderHighChart();
         // now that the query collection is filled in, add the download data links
-        var downloadUrls = this.collection.map(function(m) { 
-            return m.get('results').get('datecounts').csvUrl();
+        var downloadInfo = this.collection.map(function(m) { 
+            return {
+                'url':m.get('results').get('datecounts').csvUrl(),
+                'name':m.getName()
+            };
         });
-        this.addDownloadMenuItems(downloadUrls);
+        this.addDownloadMenuItems(downloadInfo);
         // register an about click handler
         this.delegateEvents();  // gotta run this to register the events again
         this.showActionMenu();
@@ -892,10 +906,13 @@ App.HistogramView = Backbone.View.extend({
         this.delegateEvents();  // gotta run this to register the events again
         this.showActionMenu();
         // now that the query collection is filled in, add the download data links
-        var downloadUrls = this.collection.map(function(m) { 
-            return m.get('results').get('datecounts').csvUrl();
+        var downloadInfo = this.collection.map(function(m) { 
+            return {
+                'url':m.get('results').get('datecounts').csvUrl(),
+                'name':m.getName()
+            };
         });
-        this.addDownloadMenuItems(downloadUrls);
+        this.addDownloadMenuItems(downloadInfo);
         var that = this;
         // Prepare javascript object and date array
         this.allLayersData = this.collection.map(function (queryModel) {
