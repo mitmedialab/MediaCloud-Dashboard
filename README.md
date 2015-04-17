@@ -9,7 +9,4 @@ media coverage and let users identify interesting trends for more in-depth analy
 
 ### Dependencies
 
-* flask
-* flask-login
-* flack-wtf
-* pymongo
+See `requirements.pip`.  Install them by running `pip install -r requirements.pip`
