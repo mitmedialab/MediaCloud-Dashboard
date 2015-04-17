@@ -378,7 +378,7 @@ def _sentences_allowed(key):
     Public authenticated users are not allowed to call sentenceList (it throws a 403).
     '''
     media, start, end = demo_params()
-    user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
+    user_mc = mcapi.AdminMediaCloud(flask_login.current_user.get_id())
     query = app.core.util.solr_query('*', media, start, end)
     allowed = None
     try:

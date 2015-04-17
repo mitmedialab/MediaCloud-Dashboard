@@ -9,11 +9,11 @@ media coverage and let users identify interesting trends for more in-depth analy
 
 ### Dependencies
 
-* flask
-* flask-login
-* flask-wtf
-* pymongo
-* [MediaCloud-API-Client](https://github.com/c4fcm/MediaCloud-API-Client)
+You gotta install the [MediaCloud-API-Client](https://github.com/c4fcm/MediaCloud-API-Client) 
+by hand.  Then just
+```
+pip install -r requirements.pip
+```
 
 ### Creating a module
 
@@ -64,4 +64,3 @@ TODO
 ### Available Backbone Mixins ###
 
 TODO
-
