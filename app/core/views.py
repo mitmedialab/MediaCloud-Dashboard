@@ -410,7 +410,7 @@ def assemble_csv_response(results,properties,column_names,filename):
         yield ','.join(names) + '\n'
         for row in data:
             try:
-                attributes = [ csv_escape(row[p]) for p in props]
+                attributes = [ csv_escape(str(row[p])) for p in props]
                 yield ','.join(attributes) + '\n'
             except Exception as e:
                 app.core.logger.error("Couldn't process a CSV row: "+str(e))
