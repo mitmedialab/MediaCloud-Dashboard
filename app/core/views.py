@@ -134,7 +134,7 @@ def media_single_tags(tags_id):
 @flapp.route('/api/media/tags/search/<query>')
 @flask_login.login_required
 def media_search_tags(query):
-    return json.dumps(mc.tagList(name_like=query))
+    return json.dumps(mc.tagList(name_like=query,public_only=True))
 
 # -----------------------------------------------------------------------------------------
 # SENTENCES -------------------------------------------------------------------------------
@@ -382,7 +382,7 @@ def _sentences_allowed(key):
     Public authenticated users are not allowed to call sentenceList (it throws a 403).
     '''
     media, start, end = demo_params()
-    user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
+    user_mc = mcapi.AdminMediaCloud(flask_login.current_user.get_id())
     query = app.core.util.solr_query('*', media, start, end)
     allowed = None
     try:
@@ -399,9 +399,10 @@ def _sentences_allowed(key):
     return allowed
 
 def csv_escape(s):  # TODO: do this better and in one place
-    return '"%s"' % s.replace('"', '"",').strip()
+    return u"\"%s\"" % s.replace('"', '""').strip()
 
 def assemble_csv_response(results,properties,column_names,filename):
+    app.core.logger.setLevel(logging.DEBUG)
     app.core.logger.debug("assemble_csv_response with "+str(len(results))+" results")
     app.core.logger.debug("  cols: "+' '.join(column_names))
     app.core.logger.debug("  props: "+' '.join(properties))
@@ -410,11 +411,11 @@ def assemble_csv_response(results,properties,column_names,filename):
         yield ','.join(names) + '\n'
         for row in data:
             try:
-                attributes = [ row[p] if isinstance(row[p], str) else str(row[p]) for p in props ] 
+                attributes = [ csv_escape(str(row[p])) for p in props]
                 yield ','.join(attributes) + '\n'
             except Exception as e:
                 app.core.logger.error("Couldn't process a CSV row: "+str(e))
-                app.core.logger.debug(row)
+                app.core.logger.debug(" | ".join([row[p] for p in props]))
     download_filename = 'mediacloud-'+str(filename)+'-'+datetime.datetime.now().strftime('%Y%m%d%H%M%S')+'.csv'
     return flask.Response(stream_csv(results,properties,column_names), mimetype='text/csv; charset=utf-8', 
                 headers={"Content-Disposition":"attachment;filename="+download_filename})
