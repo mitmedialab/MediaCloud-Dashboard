@@ -18,7 +18,11 @@ from forms import *
 def index():
     content = flask.render_template('core/progress.html')
     template = config.get('flask', 'template')
-    return flask.render_template(template, content=content)
+    return flask.render_template(
+        template
+        , content=content
+        , google_analytics_id=config.get('analytics', 'google_analytics_id')
+    )
 
 # -----------------------------------------------------------------------------------------
 # USER MGMT -------------------------------------------------------------------------------

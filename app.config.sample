@@ -13,3 +13,6 @@ template = dashboard/main.html
 
 [threading]
 num_threads = 0
+
+[analytics]
+google_analytics_id =
