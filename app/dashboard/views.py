@@ -80,7 +80,7 @@ def story_docs_csv(keywords, media, start, end):
     last_processed_stories_id = 0
     more_stories = True
     while more_stories:
-        res = user_mc.storyList(query, '', last_processed_stories_id, 1000)
+        res = mc.storyList(query, '', last_processed_stories_id, 1000)
         if len(res) > 0:
             last_processed_stories_id = res[len(res)-1]['processed_stories_id']
             all_stories = all_stories + res
