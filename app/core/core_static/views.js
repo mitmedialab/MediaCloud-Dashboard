@@ -776,7 +776,7 @@ App.MediaSelectView = App.NestedView.extend({
         App.debug('App.MediaSelectView.textEntered()');
         var that = this;
         if (event) { event.preventDefault(); }
-        $('.media-input.tt-input', this.$el).typeahead('val', '');
+        $('.media-input .tt-input', this.$el).typeahead('val', '');
         var $el = this.$el;
         if (suggestion.tags_id) {
             that.model.get('tags').add(suggestion);
@@ -796,9 +796,13 @@ App.MediaSelectView = App.NestedView.extend({
         });
     },
     onAddMore: function (event) {
+        var that = this;
         event.preventDefault();
         this.$('.add-more').hide();
         this.$('.media-input').show();
+        _.defer(function () {
+            that.$('.media-input .tt-input').focus();
+        });
     }
 });
 
