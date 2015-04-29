@@ -295,7 +295,7 @@ input.form-control, select.form-control, textarea.form-control {
 /* Common MediaMeter styles ***************************************************/
 
 .media-list-view a.remove {
-    color: red;
+    color: #333;
 }
 .media-list-item-view .glyphicon {
     position: relative;
