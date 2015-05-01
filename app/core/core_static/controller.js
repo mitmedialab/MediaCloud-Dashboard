@@ -119,8 +119,12 @@ App.con = App.Controller = {
         }
         // Defaults media
         App.con.mediaModel = new App.MediaModel();
+        App.con.comparisonMediaModel = new App.MediaModel();
         App.con.mediaSources.get('tags').getDeferred(8875027).then(function (m) {
             App.con.mediaModel.get('tags').add(m);
+        });
+        App.con.mediaSources.get('tags').getDeferred(8875027).then(function (m) {
+            App.con.comparisonMediaModel.get('tags').add(m);
         });
         // Default tags
         // Defaults dates
@@ -132,7 +136,8 @@ App.con = App.Controller = {
             start: start.getFullYear() + '-' + (start.getMonth()+1) + '-' + start.getDate()
             , end: end.getFullYear() + '-' + (end.getMonth()+1) + '-' + end.getDate()
             , mediaModel: App.con.mediaModel
-            , keywords: 'boston'
+            , keywords: 'truth'
+            , qinfo: { 'name': 'Truth'}
         };
         var options = {
             mediaSources: App.con.mediaSources
@@ -146,6 +151,11 @@ App.con = App.Controller = {
         App.QueryModel.nextUid = 1;
         App.con.queryModel = new App.QueryModel(attributes, options);
         App.con.queryCollection.add(App.con.queryModel);
+        attributes.keywords = 'beauty';
+        attributes.qinfo.name = 'Beauty';
+        attributes.mediaModel = App.con.comparisonMediaModel;
+        var comparison = new App.QueryModel(attributes, options);
+        App.con.queryCollection.add(comparison);
         App.con.queryListView = App.con.queryVm.getView(
             App.QueryListView
             , {

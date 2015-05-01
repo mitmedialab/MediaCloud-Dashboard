@@ -546,17 +546,23 @@ App.QueryModel = Backbone.Model.extend({
         return label;
     },
     parse: function (response, options) {
-        response.params = new Backbone.Model({
+        var attributes = _.clone(response);
+        attributes.params = new Backbone.Model({
             keywords: response.keywords
             , mediaModel: response.mediaModel
             , start: response.start
             , end: response.end
         });
-        delete response.keywords;
-        delete response.mediaModel;
-        delete response.start;
-        delete response.end;
-        return response;
+        var that = this;
+        this.listenTo(attributes.params, 'change', function () {
+            alert('woooo');
+            that.trigger('change:params:keywords');
+        });
+        delete attributes.keywords;
+        delete attributes.mediaModel;
+        delete attributes.start;
+        delete attributes.end;
+        return attributes;
     },
     execute: function () {
         App.debug('App.QueryModel.execute()');
