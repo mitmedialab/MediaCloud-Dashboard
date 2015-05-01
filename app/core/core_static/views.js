@@ -1007,9 +1007,10 @@ App.KeywordView = Backbone.View.extend({
         this.render();
     },
     render: function () {
+        var that = this;
         this.$el.html(this.template());
         // Use default from template if there are no keywords
-        this.$input = this.$('input');
+        this.$input = this.$('textarea');
         if (this.model.get('params').get('keywords')) {
             this.$input.val(this.model.get('params').get('keywords'));
         }
@@ -1017,6 +1018,7 @@ App.KeywordView = Backbone.View.extend({
         _.defer(function () {
             $('.keyword-view-keywords', $el).focus();
         });
+        var that = this;
     },
     contentChanged: function () {
         this.model.get('params').set('keywords', this.$input.val());
