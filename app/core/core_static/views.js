@@ -157,7 +157,6 @@ App.LegendView = Backbone.View.extend({
     },
     onAdd: function (model) {
         var that = this;
-        console.log('Adding legend model')
         $('.query-legend').each(function () {
             var $el = $(this);
             var li = $('<li>');
