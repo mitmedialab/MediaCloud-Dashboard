@@ -554,10 +554,6 @@ App.QueryModel = Backbone.Model.extend({
             , end: response.end
         });
         var that = this;
-        this.listenTo(attributes.params, 'change', function () {
-            alert('woooo');
-            that.trigger('change:params:keywords');
-        });
         delete attributes.keywords;
         delete attributes.mediaModel;
         delete attributes.start;
