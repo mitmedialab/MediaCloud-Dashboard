@@ -600,6 +600,31 @@ App.QueryCollection = Backbone.Collection.extend({
         this.listenTo(this.refine, 'mm:refine', this.onRefine);
         this.listenTo(this.subqueryListener, 'mm:subquery', this.onSubquery);
     },
+    // Duplicate an existing model within the collection
+    // Fires event mm:query:duplicate(newModelIndex)
+    duplicate: function (model) {
+        if (!this.contains(model)) {
+            return;
+        }
+        var newMedia = model.get('params').get('mediaModel').clone();
+        var attr = {
+            start: model.get('params').get('start'),
+            end: model.get('params').get('end'),
+            keywords: model.get('params').get('keywords'),
+            mediaModel: newMedia
+        };
+        var opts = {
+            mediaSources: model.mediaSources
+            , parse: true
+            , ResultModel: model.ResultModel
+        };
+        var newModel = new App.QueryModel(attr, opts);
+        newModel.set('name', "Copy of " + model.getName());
+        this.add(newModel);
+        var newModelIndex = this.indexOf(newModel);
+        console.log(newModelIndex);
+        this.trigger('mm:query:duplicate', newModelIndex);
+    },
     onAdd: function (model, collection, options) {
         // When adding a QueryModel, listen to it's ResultModel
         this.resources.listen(model.get('results'));

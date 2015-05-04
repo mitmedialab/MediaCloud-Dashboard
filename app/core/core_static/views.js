@@ -328,22 +328,7 @@ App.QueryView = App.NestedView.extend({
     onCopyInput: function (evt) {
         App.debug('App.QueryView.onCopyInput()');
         evt.preventDefault();
-        var newMedia = this.model.get('params').get('mediaModel');
-        delete newMedia['queryUid'];
-        var attr = {
-            start: this.model.get('params').get('start'),
-            end: this.model.get('params').get('end'),
-            keywords: this.model.get('params').get('keywords'),
-            mediaModel: newMedia.clone()
-        };
-        var opts = {
-            mediaSources: this.mediaSources
-            , parse: true
-            , ResultModel: this.model.ResultModel
-        };
-        var newModel = new App.QueryModel(attr, opts);
-        newModel.set('name', "Copy of " + this.model.getName());
-        this.model.collection.add(newModel);
+        this.model.collection.duplicate(this.model);
     },
     onRemoveInput: function (evt) {
         evt.preventDefault();
@@ -479,6 +464,7 @@ App.QueryListView = App.NestedView.extend({
         this.mediaSources = options.mediaSources;
         this.collection.on('add', this.onAdd, this);
         this.collection.on('remove', this.onRemove, this);
+        this.listenTo(this.collection, 'mm:query:duplicate', this.focusIndex);
         this.render();
     },
     render: function () {
@@ -579,6 +565,7 @@ App.QueryListView = App.NestedView.extend({
         }
     },
     updateCarousel: function (change) {
+        App.debug("QueryListView.updateCarousel: " + change);
         var that = this;
         var queries = this.$('.query-views .query-view');
         var visQueries = queries.filter(":visible");
@@ -625,6 +612,20 @@ App.QueryListView = App.NestedView.extend({
         } else {
             that.onCarouselUpdated();
         }
+    },
+    // Scroll left or right just enought to make query :newIndex: visible,
+    // then place focus on that query.
+    focusIndex: function (newIndex) {
+        App.debug("QueryListView.focusIndex");
+        var queryPad = 2 * parseInt($('.reference .query-view').css('padding-left'));
+        toShow = Math.floor(this.carouselWidth / (this.queryWidth + queryPad));
+        var change = 0;
+        if (newIndex < this.queryIndex) {
+            change = newIndex - this.queryIndex;
+        } else if (newIndex > this.queryIndex + (toShow - 1)) {
+            change = newIndex - this.queryIndex - (toShow - 1);
+        }
+        this.updateCarousel(change);
     },
     onPagerLeft: function () {
         this.updateCarousel(-1);
