@@ -343,11 +343,21 @@ App.QueryView = App.NestedView.extend({
         };
         var newModel = new App.QueryModel(attr, opts);
         newModel.set('name', "Copy of " + this.model.getName());
+        if (this.model.collection.length === 1){
+            $("a.remove").show()
+        }
         this.model.collection.add(newModel);
     },
     onRemoveInput: function (evt) {
         evt.preventDefault();
-        this.model.collection.remove(this.model);
+        var queryNumber = this.model.collection.length;
+        if (queryNumber > 1){
+            this.model.collection.remove(this.model);
+            queryNumber--;
+        }
+        if (queryNumber === 1){
+            $("a.remove").hide()
+        }
     }
 });
 

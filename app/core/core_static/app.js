@@ -11,7 +11,7 @@ App = {
         queryNames: ['Main Query', 'Comparison Query'],
         cookieOpts: {
             'path': '/',
-            'domain': 'mediameter.org',
+            'domain': 'mediameter.media.mit.edu',
             'expires': 1
         }
     },
