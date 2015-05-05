@@ -166,6 +166,7 @@ App.LegendView = Backbone.View.extend({
             $el.append(li);
             that.listenTo(model, 'change', function () {
                 $('.query-title', li).text(model.getName());
+                $('.query-color', li).css('color',model.getColor());
             })
             that.listenTo(model, 'remove', function () {
                 li.remove();
@@ -323,6 +324,7 @@ App.QueryView = App.NestedView.extend({
         this.$('.query-title').text(this.model.getName());
     },
     updateColor: function() {
+        this.$('.query-color').css('color', this.model.getColor());
     },
     onNameModalSubmit: function () {
         this.model.set('name', this.nameModal$.find('input.qlabel').val());

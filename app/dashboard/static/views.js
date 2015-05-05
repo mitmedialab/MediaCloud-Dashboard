@@ -32,7 +32,7 @@ App.SentenceView = Backbone.View.extend({
                     if (querySentences.length > 0) {
                         totalSentences = querySentences.last().get('totalSentences');
                     }
-                    var $title = $('<h3>')
+                    var $title = $('<h3 id=' + that.collection.at(i).getName() + '>')
                         .text(that.collection.at(i).getName()
                               + ' (' + that.formatNumber(totalSentences) + ' found)')
                         .css('color', that.collection.at(i).getColor());
@@ -63,6 +63,9 @@ App.SentenceView = Backbone.View.extend({
             $el.html(progress());
         });
         this.delegateEvents();
+        this.listenTo(this.collection, 'mm:colorchange', function(model) {
+            $('h3#'+ model.getName()).css('color', model.getColor());
+        });
     },
     addSentences: function(sentences,template,element){
         _.each(sentences, function (m) {
@@ -271,12 +274,18 @@ App.WordCountOrderedView = Backbone.View.extend({
     },
     render: function () {
         var that = this;
+        console.log(this.model.getColor());
         this.updateStats();
         this.$el.html(this.template());
         this.$('.content-text').hide();
         _.defer(function () { 
             that.renderSvg();
         });
+        this.listenTo(this.model, 'mm:colorchange', function() {
+           $('g.intersect-group circle').attr('fill', this.model.getColor());
+            d3.selectAll('.word')
+                .attr('fill', this.model.getColor());
+       });
     },
     sizeRange: function () {
         return _.clone(this.config.sizeRange);
@@ -335,7 +344,8 @@ App.WordCountOrderedView = Backbone.View.extend({
             d3.selectAll('.word')
                 .text(function (d) { return d.term; })
                 .attr('font-weight', 'bold')
-                .attr('fill', App.config.queryColors[0]);
+                .attr('fill', this.model.getColor());
+                //.attr('fill', App.config.queryColors[0]);
             // Layout
             y = 0;
             intersectHeight = this.listCloudLayout(intersectWords, innerWidth, this.fullExtent, sizeRange);
@@ -352,6 +362,7 @@ App.WordCountOrderedView = Backbone.View.extend({
             })
             .on('mouseout', function () {
                 var color = App.config.queryColors[0];
+                color = that.model.getColor();
                 d3.select(this).attr('fill', color)
                 .attr('cursor','default');
             });
@@ -475,6 +486,14 @@ App.WordCountComparisonView = Backbone.View.extend({
                 });
             that.renderSvg();
         });
+        this.listenTo(this.collection, 'mm:colorchange', function() {
+           $('g.left-group circle').attr('fill', this.leftModel.getColor());
+           $('g.right-group circle').attr('fill', this.rightModel.getColor());
+            d3.selectAll('.left.word')
+                .attr('fill', this.leftModel.getColor());
+            d3.selectAll('.right.word')
+                .attr('fill', this.rightModel.getColor());
+       });
     },
     changeQuery: function(ev) {
         var currentValue = parseInt($(ev.currentTarget).val());
@@ -796,6 +815,7 @@ App.HistogramView = Backbone.View.extend({
             'resource:complete:wordcount',
             this.onSubqueryWordcounts
         );
+        this.listenTo(this.collection, 'mm:colorchange', this.renderViz);
     },
     renderViz: function () {
         App.debug('App.HistogramView.renderViz');
