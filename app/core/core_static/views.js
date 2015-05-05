@@ -296,21 +296,22 @@ App.QueryView = App.NestedView.extend({
                 .append(that.dateRangeView.el);
             that.updateTitle();
             that.listenTo(that.model, 'mm:namechange', that.updateTitle);
+            that.listenTo(that.model, 'mm:colorchange', that.updateColor);
             // In order for the modal to show up above all page content
             // it needs to be directly under the body.
             that.nameModal$ = that.$('.mm-edit-query-label');
             $('body').append(that.nameModal$.remove());
             that.nameModal$.on('shown.bs.modal', function () {
-                that.nameModal$.find('input').focus();
+                that.nameModal$.find('input.qlabel').focus();
             });
             that.$('a.edit').on('click', function (event) {
                 event.preventDefault();
-                that.nameModal$.find('input').val(that.model.get('name'));
+                that.nameModal$.find('input.qlabel').val(that.model.get('name'));
                 that.nameModal$.modal('show');
             })
             // Listen for submit of label dialog
             that.nameModal$.find('.btn-primary').on('click', that.onNameModalSubmit);
-            that.nameModal$.find('input').on('keypress', function (event) {
+            that.nameModal$.find('input.qlabel').on('keypress', function (event) {
                 if (event.which == 13) {
                     that.onNameModalSubmit();
                 }
@@ -321,8 +322,11 @@ App.QueryView = App.NestedView.extend({
     updateTitle: function () {
         this.$('.query-title').text(this.model.getName());
     },
+    updateColor: function() {
+    },
     onNameModalSubmit: function () {
-        this.model.set('name', this.nameModal$.find('input').val());
+        this.model.set('name', this.nameModal$.find('input.qlabel').val());
+        this.model.set('color', this.nameModal$.find('input.qcolor').val());
         this.nameModal$.modal('hide');
     },
     onCopyInput: function (evt) {

@@ -505,9 +505,13 @@ App.QueryModel = Backbone.Model.extend({
         this.set('results', new this.ResultModel({}, opts));
         this.set('queryUid', App.QueryModel.getUid());
         this.listenTo(this, 'change:name', this.onChangeName);
+        this.listenTo(this, 'change:color', this.onChangeColor);
     },
     onChangeName: function () {
         this.trigger('mm:namechange');
+    },
+    onChangeColor: function() {
+        this.trigger('mm:colorchange');
     },
     getName: function () {
         var name = this.get('name');
@@ -518,6 +522,10 @@ App.QueryModel = Backbone.Model.extend({
         return name;
     },
     getColor: function () {
+        var color = this.get('color');
+        if (typeof(color) !== 'undefined') {
+            return color;
+        }
         return PrimeColor.getColorHex(this.get('queryUid') - 1);
     },
     // Convert n (>= 1) into an alpha label: A, B, .. Z, AA, AB, ...
@@ -546,19 +554,17 @@ App.QueryModel = Backbone.Model.extend({
         return label;
     },
     parse: function (response, options) {
-        var attributes = _.clone(response);
-        attributes.params = new Backbone.Model({
+        response.params = new Backbone.Model({
             keywords: response.keywords
             , mediaModel: response.mediaModel
             , start: response.start
             , end: response.end
         });
-        var that = this;
-        delete attributes.keywords;
-        delete attributes.mediaModel;
-        delete attributes.start;
-        delete attributes.end;
-        return attributes;
+        delete response.keywords;
+        delete response.mediaModel;
+        delete response.start;
+        delete response.end;
+        return response;
     },
     execute: function () {
         App.debug('App.QueryModel.execute()');
