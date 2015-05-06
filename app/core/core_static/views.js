@@ -320,6 +320,10 @@ App.QueryView = App.NestedView.extend({
                     that.onNameModalSubmit();
                 }
             });
+            // Listen for new queries
+            that.listenTo(that.model.collection, 'add', function () {
+                $(".query-controls a.remove").show();
+            });
             that.$('.query-color').css('color', that.model.getColor());
         });
     },
@@ -347,7 +351,7 @@ App.QueryView = App.NestedView.extend({
             queryNumber--;
         }
         if (queryNumber === 1){
-            $("a.remove").hide()
+            $(".query-controls a.remove").hide()
         }
     }
 });
