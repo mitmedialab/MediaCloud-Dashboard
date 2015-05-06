@@ -318,6 +318,10 @@ App.QueryView = App.NestedView.extend({
                     that.onNameModalSubmit();
                 }
             });
+            // Listen for new queries
+            that.listenTo(that.model.collection, 'add', function () {
+                $(".query-controls a.remove").show();
+            });
             that.$('.query-color').css('color', that.model.getColor());
         });
     },
@@ -335,7 +339,14 @@ App.QueryView = App.NestedView.extend({
     },
     onRemoveInput: function (evt) {
         evt.preventDefault();
-        this.model.collection.remove(this.model);
+        var queryNumber = this.model.collection.length;
+        if (queryNumber > 1){
+            this.model.collection.remove(this.model);
+            queryNumber--;
+        }
+        if (queryNumber === 1){
+            $(".query-controls a.remove").hide()
+        }
     }
 });
 
