@@ -282,7 +282,10 @@ App.QueryView = App.NestedView.extend({
     },
     render: function () {
         // Show loading
-        this.$el.html(this.template());
+        this.$el
+            .html(this.template())
+            .addClass('query-view')
+            .addClass('col-sm-4');
         progress = _.template($('#tpl-progress').html());
         this.$('.query-view-content').html(progress());
         var that = this;
@@ -496,8 +499,6 @@ App.QueryListView = App.NestedView.extend({
         });
         this.addSubView(queryView);
         this.$('.query-carousel').append(queryView.$el);
-        // TODO this is a hack to only allow two queries, but we can get data
-        // for more once the viz can handle it.
         this.updateNumQueries(collection);
         this.updateCarousel(0);
     },
@@ -567,6 +568,7 @@ App.QueryListView = App.NestedView.extend({
     updateCarousel: function (change) {
         App.debug("QueryListView.updateCarousel: " + change);
         var that = this;
+        var promise = $.Deferred();
         var queries = this.$('.query-views .query-view');
         var visQueries = queries.filter(":visible");
         var width = visQueries.width();
@@ -576,19 +578,25 @@ App.QueryListView = App.NestedView.extend({
         if (typeof(change) != "undefined" && change > 0 && this.queryIndex < queries.length - toShow) {
             var rightIndex = this.queryIndex + toShow;
             $('.query-carousel-window').css('overflow', 'hidden');
-            $(queries[rightIndex])
-                .css('margin-right', '-100%')
-                .addClass('visible');
+            for (var i = rightIndex; i < queries.length; i++) {
+                $(queries[i]).addClass('visible');
+            }
+            var visibleWidth = (queries.filter(":visible").length * (this.queryWidth + queryPad));
+            // Fix for strange bug that causes .query-carousel to float right instead of left
+            $('.query-views .query-carousel').css({
+                "width": visibleWidth
+            });
             $('.query-views .query-carousel').animate({
-                'left': "-" + (width + margin) + "px"
+                'left': "-" + (width * change + margin) + "px"
             }, 250, null, function () {
-                $('.query-carousel-window').css('overflow', 'visible');
+                $('.query-carousel-window').css('overflow', 'hidden');
                 $(queries[rightIndex]).css('margin-right', '0');
                 that.queryIndex += change;
                 that.queryIndex = Math.min(that.queryIndex, queries.length - toShow);
                 that.queryIndex = Math.max(that.queryIndex, 0);
                 $('.query-carousel').css('left', '0');
                 that.onCarouselUpdated();
+                promise.resolve();
             });
         } else if (typeof(change) != "undefined" && change < 0 && this.queryIndex > 0) {
             var rightIndex = this.queryIndex + toShow - 1;
@@ -608,10 +616,13 @@ App.QueryListView = App.NestedView.extend({
                 that.queryIndex = Math.max(that.queryIndex, 0);
                 that.queryIndex = Math.min(that.queryIndex, toShow);
                 that.onCarouselUpdated();
+                promise.resolve();
             });
         } else {
             that.onCarouselUpdated();
+            promise.resolve();
         }
+        return promise;
     },
     // Scroll left or right just enought to make query :newIndex: visible,
     // then place focus on that query.
@@ -625,7 +636,9 @@ App.QueryListView = App.NestedView.extend({
         } else if (newIndex > this.queryIndex + (toShow - 1)) {
             change = newIndex - this.queryIndex - (toShow - 1);
         }
-        this.updateCarousel(change);
+        this.updateCarousel(change).then(function () {
+            $($('.query-views .query-view .keyword-view-keywords').get(newIndex)).focus();
+        });
     },
     onPagerLeft: function () {
         this.updateCarousel(-1);
@@ -1015,9 +1028,6 @@ App.KeywordView = Backbone.View.extend({
             this.$input.val(this.model.get('params').get('keywords'));
         }
         var $el = this.$el;
-        _.defer(function () {
-            $('.keyword-view-keywords', $el).focus();
-        });
         var that = this;
     },
     contentChanged: function () {

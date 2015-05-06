@@ -622,7 +622,6 @@ App.QueryCollection = Backbone.Collection.extend({
         newModel.set('name', "Copy of " + model.getName());
         this.add(newModel);
         var newModelIndex = this.indexOf(newModel);
-        console.log(newModelIndex);
         this.trigger('mm:query:duplicate', newModelIndex);
     },
     onAdd: function (model, collection, options) {
