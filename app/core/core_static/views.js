@@ -283,7 +283,10 @@ App.QueryView = App.NestedView.extend({
     },
     render: function () {
         // Show loading
-        this.$el.html(this.template());
+        this.$el
+            .html(this.template())
+            .addClass('query-view')
+            .addClass('col-sm-4');
         progress = _.template($('#tpl-progress').html());
         this.$('.query-view-content').html(progress());
         var that = this;
@@ -334,25 +337,7 @@ App.QueryView = App.NestedView.extend({
     onCopyInput: function (evt) {
         App.debug('App.QueryView.onCopyInput()');
         evt.preventDefault();
-        var newMedia = this.model.get('params').get('mediaModel');
-        delete newMedia['queryUid'];
-        var attr = {
-            start: this.model.get('params').get('start'),
-            end: this.model.get('params').get('end'),
-            keywords: this.model.get('params').get('keywords'),
-            mediaModel: newMedia.clone()
-        };
-        var opts = {
-            mediaSources: this.mediaSources
-            , parse: true
-            , ResultModel: this.model.ResultModel
-        };
-        var newModel = new App.QueryModel(attr, opts);
-        newModel.set('name', "Copy of " + this.model.getName());
-        if (this.model.collection.length === 1){
-            $("a.remove").show()
-        }
-        this.model.collection.add(newModel);
+        this.model.collection.duplicate(this.model);
     },
     onRemoveInput: function (evt) {
         evt.preventDefault();
@@ -495,6 +480,7 @@ App.QueryListView = App.NestedView.extend({
         this.mediaSources = options.mediaSources;
         this.collection.on('add', this.onAdd, this);
         this.collection.on('remove', this.onRemove, this);
+        this.listenTo(this.collection, 'mm:query:duplicate', this.focusIndex);
         this.render();
     },
     render: function () {
@@ -526,8 +512,6 @@ App.QueryListView = App.NestedView.extend({
         });
         this.addSubView(queryView);
         this.$('.query-carousel').append(queryView.$el);
-        // TODO this is a hack to only allow two queries, but we can get data
-        // for more once the viz can handle it.
         this.updateNumQueries(collection);
         this.updateCarousel(0);
     },
@@ -595,7 +579,9 @@ App.QueryListView = App.NestedView.extend({
         }
     },
     updateCarousel: function (change) {
+        App.debug("QueryListView.updateCarousel: " + change);
         var that = this;
+        var promise = $.Deferred();
         var queries = this.$('.query-views .query-view');
         var visQueries = queries.filter(":visible");
         var width = visQueries.width();
@@ -605,19 +591,25 @@ App.QueryListView = App.NestedView.extend({
         if (typeof(change) != "undefined" && change > 0 && this.queryIndex < queries.length - toShow) {
             var rightIndex = this.queryIndex + toShow;
             $('.query-carousel-window').css('overflow', 'hidden');
-            $(queries[rightIndex])
-                .css('margin-right', '-100%')
-                .addClass('visible');
+            for (var i = rightIndex; i < queries.length; i++) {
+                $(queries[i]).addClass('visible');
+            }
+            var visibleWidth = (queries.filter(":visible").length * (this.queryWidth + queryPad));
+            // Fix for strange bug that causes .query-carousel to float right instead of left
+            $('.query-views .query-carousel').css({
+                "width": visibleWidth
+            });
             $('.query-views .query-carousel').animate({
-                'left': "-" + (width + margin) + "px"
+                'left': "-" + (width * change + margin) + "px"
             }, 250, null, function () {
-                $('.query-carousel-window').css('overflow', 'visible');
+                $('.query-carousel-window').css('overflow', 'hidden');
                 $(queries[rightIndex]).css('margin-right', '0');
                 that.queryIndex += change;
                 that.queryIndex = Math.min(that.queryIndex, queries.length - toShow);
                 that.queryIndex = Math.max(that.queryIndex, 0);
                 $('.query-carousel').css('left', '0');
                 that.onCarouselUpdated();
+                promise.resolve();
             });
         } else if (typeof(change) != "undefined" && change < 0 && this.queryIndex > 0) {
             var rightIndex = this.queryIndex + toShow - 1;
@@ -637,10 +629,29 @@ App.QueryListView = App.NestedView.extend({
                 that.queryIndex = Math.max(that.queryIndex, 0);
                 that.queryIndex = Math.min(that.queryIndex, toShow);
                 that.onCarouselUpdated();
+                promise.resolve();
             });
         } else {
             that.onCarouselUpdated();
+            promise.resolve();
         }
+        return promise;
+    },
+    // Scroll left or right just enought to make query :newIndex: visible,
+    // then place focus on that query.
+    focusIndex: function (newIndex) {
+        App.debug("QueryListView.focusIndex");
+        var queryPad = 2 * parseInt($('.reference .query-view').css('padding-left'));
+        toShow = Math.floor(this.carouselWidth / (this.queryWidth + queryPad));
+        var change = 0;
+        if (newIndex < this.queryIndex) {
+            change = newIndex - this.queryIndex;
+        } else if (newIndex > this.queryIndex + (toShow - 1)) {
+            change = newIndex - this.queryIndex - (toShow - 1);
+        }
+        this.updateCarousel(change).then(function () {
+            $($('.query-views .query-view .keyword-view-keywords').get(newIndex)).focus();
+        });
     },
     onPagerLeft: function () {
         this.updateCarousel(-1);
@@ -1030,9 +1041,6 @@ App.KeywordView = Backbone.View.extend({
             this.$input.val(this.model.get('params').get('keywords'));
         }
         var $el = this.$el;
-        _.defer(function () {
-            $('.keyword-view-keywords', $el).focus();
-        });
         var that = this;
     },
     contentChanged: function () {

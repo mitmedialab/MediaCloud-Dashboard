@@ -336,7 +336,6 @@ input.form-control, select.form-control, textarea.form-control {
 }
 .query-carousel {
     position: relative;
-    left: 0;
 }
 .query-pager {
     text-align: center;
