@@ -25,3 +25,13 @@
     position: relative;
     top: -0.15ex;
 }
+
+.query-sentences {
+    margin-bottom: 40px;
+}
+.query-sentences:last-child {
+    margin-bottom: 0;
+}
+.query-sentences h3 {
+    border-bottom: solid 1px #777;
+}

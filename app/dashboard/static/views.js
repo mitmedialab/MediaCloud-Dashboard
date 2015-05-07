@@ -27,6 +27,8 @@ App.SentenceView = Backbone.View.extend({
             var query1Sentences = that.collection.at(0).get('results').get('sentences');
             if (queryCount >= 2) {
                 for (i = 0; i < queryCount; i++) {
+                    $view = $('<div>');
+                    $view.addClass('query-sentences').appendTo($el);
                     querySentences = that.collection.at(i).get('results').get('sentences');
                     var totalSentences = 0;
                     if (querySentences.length > 0) {
@@ -36,8 +38,8 @@ App.SentenceView = Backbone.View.extend({
                         .text(that.collection.at(i).getName()
                               + ' (' + that.formatNumber(totalSentences) + ' found)')
                         .css('color', that.collection.at(i).getColor());
-                    $el.append($title);
-                    that.addSentences(querySentences.last(10), that.sentenceTemplate, $el);
+                    $view.append($title);
+                    that.addSentences(querySentences.last(10), that.sentenceTemplate, $view);
                 }
                 that.$('.count').html('');
             } else {
