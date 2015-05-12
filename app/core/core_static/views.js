@@ -299,28 +299,25 @@ App.QueryView = App.NestedView.extend({
                 .append(that.dateRangeView.el);
             that.updateTitle();
             that.listenTo(that.model, 'mm:namechange', that.updateTitle);
+            that.listenTo(that.model, 'mm:colorchange', that.updateColor);
             // In order for the modal to show up above all page content
             // it needs to be directly under the body.
             that.nameModal$ = that.$('.mm-edit-query-label');
             $('body').append(that.nameModal$.remove());
             that.nameModal$.on('shown.bs.modal', function () {
-                that.nameModal$.find('input').focus();
+                that.nameModal$.find('input.qlabel').focus();
             });
             that.$('a.edit').on('click', function (event) {
                 event.preventDefault();
-                that.nameModal$.find('input').val(that.model.get('name'));
+                that.nameModal$.find('input.qlabel').val(that.model.get('name'));
                 that.nameModal$.modal('show');
             })
             // Listen for submit of label dialog
             that.nameModal$.find('.btn-primary').on('click', that.onNameModalSubmit);
-            that.nameModal$.find('input').on('keypress', function (event) {
+            that.nameModal$.find('input.qlabel').on('keypress', function (event) {
                 if (event.which == 13) {
                     that.onNameModalSubmit();
                 }
-            });
-            // Listen for new queries
-            that.listenTo(that.model.collection, 'add', function () {
-                $(".query-controls a.remove").show();
             });
             that.$('.query-color').css('color', that.model.getColor());
         });
@@ -328,8 +325,11 @@ App.QueryView = App.NestedView.extend({
     updateTitle: function () {
         this.$('.query-title').text(this.model.getName());
     },
+    updateColor: function() {
+    },
     onNameModalSubmit: function () {
-        this.model.set('name', this.nameModal$.find('input').val());
+        this.model.set('name', this.nameModal$.find('input.qlabel').val());
+        this.model.set('color', this.nameModal$.find('input.qcolor').val());
         this.nameModal$.modal('hide');
     },
     onCopyInput: function (evt) {
@@ -510,6 +510,8 @@ App.QueryListView = App.NestedView.extend({
         });
         this.addSubView(queryView);
         this.$('.query-carousel').append(queryView.$el);
+        // TODO this is a hack to only allow two queries, but we can get data
+        // for more once the viz can handle it.
         this.updateNumQueries(collection);
         this.updateCarousel(0);
     },
@@ -1039,6 +1041,9 @@ App.KeywordView = Backbone.View.extend({
             this.$input.val(this.model.get('params').get('keywords'));
         }
         var $el = this.$el;
+        _.defer(function () {
+            $('.keyword-view-keywords', $el).focus();
+        });
         var that = this;
     },
     contentChanged: function () {
@@ -1239,24 +1244,20 @@ App.ActionedViewMixin = {
     showActionMenu: function(){
         this.$('.panel-heading button').show();
     },
-    addDownloadMenuItems: function(downloadUrls,title,cssClass){
+    addDownloadMenuItems: function(downloadInfo,title,cssClass){
         if(App.con.userModel.get('authenticated')==false){ // public users can't download
             return;
         }
         this.$('.panel-action-list li.action-download').remove();
-        for(idx in downloadUrls){
+        for(idx in downloadInfo){
             var text = "";
             if(typeof title === "undefined"){
-                if(idx==0){
-                    name = '<span class="first-query">'+App.config.queryNames[0]+'</span>';
-                } else {
-                    name = '<span class="second-query">'+App.config.queryNames[1]+'</span>';
-                }
+                name = '<span class="">'+downloadInfo[idx].name+'</span>';
                 text = "Download "+name+" Data CSV";
             } else {
                 text = title;
             }
-            var element = this._downloadUrlTemplate({url:downloadUrls[idx],'text':text,'cssClass':cssClass});
+            var element = this._downloadUrlTemplate({url:downloadInfo[idx].url,'text':text,'cssClass':cssClass});
             this.$('.panel-action-list').append(element);  
         }
     }
@@ -1369,4 +1370,3 @@ App.WordCountResultView = Backbone.View.extend({
         }
     }
 });
-

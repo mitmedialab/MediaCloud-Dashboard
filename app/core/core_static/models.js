@@ -505,6 +505,10 @@ App.QueryModel = Backbone.Model.extend({
         this.set('results', new this.ResultModel({}, opts));
         this.set('queryUid', App.QueryModel.getUid());
         this.listenTo(this, 'change:name', this.onChangeName);
+        this.listenTo(this, 'change:color', this.onChangeColor);
+    },
+    onChangeColor: function() {
+        this.trigger('mm:colorchange');
     },
     onChangeName: function () {
         this.trigger('mm:namechange');
@@ -518,6 +522,10 @@ App.QueryModel = Backbone.Model.extend({
         return name;
     },
     getColor: function () {
+        var color = this.get('color');
+        if (typeof(color) !== 'undefined') {
+            return color;
+        }
         return PrimeColor.getColorHex(this.get('queryUid') - 1);
     },
     // Convert n (>= 1) into an alpha label: A, B, .. Z, AA, AB, ...
