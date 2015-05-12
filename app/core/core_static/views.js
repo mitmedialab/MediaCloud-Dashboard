@@ -1047,9 +1047,6 @@ App.KeywordView = Backbone.View.extend({
             this.$input.val(this.model.get('params').get('keywords'));
         }
         var $el = this.$el;
-        _.defer(function () {
-            $('.keyword-view-keywords', $el).focus();
-        });
         var that = this;
     },
     contentChanged: function () {
