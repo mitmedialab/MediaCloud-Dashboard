@@ -319,6 +319,10 @@ App.QueryView = App.NestedView.extend({
                     that.onNameModalSubmit();
                 }
             });
+            // Listen for new queries
+            that.listenTo(that.model.collection, 'add', function () {
+                $(".query-controls a.remove").show();
+            });
             that.$('.query-color').css('color', that.model.getColor());
         });
     },
@@ -340,11 +344,11 @@ App.QueryView = App.NestedView.extend({
     onRemoveInput: function (evt) {
         evt.preventDefault();
         var queryNumber = this.model.collection.length;
-        if (queryNumber > 1){
+        if (queryNumber > 1) {
             this.model.collection.remove(this.model);
             queryNumber--;
         }
-        if (queryNumber === 1){
+        if (queryNumber === 1) {
             $(".query-controls a.remove").hide()
         }
     }
@@ -429,6 +433,10 @@ App.DemoQueryView = App.NestedView.extend({
                     that.onNameModalSubmit();
                 }
             });
+            // Listen for new queries
+            that.listenTo(that.model.collection, 'add', function () {
+                $(".query-controls a.remove").show();
+            });
         });
     },
     updateTitle: function () {
@@ -510,8 +518,6 @@ App.QueryListView = App.NestedView.extend({
         });
         this.addSubView(queryView);
         this.$('.query-carousel').append(queryView.$el);
-        // TODO this is a hack to only allow two queries, but we can get data
-        // for more once the viz can handle it.
         this.updateNumQueries(collection);
         this.updateCarousel(0);
     },
