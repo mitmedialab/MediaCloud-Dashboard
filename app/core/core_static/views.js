@@ -166,7 +166,7 @@ App.LegendView = Backbone.View.extend({
             $el.append(li);
             that.listenTo(model, 'change', function () {
                 $('.query-title', li).text(model.getName());
-                $('.query-color', li).css('color',model.getColor());
+                $('.query-color', li).css('color', model.getColor());
             })
             that.listenTo(model, 'remove', function () {
                 li.remove();
@@ -311,6 +311,7 @@ App.QueryView = App.NestedView.extend({
             that.$('a.edit').on('click', function (event) {
                 event.preventDefault();
                 that.nameModal$.find('input.qlabel').val(that.model.get('name'));
+                that.nameModal$.find('input.qcolor').val(that.model.getColor());
                 that.nameModal$.modal('show');
             })
             // Listen for submit of label dialog
@@ -346,11 +347,11 @@ App.QueryView = App.NestedView.extend({
     onRemoveInput: function (evt) {
         evt.preventDefault();
         var queryNumber = this.model.collection.length;
-        if (queryNumber > 1){
+        if (queryNumber > 1) {
             this.model.collection.remove(this.model);
             queryNumber--;
         }
-        if (queryNumber === 1){
+        if (queryNumber === 1) {
             $(".query-controls a.remove").hide()
         }
     }
@@ -434,6 +435,10 @@ App.DemoQueryView = App.NestedView.extend({
                 if (event.which == 13) {
                     that.onNameModalSubmit();
                 }
+            });
+            // Listen for new queries
+            that.listenTo(that.model.collection, 'add', function () {
+                $(".query-controls a.remove").show();
             });
         });
     },
@@ -1371,4 +1376,3 @@ App.WordCountResultView = Backbone.View.extend({
         }
     }
 });
-

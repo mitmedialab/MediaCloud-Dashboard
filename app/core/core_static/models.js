@@ -507,6 +507,9 @@ App.QueryModel = Backbone.Model.extend({
         this.listenTo(this, 'change:name', this.onChangeName);
         this.listenTo(this, 'change:color', this.onChangeColor);
     },
+    onChangeColor: function() {
+        this.trigger('mm:colorchange', this);
+    },
     onChangeName: function () {
         this.trigger('mm:namechange');
     },
