@@ -106,6 +106,7 @@ App.con = App.Controller = {
     
     routeLogin: function () {
         App.debug('Route: login');
+        App.con.queryCollection.reset([]);
         App.con.loginView = App.con.vm.getView(App.LoginView, { model: App.con.userModel });
         App.con.vm.showView(App.con.loginView);
         App.con.queryVm.showViews([]);
