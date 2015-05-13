@@ -278,6 +278,10 @@ input.form-control, select.form-control, textarea.form-control {
     color: #999;
 }
 
+input.qcolor {
+    max-width: 6em;
+}
+
 /* Bootstrap typeahead customization ******************************************/
 
 .input-group .twitter-typeahead:first-child .tt-input,
