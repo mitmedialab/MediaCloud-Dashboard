@@ -200,6 +200,14 @@ App.con = App.Controller = {
         );
         App.con.mediaSources.trigger('sync');
         App.con.mediaModel = App.con.mediaSources.subset({"sets":[8875027]});
+        App.con.comparisonMediaModel = App.con.mediaSources.subset({"sets":[8875027]});
+        // Initialize collection
+        if (!App.con.queryCollection) {
+            App.con.queryCollection = new App.QueryCollection();
+        } else {
+            App.con.queryCollection.reset();
+            App.QueryModel.nextUid = 1;
+        }
         // Defaults dates
         var dayMs = 24 * 60 * 60 * 1000;
         var ts = new Date().getTime();
@@ -209,20 +217,21 @@ App.con = App.Controller = {
             start: start.getFullYear() + '-' + (start.getMonth()+1) + '-' + start.getDate()
             , end: end.getFullYear() + '-' + (end.getMonth()+1) + '-' + end.getDate()
             , mediaModel: App.con.mediaModel
-            , keywords: 'boston'
+            , keywords: 'truth'
+            , qinfo: { 'name': 'Truth'}
         };
         var options = {
             mediaSources: App.con.mediaSources
             , parse: true
             , ResultModel: App.DemoResultModel
         };
-        if (!App.con.queryCollection) {
-            App.con.queryCollection = new App.QueryCollection();
-        } else {
-            App.con.queryCollection.reset();
-        }
         App.con.queryModel = new App.QueryModel(attributes, options);
         App.con.queryCollection.add(App.con.queryModel);
+        attributes.keywords = 'beauty';
+        attributes.qinfo.name = 'Beauty';
+        attributes.mediaModel = App.con.comparisonMediaModel;
+        var comparison = new App.QueryModel(attributes, options);
+        App.con.queryCollection.add(comparison);
         App.con.queryListView = App.con.queryVm.getView(
             App.DemoQueryListView
             , {
@@ -230,8 +239,16 @@ App.con = App.Controller = {
                 , mediaSources: App.con.mediaSources
             }
         );
-        App.con.queryCollection.on('execute', App.con.onDemoQuery, this);
-        App.con.queryVm.showView(App.con.queryListView);
+        App.con.queryCollection.on('execute', App.con.onQuery, this);
+        App.con.errorListView = App.con.queryVm.getView(
+            App.ErrorListView
+            , { collection: App.con.getErrorCollection() }
+        );
+        App.con.queryVm.showViews([
+            App.con.errorListView
+            , App.con.queryListView
+        ]);
+        App.con.vm.showViews([]);
     },
     
     routeDemoQuery: function (keywords, media, start, end, qinfo) {

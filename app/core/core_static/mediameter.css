@@ -140,6 +140,9 @@ body {
     position: relative;
     z-index: 300;
 }
+.messages p:last-child {
+    margin-bottom: 0;
+}
 .content {
     position: relative;
     z-index: 200;
