@@ -270,7 +270,6 @@ App.QueryView = App.NestedView.extend({
         this.mediaListView = new App.MediaListView({
             model: this.model.get('params').get('mediaModel')
         });
-
         this.dateRangeView = new App.DateRangeView({ model: this.model });
         this.keywordView = new App.KeywordView({model: this.model});
         this.controlsView = new App.QueryControlsView();
@@ -361,77 +360,67 @@ App.DemoQueryView = App.NestedView.extend({
     name:'DemoQueryView',
     template: _.template($('#tpl-query-view').html()),
     events: {
-        'click button.copy': 'onDemoCopyInput',
-        'click button.remove': 'onDemoRemoveInput'
+        'click a.duplicate': 'onCopyInput',
+        'click a.remove': 'onRemoveInput'
     },
     initialize: function (options) {
-        /*
-        App.debug('App.DemoQueryView.initialize()');
+        App.debug('App.QueryView.initialize()');
         App.debug(options);
-        _.bindAll(this, 'onDemoCopyInput');
-        _.bindAll(this, 'onDemoRemoveInput');
+        _.bindAll(this, 'onCopyInput');
+        _.bindAll(this, 'onRemoveInput');
         _.bindAll(this, 'onNameModalSubmit');
         this.mediaSources = options.mediaSources;
+        this.mediaListView = new App.MediaListView({
+            model: this.model.get('params').get('mediaModel'),
+            disabled: true
+        });
         this.dateRangeView = new App.DateRangeView({
-            model: this.model, disabled: true
+            model: this.model,
+            disabled: true
         });
-        this.keywordView = new App.KeywordView({ model: this.model});
+        this.keywordView = new App.KeywordView({model: this.model});
         this.controlsView = new App.QueryControlsView();
-        this.simpleTagSelectView = new App.SimpleTagSelectView({
-            model: this.model.get('params').get('mediaModel')
-            , mediaSources: this.mediaSources
-            , disabled: true
-        });
-        this.simpleTagListView = new App.SimpleTagListView({
-            model: this.model.get('params').get('mediaModel')
-            , disabled: true
-        });
         this.model.on('remove', this.close, this);
+        this.addSubView(this.mediaListView);
         this.addSubView(this.dateRangeView);
         this.addSubView(this.controlsView);
-        this.addSubView(this.simpleTagSelectView);
-        this.addSubView(this.simpleTagListView);
         this.render();
-        */
     },
     render: function () {
-        // Assume the media sources are loaded already
-        this.$el.html(this.template());
-        // Replace loading with sub views
+        // Show loading
+        this.$el
+            .html(this.template())
+            .addClass('query-view')
+            .addClass('col-sm-4');
+        progress = _.template($('#tpl-progress').html());
+        this.$('.query-view-content').html(progress());
         var that = this;
         this.mediaSources.deferred.done(function () {
             that.$el.html(that.template());
             // Replace loading with sub views
-            var topRow = $('<div>').addClass('row')
+            that.$('.query-view-content')
                 .append(that.keywordView.el)
-                .append(that.dateRangeView.el)
-                .append(that.controlsView.el);
-            var bottomRow = $('<div>').addClass('row')
-                .append(that.simpleTagSelectView.el)
-                .append(that.simpleTagListView.el);
-            that.$('.query-view-content').html('')
-                .append(topRow)
-                .append(bottomRow);
-        });
-        // Defer until after this view has been added to the DOM
-        _.defer(function () {
+                .append(that.mediaListView.el)
+                .append(that.dateRangeView.el);
             that.updateTitle();
             that.listenTo(that.model, 'mm:namechange', that.updateTitle);
+            that.listenTo(that.model, 'mm:colorchange', that.updateColor);
             // In order for the modal to show up above all page content
             // it needs to be directly under the body.
             that.nameModal$ = that.$('.mm-edit-query-label');
-             $('body').append(that.nameModal$.remove());
+            $('body').append(that.nameModal$.remove());
             that.nameModal$.on('shown.bs.modal', function () {
-                that.nameModal$.find('input').focus();
+                that.nameModal$.find('input.qlabel').focus();
             });
-            that.$('h3 a').on('click', function (event) {
+            that.$('a.edit').on('click', function (event) {
                 event.preventDefault();
-                that.nameModal$.find('input').val(that.model.get('name'));
+                that.nameModal$.find('input.qlabel').val(that.model.get('name'));
+                that.nameModal$.find('input.qcolor').val(that.model.getColor());
                 that.nameModal$.modal('show');
             })
             // Listen for submit of label dialog
             that.nameModal$.find('.btn-primary').on('click', that.onNameModalSubmit);
-            that.nameModal$.find('input').on('keypress', function (event) {
+            that.nameModal$.find('input.qlabel').on('keypress', function (event) {
                 if (event.which == 13) {
                     that.onNameModalSubmit();
                 }
@@ -440,36 +429,35 @@ App.DemoQueryView = App.NestedView.extend({
             that.listenTo(that.model.collection, 'add', function () {
                 $(".query-controls a.remove").show();
             });
+            that.$('.query-color').css('color', that.model.getColor());
         });
     },
     updateTitle: function () {
         this.$('.query-title').text(this.model.getName());
     },
+    updateColor: function() {
+        this.$('.query-color').css('color', this.model.getColor());
+    },
     onNameModalSubmit: function () {
-        this.model.set('name', this.nameModal$.find('input').val());
+        this.model.set('name', this.nameModal$.find('input.qlabel').val());
+        this.model.set('color', this.nameModal$.find('input.qcolor').val());
         this.nameModal$.modal('hide');
     },
-    onDemoCopyInput: function (evt) {
-        App.debug('App.DemoQueryView.onCopyInput()');
+    onCopyInput: function (evt) {
+        App.debug('App.QueryView.onCopyInput()');
         evt.preventDefault();
-        var newMedia = this.model.get('params').get('mediaModel').clone();
-        var attr = {
-            start: this.model.get('params').get('start'),
-            end: this.model.get('params').get('end'),
-            keywords: this.model.get('params').get('keywords'),
-            mediaModel: newMedia
-        };
-        var opts = {
-            mediaSources: this.mediaSources
-            , parse: true
-            , ResultModel: this.model.ResultModel
-        };
-        var newModel = new App.QueryModel(attr, opts);
-        this.model.collection.add(newModel);
+        this.model.collection.duplicate(this.model);
     },
-    onDemoRemoveInput: function (evt) {
+    onRemoveInput: function (evt) {
         evt.preventDefault();
-        this.model.collection.remove(this.model);
+        var queryNumber = this.model.collection.length;
+        if (queryNumber > 1) {
+            this.model.collection.remove(this.model);
+            queryNumber--;
+        }
+        if (queryNumber === 1) {
+            $(".query-controls a.remove").hide()
+        }
     }
 });
 
@@ -546,6 +534,7 @@ App.QueryListView = App.NestedView.extend({
         });
     },
     initializeCarousel: function () {
+        App.debug("App.QueryListView.initializeCarousel()");
         this.queryIndex = 0;
         this.queryWidth = $('.reference .query-view').width();
         this.carouselWidth = $('.query-views .query-carousel-window').width();
@@ -557,6 +546,7 @@ App.QueryListView = App.NestedView.extend({
         var queries = this.$('.query-view');
         var queryPad = 2 * parseInt($('.reference .query-view').css('padding-left'));
         toShow = Math.floor(this.carouselWidth / (this.queryWidth + queryPad));
+        App.debug("Showing: " + toShow);
         $('.query-carousel-window')
             .css('width', (toShow * (this.queryWidth + queryPad) + this.carouselPad) + 'px')
             .css('float', 'left')
@@ -597,6 +587,9 @@ App.QueryListView = App.NestedView.extend({
         var margin = parseInt(visQueries.css('padding-left')) * 2;
         var queryPad = 2 * parseInt($('.reference .query-view').css('padding-left'));
         toShow = Math.floor(this.carouselWidth / (this.queryWidth + queryPad));
+        App.debug("Carousel width: " + this.carouselWidth);
+        App.debug("Query width: " + this.queryWidth);
+        App.debug("Showing: " + toShow);
         if (typeof(change) != "undefined" && change > 0 && this.queryIndex < queries.length - toShow) {
             var rightIndex = this.queryIndex + toShow;
             $('.query-carousel-window').css('overflow', 'hidden');
@@ -673,36 +666,26 @@ App.QueryListView = App.NestedView.extend({
 App.DemoQueryListView = App.QueryListView.extend({
     name: 'DemoQueryListView',
     render: function () {
-        // Assume media sources is already loaded
-        this.$el.html(this.template());
-        // Replace loading with queries
         var that = this;
+        $('.reference .query-list').remove();
+        $('.reference').append(this.refTemplate());
+        this.$el.html(this.template());
         this.$('.messages').append($('<p>This public demo is a limited-functionality version of the full Media Meter Dashboard.<br/>Go to <a href="http://mediacloud.org/get-involved">mediacloud.org/get-involved</a> to learn how to sign up for an account to allow full searches.</p>'));
         this.collection.each(function (m) {
             that.onAdd(m, that.collection)
         });
+        _.defer(function () { that.initializeCarousel(); });
     },
     onAdd: function (model, collection, options) {
-        App.debug('DemoApp.QueryListView.onAdd()');
+        App.debug('App.QueryListView.onAdd()');
         var queryView = new App.DemoQueryView({
-            model: model
-            , mediaSources: this.mediaSources
+            model: model,
+            mediaSources: this.mediaSources
         });
         this.addSubView(queryView);
-        this.$('.query-views').append(queryView.$el);
-        // TODO this is a hack to only allow two queries, but we can get data
-        // for more once the viz can handle it.
-        if (collection.length == 1) {
-            this.$('.query-views').addClass('one');
-            this.$('.query-views').removeClass('two');
-        } else {
-            this.$('.query-views').addClass('two');
-            this.$('.query-views').removeClass('one');
-        }
-        this.$('.query-views .query-title').eq(0).addClass('first-query');
-        this.$('.query-views .query-title').eq(1)
-            .html('Comparison Query')
-            .addClass('second-query');
+        this.$('.query-carousel').append(queryView.$el);
+        this.updateNumQueries(collection);
+        this.updateCarousel(0);
     }
 });
 
@@ -943,7 +926,9 @@ App.MediaListView = App.NestedView.extend({
                 }
             }
         });
-        itemView.on('removeClick', this.onRemoveClick);
+        if (!this.diabled) {
+            itemView.on('removeClick', this.onRemoveClick);
+        }
         this.$('.media-list-view-content').append(itemView.el);
     },
     onAddTag: function (model, collection, options) {
