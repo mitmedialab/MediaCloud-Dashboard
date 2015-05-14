@@ -478,6 +478,7 @@ App.QueryListView = App.NestedView.extend({
         this.collection.on('add', this.onAdd, this);
         this.collection.on('remove', this.onRemove, this);
         this.listenTo(this.collection, 'mm:query:duplicate', this.focusIndex);
+        this.listenTo(this.collection, 'mm:copyquery', this.copyAllQueries);
         this.render();
     },
     render: function () {
@@ -660,6 +661,12 @@ App.QueryListView = App.NestedView.extend({
     },
     onPagerRight: function () {
         this.updateCarousel(1);
+    },
+    copyAllQueries: function(text){
+        this.collection.each(function(model) {
+            model.get('params').set('keywords', "");
+            model.get('params').set('keywords', text);
+        });
     }
 });
 
@@ -1017,7 +1024,8 @@ App.KeywordView = Backbone.View.extend({
     name: 'KeywordView',
     template: _.template($('#tpl-keyword-view').html()),
     events: {
-        "change input": "contentChanged"
+        "change input": "contentChanged",
+        "click .glyphicon-forward": "copy"
     },
     initialize: function (options) {
         App.debug('App.KeywordView.initialize()');
@@ -1042,6 +1050,10 @@ App.KeywordView = Backbone.View.extend({
     },
     modelChanged: function () {
         this.$input.val(this.model.get('params').get('keywords'));
+    },
+    copy: function(evt) {
+        evt.preventDefault();
+        this.model.trigger('mm:copyquery', this.$input.val());
     }
 });
 
