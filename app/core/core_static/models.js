@@ -6,6 +6,7 @@
 App.NestedModel = Backbone.Model.extend({
     attributeModels: {},
     parse: function (response) {
+        App.debug("Parsing nested model");
         for (var key in this.attributeModels) {
             var subModel = this.attributeModels[key];
             var subData = response[key];
@@ -454,11 +455,13 @@ App.MediaModel = App.NestedModel.extend({
         App.debug('App.MediaModel.subset()');
         var that = this;
         media = new App.MediaModel();
-        _.each(o.sets, function(id){
+        _.each(o.sets, function(id) {
+            App.debug('  Adding set: ' + id);
             var tag = that.get('tags').get({id:id});
             media.get('tags').add(tag);
         });
         _.each(o.sources, function (id) {
+            App.debug('  Adding source: ' + id);
             var m = that.get('sources').get({id:id})
             media.get('sources').add(m);
         });
