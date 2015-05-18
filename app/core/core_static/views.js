@@ -364,7 +364,7 @@ App.DemoQueryView = App.NestedView.extend({
         'click a.remove': 'onRemoveInput'
     },
     initialize: function (options) {
-        App.debug('App.QueryView.initialize()');
+        App.debug('App.DemoQueryView.initialize()');
         App.debug(options);
         _.bindAll(this, 'onCopyInput');
         _.bindAll(this, 'onRemoveInput');
@@ -895,6 +895,7 @@ App.MediaListView = App.NestedView.extend({
     template: _.template($('#tpl-media-list-view').html()),
     initialize: function (options) {
         App.debug('App.MediaListView.initialize()');
+        App.debug(options);
         _.bindAll(this, 'onAdd');
         _.bindAll(this, 'onRemoveClick');
         this.disabled = options.disabled;
@@ -944,7 +945,11 @@ App.MediaListView = App.NestedView.extend({
             model: model
             , display: function (m) { return m.get('tag_set_label') + ': ' + m.get('label'); }
         });
-        itemView.on('removeClick', this.onRemoveClick);
+        if (typeof(this.disabled) === 'undefined' || this.disabled === false) {
+            itemView.on('removeClick', this.onRemoveClick);
+        } else {
+            itemView.$('.remove').hide();
+        }
         this.$('.media-list-view-content').append(itemView.el);
     },
     onRemoveClick: function (model) {
