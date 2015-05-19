@@ -270,10 +270,13 @@ App.QueryView = App.NestedView.extend({
         this.mediaListView = new App.MediaListView({
             model: this.model.get('params').get('mediaModel')
         });
+        this.model.on('remove', this.close, this);
         this.dateRangeView = new App.DateRangeView({ model: this.model });
         this.keywordView = new App.KeywordView({model: this.model});
         this.controlsView = new App.QueryControlsView();
-        this.model.on('remove', this.close, this);
+        this.listenTo(this.mediaListView, 'mm:copyToAll', function (model) {
+            this.trigger('mm:copyToAll:media', model);
+        });
         this.addSubView(this.mediaSelectView);
         this.addSubView(this.mediaListView);
         this.addSubView(this.dateRangeView);
@@ -281,6 +284,7 @@ App.QueryView = App.NestedView.extend({
         this.render();
     },
     render: function () {
+        App.debug("App.QueryView.render()");
         // Show loading
         this.$el
             .html(this.template())
@@ -290,6 +294,7 @@ App.QueryView = App.NestedView.extend({
         this.$('.query-view-content').html(progress());
         var that = this;
         this.mediaSources.deferred.done(function () {
+            App.debug("App.QueryView.render(): mediaSources loaded");
             that.$el.html(that.template());
             // Replace loading with sub views
             that.$('.query-view-content')
@@ -509,6 +514,9 @@ App.QueryListView = App.NestedView.extend({
             mediaSources: this.mediaSources
         });
         this.addSubView(queryView);
+        this.listenTo(queryView, 'mm:copyToAll:media', function (model) {
+            this.collection.mediaToAll(model);
+        });
         this.$('.query-carousel').append(queryView.$el);
         this.updateNumQueries(collection);
         this.updateCarousel(0);
@@ -893,11 +901,15 @@ App.ItemView = Backbone.View.extend({
 App.MediaListView = App.NestedView.extend({
     name:'MediaListView',
     template: _.template($('#tpl-media-list-view').html()),
+    events: {
+        "click .copy-to-all": "onCopyToAllClick"
+    },
     initialize: function (options) {
         App.debug('App.MediaListView.initialize()');
         App.debug(options);
         _.bindAll(this, 'onAdd');
         _.bindAll(this, 'onRemoveClick');
+        _.bindAll(this, 'onCopyToAllClick');
         this.disabled = options.disabled;
         this.render();
         // Add listeners
@@ -938,6 +950,11 @@ App.MediaListView = App.NestedView.extend({
             itemView.on('removeClick', this.onRemoveClick);
         }
         this.$('.media-list-view-content').append(itemView.el);
+        this.listenTo(model, 'remove', function (model, collection) {
+            if (!this.model.get('sources').contains(model)) {
+                itemView.remove();
+            }
+        });
     },
     onAddTag: function (model, collection, options) {
         App.debug('App.MediaListView.onAdd()');
@@ -951,6 +968,11 @@ App.MediaListView = App.NestedView.extend({
             itemView.$('.remove').hide();
         }
         this.$('.media-list-view-content').append(itemView.el);
+        this.listenTo(model, 'remove', function (model, collection) {
+            if (!this.model.get('tags').contains(model)) {
+                itemView.remove();
+            }
+        });
     },
     onRemoveClick: function (model) {
         App.debug('App.MediaListView.onRemoveClick()');
@@ -960,6 +982,10 @@ App.MediaListView = App.NestedView.extend({
         // no harm in removing from both.
         this.model.get('sources').remove(model);
         this.model.get('tags').remove(model);
+    },
+    onCopyToAllClick: function (event) {
+        event.preventDefault();
+        this.trigger('mm:copyToAll', this.model);
     },
     onChange: function () {
         if (this.model.get('sources').length == 0 && this.model.get('tags').length == 0) {
@@ -1030,7 +1056,7 @@ App.KeywordView = Backbone.View.extend({
     template: _.template($('#tpl-keyword-view').html()),
     events: {
         "change input": "contentChanged",
-        "click .glyphicon-forward": "copy"
+        "click .copy-to-all": "copy"
     },
     initialize: function (options) {
         App.debug('App.KeywordView.initialize()');

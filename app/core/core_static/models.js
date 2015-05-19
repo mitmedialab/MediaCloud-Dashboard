@@ -595,6 +595,8 @@ _.extend(App.QueryModel, App.UidMixin);
 App.QueryCollection = Backbone.Collection.extend({
     model: App.QueryModel,
     initialize: function () {
+        // Bind listeners
+        _.bindAll(this, 'mediaToAll');
         // Resource event aggregator
         this.resources = new ResourceListener();
         // Refine query event aggregator
@@ -634,6 +636,15 @@ App.QueryCollection = Backbone.Collection.extend({
         this.add(newModel);
         var newModelIndex = this.indexOf(newModel);
         this.trigger('mm:query:duplicate', newModelIndex);
+    },
+    // Copy property from a model to all models in this collection
+    mediaToAll: function (sourceMedia) {
+        App.debug('App.QueryCollection.mediaToAll()');
+        this.each(function (targetModel) {
+            targetMedia = targetModel.get('params').get('mediaModel');
+            targetMedia.get('sources').set(sourceMedia.get('sources').toJSON());
+            targetMedia.get('tags').set(sourceMedia.get('tags').toJSON());
+        });
     },
     onAdd: function (model, collection, options) {
         // When adding a QueryModel, listen to it's ResultModel
