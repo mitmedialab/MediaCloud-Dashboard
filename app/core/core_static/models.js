@@ -6,6 +6,7 @@
 App.NestedModel = Backbone.Model.extend({
     attributeModels: {},
     parse: function (response) {
+        App.debug("Parsing nested model");
         for (var key in this.attributeModels) {
             var subModel = this.attributeModels[key];
             var subData = response[key];
@@ -454,11 +455,13 @@ App.MediaModel = App.NestedModel.extend({
         App.debug('App.MediaModel.subset()');
         var that = this;
         media = new App.MediaModel();
-        _.each(o.sets, function(id){
+        _.each(o.sets, function(id) {
+            App.debug('  Adding set: ' + id);
             var tag = that.get('tags').get({id:id});
             media.get('tags').add(tag);
         });
         _.each(o.sources, function (id) {
+            App.debug('  Adding source: ' + id);
             var m = that.get('sources').get({id:id})
             media.get('sources').add(m);
         });
@@ -595,6 +598,9 @@ _.extend(App.QueryModel, App.UidMixin);
 App.QueryCollection = Backbone.Collection.extend({
     model: App.QueryModel,
     initialize: function () {
+        // Bind listeners
+        _.bindAll(this, 'mediaToAll');
+        _.bindAll(this, 'dateRangeToAll');
         // Resource event aggregator
         this.resources = new ResourceListener();
         // Refine query event aggregator
@@ -634,6 +640,23 @@ App.QueryCollection = Backbone.Collection.extend({
         this.add(newModel);
         var newModelIndex = this.indexOf(newModel);
         this.trigger('mm:query:duplicate', newModelIndex);
+    },
+    // Copy property from a model to all models in this collection
+    mediaToAll: function (sourceMedia) {
+        App.debug('App.QueryCollection.mediaToAll()');
+        this.each(function (targetModel) {
+            targetMedia = targetModel.get('params').get('mediaModel');
+            targetMedia.get('sources').set(sourceMedia.get('sources').toJSON());
+            targetMedia.get('tags').set(sourceMedia.get('tags').toJSON());
+        });
+    },
+    dateRangeToAll: function (sourceModel) {
+        var start = sourceModel.get('params').get('start');
+        var end = sourceModel.get('params').get('end');
+        this.each(function (targetModel) {
+            targetModel.get('params').set('start', start);
+            targetModel.get('params').set('end', end);
+        });
     },
     onAdd: function (model, collection, options) {
         // When adding a QueryModel, listen to it's ResultModel
