@@ -139,6 +139,7 @@ body {
 .messages {
     position: relative;
     z-index: 300;
+    display: none;
 }
 .messages p:last-child {
     margin-bottom: 0;

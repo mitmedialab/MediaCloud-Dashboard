@@ -691,7 +691,7 @@ App.DemoQueryListView = App.QueryListView.extend({
         $('.reference .query-list').remove();
         $('.reference').append(this.refTemplate());
         this.$el.html(this.template());
-        this.$('.messages').append($('<p>This public demo is a limited-functionality version of the full Media Meter Dashboard.<br/>Go to <a href="http://mediacloud.org/get-involved">mediacloud.org/get-involved</a> to learn how to sign up for an account to allow full searches.</p>'));
+        this.$('.messages').append($('<p>This public demo is a limited-functionality version of the full Media Meter Dashboard.<br/>Go to <a href="http://mediacloud.org/get-involved">mediacloud.org/get-involved</a> to learn how to sign up for an account to allow full searches.</p>')).show();
         this.collection.each(function (m) {
             that.onAdd(m, that.collection)
         });
