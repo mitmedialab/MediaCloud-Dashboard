@@ -1073,7 +1073,7 @@ App.KeywordView = Backbone.View.extend({
     name: 'KeywordView',
     template: _.template($('#tpl-keyword-view').html()),
     events: {
-        "change input": "contentChanged",
+        "change textarea": "contentChanged",
         "click .copy-to-all": "copy"
     },
     initialize: function (options) {
