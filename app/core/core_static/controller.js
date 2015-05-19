@@ -231,7 +231,7 @@ App.con = App.Controller = {
                 , mediaSources: App.con.mediaSources
             }
         );
-        App.con.queryCollection.on('execute', App.con.onQuery, this);
+        App.con.queryCollection.on('execute', App.con.onDemoQuery, this);
         App.con.errorListView = App.con.queryVm.getView(
             App.ErrorListView
             , { collection: App.con.getErrorCollection() }
