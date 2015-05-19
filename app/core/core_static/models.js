@@ -597,6 +597,7 @@ App.QueryCollection = Backbone.Collection.extend({
     initialize: function () {
         // Bind listeners
         _.bindAll(this, 'mediaToAll');
+        _.bindAll(this, 'dateRangeToAll');
         // Resource event aggregator
         this.resources = new ResourceListener();
         // Refine query event aggregator
@@ -644,6 +645,14 @@ App.QueryCollection = Backbone.Collection.extend({
             targetMedia = targetModel.get('params').get('mediaModel');
             targetMedia.get('sources').set(sourceMedia.get('sources').toJSON());
             targetMedia.get('tags').set(sourceMedia.get('tags').toJSON());
+        });
+    },
+    dateRangeToAll: function (sourceModel) {
+        var start = sourceModel.get('params').get('start');
+        var end = sourceModel.get('params').get('end');
+        this.each(function (targetModel) {
+            targetModel.get('params').set('start', start);
+            targetModel.get('params').set('end', end);
         });
     },
     onAdd: function (model, collection, options) {

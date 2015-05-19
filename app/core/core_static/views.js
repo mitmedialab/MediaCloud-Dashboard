@@ -277,6 +277,9 @@ App.QueryView = App.NestedView.extend({
         this.listenTo(this.mediaListView, 'mm:copyToAll', function (model) {
             this.trigger('mm:copyToAll:media', model);
         });
+        this.listenTo(this.dateRangeView, 'mm:copyToAll:dateRange', function (model) {
+            this.trigger('mm:copyToAll:dateRange', model);
+        });
         this.addSubView(this.mediaSelectView);
         this.addSubView(this.mediaListView);
         this.addSubView(this.dateRangeView);
@@ -516,6 +519,9 @@ App.QueryListView = App.NestedView.extend({
         this.addSubView(queryView);
         this.listenTo(queryView, 'mm:copyToAll:media', function (model) {
             this.collection.mediaToAll(model);
+        });
+        this.listenTo(queryView, 'mm:copyToAll:dateRange', function (model) {
+            this.collection.dateRangeToAll(model);
         });
         this.$('.query-carousel').append(queryView.$el);
         this.updateNumQueries(collection);
@@ -1002,13 +1008,16 @@ App.DateRangeView = Backbone.View.extend({
     name: 'DateRangeView',
     template: _.template($('#tpl-date-range-view').html()),
     events: {
-        "change input": "onContentChange"
+        "change input": "onContentChange",
+        "click .copy-to-all": "onClickCopyToAll"
     },
     initialize: function (options) {
         App.debug('App.DateRangeView.initialize()');
         App.debug(options);
         _.bindAll(this, "onContentChange");
+        _.bindAll(this, "onClickCopyToAll");
         this.disabled = options.disabled;
+        this.listenTo(this.model.get('params'), 'change', this.onModelChange);
         this.render();
     },
     render: function () {
@@ -1044,10 +1053,19 @@ App.DateRangeView = Backbone.View.extend({
             this.$('.date-range-end').attr('disabled', 'disabled');
         }
     },
+    onModelChange: function () {
+        App.debug('App.DateRangeView.onModelChange()');
+        this.$('.date-range-start').val(this.model.get('params').get('start'));
+        this.$('.date-range-end').val(this.model.get('params').get('end'));
+    },
     onContentChange: function () {
         App.debug('App.DateRangeView.onContentChange()');
         this.model.get('params').set('start', this.$('.date-range-start').val());
         this.model.get('params').set('end', this.$('.date-range-end').val());
+    },
+    onClickCopyToAll: function (event) {
+        event.preventDefault();
+        this.trigger('mm:copyToAll:dateRange', this.model);
     }
 });
 
