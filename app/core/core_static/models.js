@@ -943,12 +943,18 @@ App.ResultModel = Backbone.Model.extend({
     ],
     initialize: function (attributes, options) {
         App.debug('App.ResultModel.initialize()');
-        var children = _.clone()
+        var that = this;
+        // Create a separate copy of the children array for each instance
+        var children = [];
+        _.each(this.children, function (c) {
+            children.push(c);
+        });
         if(App.con.userModel.canListSentences()){
             this.children.push({"name": "sentences", "type": App.SentenceCollection});
         } else {
             this.children.push({"name": "stories", "type": App.StoryCollection});
         }
+        this.children = children;
         // Create children collections
         _.each(this.children, function (c) {
             this.set(c.name, new c.type([], options));
@@ -959,8 +965,6 @@ App.ResultModel = Backbone.Model.extend({
             this.get(c.name).on('error', this.onError, this);
             this.get(c.name).on('sync', this.onSync, this);
         }, this);
-        // Remove child class to prevent accumulation
-        this.children.pop();
     },
     fetch: function () {
         _.each(this.children, function (c) {
