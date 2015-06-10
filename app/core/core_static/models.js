@@ -936,22 +936,20 @@ App.ResultModel = Backbone.Model.extend({
         {
             "name": "datecounts"
             , "type": App.DateCountCollection
+        },
+        {
+            "name": "stories"
+            , "type": App.StoryCollection
         }
     ],
     initialize: function (attributes, options) {
         App.debug('App.ResultModel.initialize()');
         var that = this;
-        // Create a separate copy of the children array for each instance
-        var children = [];
-        _.each(this.children, function (c) {
-            children.push(c);
-        });
         if(App.con.userModel.canListSentences()){
-            this.children.push({"name": "sentences", "type": App.SentenceCollection});
+            this.children[2] = {"name": "sentences", "type": App.SentenceCollection};
         } else {
-            this.children.push({"name": "stories", "type": App.StoryCollection});
+            this.children[2] = {"name": "stories", "type": App.StoryCollection};
         }
-        this.children = children;
         // Create children collections
         _.each(this.children, function (c) {
             this.set(c.name, new c.type([], options));
