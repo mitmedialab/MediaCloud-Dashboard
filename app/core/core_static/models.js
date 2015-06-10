@@ -940,6 +940,7 @@ App.ResultModel = Backbone.Model.extend({
     ],
     initialize: function (attributes, options) {
         App.debug('App.ResultModel.initialize()');
+        var children = _.clone()
         if(App.con.userModel.canListSentences()){
             this.children.push({"name": "sentences", "type": App.SentenceCollection});
         } else {
@@ -955,6 +956,8 @@ App.ResultModel = Backbone.Model.extend({
             this.get(c.name).on('error', this.onError, this);
             this.get(c.name).on('sync', this.onSync, this);
         }, this);
+        // Remove child class to prevent accumulation
+        this.children.pop();
     },
     fetch: function () {
         _.each(this.children, function (c) {
