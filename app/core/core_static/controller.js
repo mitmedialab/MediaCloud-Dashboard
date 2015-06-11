@@ -218,7 +218,7 @@ App.con = App.Controller = {
             , ResultModel: App.DemoResultModel
         };
         App.con.queryModel = new App.QueryModel(attributes, options);
-        App.con.queryCollection.add(App.con.queryModel);
+        App.con.queryCollection.add(App.con.queryModel, {ResultModel: App.DemoResultModel});
         attributes.keywords = 'beauty';
         attributes.qinfo.name = 'Beauty';
         attributes.mediaModel = App.con.comparisonMediaModel;

@@ -489,8 +489,22 @@ App.MediaModel = App.NestedModel.extend({
 App.QueryModel = Backbone.Model.extend({
     initialize: function (attributes, options) {
         App.debug('App.QueryModel.initialize()');
+        var that = this;
         this.mediaSources = options.mediaSources
         this.subquery = options.subquery;
+        // Default parameters
+        if (typeof(this.get("params")) === 'undefined') {
+            var dayMs = 24 * 60 * 60 * 1000;
+            var ts = new Date().getTime();
+            var start = new Date(ts - 15*dayMs);
+            var end = new Date(ts - 1*dayMs);
+            this.set("params", new Backbone.Model({
+                keywords: ""
+                , mediaModel: new App.MediaModel()
+                , start: start.getFullYear() + '-' + (start.getMonth()+1) + '-' + start.getDate()
+                , end: end.getFullYear() + '-' + (end.getMonth()+1) + '-' + end.getDate()
+            }));
+        }
         var opts = {
             mediaSources: this.mediaSources,
             params: this.get('params')
@@ -594,10 +608,18 @@ _.extend(App.QueryModel, App.UidMixin);
  */
 App.QueryCollection = Backbone.Collection.extend({
     model: App.QueryModel,
-    initialize: function () {
+    initialize: function (options) {
         // Bind listeners
         _.bindAll(this, 'mediaToAll');
         _.bindAll(this, 'dateRangeToAll');
+        if (
+            typeof(options) === 'undefined'
+            || typeof(options.ResultModel) === 'undefined'
+        ) {
+            this.ResultModel = App.ResultModel;
+        } else {
+            this.ResultModel = options.ResultModel;
+        }
         // Resource event aggregator
         this.resources = new ResourceListener();
         // Refine query event aggregator
@@ -613,6 +635,13 @@ App.QueryCollection = Backbone.Collection.extend({
         this.listenTo(this, 'remove', this.onRemove);
         this.listenTo(this.refine, 'mm:refine', this.onRefine);
         this.listenTo(this.subqueryListener, 'mm:subquery', this.onSubquery);
+    },
+    addQuery: function () {
+        var options = {
+            mediaSources: App.con.mediaSources
+            , ResultModel: this.ResultModel
+        };
+        this.add(new App.QueryModel({}, options));
     },
     // Duplicate an existing model within the collection
     // Fires event mm:query:duplicate(newModelIndex)

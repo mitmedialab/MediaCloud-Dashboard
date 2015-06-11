@@ -477,7 +477,8 @@ App.QueryListView = App.NestedView.extend({
     events: {
         "click .btn-primary": 'onQuery',
         "click .query-pager.left": 'onPagerLeft',
-        "click .query-pager.right": 'onPagerRight'
+        "click .query-pager.right": 'onPagerRight',
+        "click .add-query": 'onAddQuery'
     },
     initialize: function (options) {
         App.debug('App.QueryListView.initialize()');
@@ -526,6 +527,9 @@ App.QueryListView = App.NestedView.extend({
         this.$('.query-carousel').append(queryView.$el);
         this.updateNumQueries(collection);
         this.updateCarousel(0);
+    },
+    onAddQuery: function () {
+        this.collection.addQuery();
     },
     onRemove: function (model, collection, options) {
         this.updateNumQueries(collection);
