@@ -353,6 +353,11 @@ App.QueryView = App.NestedView.extend({
     },
     onRemoveInput: function (evt) {
         evt.preventDefault();
+        // Backbone gives us no way to find index of a removed model
+        // This is a kludge to allow that
+        var index = this.model.collection.indexOf(this.model);
+        this.model.removedFromIndex = index;
+        // Prevent removal of very last query
         var queryNumber = this.model.collection.length;
         if (queryNumber > 1) {
             this.model.collection.remove(this.model);
@@ -525,32 +530,13 @@ App.QueryListView = App.NestedView.extend({
             this.collection.dateRangeToAll(model);
         });
         this.$('.query-carousel').append(queryView.$el);
-        this.updateNumQueries(collection);
         this.updateCarousel(0);
     },
     onAddQuery: function () {
         this.collection.addQuery();
     },
     onRemove: function (model, collection, options) {
-        this.updateNumQueries(collection);
         this.updateCarousel(0);
-    },
-    updateNumQueries: function (collection) {
-        var that = this;
-        // Query views may not be rendered yet, so defer
-        _.defer(function () {
-            if (collection.length == 1) {
-                that.$('.query-views').addClass('one');
-                that.$('.query-views').removeClass('two');
-            } else {
-                that.$('.query-views').addClass('two');
-                that.$('.query-views').removeClass('one');
-            }
-            that.$('.query-views h3').eq(0).addClass('first-query');
-            that.$('.query-views h3').eq(1)
-                .removeClass('first-query')
-                .addClass('second-query');
-        });
     },
     initializeCarousel: function () {
         App.debug("App.QueryListView.initializeCarousel()");
@@ -709,7 +695,6 @@ App.DemoQueryListView = App.QueryListView.extend({
         });
         this.addSubView(queryView);
         this.$('.query-carousel').append(queryView.$el);
-        this.updateNumQueries(collection);
         this.updateCarousel(0);
     }
 });
