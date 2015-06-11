@@ -619,7 +619,7 @@ App.QueryListView = App.NestedView.extend({
             $('.query-views .query-carousel').animate({
                 'left': "-" + (width * change + margin) + "px"
             }, 250, null, function () {
-                $('.query-carousel-window').css('overflow', 'hidden');
+                $('.query-carousel-window').css('overflow', 'visible');
                 $(queries[rightIndex]).css('margin-right', '0');
                 that.queryIndex += change;
                 that.queryIndex = Math.min(that.queryIndex, queries.length - toShow);
