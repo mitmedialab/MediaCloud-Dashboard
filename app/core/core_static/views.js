@@ -270,7 +270,6 @@ App.QueryView = App.NestedView.extend({
         this.mediaListView = new App.MediaListView({
             model: this.model.get('params').get('mediaModel')
         });
-        this.model.on('remove', this.close, this);
         this.dateRangeView = new App.DateRangeView({ model: this.model });
         this.keywordView = new App.KeywordView({model: this.model});
         this.controlsView = new App.QueryControlsView();
@@ -359,10 +358,7 @@ App.QueryView = App.NestedView.extend({
         this.model.removedFromIndex = index;
         // Prevent removal of very last query
         var queryNumber = this.model.collection.length;
-        if (queryNumber > 1) {
-            this.model.collection.remove(this.model);
-            queryNumber--;
-        }
+        this.model.collection.remove(this.model);
         if (queryNumber === 1) {
             $(".query-controls a.remove").hide()
         }
@@ -474,6 +470,7 @@ App.DemoQueryView = App.NestedView.extend({
     }
 });
 
+
 App.QueryListView = App.NestedView.extend({
     name:'QueryListView',
     id:'query-builder',
@@ -536,8 +533,23 @@ App.QueryListView = App.NestedView.extend({
         this.collection.addQuery();
     },
     onRemove: function (model, collection, options) {
-        this.updateCarousel(0);
+        this.updateCarouselOnRemove(model.removedFromIndex);
     },
+    /*
+     * Carousel-related methods
+     *
+     * These are pretty finicky, but here's the basic idea:
+     * There are two container divs:
+     *   .query-carousel-window - defines the area of the carousel on the page.
+     *     During animation, it is overflow:hidden to only show the parts of
+     *     a query that has slid in already. Otherwise it's overflow:visible
+     *     to show pop-ups.
+     *   .query-carousel - Positioned relatively inside of .query-carousel-window
+     *     to achieve the sliding effect. After each animation it is reset to
+     *     left:0.
+     * The .query-view divs are given the .visible class when they are visible
+     *   or sliding in.
+     */
     initializeCarousel: function () {
         App.debug("App.QueryListView.initializeCarousel()");
         this.queryIndex = 0;
@@ -581,6 +593,44 @@ App.QueryListView = App.NestedView.extend({
         } else {
             this.$('.query-pager.right button').attr('disabled', 'disabled');
         }
+    },
+    updateCarouselOnRemove: function (indexRemoved) {
+        App.debug("QueryListView.updateCarouselOnRemove()");
+        var that = this;
+        var promise = $.Deferred();
+        // jQuery selections
+        var queries = this.$('.query-views .query-view');
+        var visQueries = queries.filter(":visible");
+        // Pixel geometry
+        var width = visQueries.width();
+        var margin = parseInt(visQueries.css('padding-left')) * 2;
+        var queryPad = 2 * parseInt($('.reference .query-view').css('padding-left'));
+        var totalWidth = width + queryPad;
+        toShow = Math.floor(this.carouselWidth / (this.queryWidth + queryPad));
+        // Slide in from right unless there are no more
+        if (that.queryIndex == 0) {
+            var revealIndex = this.queryIndex + toShow;
+            if (revealIndex < queries.length) {
+                $(queries[revealIndex]).addClass('visible');
+            }
+            $('.query-carousel-window').css('overflow', 'hidden');
+            var visibleWidth = (queries.filter(":visible").length * (this.queryWidth + queryPad));
+            $('.query-views .query-carousel').css({
+                "width": visibleWidth
+            });
+            $(queries[indexRemoved])
+                .css('visibility', 'hidden')
+                .animate({
+                    "margin-left": "-" + totalWidth + "px",
+                }, 250, null, function () {
+                    $('.query-carousel-window').css('overflow', 'visible');
+                    $(queries[indexRemoved]).remove();
+                    that.onCarouselUpdated();
+                    promise.resolve();
+                });
+        } else {
+        }
+        return promise;
     },
     updateCarousel: function (change) {
         App.debug("QueryListView.updateCarousel: " + change);
