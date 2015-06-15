@@ -607,11 +607,11 @@ App.QueryListView = App.NestedView.extend({
         var queryPad = 2 * parseInt($('.reference .query-view').css('padding-left'));
         var totalWidth = width + queryPad;
         toShow = Math.floor(this.carouselWidth / (this.queryWidth + queryPad));
-        // Slide in from right unless there are no more
-        if (that.queryIndex == 0) {
-            var revealIndex = this.queryIndex + toShow;
-            if (revealIndex < queries.length) {
-                $(queries[revealIndex]).addClass('visible');
+        // Slide in from right unless we're scrolled all the way right
+        var rightIndex = this.queryIndex + toShow;
+        if (rightIndex < queries.length || this.queryIndex == 0 ) {
+            if (rightIndex < queries.length) {
+                $(queries[rightIndex]).addClass('visible');
             }
             $('.query-carousel-window').css('overflow', 'hidden');
             var visibleWidth = (queries.filter(":visible").length * (this.queryWidth + queryPad));
@@ -629,6 +629,29 @@ App.QueryListView = App.NestedView.extend({
                     promise.resolve();
                 });
         } else {
+            // Already scrolled to the right, scroll in from the left
+            var leftIndex = this.queryIndex - 1;
+            $('.query-carousel-window').css('overflow', 'hidden');
+            $(queries[this.queryIndex - 1])
+                .addClass('visible');
+            var visibleWidth = (queries.filter(":visible").length * (this.queryWidth + queryPad));
+            $('.query-views .query-carousel').css({
+                "width": visibleWidth
+            });
+            $(queries[indexRemoved]).remove();
+            $(queries)
+                .slice(this.queryIndex - 1, indexRemoved)
+                .css("left", "-" + totalWidth + "px")
+                .animate({
+                    "left": 0
+                }, 250, null, function () {
+                    if (promise.state() != "resolved") {
+                        that.queryIndex -= 1;
+                        $('.query-carousel-window').css('overflow', 'visible');
+                        that.onCarouselUpdated();
+                        promise.resolve();
+                    }
+                });
         }
         return promise;
     },
