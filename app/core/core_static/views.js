@@ -270,7 +270,6 @@ App.QueryView = App.NestedView.extend({
         this.mediaListView = new App.MediaListView({
             model: this.model.get('params').get('mediaModel')
         });
-        this.model.on('remove', this.close, this);
         this.dateRangeView = new App.DateRangeView({ model: this.model });
         this.keywordView = new App.KeywordView({model: this.model});
         this.controlsView = new App.QueryControlsView();
@@ -353,11 +352,13 @@ App.QueryView = App.NestedView.extend({
     },
     onRemoveInput: function (evt) {
         evt.preventDefault();
+        // Backbone gives us no way to find index of a removed model
+        // This is a kludge to allow that
+        var index = this.model.collection.indexOf(this.model);
+        this.model.removedFromIndex = index;
+        // Prevent removal of very last query
         var queryNumber = this.model.collection.length;
-        if (queryNumber > 1) {
-            this.model.collection.remove(this.model);
-            queryNumber--;
-        }
+        this.model.collection.remove(this.model);
         if (queryNumber === 1) {
             $(".query-controls a.remove").hide()
         }
@@ -469,6 +470,7 @@ App.DemoQueryView = App.NestedView.extend({
     }
 });
 
+
 App.QueryListView = App.NestedView.extend({
     name:'QueryListView',
     id:'query-builder',
@@ -477,7 +479,8 @@ App.QueryListView = App.NestedView.extend({
     events: {
         "click .btn-primary": 'onQuery',
         "click .query-pager.left": 'onPagerLeft',
-        "click .query-pager.right": 'onPagerRight'
+        "click .query-pager.right": 'onPagerRight',
+        "click .add-query": 'onAddQuery'
     },
     initialize: function (options) {
         App.debug('App.QueryListView.initialize()');
@@ -524,30 +527,29 @@ App.QueryListView = App.NestedView.extend({
             this.collection.dateRangeToAll(model);
         });
         this.$('.query-carousel').append(queryView.$el);
-        this.updateNumQueries(collection);
         this.updateCarousel(0);
+    },
+    onAddQuery: function () {
+        this.collection.addQuery();
     },
     onRemove: function (model, collection, options) {
-        this.updateNumQueries(collection);
-        this.updateCarousel(0);
+        this.updateCarouselOnRemove(model.removedFromIndex);
     },
-    updateNumQueries: function (collection) {
-        var that = this;
-        // Query views may not be rendered yet, so defer
-        _.defer(function () {
-            if (collection.length == 1) {
-                that.$('.query-views').addClass('one');
-                that.$('.query-views').removeClass('two');
-            } else {
-                that.$('.query-views').addClass('two');
-                that.$('.query-views').removeClass('one');
-            }
-            that.$('.query-views h3').eq(0).addClass('first-query');
-            that.$('.query-views h3').eq(1)
-                .removeClass('first-query')
-                .addClass('second-query');
-        });
-    },
+    /*
+     * Carousel-related methods
+     *
+     * These are pretty finicky, but here's the basic idea:
+     * There are two container divs:
+     *   .query-carousel-window - defines the area of the carousel on the page.
+     *     During animation, it is overflow:hidden to only show the parts of
+     *     a query that has slid in already. Otherwise it's overflow:visible
+     *     to show pop-ups.
+     *   .query-carousel - Positioned relatively inside of .query-carousel-window
+     *     to achieve the sliding effect. After each animation it is reset to
+     *     left:0.
+     * The .query-view divs are given the .visible class when they are visible
+     *   or sliding in.
+     */
     initializeCarousel: function () {
         App.debug("App.QueryListView.initializeCarousel()");
         this.queryIndex = 0;
@@ -592,6 +594,67 @@ App.QueryListView = App.NestedView.extend({
             this.$('.query-pager.right button').attr('disabled', 'disabled');
         }
     },
+    updateCarouselOnRemove: function (indexRemoved) {
+        App.debug("QueryListView.updateCarouselOnRemove()");
+        var that = this;
+        var promise = $.Deferred();
+        // jQuery selections
+        var queries = this.$('.query-views .query-view');
+        var visQueries = queries.filter(":visible");
+        // Pixel geometry
+        var width = visQueries.width();
+        var margin = parseInt(visQueries.css('padding-left')) * 2;
+        var queryPad = 2 * parseInt($('.reference .query-view').css('padding-left'));
+        var totalWidth = width + queryPad;
+        toShow = Math.floor(this.carouselWidth / (this.queryWidth + queryPad));
+        // Slide in from right unless we're scrolled all the way right
+        var rightIndex = this.queryIndex + toShow;
+        if (rightIndex < queries.length || this.queryIndex == 0 ) {
+            if (rightIndex < queries.length) {
+                $(queries[rightIndex]).addClass('visible');
+            }
+            $('.query-carousel-window').css('overflow', 'hidden');
+            var visibleWidth = (queries.filter(":visible").length * (this.queryWidth + queryPad));
+            $('.query-views .query-carousel').css({
+                "width": visibleWidth
+            });
+            $(queries[indexRemoved])
+                .css('visibility', 'hidden')
+                .animate({
+                    "margin-left": "-" + totalWidth + "px",
+                }, 250, null, function () {
+                    $('.query-carousel-window').css('overflow', 'visible');
+                    $(queries[indexRemoved]).remove();
+                    that.onCarouselUpdated();
+                    promise.resolve();
+                });
+        } else {
+            // Already scrolled to the right, scroll in from the left
+            var leftIndex = this.queryIndex - 1;
+            $('.query-carousel-window').css('overflow', 'hidden');
+            $(queries[this.queryIndex - 1])
+                .addClass('visible');
+            var visibleWidth = (queries.filter(":visible").length * (this.queryWidth + queryPad));
+            $('.query-views .query-carousel').css({
+                "width": visibleWidth
+            });
+            $(queries[indexRemoved]).remove();
+            $(queries)
+                .slice(this.queryIndex - 1, indexRemoved)
+                .css("left", "-" + totalWidth + "px")
+                .animate({
+                    "left": 0
+                }, 250, null, function () {
+                    if (promise.state() != "resolved") {
+                        that.queryIndex -= 1;
+                        $('.query-carousel-window').css('overflow', 'visible');
+                        that.onCarouselUpdated();
+                        promise.resolve();
+                    }
+                });
+        }
+        return promise;
+    },
     updateCarousel: function (change) {
         App.debug("QueryListView.updateCarousel: " + change);
         var that = this;
@@ -619,7 +682,7 @@ App.QueryListView = App.NestedView.extend({
             $('.query-views .query-carousel').animate({
                 'left': "-" + (width * change + margin) + "px"
             }, 250, null, function () {
-                $('.query-carousel-window').css('overflow', 'hidden');
+                $('.query-carousel-window').css('overflow', 'visible');
                 $(queries[rightIndex]).css('margin-right', '0');
                 that.queryIndex += change;
                 that.queryIndex = Math.min(that.queryIndex, queries.length - toShow);
@@ -705,7 +768,6 @@ App.DemoQueryListView = App.QueryListView.extend({
         });
         this.addSubView(queryView);
         this.$('.query-carousel').append(queryView.$el);
-        this.updateNumQueries(collection);
         this.updateCarousel(0);
     }
 });
