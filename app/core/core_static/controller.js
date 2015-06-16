@@ -164,6 +164,7 @@ App.con = App.Controller = {
                     , mediaSources: App.con.mediaSources
                 }
             );
+            App.con.queryCollection.off('execute');
             App.con.queryCollection.on('execute', App.con.onQuery, this);
             App.debug("Showing query list");
             App.con.queryVm.showViews([
@@ -230,6 +231,7 @@ App.con = App.Controller = {
                 , mediaSources: App.con.mediaSources
             }
         );
+        App.con.queryCollection.off('execute');
         App.con.queryCollection.on('execute', App.con.onDemoQuery, this);
         App.con.errorListView = App.con.queryVm.getView(
             App.ErrorListView
