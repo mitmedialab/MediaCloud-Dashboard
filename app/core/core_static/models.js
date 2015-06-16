@@ -152,6 +152,7 @@ App.UserModel = Backbone.Model.extend({
         this.on('error', this.onSignInError);
         this.set('key', $.cookie('mediameter_user_key'));
         this.set('username', $.cookie('mediameter_user_username'));
+        this.authenticate = $.Deferred();
     },
     
     canListSentences: function(){
@@ -171,12 +172,14 @@ App.UserModel = Backbone.Model.extend({
         App.debug('App.UserModel.onSignIn()');
         $.cookie('mediameter_user_key', this.get('key'), App.config.cookieOpts);
         $.cookie('mediameter_user_username', this.get('username'), App.config.cookieOpts);
+        this.authenticate.resolve();
         this.trigger('signin');
     },
     
     onSignInError: function (model, response, options) {
         App.debug('Error signing in: ' + response.status);
         this.set('error', 'Invalid username/password');
+        this.authenticate.resolve();
         if (response.status == 401) {
             this.trigger('unauthorized', 'Invalid username/password');
         }
