@@ -114,61 +114,64 @@ App.con = App.Controller = {
     
     routeHome: function () {
         App.debug('Route: home');
-        if (!App.con.userModel.get('authenticated')) {
-            App.con.router.navigate('demo', true);
-            return;
-        }
-        // Defaults media
-        App.con.mediaModel = new App.MediaModel();
-        App.con.comparisonMediaModel = new App.MediaModel();
-        App.con.mediaSources.get('tags').getDeferred(8875027).then(function (m) {
-            App.con.mediaModel.get('tags').add(m);
-        });
-        App.con.mediaSources.get('tags').getDeferred(8875027).then(function (m) {
-            App.con.comparisonMediaModel.get('tags').add(m);
-        });
-        // Default tags
-        // Defaults dates
-        var dayMs = 24 * 60 * 60 * 1000;
-        var ts = new Date().getTime();
-        var start = new Date(ts - 15*dayMs);
-        var end = new Date(ts - 1*dayMs);
-        var attributes = {
-            start: start.getFullYear() + '-' + (start.getMonth()+1) + '-' + start.getDate()
-            , end: end.getFullYear() + '-' + (end.getMonth()+1) + '-' + end.getDate()
-            , mediaModel: App.con.mediaModel
-            , keywords: 'truth'
-        };
-        var options = {
-            mediaSources: App.con.mediaSources
-            , parse: true
-        };
-        App.con.errorListView = App.con.queryVm.getView(
-            App.ErrorListView
-            , { collection: App.con.getErrorCollection() }
-        );
-        App.con.queryCollection.reset();
-        App.QueryModel.nextUid = 1;
-        App.con.queryModel = new App.QueryModel(attributes, options);
-        App.con.queryCollection.add(App.con.queryModel);
-        attributes.keywords = 'beauty';
-        attributes.mediaModel = App.con.comparisonMediaModel;
-        var comparison = new App.QueryModel(attributes, options);
-        App.con.queryCollection.add(comparison);
-        App.con.queryListView = App.con.queryVm.getView(
-            App.QueryListView
-            , {
-                collection: App.con.queryCollection
-                , mediaSources: App.con.mediaSources
+        App.con.userModel.authenticate.then(function () {
+            App.debug("Authentication completed");
+            if (!App.con.userModel.get('authenticated')) {
+                App.con.router.navigate('demo', true);
+                return;
             }
-        );
-        App.con.queryCollection.on('execute', App.con.onQuery, this);
-        App.debug("Showing query list");
-        App.con.queryVm.showViews([
-            App.con.errorListView
-            , App.con.queryListView
-        ]);
-        App.con.vm.showViews([]);
+            // Defaults media
+            App.con.mediaModel = new App.MediaModel();
+            App.con.comparisonMediaModel = new App.MediaModel();
+            App.con.mediaSources.get('tags').getDeferred(8875027).then(function (m) {
+                App.con.mediaModel.get('tags').add(m);
+            });
+            App.con.mediaSources.get('tags').getDeferred(8875027).then(function (m) {
+                App.con.comparisonMediaModel.get('tags').add(m);
+            });
+            // Default tags
+            // Defaults dates
+            var dayMs = 24 * 60 * 60 * 1000;
+            var ts = new Date().getTime();
+            var start = new Date(ts - 15*dayMs);
+            var end = new Date(ts - 1*dayMs);
+            var attributes = {
+                start: start.getFullYear() + '-' + (start.getMonth()+1) + '-' + start.getDate()
+                , end: end.getFullYear() + '-' + (end.getMonth()+1) + '-' + end.getDate()
+                , mediaModel: App.con.mediaModel
+                , keywords: 'truth'
+            };
+            var options = {
+                mediaSources: App.con.mediaSources
+                , parse: true
+            };
+            App.con.errorListView = App.con.queryVm.getView(
+                App.ErrorListView
+                , { collection: App.con.getErrorCollection() }
+            );
+            App.con.queryCollection.reset();
+            App.QueryModel.nextUid = 1;
+            App.con.queryModel = new App.QueryModel(attributes, options);
+            App.con.queryCollection.add(App.con.queryModel);
+            attributes.keywords = 'beauty';
+            attributes.mediaModel = App.con.comparisonMediaModel;
+            var comparison = new App.QueryModel(attributes, options);
+            App.con.queryCollection.add(comparison);
+            App.con.queryListView = App.con.queryVm.getView(
+                App.QueryListView
+                , {
+                    collection: App.con.queryCollection
+                    , mediaSources: App.con.mediaSources
+                }
+            );
+            App.con.queryCollection.on('execute', App.con.onQuery, this);
+            App.debug("Showing query list");
+            App.con.queryVm.showViews([
+                App.con.errorListView
+                , App.con.queryListView
+            ]);
+            App.con.vm.showViews([]);            
+        });
     },
     
     routeDemo: function () {
