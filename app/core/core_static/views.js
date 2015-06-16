@@ -835,13 +835,13 @@ App.MediaSelectView = App.NestedView.extend({
         if (!that.disabled) {
             App.debug('Creating typeahead');
             that.$('.media-input input').typeahead(null, {
-                name: 'Sources',
-                displayKey: 'name',
-                source: that.mediaSources.get('sources').getRemoteSuggestionEngine().ttAdapter(),
-            }, {
                 name: 'Tags',
                 displayKey: function (d) { return d.tag_set_label + ': ' + d.label; },
                 source: that.mediaSources.get('tags').getRemoteSuggestionEngine().ttAdapter()
+            }, {
+                name: 'Sources',
+                displayKey: 'name',
+                source: that.mediaSources.get('sources').getRemoteSuggestionEngine().ttAdapter(),
             });
             // Listen to custom typeahead events
             that.$('.media-input').bind(
