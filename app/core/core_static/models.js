@@ -216,6 +216,7 @@ App.UserModel = Backbone.Model.extend({
             });
         } else {
             App.debug('No key or user/pass provided');
+            this.authenticate.resolve();
             if (options.error) {
                 options.error();
             }
