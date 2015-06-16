@@ -138,7 +138,6 @@ App.con = App.Controller = {
             , end: end.getFullYear() + '-' + (end.getMonth()+1) + '-' + end.getDate()
             , mediaModel: App.con.mediaModel
             , keywords: 'truth'
-            , qinfo: { 'name': 'Truth'}
         };
         var options = {
             mediaSources: App.con.mediaSources
@@ -153,7 +152,6 @@ App.con = App.Controller = {
         App.con.queryModel = new App.QueryModel(attributes, options);
         App.con.queryCollection.add(App.con.queryModel);
         attributes.keywords = 'beauty';
-        attributes.qinfo.name = 'Beauty';
         attributes.mediaModel = App.con.comparisonMediaModel;
         var comparison = new App.QueryModel(attributes, options);
         App.con.queryCollection.add(comparison);
@@ -210,7 +208,6 @@ App.con = App.Controller = {
             , end: end.getFullYear() + '-' + (end.getMonth()+1) + '-' + end.getDate()
             , mediaModel: App.con.mediaModel
             , keywords: 'truth'
-            , qinfo: { 'name': 'Truth'}
         };
         var options = {
             mediaSources: App.con.mediaSources
@@ -220,7 +217,6 @@ App.con = App.Controller = {
         App.con.queryModel = new App.QueryModel(attributes, options);
         App.con.queryCollection.add(App.con.queryModel, {ResultModel: App.DemoResultModel});
         attributes.keywords = 'beauty';
-        attributes.qinfo.name = 'Beauty';
         attributes.mediaModel = App.con.comparisonMediaModel;
         var comparison = new App.QueryModel(attributes, options);
         App.con.queryCollection.add(comparison);
