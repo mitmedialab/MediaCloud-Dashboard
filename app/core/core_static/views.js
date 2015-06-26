@@ -1322,7 +1322,10 @@ App.ToolListView = Backbone.View.extend({
     },
     render: function () {
         App.debug('App.ToolListView.render()');
-        var path = '#' + this.collection.dashboardUrl();
+        var path = "#";
+        if(this.collection) {
+            path = '#' + this.collection.dashboardUrl();
+        }
         this.$el.html('');
         this.$el.append(
             $('<li class="dashboard-color">').append(
@@ -1337,14 +1340,14 @@ App.ToolListView = Backbone.View.extend({
                     .attr('href', 'https://mentions.mediameter.org/' + path)
                     .text('Mentions')
                 )
-            );
-        this.$el.append(
-            $('<li class="frequency-color">').append(
-                $('<a>')
-                    .attr('href', 'https://frequency.mediameter.org/' + path)
-                    .text('Frequency')
-                )
             );*/
+        this.$el.append(
+            $('<li class="sources-color">').append(
+                $('<a>')
+                    .attr('href', 'https://sources.mediameter.org/' + path)
+                    .text('Sources')
+                )
+            );
     }
 });
 
