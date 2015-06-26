@@ -357,9 +357,8 @@ App.QueryView = App.NestedView.extend({
         var index = this.model.collection.indexOf(this.model);
         this.model.removedFromIndex = index;
         // Prevent removal of very last query
-        var queryNumber = this.model.collection.length;
         this.model.collection.remove(this.model);
-        if (queryNumber === 1) {
+        if (this.model.collection.length === 2) {
             $(".query-controls a.remove").hide()
         }
     }
@@ -712,6 +711,11 @@ App.QueryListView = App.NestedView.extend({
                 promise.resolve();
             });
         } else {
+            var visibleWidth = (queries.filter(":visible").length * (this.queryWidth + queryPad));
+            // Fix for strange bug that causes .query-carousel to float right instead of left
+            $('.query-views .query-carousel').css({
+                "width": visibleWidth
+            });
             that.onCarouselUpdated();
             promise.resolve();
         }
