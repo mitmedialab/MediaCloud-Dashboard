@@ -470,9 +470,9 @@ App.WordCountComparisonView = Backbone.View.extend({
         this.$('.content-text').hide();
         _.defer(function () {
             if (that.collection.length < 3) {
-                
+                that.$('.query-select').hide();
             } else {
-                
+                that.$('.query-select').show();
             }
             //query-dropdown
             var queryNumber = -1;
