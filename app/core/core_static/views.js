@@ -1344,7 +1344,7 @@ App.ToolListView = Backbone.View.extend({
                     .attr('href', 'https://mentions.mediameter.org/' + path)
                     .text('Mentions')
                 )
-            );*/
+            );
         this.$el.append(
             $('<li class="sources-color">').append(
                 $('<a>')
@@ -1352,6 +1352,7 @@ App.ToolListView = Backbone.View.extend({
                     .text('Sources')
                 )
             );
+*/
     }
 });
 
