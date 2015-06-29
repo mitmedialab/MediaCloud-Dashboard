@@ -468,7 +468,12 @@ App.WordCountComparisonView = Backbone.View.extend({
         this.updateStats();
         this.$el.html(this.template());
         this.$('.content-text').hide();
-        _.defer(function () { 
+        _.defer(function () {
+            if (that.collection.length < 3) {
+                
+            } else {
+                
+            }
             //query-dropdown
             var queryNumber = -1;
             that.collection.each(function(queryModel){
@@ -584,16 +589,16 @@ App.WordCountComparisonView = Backbone.View.extend({
         var that = this;
         var container = d3.select(this.el).select('.content-viz');
         var width = this.$('.content-viz').width();
-        var innerWidth = width/3.0 - 2*this.config.padding;
+        var innerWidth = (width - 8*this.config.padding)/3.0;
         var svg = container.append('svg')
             .attr('height', this.config.height)
             .attr('width', width);
         var leftGroup = svg.append('g').classed('left-group', true)
-            .attr('transform', 'translate('+this.config.padding+')');
+            .attr('transform', 'translate('+2*this.config.padding+')');
         var intersectGroup = svg.append('g').classed('intersect-group', true)
-            .attr('transform', 'translate('+(innerWidth+this.config.padding)+')');
+            .attr('transform', 'translate('+(innerWidth+4*this.config.padding)+')');
         var rightGroup = svg.append('g').classed('right-group', true)
-            .attr('transform', 'translate('+(2.0*innerWidth+this.config.padding)+')');
+            .attr('transform', 'translate('+(2.0*innerWidth+6*this.config.padding)+')');
         var y = this.config.height;
         var sizeRange = this.sizeRange();
         var leftWords, rightWords, intersectWords;
