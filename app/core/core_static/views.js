@@ -357,9 +357,8 @@ App.QueryView = App.NestedView.extend({
         var index = this.model.collection.indexOf(this.model);
         this.model.removedFromIndex = index;
         // Prevent removal of very last query
-        var queryNumber = this.model.collection.length;
         this.model.collection.remove(this.model);
-        if (queryNumber === 1) {
+        if (this.model.collection.length === 2) {
             $(".query-controls a.remove").hide()
         }
     }
@@ -712,6 +711,11 @@ App.QueryListView = App.NestedView.extend({
                 promise.resolve();
             });
         } else {
+            var visibleWidth = (queries.filter(":visible").length * (this.queryWidth + queryPad));
+            // Fix for strange bug that causes .query-carousel to float right instead of left
+            $('.query-views .query-carousel').css({
+                "width": visibleWidth
+            });
             that.onCarouselUpdated();
             promise.resolve();
         }
@@ -1322,7 +1326,10 @@ App.ToolListView = Backbone.View.extend({
     },
     render: function () {
         App.debug('App.ToolListView.render()');
-        var path = '#' + this.collection.dashboardUrl();
+        var path = "#";
+        if(this.collection) {
+            path = '#' + this.collection.dashboardUrl();
+        }
         this.$el.html('');
         this.$el.append(
             $('<li class="dashboard-color">').append(
@@ -1337,14 +1344,14 @@ App.ToolListView = Backbone.View.extend({
                     .attr('href', 'https://mentions.mediameter.org/' + path)
                     .text('Mentions')
                 )
-            );
-        this.$el.append(
-            $('<li class="frequency-color">').append(
-                $('<a>')
-                    .attr('href', 'https://frequency.mediameter.org/' + path)
-                    .text('Frequency')
-                )
             );*/
+        this.$el.append(
+            $('<li class="sources-color">').append(
+                $('<a>')
+                    .attr('href', 'https://sources.mediameter.org/' + path)
+                    .text('Sources')
+                )
+            );
     }
 });
 
