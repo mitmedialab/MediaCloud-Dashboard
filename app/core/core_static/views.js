@@ -711,8 +711,9 @@ App.QueryListView = App.NestedView.extend({
                 promise.resolve();
             });
         } else {
-            var visibleWidth = (queries.filter(":visible").length * (this.queryWidth + queryPad));
+            var visibleWidth = (toShow * (this.queryWidth + queryPad));
             // Fix for strange bug that causes .query-carousel to float right instead of left
+            console.log('Setting width: ' + visibleWidth);
             $('.query-views .query-carousel').css({
                 "width": visibleWidth
             });
