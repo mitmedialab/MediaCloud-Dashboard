@@ -155,8 +155,8 @@
         <script type="text/javascript" src="static/core/views.js"></script>
         <script type="text/javascript" src="static/core/controller.js"></script>
         <script type="text/javascript" src="static/core/routes.js"></script>
-        <script type="text/javascript">$(function(){ App.Controller.initialize(); });</script>
         {% block scripts %}{% endblock %}
+        <script type="text/javascript">$(function(){ App.Controller.initialize(); });</script>
         {% if google_analytics_id is defined %}
             <script>
                 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
