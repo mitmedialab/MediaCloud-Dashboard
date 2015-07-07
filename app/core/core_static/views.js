@@ -357,8 +357,9 @@ App.QueryView = App.NestedView.extend({
         var index = this.model.collection.indexOf(this.model);
         this.model.removedFromIndex = index;
         // Prevent removal of very last query
-        this.model.collection.remove(this.model);
-        if (this.model.collection.length === 2) {
+        var collection = this.model.collection;
+        collection.remove(this.model);
+        if (collection.length === 1) {
             $(".query-controls a.remove").hide()
         }
     }
@@ -388,7 +389,6 @@ App.DemoQueryView = App.NestedView.extend({
         });
         this.keywordView = new App.KeywordView({model: this.model});
         this.controlsView = new App.QueryControlsView();
-        this.model.on('remove', this.close, this);
         this.addSubView(this.mediaListView);
         this.addSubView(this.dateRangeView);
         this.addSubView(this.controlsView);
@@ -401,6 +401,7 @@ App.DemoQueryView = App.NestedView.extend({
             .addClass('query-view')
             .addClass('col-sm-4');
         progress = _.template($('#tpl-progress').html());
+
         this.$('.query-view-content').html(progress());
         var that = this;
         this.mediaSources.deferred.done(function () {
@@ -458,12 +459,14 @@ App.DemoQueryView = App.NestedView.extend({
     },
     onRemoveInput: function (evt) {
         evt.preventDefault();
-        var queryNumber = this.model.collection.length;
-        if (queryNumber > 1) {
-            this.model.collection.remove(this.model);
-            queryNumber--;
-        }
-        if (queryNumber === 1) {
+        // Backbone gives us no way to find index of a removed model
+        // This is a kludge to allow that
+        var index = this.model.collection.indexOf(this.model);
+        this.model.removedFromIndex = index;
+        // Prevent removal of very last query
+        var collection = this.model.collection;
+        collection.remove(this.model);
+        if (collection.length === 1) {
             $(".query-controls a.remove").hide()
         }
     }
@@ -609,6 +612,7 @@ App.QueryListView = App.NestedView.extend({
         // Slide in from right unless we're scrolled all the way right
         var rightIndex = this.queryIndex + toShow;
         if (rightIndex < queries.length || this.queryIndex == 0 ) {
+            App.debug("Sliding in from right");
             if (rightIndex < queries.length) {
                 $(queries[rightIndex]).addClass('visible');
             }
@@ -629,6 +633,7 @@ App.QueryListView = App.NestedView.extend({
                 });
         } else {
             // Already scrolled to the right, scroll in from the left
+            App.debug("Sliding in from left");
             var leftIndex = this.queryIndex - 1;
             $('.query-carousel-window').css('overflow', 'hidden');
             $(queries[this.queryIndex - 1])
@@ -713,7 +718,6 @@ App.QueryListView = App.NestedView.extend({
         } else {
             var visibleWidth = (toShow * (this.queryWidth + queryPad));
             // Fix for strange bug that causes .query-carousel to float right instead of left
-            console.log('Setting width: ' + visibleWidth);
             $('.query-views .query-carousel').css({
                 "width": visibleWidth
             });
