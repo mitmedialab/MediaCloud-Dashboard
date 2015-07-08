@@ -1194,14 +1194,14 @@ App.ToolListView = Backbone.View.extend({
                     .text('Mentions')
                 )
             );
-        this.$el.append(
+*/        this.$el.append(
             $('<li class="sources-color">').append(
                 $('<a>')
                     .attr('href', 'https://sources.mediameter.org/' + path)
                     .text('Sources')
                 )
             );
-*/
+
     }
 });
 
