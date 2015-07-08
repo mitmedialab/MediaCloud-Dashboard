@@ -24,6 +24,8 @@
   // DOM Ready      
   $(function() {
   
+  	 if(App.config.persistHeader==false) return;	// allow user to control where row persists or not
+
      var clonedHeaderRow;
   
      $(".persist-area").each(function() {
