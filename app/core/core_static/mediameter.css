@@ -416,10 +416,6 @@ li .query-title {
     top: 10px;
     right: 15px;
 }
-.media-select-view span.explore,
-.simple-tag-select-view span.explore {
-    float: right;
-}
 .disabled .label {
     background: #eee;
     color: #555;
@@ -429,37 +425,6 @@ li .query-title {
 }
 .disabled .add-tag-set {
     display: none;
-}
-.explore-list-view .modal-body {
-    max-height: 500px;
-    overflow-y: scroll;
-}
-.no-page .explore-list-view .alpha-links {
-    display: none !important;
-}
-.explore-list-view .alpha-links {
-    margin: 15px 0;
-    padding: 0;
-    display: inline-block;
-    list-style: none;
-}
-.explore-list-view .alpha-links li {
-    display: inline-block;
-    margin-right: 0.5em;
-}
-.explore-list-view h6 {
-    font-size: 1em;
-    margin: 0;
-}
-.explore-list-view .source-explore-view {
-    margin-top: 10px;
-}
-.explore-list-view-content {
-    max-height: 400px;
-    overflow: auto;
-}
-.tag-set-explore-view p {
-    margin-top: 10px;
 }
 
 /* Persistent header, see: https://css-tricks.com/persistent-headers/ */
