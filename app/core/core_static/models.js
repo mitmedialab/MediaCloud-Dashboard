@@ -42,11 +42,16 @@ App.QueryParamDrivenCollection = Backbone.Collection.extend({
         return [ this._getStartParam(), this._getEndParam() ];
     },
 
-    getQueryParamUrl: function(){
+    _getKeywords: function(){   // wrapper to handle empty keywords field, call this instead of this.params.get('keywords')
         var kw = this.params.get('keywords');
         if (kw.length == 0) {
             kw = " ";
         }
+        return kw;
+    },
+
+    getQueryParamUrl: function(){
+        var kw = this._getKeywords();
         var urlParts = [ 
             encodeURIComponent(kw),
             encodeURIComponent(JSON.stringify(this.params.get('mediaModel').queryParam()))
@@ -860,7 +865,7 @@ App.SentenceCollection = App.QueryParamDrivenCollection.extend({
 App.DemoSentenceCollection = App.SentenceCollection.extend({
     url: function () {
         var url = '/api/demo/sentences/docs/';
-        url += encodeURIComponent(this.params.get('keywords'));
+        url += encodeURIComponent(this._getKeywords());
         return url;
     }
 });
@@ -891,7 +896,7 @@ App.StoryCollection = App.QueryParamDrivenCollection.extend({
 App.DemoStoryCollection = App.StoryCollection.extend({
     url: function () {
         var url = '/api/demo/stories/docs/';
-        url += encodeURIComponent(this.params.get('keywords'));
+        url += encodeURIComponent(this._getKeywords());
         return url;
     }
 });
@@ -914,12 +919,13 @@ App.WordCountCollection = App.QueryParamDrivenCollection.extend({
 App.DemoWordCountCollection = App.WordCountCollection.extend({
     url: function () {
         var url = '/api/demo/wordcount/';
-        url += encodeURIComponent(this.params.get('keywords'));
+        url += encodeURIComponent(this._getKeywords());
+        App.debug("App.DemoWordCountCollection - '"+url+"'");
         return url;
     },
     csvUrl: function(){
         return ['/api', 'demo', 'wordcount'
-            , encodeURIComponent(this.params.get('keywords'))
+            , encodeURIComponent(this._getKeywords())
             , 'csv'
         ].join('/')
     }
@@ -952,12 +958,12 @@ App.DateCountCollection = App.QueryParamDrivenCollection.extend({
 App.DemoDateCountCollection = App.DateCountCollection.extend({
     url: function () {
         var url = '/api/demo/sentences/numfound/';
-        url += this.params.get('keywords');
+        url += encodeURIComponent(this._getKeywords());
         return url;
     },
     csvUrl: function(){
         return ['/api', 'demo', 'sentences', 'numfound'
-            , this.params.get('keywords')
+            , encodeURIComponent(this._getKeywords())
             , 'csv'
         ].join('/')
     }
