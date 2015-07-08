@@ -402,7 +402,6 @@ li .query-title {
 }
 .keyword-view label {
     display: block;
-    float: left;
 }
 .keyword-view .form-help {
     display: block;
