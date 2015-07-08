@@ -19,17 +19,17 @@ pip install -r requirements.pip
 
 Modules allow you to define new endpoints on the server as well as
 additional models, views, models, and front-end routes.
-To begin, create a folder under '''app''' with the name of your module.
-Add a '''views.py''' file which will contain the new flask http endpoints.
-Then create a file called '''__init__.py''' in that directory so python will
+To begin, create a folder under `app` with the name of your module.
+Add a `views.py` file which will contain the new flask http endpoints.
+Then create a file called `__init__.py` in that directory so python will
 recognize it as a package, and include a line to import views.py.
 
     mkdir app/foo
     touch app/views.py
     echo "import views" > app/foo/__init__.py
     
-Within the module directory, create a '''static''' directory to hold javascript,
-css, images, etc. and a '''templates''' directory to hold the server-side
+Within the module directory, create a `static` directory to hold javascript,
+css, images, etc. and a `templates` directory to hold the server-side
 jinja2 templates:
 
     mkdir app/foo/static
@@ -43,23 +43,109 @@ directories:
     cd ../templates
     ln -s ../foo/templates foo
 
-Finally, update '''app.config''' to include your module by adding '''app.foo'''
-to the comma-separated list of '''modules''' under the '''custom''' header.
+Finally, update `app.config` to include your module by adding `app.foo`
+to the comma-separated list of `modules` under the `custom` header.
 
 ### Creating a back-end route
 
+In your module `views.py`, add a new method that returns some json
+```python
+@flapp.route('/api/important-info/<id>')
+def important_info(id):
+    results = ms.getRelevantData(id)
+    return json.dumps(results)
+```
+You can now test this route in your browser to make sure it returns the JSON you want.
+
 ### Creating a Result Model
 
-Create the file '''app/foo/static/models.js''' and define a backbone
-Model (and Collection, if necessary) corresponding to your flask endpoint.
-Add an include for javaUpdate the '''main.html''' template in either dashboard (if you are creating
+Create the file `app/foo/static/models.js` and define a backbone
+Model (and Collection, if necessary) corresponding to your flask endpoint:
+```javascript
+App.ImportantInfoModel = Backbone.Model.extend({
+    url: function() {
+        return '/api/important-info/' + this.id;
+    }
+});
+```
+Add an include for javascript the `main.html` template in either dashboard (if you are creating
 a dashboard widget) or your module (for a stand-alone module).
-
-TODO
 
 ### Creating a Result View ###
 
-TODO
+Views are defined in the `views.js` file.  Assume that your view will be created with the 
+model that it needs (we'll set that up later).  All you really need to do is set up a `render` 
+function that displays the relevant info from the model.  The key is that the HTML is defined 
+in a template HTML file.  
+
+First make your HTML file in your module's `template` folder - 
+`important_info.html`:
+```html
+<script id="tpl-important-info-view" type="text/template">
+<div class="important-info-view panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">Important Info</h2>
+  </div>
+  <div class="copy panel-body">
+  	<div class="row">
+  		<div class="col-md-12">
+      Id = {{id}}
+  		</div>
+  	</div>
+  </div>
+</div>
+</script>
+```
+Now edit your `main.html` to include this template:
+```
+{% block backbone_templates %}
+    {% include 'foo/important_info.html' %}
+{% endblock %}
+```
+
+Now you need to make a view that uses the model info to render with this template:
+```javasscript
+App.ImportantInfoView = App.NestedView.extend({
+    name:'ImportantInfoView',
+    template: _.template($('#tpl-important-info-view').html()),
+    events: {},
+    initialize: function (options) {
+        _.bindAll(this, 'render');
+        var that = this;
+        this.model.fetch({
+            success: function() {
+                that.render();
+            }
+        });
+    },
+    render: function () {
+        var modelJson = this.model.toJSON();
+        this.$el.html(this.template(modelJson));
+    }
+};
+```
+Now all the view pieces are ready to go!
+
+### Routing a URL to your View ###
+
+If you are creating a whole new view, you need to add a route for it in your `routes.js` file.
+Add an entry like this:
+```javascript
+'important-info/:id': App.Controller.routeImportantInfo
+```
+
+Now in your `controller.js`, define that method like this:
+```javascript
+routeImportantInfo: function(objId){
+    App.debug('Route: important info');
+	var importantInfoModel = new App.importantInfoModel({id:objId});
+    var importantInfoView = App.con.vm.getView(App.ImportantInfoView, {model:importantInfoModel});
+    App.con.vm.showView(importantInfoView);
+}
+```
+
+Now when you hit this url, the app will create a model instance, and the view will fetch the info 
+and render it on the page. 
 
 ### Available Backbone Mixins ###
 
