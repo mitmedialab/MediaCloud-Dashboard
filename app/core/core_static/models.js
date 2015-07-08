@@ -716,12 +716,18 @@ App.QueryCollection = Backbone.Collection.extend({
         }
         _.each(q, function (options) {
             if (typeof(options.term) !== 'undefined') {
+                var params = null;
                 if (typeof(options.query) !== 'undefined') {
-                    var params = this.at(options.query).get('params');
-                    params.set('keywords', '(' + params.get('keywords')+") AND "+options.term);
+                    params = this.at(options.query).get('params');
                 } else if (typeof(options.queryCid) !== 'undefined') {
-                    var params = this.get({cid:options.queryCid}).get('params');
-                    params.set('keywords', '(' + params.get('keywords')+") AND "+options.term);
+                    params = this.get({cid:options.queryCid}).get('params');
+                }
+                if(params!=null){
+                    var existingKeywords = params.get('keywords');
+                    if(existingKeywords.trim().length>0){
+                        existingKeywords = '(' + existingKeywords + ') AND ';
+                    }
+                    params.set('keywords', (existingKeywords + options.term) );
                 }
             }
         }, this);
