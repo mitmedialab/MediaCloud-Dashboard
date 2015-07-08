@@ -193,8 +193,8 @@ App.con = App.Controller = {
         });
         App.con.mediaSources.set(attributes);
         App.con.mediaSources.trigger('sync');
-        App.con.mediaModel = App.con.mediaSources.subset({"sets":[8875027]});
-        App.con.comparisonMediaModel = App.con.mediaSources.subset({"sets":[8875027]});
+        var mediaModel1 = App.con.mediaSources.subset({"sets":[8875027]});
+        var mediaModel2 = App.con.mediaSources.subset({"sets":[8875027]});
         // Initialize collection
         if (!App.con.queryCollection) {
             App.con.queryCollection = new App.QueryCollection();
@@ -210,7 +210,7 @@ App.con = App.Controller = {
         var attributes = {
             start: start.getFullYear() + '-' + (start.getMonth()+1) + '-' + start.getDate()
             , end: end.getFullYear() + '-' + (end.getMonth()+1) + '-' + end.getDate()
-            , mediaModel: App.con.mediaModel
+            , mediaModel: mediaModel1
             , keywords: 'truth'
         };
         var options = {
@@ -221,7 +221,7 @@ App.con = App.Controller = {
         App.con.queryModel = new App.QueryModel(attributes, options);
         App.con.queryCollection.add(App.con.queryModel, {ResultModel: App.DemoResultModel});
         attributes.keywords = 'beauty';
-        attributes.mediaModel = App.con.comparisonMediaModel;
+        attributes.mediaModel = mediaModel2;
         var comparison = new App.QueryModel(attributes, options);
         App.con.queryCollection.add(comparison);
         App.con.queryListView = App.con.queryVm.getView(
