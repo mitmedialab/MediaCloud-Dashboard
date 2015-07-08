@@ -206,7 +206,7 @@ App.WordCountView = App.NestedView.extend({
     
     renderWordCountResults: function (queryModel) {
         App.debug('App.WordCountView.renderWordCountResults()');
-        var wordCountResultView = new App.WordCountOrderedView({'model':queryModel,refine:this.model.refine});
+        var wordCountResultView = new App.WordCountOrderedView({'model':queryModel,refine:this.collection.refine});
         this.addSubView(wordCountResultView);
         var $el = this.$('.viz');
         $el.append(wordCountResultView.$el);
@@ -357,8 +357,7 @@ App.WordCountOrderedView = Backbone.View.extend({
                 .attr('cursor','pointer');
             })
             .on('mouseout', function () {
-                var color = App.config.queryColors[0];
-                color = that.model.getColor();
+                var color = that.model.getColor();
                 d3.select(this).attr('fill', color)
                 .attr('cursor','default');
             });
@@ -366,7 +365,7 @@ App.WordCountOrderedView = Backbone.View.extend({
             .on('click', this.refineBothQueries);
     },
     refineBothQueries: function(d){
-        this.refine.trigger('mm:refine',{term:options.term,queryCid:this.model.cid});
+        this.refine.trigger('mm:refine',{term:d.term});
     },
     listCloudLayout: function (words, width, extent, sizeRange) {
         var that = this;
@@ -718,9 +717,7 @@ App.WordCountComparisonView = Backbone.View.extend({
             .on('click', this.refineBothQueries);
     },
     refineBothQueries: function(d){
-        this.collection.refine.trigger('mm:refine', [
-            {term: d.term, query: 0},{term: d.term, query: 1}
-        ]);
+        this.collection.refine.trigger('mm:refine', {term: d.term} );
     },
     listCloudLayout: function (words, width, extent, sizeRange) {
         App.debug('App.WordCountComparisonView()');
