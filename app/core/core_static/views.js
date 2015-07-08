@@ -825,7 +825,6 @@ App.MediaSelectView = App.NestedView.extend({
     template: _.template($('#tpl-media-select-view').html()),
     events: {
         'click .add': 'onTextEntered'
-        , 'click .explore': 'onExplore'
         , 'click .add-more a': 'onAddMore'
     },
     initialize: function (options) {
@@ -838,7 +837,6 @@ App.MediaSelectView = App.NestedView.extend({
         // Set deferred callbacks
         var that = this;
         _.bindAll(this, 'onTextEntered');
-        _.bindAll(this, 'onExplore');
         that.render();
         if (!that.disabled) {
             App.debug('Creating typeahead');
@@ -893,17 +891,6 @@ App.MediaSelectView = App.NestedView.extend({
             that.model.get('sources').add(suggestion);
         }
     },
-    onExplore: function (event) {
-        App.debug('App.MediaSelectView.onExplore()');
-        event.preventDefault();
-        var that = this;
-        App.con.mediaExplorer.show();
-        $.when(
-            this.mediaSources.get('sources').fetch(),
-            this.mediaSources.get('tag_sets').fetch()
-        ).done(function () {
-        });
-    },
     onAddMore: function (event) {
         var that = this;
         event.preventDefault();
@@ -911,34 +898,6 @@ App.MediaSelectView = App.NestedView.extend({
         this.$('.media-input').show();
         _.defer(function () {
             that.$('.media-input .tt-input').focus();
-        });
-    }
-});
-
-// Displays a single source
-App.SourceExploreView = Backbone.View.extend({
-    name: 'SourceExploreView',
-    initialize: function (options) {
-        this.render();
-    },
-    render: function () {
-        var tpl = _.template($('#tpl-source-explore-view').html(), this.model.toJSON());
-        this.$el.html(tpl);
-    }
-});
-
-// Displays a single tag set
-App.TagSetExploreView = Backbone.View.extend({
-    name:'TagSetExploreView',
-    initialize: function (options) {
-        this.render();
-    },
-    render: function () {
-        var that = this;
-        var tpl = _.template($('#tpl-tag-set-explore-view').html(), this.model.toJSON());
-        this.$el.html(tpl);
-        this.model.get('tags').each(function (m) {
-            that.$('ul.tags').append($('<li>').html(m.getLabel()));
         });
     }
 });
@@ -1183,120 +1142,6 @@ App.QueryControlsView = App.NestedView.extend({
     },
     render: function () {
         this.$el.html(this.template());
-    }
-});
-
-// Displays explorers for sources and tags
-App.MediaExploreView = Backbone.View.extend({
-    name: 'MediaExploreView',
-    template: _.template($('#tpl-media-explore-view').html()),
-    initialize: function (options) {
-        App.debug('App.MediaExploreView.initialize()');
-        this.mediaSources = options.mediaSources;
-        this.sourceListView = new App.ExploreListView({
-            collection: this.mediaSources.get('sources')
-            , ExploreView: App.SourceExploreView
-            , page: true
-            , cssId: "media-explore-sources"
-        });
-        this.tagListView = new App.ExploreListView({
-            collection: this.mediaSources.get('tag_sets')
-            , ExploreView: App.TagSetExploreView
-            , cssId: "media-explore-tags"
-        });
-        this.render();
-    },
-    render: function () {
-        App.debug('App.MediaExploreView.render()');
-        $('body').append(this.el);
-        this.$el.html(this.template());
-        this.sourceListView.$el.addClass("active");
-        this.$('.tab-content')
-            .append(this.sourceListView.el)
-            .append(this.tagListView.el);
-        this.sourceListView.$('.explore-list-view-content').html(_.template($('#tpl-progress').html())());
-    },
-    show: function () {
-        App.debug('App.MediaExploreView.show()');
-        var that = this;
-        this.$('.modal').modal('show');
-        $.when(
-            this.mediaSources.get('sources').fetch()
-            , this.mediaSources.get('tag_sets').fetch()
-        ).then(function () {
-            that.sourceListView.showPage("A");
-            that.tagListView.showAll();
-        });
-    }
-});
-
-// Display a collection of media sources or tag sets
-App.ExploreListView = Backbone.View.extend({
-    name: 'ExploreListView',
-    template: _.template($('#tpl-explore-list-view').html()),
-    initialize: function (options) {
-        App.debug('App.ExploreListView.initialize()');
-        this.ExploreView = options.ExploreView
-        this.page = options.page;
-        this.cssId = options.cssId;
-        var that = this;
-        this.render();
-    },
-    render: function () {
-        App.debug('App.ExploreListView.render()');
-        var that = this;
-        this.$el.addClass("tab-pane").attr("role", "tabpanel").attr("id", this.cssId);
-        this.$el.html(this.template());
-        if (this.page) {
-            var alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            _.each(alpha, function (a) {
-                var link = $('<a href="">' + a + '</a>');
-                that.$('.alpha-links').append(
-                    $('<li>')
-                        .append(link)
-                );
-                link.bind('click', function (event) {
-                    event.preventDefault();
-                    that.showPage(a);
-                });
-            });
-        } else {
-            this.$('.explore-list-view-content').html(_.template($('#tpl-progress').html())());
-            this.$('.explore-list-view-content').addClass('no-page');
-        }
-    },
-    onAdd: function (m) {
-        var v = new this.ExploreView({
-            model: m
-        });
-        this.$('.explore-list-view-content').append(v.el);
-    },
-    showAll: function () {
-        App.debug('App.ExploreListView.showAll()');
-        var that = this;
-        this.$('.explore-list-view-content').html('');
-        this.collection.each(function (m) {
-            that.onAdd(m);
-        });
-    },
-    showPage: function (a) {
-        App.debug('App.ExploreListView.showPage()');
-        var that = this;
-        if (typeof(a) === 'undefined') {
-            a = 'A';
-        }
-        if (this.currentPage != a) {
-            this.$('.explore-list-view-content').html(_.template($('#tpl-progress').html())());
-            // Show the progress bar before we start building results
-            _.defer(function () {
-                that.$('.explore-list-view-content').html('');
-                that.currentPage = a;
-                var f = function(d) { return d.get('name')[0].toUpperCase() == a; }
-                _.each(that.collection.filter(f), function (m) {
-                    that.onAdd(m);
-                });
-            });
-        }
     }
 });
 

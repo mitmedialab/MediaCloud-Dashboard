@@ -349,46 +349,6 @@ App.SimpleTagCollection = Backbone.Collection.extend({
 });
 App.SimpleTagCollection = App.SimpleTagCollection.extend(App.DeferredCollectionMixin);
 
-App.TagSetModel = App.NestedModel.extend({
-    url: '/api/tag_sets/single',
-    idAttribute: 'tag_sets_id',
-    attributeModels: {
-        'tags': App.SimpleTagCollection
-    },
-    initialize: function (options) {
-        if (!this.get('tags')) {
-            // TODO this should be moved into defaults
-            this.set('tags', new App.SimpleTagCollection());
-        }
-    },
-    getLabel: function() {
-        return (this.get('label')!=null) ? this.get('label') : this.get('name');
-    }
-});
-
-App.TagSetCollection = Backbone.Collection.extend({
-    model: App.TagSetModel,
-    initialize: function (options) {
-        var that = this;
-    },
-    url: '/api/media/sets',
-    getSuggestions: function () {
-        App.debug('TagSetCollection.getSuggestions()');
-        if (!this.suggest) {
-            this.suggest = new Bloodhound({
-                datumTokenizer: function (d) {
-                    return Bloodhound.tokenizers.whitespace(d.name);
-                },
-                queryTokenizer: Bloodhound.tokenizers.whitespace,
-                local: this.toJSON()
-            });
-            this.suggest.initialize();
-        }
-        return this.suggest;
-    }
-})
-App.TagSetCollection = App.TagSetCollection.extend(App.DeferredCollectionMixin);
-
 /**
  * This handles specifying media individually and by set.
  */
@@ -397,7 +357,6 @@ App.MediaModel = App.NestedModel.extend({
     attributeModels: {
         sources: App.MediaSourceCollection
         , tags: App.SimpleTagCollection
-        , tag_sets: App.TagSetCollection
     },
     initialize: function () {
         App.debug('App.MediaModel.initialize()');
@@ -405,7 +364,6 @@ App.MediaModel = App.NestedModel.extend({
         var that = this;
         this.set('sources', new App.MediaSourceCollection());
         this.set('tags', new App.SimpleTagCollection());
-        this.set('tag_sets', new App.TagSetCollection());
         this.deferred = $.Deferred();
         this.deferred.resolve();
         this.on('sync', this.onSync, this);
