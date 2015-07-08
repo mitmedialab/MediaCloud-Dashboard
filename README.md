@@ -104,7 +104,7 @@ Now edit your `main.html` to include this template:
 ```
 
 Now you need to make a view that uses the model info to render with this template:
-```javasscript
+```javascript
 App.ImportantInfoView = App.NestedView.extend({
     name:'ImportantInfoView',
     template: _.template($('#tpl-important-info-view').html()),
