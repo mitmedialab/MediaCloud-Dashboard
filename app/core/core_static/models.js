@@ -463,15 +463,15 @@ App.MediaModel = App.NestedModel.extend({
         // "sources" contains media source ids. "sets" contains media tag ids.
         App.debug('App.MediaModel.subset()');
         var that = this;
-        media = new App.MediaModel();
+        var media = new App.MediaModel();
         _.each(o.sets, function(id) {
             App.debug('  Adding set: ' + id);
-            var tag = that.get('tags').get({id:id});
+            var tag = that.get('tags').get(id);
             media.get('tags').add(tag);
         });
         _.each(o.sources, function (id) {
             App.debug('  Adding source: ' + id);
-            var m = that.get('sources').get({id:id})
+            var m = that.get('sources').get(id);
             media.get('sources').add(m);
         });
         return media;

@@ -946,6 +946,7 @@ App.TagSetExploreView = Backbone.View.extend({
 App.ItemView = Backbone.View.extend({
     name:'ItemView',
     tagName: 'li',
+    template: _.template($('#tpl-item-view').html()),
     events: {
         'click .remove': 'onClickRemove'
     },
@@ -964,8 +965,7 @@ App.ItemView = Backbone.View.extend({
         } else {
             data.name = this.model.get('name');
         }
-        this.template = _.template($('#tpl-item-view').html(), data);
-        this.$el.html(this.template);
+        this.$el.html(this.template(data));
     },
     onClickRemove: function (event) {
         event.preventDefault();
