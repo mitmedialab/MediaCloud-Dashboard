@@ -206,17 +206,10 @@ App.WordCountView = App.NestedView.extend({
     
     renderWordCountResults: function (queryModel) {
         App.debug('App.WordCountView.renderWordCountResults()');
-        var wordCountResultView = new App.WordCountOrderedView({'model':queryModel});
+        var wordCountResultView = new App.WordCountOrderedView({'model':queryModel,refine:this.model.refine});
         this.addSubView(wordCountResultView);
         var $el = this.$('.viz');
         $el.append(wordCountResultView.$el);
-        this.listenTo(wordCountResultView, 'mm:refine', function (options) {
-            var model = this.collection.models[0];
-            model.refine.trigger('mm:refine', {
-                term: options.term
-                , queryCid: model.cid
-            });
-        });
     },
 
     renderWordCountComparison: function (collection) {
@@ -259,7 +252,8 @@ App.WordCountOrderedView = Backbone.View.extend({
 
     template: _.template($('#tpl-wordcount-ordered-view').html()),
     
-    initialize: function () {
+    initialize: function (options) {
+        this.refine = options.refine;
         _.bindAll(this,'refineBothQueries');
         this.render();
     },
@@ -372,7 +366,7 @@ App.WordCountOrderedView = Backbone.View.extend({
             .on('click', this.refineBothQueries);
     },
     refineBothQueries: function(d){
-        this.trigger('mm:refine', {term: d.term, query: 0});
+        this.refine.trigger('mm:refine',{term:options.term,queryCid:this.model.cid});
     },
     listCloudLayout: function (words, width, extent, sizeRange) {
         var that = this;
