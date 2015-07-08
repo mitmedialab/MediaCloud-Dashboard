@@ -93,9 +93,6 @@ _.extend(App.Controller, {
                 subset.get('tags').each(function(simpleTag){
                     mediaModel.get('tags').add(simpleTag);
                 });
-                subset.get('tag_sets').each(function (m) {
-                    mediaModel.get('tag_sets').add(m);
-                });
             });
             App.con.queryCollection.execute();
         });
