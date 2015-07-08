@@ -63,28 +63,35 @@ App.ViewManager.prototype = {
         }
         if (this.viewsByType[type.prototype.viewLookupKey]) {
             if (reuse) {
-                App.debug('  returning existing view');
-                return this.viewsByType[type.prototype.viewLookupKey];
+                v = this.viewsByType[type.prototype.viewLookupKey];
+                App.debug('  returning existing view '+this._viewId(v));
+                return v;
             } else {
-                App.debug('  closing old view');
-                this.closeView(this.viewsByType[type.prototype.viewLookupKey]);
+                v = this.viewsByType[type.prototype.viewLookupKey];
+                App.debug('  closing old view '+this._viewId(v));
+                this.closeView(v);
             }
         }
         // Create a new view
-        App.debug('  creating new view');
         v = new type(options);
+        App.debug('  created new view '+this._viewId(v));
         this.viewsByType[v.viewLookupKey] = v;
         return v;
     },
-    showViews: function (views) {
-        App.debug('App.ViewManager.showViews()');
+    showViews: function (viewsToShow) {
+        App.debug('App.ViewManager.showViews() with '+viewsToShow.length);
+        var views = _.reject(viewsToShow, function(v){return (typeof v==="undefined");});
         var that = this;
         newIds = _.pluck(views, 'cid');
+        newIdNames = _.pluck(views, 'name');
         oldIds = _.pluck(this.views, 'cid');
+        oldIdNames = _.pluck(this.views, 'name');
         App.debug('New view ids:');
         App.debug(newIds);
+        App.debug(newIdNames);
         App.debug('Old view ids:');
         App.debug(oldIds);
+        App.debug(oldIdNames);
         // Determine whether to close old views
         _.each(this.views, function (oldView) {
             if (!_.contains(newIds, oldView.cid)) {
@@ -94,7 +101,7 @@ App.ViewManager.prototype = {
         // Add new views that doen't already exist
         _.each(views, function (newView) {
             if (!_.contains(oldIds, newView.cid)) {
-                App.debug('Attaching view: ' + newView.cid);
+                App.debug('Attaching view: ' + that._viewId(newView) );
                 that.viewMap[newView.cid] = newView;
             }
         });
@@ -107,15 +114,19 @@ App.ViewManager.prototype = {
         }, this);
     },
     showView: function (view) {
-        App.debug('Showing view: ' + view.cid)
+        App.debug('Showing view: ' + this._viewId(view) )
         this.showViews([view]);
     },
     addView: function (view) {
-        App.debug('Adding view: ' + view.cid);
+        App.debug('Adding view: ' + this._viewId(view) );
         if (!this.viewMap[view.cid]) {
             this.views.push(view);
             this.viewMap[view.cid] = view;
         }
         $(this.options.selector).append(view.el);
+    },
+    _viewId: function(view) {
+        // return a human-readable name of the view for debugging purposes
+        return view.cid + ' (' + view.name + ')';
     }
 };
