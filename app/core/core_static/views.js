@@ -187,7 +187,7 @@ App.ControlsView = App.NestedView.extend({
         this.userModel = options.userModel;
         _.bindAll(this, 'render');
         // Add listeners
-        this.userModel.on('change:authenticated', this.render);
+        this.listenTo(this.userModel,'change:authenticated',this.render);
         // Render
         this.render();
     },
@@ -206,7 +206,6 @@ App.ControlsView = App.NestedView.extend({
             this.addSubView(this.controlsSignInView);
             this.$el.append(this.controlsSignInView.el);
         }
-        return this;
     }
 });
 
