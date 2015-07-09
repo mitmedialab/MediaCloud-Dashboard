@@ -799,7 +799,7 @@ App.QueryCollection = Backbone.Collection.extend({
         return isGeoTagged;
     }
 })
-App.QueryModel = App.QueryModel.extend(App.UidMixin);
+App.QueryCollection = App.QueryCollection.extend(App.UidMixin);
 
 // Add this to any model that has a standard "public_date" property that we want to parse into a JS date object
 App.DatedModelMixin = {
