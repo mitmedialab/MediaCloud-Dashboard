@@ -133,24 +133,29 @@
                 </div>
             </div>
         </div>
-        <script type="text/javascript" src="static/core/lib/jquery/js/jquery-2.1.1.min.js"></script>
-        <script type="text/javascript" src="static/core/lib/jquery/js/jquery.cookie-1.4.1.js"></script>
-        <script type="text/javascript" src="static/core/lib/underscore/underscore-1.8.3-min.js"></script>
-        <script type="text/javascript" src="static/core/lib/backbone/backbone-1.2.1-min.js"></script>
-        <script type="text/javascript" src="static/core/lib/bootstrap/js/bootstrap.min.js"></script>
-        <script type="text/javascript" src="static/core/lib/typeahead/typeahead.bundle.min.js"></script>
-        <script type="text/javascript" src="static/core/lib/datepicker/js/bootstrap-datepicker.js"></script>
-        <script type="text/javascript" src="static/core/lib/d3/js/d3-3.4.11.min.js"></script>
-        <script type="text/javascript" src="static/core/lib/d3-cloud/js/d3-cloud-civic.js"></script>
-        <script type="text/javascript" src="static/core/lib/persist/persist.js"></script>
-        <script type="text/javascript" src="static/core/app.js"></script>
-        <script type="text/javascript" src="static/core/include/viewmanager.js"></script>
-        <script type="text/javascript" src="static/core/include/resource.js"></script>
-        <script type="text/javascript" src="static/core/include/primecolor.js"></script>
-        <script type="text/javascript" src="static/core/models.js"></script>
-        <script type="text/javascript" src="static/core/views.js"></script>
-        <script type="text/javascript" src="static/core/controller.js"></script>
-        <script type="text/javascript" src="static/core/routes.js"></script>
+
+        {% assets output="gen/mm-core.js",
+                            "core/lib/jquery/js/jquery-2.1.1.min.js",
+                            "core/lib/jquery/js/jquery.cookie-1.4.1.js",
+                            "core/lib/underscore/underscore-1.8.3-min.js",
+                            "core/lib/backbone/backbone-1.2.1-min.js",
+                            "core/lib/bootstrap/js/bootstrap.min.js",
+                            "core/lib/typeahead/typeahead.bundle.min.js",
+                            "core/lib/datepicker/js/bootstrap-datepicker.js",
+                            "core/lib/d3/js/d3-3.4.11.min.js",
+                            "core/lib/d3-cloud/js/d3-cloud-civic.js",
+                            "core/lib/persist/persist.js",
+                            "core/app.js",
+                            "core/include/viewmanager.js",
+                            "core/include/resource.js",
+                            "core/include/primecolor.js",
+                            "core/models.js",
+                            "core/views.js",
+                            "core/controller.js",
+                            "core/routes.js" %}
+            <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+        {% endassets %}
+
         {% block scripts %}{% endblock %}
         <script type="text/javascript">$(function(){ App.Controller.initialize(); });</script>
         {% if google_analytics_id is defined %}

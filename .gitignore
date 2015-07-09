@@ -6,3 +6,5 @@ venv
 .Python
 app/static/data/media.json.backup*
 tmp/restart.txt
+app/static/.webassets-cache
+app/static/gen/*.js
