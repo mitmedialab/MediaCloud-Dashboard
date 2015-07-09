@@ -3,6 +3,7 @@ import ConfigParser
 import importlib
 
 import flask
+from flask.ext.assets import Environment, Bundle
 import flask_login
 import mediacloud
 import mediacloud.api as mcapi
@@ -42,6 +43,7 @@ logger.info("-------------------------------------------------------------------
 # Flask app
 flapp = flask.Flask(__name__)
 flapp.secret_key = 'put secret key here'
+assets = Environment(flapp)
 
 # Create media cloud api
 mc_key = config.get('mediacloud','key')
