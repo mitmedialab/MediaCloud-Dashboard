@@ -248,6 +248,12 @@ App.MediaSourceModel = Backbone.Model.extend({
     urlRoot: '/api/media/sources/single',
     initialize: function (attributes, options) {
         this.set('type', 'media source');
+    },
+    isGeoTagged: function(){
+        var tags = _.pluck(this.get('media_source_tags'),'tags_id');
+        var tag_sets = _.pluck(this.get('media_source_tags'),'tags_sets_id');
+        var isGeoTagged = _.contains(tags,8875027) || _.contains(tag_sets,556);
+        return isGeoTagged;
     }
 });
 
@@ -276,6 +282,13 @@ App.MediaSourceCollection = Backbone.Collection.extend({
             this.suggestRemote.initialize();
         }
         return this.suggestRemote;
+    },
+    isGeoTagged: function(){
+        var isGeoTagged = true;
+        this.each(function(mediaSource){
+            isGeoTagged = isGeoTagged && mediaSource.isGeoTagged();
+        });
+        return isGeoTagged;
     }
 });
 App.MediaSourceCollection = App.MediaSourceCollection.extend(App.DeferredCollectionMixin);
@@ -301,6 +314,10 @@ App.SimpleTagModel = Backbone.Model.extend({
     initialize: function (options) {},
     getLabel: function(){
         return (this.get('label')!=null) ? this.get('label') : this.get('tag');
+    },
+    isGeoTagged: function(){
+        var isGeoTagged = (this.get('tags_id')==8875027) || (this.get('tag_sets_id')==556);
+        return isGeoTagged;
     }
 });
 
@@ -345,6 +362,13 @@ App.SimpleTagCollection = Backbone.Collection.extend({
             cloneCollection.add(m.clone());
         });
         return cloneCollection;
+    },
+    isGeoTagged: function(){
+        var isGeoTagged = true;
+        this.each(function(simpleTagModel){
+            isGeoTagged = isGeoTagged && simpleTagModel.isGeoTagged();
+        });
+        return isGeoTagged;
     }
 });
 App.SimpleTagCollection = App.SimpleTagCollection.extend(App.DeferredCollectionMixin);
@@ -446,6 +470,9 @@ App.MediaModel = App.NestedModel.extend({
             qp.sets = sets.pluck('tags_id');
         }
         return qp;
+    },
+    isGeoTagged: function() {
+        return (this.get('sources').isGeoTagged() && this.get('tags').isGeoTagged());
     }
 })
 
@@ -568,6 +595,9 @@ App.QueryModel = Backbone.Model.extend({
             info.name = this.get('name');
         }
         return info;
+    },
+    isGeoTagged: function(){
+        return this.get('params').get('mediaModel').isGeoTagged();
     }
 });
 _.extend(App.QueryModel, App.UidMixin);
@@ -760,6 +790,13 @@ App.QueryCollection = Backbone.Collection.extend({
             label += tokens[m];
             n = Math.round((m - n) / 26.0);
         }
+    },
+    isGeoTagged: function(){
+        var isGeoTagged = true;
+        this.each(function(queryModel){
+            isGeoTagged = isGeoTagged && queryModel.isGeoTagged();
+        });
+        return isGeoTagged;
     }
 })
 App.QueryModel = App.QueryModel.extend(App.UidMixin);
