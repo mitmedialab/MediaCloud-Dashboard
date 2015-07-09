@@ -9,12 +9,15 @@
 {% endblock %}
 
 {% block scripts %}
-    <script type="text/javascript" src="static/core/lib/highcharts-4.1.7/highcharts.js"></script>
-    <script type="text/javascript" src="static/core/lib/highcharts-4.1.7/exporting.js"></script>
-    <script type="text/javascript" src="static/dashboard/views.js"></script>
-    <script type="text/javascript" src="static/dashboard/controller.js"></script>
-    <script type="text/javascript" src="static/dashboard/routes.js"></script>
-    <script type="text/javascript" src="static/dashboard/script.js"></script>
+    {% assets output="gen/mm-dashboard.js",
+                        "core/lib/highcharts-4.1.7/highcharts.js",
+                        "core/lib/highcharts-4.1.7/exporting.js",
+                        "dashboard/views.js",
+                        "dashboard/controller.js",
+                        "dashboard/routes.js",
+                        "dashboard/script.js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
 {% endblock %}
 
 {% block backbone_templates %}
