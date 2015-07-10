@@ -8,6 +8,8 @@ App.con = App.Controller = {
         App.con.fragment = window.location.hash.substring(1);
         // Set up colors
         PrimeColor.setSeed(225, 76, 17);
+        // Prep util lib
+        ISO3166.initialize();
         // Create models
         App.con.userModel = new App.UserModel();
         App.con.mediaSources = new App.MediaModel({parse:true});
