@@ -15,7 +15,11 @@
                         "dashboard/views.js",
                         "dashboard/controller.js",
                         "dashboard/routes.js",
-                        "dashboard/script.js" %}
+                        "dashboard/script.js",
+                        "dashboard/lib/d3.geo.projection/d3.geo.projection.v0.min.js",
+                        "dashboard/lib/topojson/topojson-v1.6.19.min.js",
+                        "dashboard/lib/maps/world-110m.json"
+                         %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
 {% endblock %}
@@ -31,4 +35,5 @@
     {% include 'dashboard/wordcount_view.html' %}
     {% include 'dashboard/wordcount_ordered_view.html' %}
     {% include 'dashboard/wordcount_comparison_view.html' %}
+    {% include 'dashboard/country_map_view.html' %}
 {% endblock %}

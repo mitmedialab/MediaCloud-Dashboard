@@ -956,6 +956,146 @@ App.HistogramView = Backbone.View.extend({
 });
 App.HistogramView = App.HistogramView.extend(App.ActionedViewMixin);
 
+App.CountryMapView = App.NestedView.extend({
+    name: 'CountryMapView',
+    template: _.template($('#tpl-country-map-view').html()),
+    progressTemplate: _.template($('#tpl-progress').html()),
+    initialize: function (options) {
+        this.render();
+        this.mapInfo = {};
+    },
+    render: function () {
+        App.debug("CountryMapView render");
+        var that = this;
+        this.$el.html(this.template());
+        this.hideActionMenu();
+        this.$el.find('.loading').html(this.progressTemplate());
+        this.$('.viz').hide();
+        this.collection.on('execute', function () {
+            that.$el.find('.loading').html(that.progressTemplate());
+            this.$el.find('.loading').show();
+            this.$('.viz').hide();
+        });
+        this.collection.resources.on('resource:complete:tagcount', this.renderViz, this);
+    },
+    renderViz: function() {
+        App.debug("CountryMapView renderViz");
+        var that = this;
+        // init share map config into the this.mapInfo object
+        this.mapInfo.width = 400;
+        this.mapInfo.height = this.mapInfo.width / 2.19;
+        this.mapInfo.scale = this.mapInfo.width / 5.18;
+        this.mapInfo.offset = [this.mapInfo.width/1.96, this.mapInfo.height / 1.73];
+        this.mapInfo.projection = d3.geo.kavrayskiy7()
+                    .scale(this.mapInfo.scale)
+                    .translate([this.mapInfo.offset[0], this.mapInfo.offset[1]])
+                    .precision(.1);
+        this.mapInfo.path = d3.geo.path()
+                    .projection(this.mapInfo.projection);
+        this.mapInfo.colors = ['rgb(241,233,187)', 'rgb(207,97,35)'];
+        this.mapInfo.disabledColor = 'rgb(220,220,200)';
+        // note: right now this normalizes to max of ALL queries
+        var maxCounts = this.collection.map(function(queryModel){
+            var tagCountModels = queryModel.get('results').get('tagcounts').models;
+            return d3.max(tagCountModels, function (tagCountModel) { return tagCountModel.get('count') });
+        });
+        this.mapInfo.maxCount = d3.max(maxCounts);
+        this.mapInfo.colorScale = d3.scale.linear()
+                .range(this.mapInfo.colors)
+                .domain([0, this.mapInfo.maxCount]);
+        this.mapInfo.countryPaths = topojson.feature(App.worldMap, App.worldMap.objects.countries).features;
+        this.mapInfo.countryAlpha3ToPath = {};
+        $.each(this.mapInfo.countryPaths, function (i, element) {
+            if(element.id>0){
+                that.mapInfo.countryAlpha3ToPath[ISO3166.getAlpha3FromId(element.id)] = element;
+            }
+        });
+        // add one map for each query
+        this.collection.map(function(queryModel) {
+            // create map wrapper
+            var models = queryModel.get('results').get('tagcounts').models;
+            var svgMap = d3.select(that.$el.find('.viz')[0]).append("svg")
+                .attr("width", that.mapInfo.width)
+                .attr("height", that.mapInfo.height);
+            svgMap.append('g').attr('id', 'background');
+            svgMap.append('g').attr('id', 'tagcounts');
+            svgMap.append('g').attr('id', 'labels');
+            // create the map outlines
+            var country = svgMap.select('#background').selectAll(".country").data(that.mapInfo.countryPaths);
+            country.enter().append("path")
+                .attr("class", 'country')
+                .attr("stroke-width", "1")
+                .attr("stroke", "rgb(255,255,255)")
+                .attr("fill", 'rgb(204,204,204)')
+                .attr("data-id",function(d){ return d.id })
+                .on("click", function (d) { return that.handleInvalidCountryClick(d); })
+                .attr("d", that.mapInfo.path);
+            // render the country data
+            var g = svgMap.select('#tagcounts')
+                .selectAll('country')
+                .data(models, function (tagCountModel) { return tagCountModel.get('id'); });
+            g.enter()
+                .append("path")
+                .attr("class", "country")
+                .attr("fill", that.mapInfo.disabledColor)
+                .attr("id", function(tagCountModel,i) {return "country"+tagCountModel.get('id')})
+                .attr("data-id", function(tagCountModel,i) {return tagCountModel.get('id')})
+                .attr("data-tags-id", function(tagCountModel,i) {return tagCountModel.get('tags-id')})
+                .attr("data-alpha3", function(tagCountModel,i) {return tagCountModel.get('alpha3')})
+                .attr("data-count", function(tagCountModel,i) {return tagCountModel.get('count')})
+                .attr("d", function (tagCountModel) { 
+                    var countryOutline = that.mapInfo.countryAlpha3ToPath[tagCountModel.get('alpha3').toLowerCase()];
+                    return that.mapInfo.path(countryOutline);
+                })
+                .on("click", function (tagCountModel) { return that.handleCountryClick(tagCountModel); });
+            g.attr("stroke-width", "1")
+                .attr("stroke", "rgb(255,255,255)")
+            g.transition()
+                .attr("fill", function(tagCountModel) { return that.mapInfo.colorScale(tagCountModel.get('count'));} )
+                .attr("stroke", "rgb(255,255,255)")
+                .style("opacity", "1");
+            // Render country names
+            var t = svgMap.select('#labels')
+                .selectAll('text')
+                .data(models, function(tagCountModel) {return tagCountModel.get('id');} );
+            t.enter()
+                .append("text")
+                .attr("class", "country-name")
+                .attr("visibility","hidden")
+                .attr("text-anchor", "middle")
+                .attr("id", function(tagCountModel,i){ return 'country-name'+tagCountModel.get('id')})
+                .attr("x",function(tagCountModel){return that.mapInfo.projection(tagCountModel.get('centroid'))[0];})
+                .attr("y",function(tagCountModel){return that.mapInfo.projection(tagCountModel.get('centroid'))[1];})
+                .text( function(tagCountModel) {return tagCountModel.get('label')})
+                .attr("font-family","sans-serif")
+                .attr("font-size", "16px")
+                .attr("font-weight", "bold")
+                .attr("fill","rgb(92,72,58)");
+        });
+        this.$el.find('.loading').hide();
+        this.$el.find('.viz').show();
+        // clean up and prep for display
+        var downloadInfo = this.collection.map(function(tagCountModel) { 
+            return {
+                'url':tagCountModel.get('results').get('tagcounts').csvUrl(),
+                'name':tagCountModel.getName()
+            };
+        });
+        this.addDownloadMenuItems(downloadInfo);
+        this.delegateEvents();
+        this.showActionMenu();
+    },
+    handleInvalidCountryClick: function(tagCountModel){
+        App.debug("Clicked on invalid country!");
+        App.debug(c);
+    },
+    handleCountryClick: function(tagCountModel){
+        App.debug("Clicked on country!");
+        this.collection.refine.trigger('mm:refine',{ term: "(tags_id_story_sentences:"+tagCountModel.get('tags_id')+")" });
+    }
+});
+App.CountryMapView = App.CountryMapView.extend(App.ActionedViewMixin);
+
 App.QueryResultView = App.NestedView.extend({
     name: 'QueryResultView',
     tagName: 'div',
@@ -969,9 +1109,11 @@ App.QueryResultView = App.NestedView.extend({
         } else {
             this.mentionsView = new App.StoryView(options);
         }
+        this.countryMapView = new App.CountryMapView(options);
         this.addSubView(this.histogramView);
         this.addSubView(this.wordCountView);
         this.addSubView(this.mentionsView);
+        this.addSubView(this.countryMapView);
         this.render();
     },
     render: function () {
@@ -980,5 +1122,6 @@ App.QueryResultView = App.NestedView.extend({
         this.$el.append(this.histogramView.$el);
         this.$el.append(this.wordCountView.$el);
         this.$el.append(this.mentionsView.$el);
+        this.$el.append(this.countryMapView.$el);
     }
 });
