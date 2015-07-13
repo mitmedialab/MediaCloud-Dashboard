@@ -721,9 +721,7 @@ App.WordCountComparisonView = Backbone.View.extend({
     },
     listCloudLayout: function (words, width, extent, sizeRange) {
         App.debug('App.WordCountComparisonView()');
-        App.debug(extent);
-        App.debug(sizeRange);
-        App.debug(words);
+        //App.debug(extent); App.debug(sizeRange); App.debug(words);
         var that = this;
         var x = 0;
         if (typeof(words) === 'undefined') {
@@ -970,15 +968,31 @@ App.CountryMapView = App.NestedView.extend({
         this.$el.html(this.template());
         this.hideActionMenu();
         this.$el.find('.loading').html(this.progressTemplate());
+        this.$('.loading').show();
         this.$('.viz').hide();
+        this.$('.unsupported').hide();
         this.collection.on('execute', function () {
             that.$el.find('.loading').html(that.progressTemplate());
-            this.$el.find('.loading').show();
-            this.$('.viz').hide();
+            that.$el.find('.loading').show();
+            that.$('.unsupported').hide();
+            that.$('.viz').hide();
         });
-        this.collection.resources.on('resource:complete:tagcount', this.renderViz, this);
+        this.collection.resources.on('resource:complete:tagcount', this.renderResults, this);
     },
-    renderViz: function() {
+    renderResults: function() {
+        if(this.collection.isGeoTagged()){
+            this.renderMaps();
+        } else {
+            this.renderNoMaps();
+        }
+    },
+    renderNoMaps: function(){
+        this.$('.viz').html("").hide();
+        this.$('.loading').hide();
+        this.$('.unsupported').show();
+    },
+    renderMaps: function() {
+        this.$('.viz').html("");
         App.debug("CountryMapView renderViz");
         var that = this;
         // init share map config into the this.mapInfo object
