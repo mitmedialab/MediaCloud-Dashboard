@@ -1000,7 +1000,7 @@ App.CountryMapView = App.NestedView.extend({
         App.debug("CountryMapView renderViz");
         var that = this;
         // init share map config into the this.mapInfo object
-        this.mapInfo.width = 400;
+        this.mapInfo.width = 440;
         this.mapInfo.height = this.mapInfo.width / 2.19;
         this.mapInfo.scale = this.mapInfo.width / 5.18;
         this.mapInfo.offset = [this.mapInfo.width/1.96, this.mapInfo.height / 1.73];
@@ -1028,13 +1028,23 @@ App.CountryMapView = App.NestedView.extend({
                 that.mapInfo.countryAlpha3ToPath[ISO3166.getAlpha3FromId(element.id)] = element;
             }
         });
+        // change colors live in response to user
+        this.listenTo(this.collection, 'mm:colorchange', function(queryModel) {
+            that.$el.find('h3#'+queryModel.getName()).css('color', queryModel.getColor());
+        });
         // add one map for each query
         this.collection.map(function(queryModel) {
             // create map wrapper
             var models = queryModel.get('results').get('tagcounts').models;
-            var svgMap = d3.select(that.$el.find('.viz')[0]).append("svg")
-                .attr("width", that.mapInfo.width)
-                .attr("height", that.mapInfo.height);
+            var mapContainer = d3.select(that.$el.find('.viz')[0])
+                .append('div').attr('class', "map");
+            mapContainer.append('h3')
+                .attr('id',queryModel.getName())
+                .style('color',queryModel.getColor())
+                .text(queryModel.getName());
+            var svgMap = mapContainer.append("svg")
+                    .attr("width", that.mapInfo.width)
+                    .attr("height", that.mapInfo.height);
             svgMap.append('g').attr('id', 'background');
             svgMap.append('g').attr('id', 'tagcounts');
             svgMap.append('g').attr('id', 'labels');

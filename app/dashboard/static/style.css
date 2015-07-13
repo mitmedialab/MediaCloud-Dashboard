@@ -35,3 +35,12 @@
 .query-sentences h3 {
     border-bottom: solid 1px #777;
 }
+
+.country-map-view .map {
+    display: inline-block;
+    margin: 5px;
+}
+.country-map-view .map h3 {
+    text-align: center;
+    margin: 5px;
+}
