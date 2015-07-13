@@ -958,6 +958,9 @@ App.CountryMapView = App.NestedView.extend({
     name: 'CountryMapView',
     template: _.template($('#tpl-country-map-view').html()),
     progressTemplate: _.template($('#tpl-progress').html()),
+    events: {
+        'click li.action-about > a': 'clickAbout'
+    },
     initialize: function (options) {
         this.render();
         this.mapInfo = {};
@@ -977,6 +980,7 @@ App.CountryMapView = App.NestedView.extend({
             that.$('.unsupported').hide();
             that.$('.viz').hide();
         });
+        this.delegateEvents();
         this.collection.resources.on('resource:complete:tagcount', this.renderResults, this);
     },
     renderResults: function() {
@@ -1106,6 +1110,13 @@ App.CountryMapView = App.NestedView.extend({
     handleCountryClick: function(tagCountModel){
         App.debug("Clicked on country!");
         this.collection.refine.trigger('mm:refine',{ term: "(tags_id_story_sentences:"+tagCountModel.get('tags_id')+")" });
+    },
+    clickAbout: function (evt) {
+        evt.preventDefault();
+        this.aboutView = new App.AboutView({
+            template: '#tpl-about-country-map-view'
+        });
+        $('body').append(this.aboutView.el);
     }
 });
 App.CountryMapView = App.CountryMapView.extend(App.ActionedViewMixin);
