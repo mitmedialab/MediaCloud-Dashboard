@@ -1000,7 +1000,7 @@ App.CountryMapView = App.NestedView.extend({
         App.debug("CountryMapView renderViz");
         var that = this;
         // init share map config into the this.mapInfo object
-        this.mapInfo.width = 440;
+        this.mapInfo.width = 540;
         this.mapInfo.height = this.mapInfo.width / 2.19;
         this.mapInfo.scale = this.mapInfo.width / 5.18;
         this.mapInfo.offset = [this.mapInfo.width/1.96, this.mapInfo.height / 1.73];
