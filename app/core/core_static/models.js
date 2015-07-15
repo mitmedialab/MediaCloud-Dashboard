@@ -598,7 +598,11 @@ App.QueryModel = Backbone.Model.extend({
     },
     isGeoTagged: function(){
         var sourcesOk = this.get('params').get('mediaModel').isGeoTagged();
-        var datesOk = Date.parse(this.get('params').get('start')) >= Date.parse('2015-1-1');
+        // now check dates
+        var startDateParts = this.get('params').get('start').split("-");
+        var startDate = new Date(startDateParts[0],startDateParts[1],startDateParts[2]);
+        var geoTagStartDate = new Date(2015,1,1);
+        var datesOk = startDate >= geoTagStartDate;
         App.debug("  QueryModel:isGeoTagged "+sourcesOk+" "+datesOk);
         return sourcesOk && datesOk;
     }
