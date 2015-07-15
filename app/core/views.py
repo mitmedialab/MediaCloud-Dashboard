@@ -31,6 +31,7 @@ def index():
 @flapp.route('/api/login', methods=['POST'])
 def login():
     if flask_login.current_user.is_authenticated():
+        app.core.logger.debug("login: user logged in already")
         # User is already logged in, confirm by sending user object
         response = {
             'username': flask_login.current_user.name
@@ -47,6 +48,7 @@ def login():
     try:
         username = flask.request.form['username']
         password = flask.request.form['password']
+        app.core.logger.debug("login: user "+username+" trying to login")
         user = authenticate_user(username, password)
     except KeyError:
         try:
@@ -84,6 +86,7 @@ def user():
 @flapp.route('/api/logout', methods=['POST'])
 @flask_login.login_required
 def logout():
+    app.core.logger.debug("logout")
     flask_login.logout_user()
     response = {
         'username': ''
