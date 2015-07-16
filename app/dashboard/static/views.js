@@ -1030,24 +1030,30 @@ App.CountryMapView = App.NestedView.extend({
         });
         // change colors live in response to user
         this.listenTo(this.collection, 'mm:colorchange', function(queryModel) {
-            that.$el.find('h3#'+queryModel.getName()).css('color', queryModel.getColor());
+            that.$el.find("#map-query"+queryModel.get("queryUid")+" .map-title").stlye("color",queryModel.getColor());
         });
         // add one map for each query
         this.collection.map(function(queryModel) {
             // create map wrapper
             var models = queryModel.get('results').get('tagcounts').models;
             var mapContainer = d3.select(that.$el.find('.viz')[0])
-                .append('div').attr('class', "map");
+                .append('div').classed("map",true)
+                .attr('id','map-query'+queryModel.get('queryUid'));
             mapContainer.append('h3')
-                .attr('id',queryModel.getName())
+                .classed('map-title',true)
+                .attr('data-query-uid',queryModel.get('queryUid'))
                 .style('color',queryModel.getColor())
                 .text(queryModel.getName());
             var svgMap = mapContainer.append("svg")
                     .attr("width", that.mapInfo.width)
                     .attr("height", that.mapInfo.height);
+            var mapDetails = mapContainer.append("div")
+                    .attr('data-query-uid',queryModel.get('queryUid'))
+                    .classed('map-info-box',true)
+                    .append("i")
+                    .text("rollover a country for details");
             svgMap.append('g').attr('id', 'background');
             svgMap.append('g').attr('id', 'tagcounts');
-            svgMap.append('g').attr('id', 'labels');
             // create the map outlines
             var country = svgMap.select('#background').selectAll(".country").data(that.mapInfo.countryPaths);
             country.enter().append("path")
@@ -1066,39 +1072,24 @@ App.CountryMapView = App.NestedView.extend({
                 .append("path")
                 .attr("class", "country")
                 .attr("fill", that.mapInfo.disabledColor)
-                .attr("id", function(tagCountModel,i) {return "country"+tagCountModel.get('id')})
-                .attr("data-id", function(tagCountModel,i) {return tagCountModel.get('id')})
-                .attr("data-tags-id", function(tagCountModel,i) {return tagCountModel.get('tags-id')})
-                .attr("data-alpha3", function(tagCountModel,i) {return tagCountModel.get('alpha3')})
-                .attr("data-count", function(tagCountModel,i) {return tagCountModel.get('count')})
+                .attr("id", function (tagCountModel,i) {return "country"+tagCountModel.get('id')})
+                .attr("data-id", function (tagCountModel,i) {return tagCountModel.get('id')})
+                .attr("data-tags-id", function (tagCountModel,i) {return tagCountModel.get('tags-id')})
+                .attr("data-alpha3", function (tagCountModel,i) {return tagCountModel.get('alpha3')})
+                .attr("data-count", function (tagCountModel,i) {return tagCountModel.get('count')})
                 .attr("d", function (tagCountModel) { 
                     var countryOutline = that.mapInfo.countryAlpha3ToPath[tagCountModel.get('alpha3').toLowerCase()];
                     return that.mapInfo.path(countryOutline);
                 })
-                .on("click", function (tagCountModel) { return that.handleCountryClick(tagCountModel); });
+                .on("click", function (tagCountModel) { return that.handleCountryClick(tagCountModel); })
+                .on("mouseover", function (tagCountModel) {return that.handleMouseOver(tagCountModel); })
+                .on("mouseout", function (tagCountModel) {return that.handleMouseOut(tagCountModel); });
             g.attr("stroke-width", "1")
                 .attr("stroke", "rgb(255,255,255)")
             g.transition()
                 .attr("fill", function(tagCountModel) { return that.mapInfo.colorScale(tagCountModel.get('count'));} )
                 .attr("stroke", "rgb(255,255,255)")
                 .style("opacity", "1");
-            // Render country names
-            var t = svgMap.select('#labels')
-                .selectAll('text')
-                .data(models, function(tagCountModel) {return tagCountModel.get('id');} );
-            t.enter()
-                .append("text")
-                .attr("class", "country-name")
-                .attr("visibility","hidden")
-                .attr("text-anchor", "middle")
-                .attr("id", function(tagCountModel,i){ return 'country-name'+tagCountModel.get('id')})
-                .attr("x",function(tagCountModel){return that.mapInfo.projection(tagCountModel.get('centroid'))[0];})
-                .attr("y",function(tagCountModel){return that.mapInfo.projection(tagCountModel.get('centroid'))[1];})
-                .text( function(tagCountModel) {return tagCountModel.get('label')})
-                .attr("font-family","sans-serif")
-                .attr("font-size", "16px")
-                .attr("font-weight", "bold")
-                .attr("fill","rgb(92,72,58)");
         });
         this.$el.find('.loading').hide();
         this.$el.find('.viz').show();
@@ -1120,6 +1111,24 @@ App.CountryMapView = App.NestedView.extend({
     handleCountryClick: function(tagCountModel){
         App.debug("Clicked on country!");
         this.collection.refine.trigger('mm:refine',{ term: "(tags_id_story_sentences:"+tagCountModel.get('tags_id')+")" });
+    },
+    handleMouseOver: function(tagCountModel){
+        var rolloverTemplate = _.template('<span style="color:<%=color%>"><%=queryName%></span>: <%=country%> <%=count%>');
+        var countryId = tagCountModel.get('id');
+        var countryName = tagCountModel.get('label');
+        var that = this;
+        this.collection.map(function(queryModel) {
+            var tcm = queryModel.get('results').get('tagcounts').get(countryId);
+            //App.debug(tcm);
+            var count = (tcm==null) ? 0 : tcm.get('count');
+            var content = rolloverTemplate({'color': queryModel.getColor(), 
+                'queryName':queryModel.getName(), 'country':countryName, 'count':count});
+            //App.debug(content);
+            that.$el.find("#map-query"+queryModel.get("queryUid")+" .map-info-box").html(content);
+        });
+    },
+    handleMouseOut: function(tagCountModel){
+        this.$el.find(".map-info-box").html("");        
     },
     clickAbout: function (evt) {
         evt.preventDefault();
