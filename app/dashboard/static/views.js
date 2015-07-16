@@ -958,6 +958,7 @@ App.CountryMapView = App.NestedView.extend({
     name: 'CountryMapView',
     template: _.template($('#tpl-country-map-view').html()),
     progressTemplate: _.template($('#tpl-progress').html()),
+    rolloverTemplate: _.template('<span style="color:<%=color%>"><%=queryName%></span>: <%=country%> - <%=count%> mentions'),
     events: {
         'click li.action-about > a': 'clickAbout'
     },
@@ -1000,7 +1001,7 @@ App.CountryMapView = App.NestedView.extend({
         App.debug("CountryMapView renderViz");
         var that = this;
         // init share map config into the this.mapInfo object
-        this.mapInfo.width = 540;
+        this.mapInfo.width = 440;
         this.mapInfo.height = this.mapInfo.width / 2.19;
         this.mapInfo.scale = this.mapInfo.width / 5.18;
         this.mapInfo.offset = [this.mapInfo.width/1.96, this.mapInfo.height / 1.73];
@@ -1041,14 +1042,12 @@ App.CountryMapView = App.NestedView.extend({
                 .attr('id','map-query'+queryModel.get('queryUid'));
             mapContainer.append('h3')
                 .classed('map-title',true)
-                .attr('data-query-uid',queryModel.get('queryUid'))
                 .style('color',queryModel.getColor())
                 .text(queryModel.getName());
             var svgMap = mapContainer.append("svg")
                     .attr("width", that.mapInfo.width)
                     .attr("height", that.mapInfo.height);
             var mapDetails = mapContainer.append("div")
-                    .attr('data-query-uid',queryModel.get('queryUid'))
                     .classed('map-info-box',true)
                     .append("i")
                     .text("rollover a country for details");
@@ -1061,7 +1060,6 @@ App.CountryMapView = App.NestedView.extend({
                 .attr("stroke-width", "1")
                 .attr("stroke", "rgb(255,255,255)")
                 .attr("fill", 'rgb(204,204,204)')
-                .attr("data-id",function(d){ return d.id })
                 .on("click", function (d) { return that.handleInvalidCountryClick(d); })
                 .attr("d", that.mapInfo.path);
             // render the country data
@@ -1073,10 +1071,7 @@ App.CountryMapView = App.NestedView.extend({
                 .attr("class", "country")
                 .attr("fill", that.mapInfo.disabledColor)
                 .attr("id", function (tagCountModel,i) {return "country"+tagCountModel.get('id')})
-                .attr("data-id", function (tagCountModel,i) {return tagCountModel.get('id')})
-                .attr("data-tags-id", function (tagCountModel,i) {return tagCountModel.get('tags-id')})
-                .attr("data-alpha3", function (tagCountModel,i) {return tagCountModel.get('alpha3')})
-                .attr("data-count", function (tagCountModel,i) {return tagCountModel.get('count')})
+                .style('cursor','pointer')
                 .attr("d", function (tagCountModel) { 
                     var countryOutline = that.mapInfo.countryAlpha3ToPath[tagCountModel.get('alpha3').toLowerCase()];
                     return that.mapInfo.path(countryOutline);
@@ -1106,24 +1101,19 @@ App.CountryMapView = App.NestedView.extend({
     },
     handleInvalidCountryClick: function(tagCountModel){
         App.debug("Clicked on invalid country!");
-        App.debug(c);
     },
     handleCountryClick: function(tagCountModel){
-        App.debug("Clicked on country!");
         this.collection.refine.trigger('mm:refine',{ term: "(tags_id_story_sentences:"+tagCountModel.get('tags_id')+")" });
     },
     handleMouseOver: function(tagCountModel){
-        var rolloverTemplate = _.template('<span style="color:<%=color%>"><%=queryName%></span>: <%=country%> <%=count%>');
         var countryId = tagCountModel.get('id');
         var countryName = tagCountModel.get('label');
         var that = this;
         this.collection.map(function(queryModel) {
             var tcm = queryModel.get('results').get('tagcounts').get(countryId);
-            //App.debug(tcm);
-            var count = (tcm==null) ? 0 : tcm.get('count');
-            var content = rolloverTemplate({'color': queryModel.getColor(), 
+            var count = (tcm==null) ? 'no' : (tcm.get('count')*100).toFixed(2)+"% of";
+            var content = that.rolloverTemplate({'color': queryModel.getColor(), 
                 'queryName':queryModel.getName(), 'country':countryName, 'count':count});
-            //App.debug(content);
             that.$el.find("#map-query"+queryModel.get("queryUid")+" .map-info-box").html(content);
         });
     },
