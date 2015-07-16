@@ -958,7 +958,7 @@ App.CountryMapView = App.NestedView.extend({
     name: 'CountryMapView',
     template: _.template($('#tpl-country-map-view').html()),
     progressTemplate: _.template($('#tpl-progress').html()),
-    rolloverTemplate: _.template('<span style="color:<%=color%>"><%=queryName%></span>: <%=country%> - <%=count%> mentions'),
+    rolloverTemplate: _.template('<span style="color:<%=color%>"><%=queryName%></span>: <b><%=count%></b> of sentences mention <%=country%>'),
     events: {
         'click li.action-about > a': 'clickAbout'
     },
@@ -1111,7 +1111,7 @@ App.CountryMapView = App.NestedView.extend({
         var that = this;
         this.collection.map(function(queryModel) {
             var tcm = queryModel.get('results').get('tagcounts').get(countryId);
-            var count = (tcm==null) ? 'no' : (tcm.get('count')*100).toFixed(2)+"% of";
+            var count = (tcm==null) ? '0' : (tcm.get('count')*100).toFixed(2)+"%";
             var content = that.rolloverTemplate({'color': queryModel.getColor(), 
                 'queryName':queryModel.getName(), 'country':countryName, 'count':count});
             that.$el.find("#map-query"+queryModel.get("queryUid")+" .map-info-box").html(content);
