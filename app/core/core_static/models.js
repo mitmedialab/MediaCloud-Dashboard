@@ -813,6 +813,9 @@ App.QueryCollection = App.QueryCollection.extend(App.UidMixin);
 App.DatedModelMixin = {
     date: function () {
         var dateString = this.get('publish_date');
+        if(dateString==null){
+            return "unknown date";
+        }
         if (dateString.indexOf('T') >= 0) {
             dateString = dateString.substring(0, dateString.indexOf('T'));
         }
@@ -834,7 +837,7 @@ App.SentenceModel = Backbone.Model.extend({
     initialize: function (attributes, options) {
     },
     media: function () {
-        return this.get('medium_name');
+        return (this.get('medium_name')==null) ? "unknown source" : this.get('medium_name');
     }
 });
 App.SentenceModel = App.SentenceModel.extend(App.DatedModelMixin);
