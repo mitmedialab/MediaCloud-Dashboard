@@ -597,7 +597,14 @@ App.QueryModel = Backbone.Model.extend({
         return info;
     },
     isGeoTagged: function(){
-        return this.get('params').get('mediaModel').isGeoTagged();
+        var sourcesOk = this.get('params').get('mediaModel').isGeoTagged();
+        // now check dates
+        var startDateParts = this.get('params').get('start').split("-");
+        var startDate = new Date(startDateParts[0],startDateParts[1],startDateParts[2]);
+        var geoTagStartDate = new Date(2015,1,1);
+        var datesOk = startDate >= geoTagStartDate;
+        App.debug("  QueryModel:isGeoTagged "+sourcesOk+" "+datesOk);
+        return sourcesOk && datesOk;
     }
 });
 _.extend(App.QueryModel, App.UidMixin);
@@ -792,11 +799,12 @@ App.QueryCollection = Backbone.Collection.extend({
         }
     },
     isGeoTagged: function(){
-        var isGeoTagged = true;
+        var allModelsAreGeoTagged = true;
         this.each(function(queryModel){
-            isGeoTagged = isGeoTagged && queryModel.isGeoTagged();
+            allModelsAreGeoTagged = allModelsAreGeoTagged && queryModel.isGeoTagged();
         });
-        return isGeoTagged;
+        App.debug("QueryCollection: allModelsAreGeoTagged "+allModelsAreGeoTagged);
+        return allModelsAreGeoTagged;
     }
 })
 App.QueryCollection = App.QueryCollection.extend(App.UidMixin);
@@ -902,6 +910,26 @@ App.WordCountCollection = App.QueryParamDrivenCollection.extend({
     }
 });
 
+App.TagCountModel = Backbone.Model.extend({
+    initialize: function(attributes, options){
+        this.set({'id':ISO3166.getIdFromAlpha3(attributes['alpha3'])});
+        this.set({'centroid':Centroid.fromAlpha3(attributes['alpha3'])});
+    }
+});
+App.TagCountCollection = App.QueryParamDrivenCollection.extend({
+    resourceType: 'tagcount',
+    model: App.TagCountModel,
+    initialize: function (models, options) {
+        this.params = options.params;
+    },
+    url: function () {
+        return '/api/geotagcount/' + this.getQueryParamUrl();
+    },
+    csvUrl: function(){
+        return '/api/geotagcount/' + this.getQueryParamUrl() + '.csv';
+    }
+});
+
 App.DemoWordCountCollection = App.WordCountCollection.extend({
     url: function () {
         var url = '/api/demo/wordcount/';
@@ -968,6 +996,10 @@ App.ResultModel = Backbone.Model.extend({
         {
             "name": "stories"
             , "type": App.StoryCollection
+        },
+        {
+            "name": "tagcounts"
+            , "type": App.TagCountCollection
         }
     ],
     initialize: function (attributes, options) {
