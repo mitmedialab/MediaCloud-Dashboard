@@ -2,6 +2,7 @@ App.SentenceView = Backbone.View.extend({
     name: 'SentenceView',
     template: _.template($('#tpl-sentence-view').html()),
     sentenceTemplate: _.template($('#tpl-one-sentence-view').html()),
+    queryHeaderTemplate: _.template('<h3 id="<%=domId%>" style="color:<%=color%>;"><%=title%> (<%=sentenceCount%> found)</h3>'),
     events: {
         'click li.action-about > a': 'clickAbout'
     },
@@ -24,30 +25,32 @@ App.SentenceView = Backbone.View.extend({
         this.listenTo(this.collection.resources, 'resource:complete:sentence', function () {
             $el.html('');
             var queryCount = that.collection.length;
-            var query1Sentences = that.collection.at(0).get('results').get('sentences');
+            App.debug("App.SentenceView.render with "+queryCount+" query results to show");
             if (queryCount >= 2) {
                 for (i = 0; i < queryCount; i++) {
-                    $view = $('<div>');
-                    $view.addClass('query-sentences').appendTo($el);
+                    $queryWrapperDiv = $('<div>');
+                    $queryWrapperDiv.addClass('query-sentences').appendTo($el);
                     querySentences = that.collection.at(i).get('results').get('sentences');
                     var totalSentences = 0;
                     if (querySentences.length > 0) {
                         totalSentences = querySentences.last().get('totalSentences');
                     }
-                    var $title = $('<h3 id=' + that.collection.at(i).getName() + '>')
-                        .text(that.collection.at(i).getName()
-                              + ' (' + that.formatNumber(totalSentences) + ' found)')
-                        .css('color', that.collection.at(i).getColor());
-                    $view.append($title);
-                    that.addSentences(querySentences.last(10), that.sentenceTemplate, $view);
+                    var $title = that.queryHeaderTemplate({
+                        'domId':that.collection.at(i).getName(),
+                        'color':that.collection.at(i).getColor(),
+                        'sentenceCount':that.formatNumber(totalSentences),
+                        'title':that.collection.at(i).getName()});
+                    $queryWrapperDiv.append($title);
+                    that.addSentences(querySentences.last(10), that.sentenceTemplate, $queryWrapperDiv);
                 }
                 that.$('.count').html('');
             } else {
+                var sentences = that.collection.at(0).get('results').get('sentences');
                 // figure out the total sentence count
-                totalSentences = query1Sentences.last(1)[0].get('totalSentences');
+                totalSentences = sentences.last(1)[0].get('totalSentences');
                 that.$('.count').html('(' + that.formatNumber(totalSentences) + ' found)');
                 // now list some of the sentences
-                that.addSentences(query1Sentences.last(10),that.sentenceTemplate,$el);                
+                that.addSentences(sentences.last(10),that.sentenceTemplate,$el);                
             }
             // now that the query collection is filled in, add the download data links
             var downloadInfo = that.collection.map(function(m) { 
@@ -69,16 +72,14 @@ App.SentenceView = Backbone.View.extend({
             $('h3#'+ model.getName()).css('color', model.getColor());
         });
     },
-    addSentences: function(sentences,template,element){
+    addSentences: function(sentences,templateToRender,element){
         _.each(sentences, function (m) {
-            element.append( template({'sentence':m}) );
+            element.append( templateToRender({'sentence':m}) );
         }, this);
     },
     clickAbout: function (evt) {
         evt.preventDefault();
-        this.aboutView = new App.AboutView({
-            template: '#tpl-about-sentences-view'
-        });
+        this.aboutView = new App.AboutView({template: '#tpl-about-sentences-view'});
         $('body').append(this.aboutView.el);
     }
 });
