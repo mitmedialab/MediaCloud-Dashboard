@@ -883,6 +883,12 @@ App.HistogramView = Backbone.View.extend({
                     text: 'Sentences/day'
                 }
             },
+            exporting: {
+                filename: 'mediacloud-pulse',
+                scale: 3,
+                sourceWidth: 1150,
+                sourceHeight: 200
+            },
             series: allSeries
         });
     },
