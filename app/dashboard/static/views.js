@@ -755,37 +755,6 @@ App.WordCountComparisonView = Backbone.View.extend({
 
 App.HistogramView = Backbone.View.extend({
     name: 'HistogramView',
-    config: {
-        margin: {
-            top: 0
-            , right: 0
-            , bottom: 0
-            , left: 0
-        },
-        padding: {
-            top: 20
-            , bottom: 20
-        },
-        stripeColors: [
-            // Month A colors
-            ["#ffffff", "#fafafa"]
-            // Month B colors
-            , ["#ffffff", "#fafafa"] 
-        ],
-        yearColor: "#000",
-        yearOpacity: 0.33,
-        yearSize: 20,
-        monthColor: '#000', 
-        monthOpacity: 0.33,
-        monthSize: 20,
-        labelSize: 14,
-        labelFill: '#aaa',
-        labelStroke: '#fff',
-        labelOpacity: 1,
-        labelWidth: 30,
-        labelPadding: 5,
-        axisColor: '#ddd'
-    },
     template: _.template($('#tpl-histogram-view').html()),
     events: {
         'click li.action-about > a' : 'clickAbout'
@@ -793,7 +762,6 @@ App.HistogramView = Backbone.View.extend({
     initialize: function (options) {
         App.debug('App.HistogramView.initialize()');
         this.render();
-        _.bindAll(this, 'dayFillColor');
     },
     render: function () {
         App.debug('App.HistogramView.render()');
@@ -917,29 +885,6 @@ App.HistogramView = Backbone.View.extend({
             },
             series: allSeries
         });
-    },
-    dayFillColor: function (date) {
-        return this.config.stripeColors[0][date.substr(8,10) % 2]
-    },
-    toDate: function (dateString) {
-        var ymd = dateString.split('-');
-        return new Date(Date.UTC(ymd[0], ymd[1]-1, ymd[2]));
-    },
-    pad: function (s) { return s.length > 1 ? s : '0' + s; },
-    toDateString: function (d) {
-            return [
-                d.getUTCFullYear(),
-                this.pad(String(d.getUTCMonth() + 1)),
-                this.pad(String(d.getUTCDate()))
-            ].join('-');
-    },
-    minMaxX: function (d) {
-        var x = this.x(d.date);
-        return x < this.chartWidth / 2.0 ? x : x - this.config.labelWidth;
-    },
-    labelAnchor: function (d) {
-        var x = this.x(d.date);
-        return x < this.chartWidth / 2.0 ? 'beginning' : 'end';
     },
     clickAbout: function (evt) {
         evt.preventDefault();
