@@ -1263,6 +1263,8 @@ App.WordCountResultView = Backbone.View.extend({
         } else {
             this.clickable = true;
         }
+        this.color = ('color' in options) ? options.color : '#333333';
+        this.name = ('name' in options) ? options.name : 'Query';
         this.render();
     },
 
@@ -1313,7 +1315,7 @@ App.WordCountResultView = Backbone.View.extend({
             .data(words)
             .enter().append("text")
             .attr("font-size", function(d) { return d.size + "px"; })
-            .attr("fill", App.config.queryColors[0])
+            .attr("fill", that.color )
             .attr("text-anchor", "middle")
             .attr('font-weight', 'bold')
             .attr("transform", function(d) {
@@ -1322,14 +1324,14 @@ App.WordCountResultView = Backbone.View.extend({
             .text(function(d) { return d.text; });
         })
         .start();
-        if(that.clickable==true) {
+        if(this.clickable==true) {
             d3.select(that.$('.wordcount-result-view-content')[0]).selectAll('text')
                 .on('mouseover', function () {
                     d3.select(this).attr('fill', that.config.linkColor)
                     .attr('cursor','pointer');
                 })
                 .on('mouseout', function () {
-                    color = App.config.queryColors[0];
+                    color = that.color;
                     d3.select(this).attr('fill', color)
                     .attr('cursor','default');
                 })
