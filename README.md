@@ -161,7 +161,7 @@ TODO
 
 Authentication takes place primarily in `App.Controller` and `App.UserModel`. The `initialize()` functions of each class set up listeners for authentication events.
 
-#### UserModel ####
+#### Authentication: UserModel ####
 
 **Listens to**: `sync`, `error` 
 **Throws**: `signin`, `signout`, `unauthorized`
@@ -189,6 +189,6 @@ This attribute is a [jQuery Deferred](https://api.jquery.com/jquery.deferred/) t
         }
     });
 
-### #Controller ####
+#### Authentication: Controller ####
 
 **Listens to**: `signin`, `signout`, `unauthorized`
