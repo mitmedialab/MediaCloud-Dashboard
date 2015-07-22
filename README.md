@@ -155,6 +155,40 @@ TODO
 
 [Object model diagram](docs/object_model.jpg)
 
-### Authentication flow ###
+### Authentication Flow ###
 
 [Authentication flow diagram](docs/authentication_flow.jpg)
+
+Authentication takes place primarily in `App.Controller` and `App.UserModel`. The `initialize()` functions of each class set up listeners for authentication events.
+
+### UserModel ###
+
+**Listens to**: `sync`, `error`
+**Throws**: `signin`, `signout`, `unauthorized`
+
+To sign a user in using a key or password:
+
+    var user = new UserModel();
+    // Sign in with cookies
+    user.signIn({});
+    // Sign in with username and password
+    user.signIn({
+        "username": "foo"
+        "password": "bar"
+    });
+
+`UserModel` provides an `authenticate` attribute.
+This attribute is a [jQuery Deferred](https://api.jquery.com/jquery.deferred/) that resolves when a server response is received after a login request. It provides the following convenient pattern to wait until the user's authentication state is known:
+
+    user.signIn({});
+    user.authenticate.then(function () {
+        if (user.get('authenticated')) {
+            // User is authenticated
+        } else {
+            // User is unathenticated
+        }
+    });
+
+### Controller ###
+
+**Listens to**: `signin`, `signout`, `unauthorized`
