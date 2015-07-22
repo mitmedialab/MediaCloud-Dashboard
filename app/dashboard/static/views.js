@@ -854,6 +854,8 @@ App.HistogramView = Backbone.View.extend({
                                 var attributes = {
                                     start: date
                                     , end: date
+                                    , color: result.getColor()
+                                    , name: result.getName()
                                 };
                                 result.subqueryListener.trigger('mm:subquery', {
                                     queryCid: result.cid
@@ -902,7 +904,10 @@ App.HistogramView = Backbone.View.extend({
     onSubqueryWordcounts: function () {
         this.$('.viz .subquery').remove();
         wordcounts = this.collection.subquery.get('results').get('wordcounts');
-        subqueryView = new App.WordCountResultView({collection:wordcounts});
+        subqueryView = new App.WordCountResultView({collection:wordcounts,
+            color: this.collection.subquery.attributes.color,
+            name: this.collection.subquery.attributes.name
+        });
         subqueryView.$el.addClass('subquery').appendTo(this.$('.viz'));
     }
 });
