@@ -902,7 +902,7 @@ App.HistogramView = Backbone.View.extend({
                     s.push('<i>'+dateString+'</i>');
                     $.each(this.points, function(i, point) {
                         s.push('<span style="color:'+point.series.color+';">'+ point.series.name +'</span>: '
-                            + '<b>' + point.y +'</b>');
+                            + '<b>' + Math.round(point.y) +'</b>');
                     });
                 return s.join('<br />');
                 },
