@@ -36,6 +36,13 @@
     border-bottom: solid 1px #777;
 }
 
+.viz .subquery-header {
+    margin: 5px;
+}
+.viz .subquery-header h3 {
+    text-align: center;
+}
+
 .country-map-view .map {
     display: inline-block;
     margin: 5px;

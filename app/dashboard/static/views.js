@@ -2,6 +2,7 @@ App.SentenceView = Backbone.View.extend({
     name: 'SentenceView',
     template: _.template($('#tpl-sentence-view').html()),
     sentenceTemplate: _.template($('#tpl-one-sentence-view').html()),
+    queryHeaderTemplate: _.template('<h3 id="<%=domId%>" style="color:<%=color%>;"><%=title%> (<%=sentenceCount%> found)</h3>'),
     events: {
         'click li.action-about > a': 'clickAbout'
     },
@@ -24,30 +25,32 @@ App.SentenceView = Backbone.View.extend({
         this.listenTo(this.collection.resources, 'resource:complete:sentence', function () {
             $el.html('');
             var queryCount = that.collection.length;
-            var query1Sentences = that.collection.at(0).get('results').get('sentences');
+            App.debug("App.SentenceView.render with "+queryCount+" query results to show");
             if (queryCount >= 2) {
                 for (i = 0; i < queryCount; i++) {
-                    $view = $('<div>');
-                    $view.addClass('query-sentences').appendTo($el);
+                    $queryWrapperDiv = $('<div>');
+                    $queryWrapperDiv.addClass('query-sentences').appendTo($el);
                     querySentences = that.collection.at(i).get('results').get('sentences');
                     var totalSentences = 0;
                     if (querySentences.length > 0) {
                         totalSentences = querySentences.last().get('totalSentences');
                     }
-                    var $title = $('<h3 id=' + that.collection.at(i).getName() + '>')
-                        .text(that.collection.at(i).getName()
-                              + ' (' + that.formatNumber(totalSentences) + ' found)')
-                        .css('color', that.collection.at(i).getColor());
-                    $view.append($title);
-                    that.addSentences(querySentences.last(10), that.sentenceTemplate, $view);
+                    var $title = that.queryHeaderTemplate({
+                        'domId':that.collection.at(i).getName(),
+                        'color':that.collection.at(i).getColor(),
+                        'sentenceCount':that.formatNumber(totalSentences),
+                        'title':that.collection.at(i).getName()});
+                    $queryWrapperDiv.append($title);
+                    that.addSentences(querySentences.last(10), that.sentenceTemplate, $queryWrapperDiv);
                 }
                 that.$('.count').html('');
             } else {
+                var sentences = that.collection.at(0).get('results').get('sentences');
                 // figure out the total sentence count
-                totalSentences = query1Sentences.last(1)[0].get('totalSentences');
+                totalSentences = sentences.last(1)[0].get('totalSentences');
                 that.$('.count').html('(' + that.formatNumber(totalSentences) + ' found)');
                 // now list some of the sentences
-                that.addSentences(query1Sentences.last(10),that.sentenceTemplate,$el);                
+                that.addSentences(sentences.last(10),that.sentenceTemplate,$el);                
             }
             // now that the query collection is filled in, add the download data links
             var downloadInfo = that.collection.map(function(m) { 
@@ -69,16 +72,14 @@ App.SentenceView = Backbone.View.extend({
             $('h3#'+ model.getName()).css('color', model.getColor());
         });
     },
-    addSentences: function(sentences,template,element){
+    addSentences: function(sentences,templateToRender,element){
         _.each(sentences, function (m) {
-            element.append( template({'sentence':m}) );
+            element.append( templateToRender({'sentence':m}) );
         }, this);
     },
     clickAbout: function (evt) {
         evt.preventDefault();
-        this.aboutView = new App.AboutView({
-            template: '#tpl-about-sentences-view'
-        });
+        this.aboutView = new App.AboutView({template: '#tpl-about-sentences-view'});
         $('body').append(this.aboutView.el);
     }
 });
@@ -752,37 +753,6 @@ App.WordCountComparisonView = Backbone.View.extend({
 
 App.HistogramView = Backbone.View.extend({
     name: 'HistogramView',
-    config: {
-        margin: {
-            top: 0
-            , right: 0
-            , bottom: 0
-            , left: 0
-        },
-        padding: {
-            top: 20
-            , bottom: 20
-        },
-        stripeColors: [
-            // Month A colors
-            ["#ffffff", "#fafafa"]
-            // Month B colors
-            , ["#ffffff", "#fafafa"] 
-        ],
-        yearColor: "#000",
-        yearOpacity: 0.33,
-        yearSize: 20,
-        monthColor: '#000', 
-        monthOpacity: 0.33,
-        monthSize: 20,
-        labelSize: 14,
-        labelFill: '#aaa',
-        labelStroke: '#fff',
-        labelOpacity: 1,
-        labelWidth: 30,
-        labelPadding: 5,
-        axisColor: '#ddd'
-    },
     template: _.template($('#tpl-histogram-view').html()),
     events: {
         'click li.action-about > a' : 'clickAbout'
@@ -790,7 +760,6 @@ App.HistogramView = Backbone.View.extend({
     initialize: function (options) {
         App.debug('App.HistogramView.initialize()');
         this.render();
-        _.bindAll(this, 'dayFillColor');
     },
     render: function () {
         App.debug('App.HistogramView.render()');
@@ -875,6 +844,10 @@ App.HistogramView = Backbone.View.extend({
                     point: {
                         events: {
                             click: function (event) {
+                                that.$('.viz .subquery-header').remove();
+                                that.$('.viz .subquery').remove();
+                                var progress = _.template($('#tpl-progress').html());
+                                that.$('.viz').append(progress);
                                 var date =Highcharts.dateFormat(
                                     '%Y-%m-%d'
                                     , this.x
@@ -883,6 +856,8 @@ App.HistogramView = Backbone.View.extend({
                                 var attributes = {
                                     start: date
                                     , end: date
+                                    , color: result.getColor()
+                                    , name: result.getName()
                                 };
                                 result.subqueryListener.trigger('mm:subquery', {
                                     queryCid: result.cid
@@ -912,31 +887,14 @@ App.HistogramView = Backbone.View.extend({
                     text: 'Sentences/day'
                 }
             },
+            exporting: {
+                filename: 'mediacloud-pulse',
+                scale: 3,
+                sourceWidth: 1150,
+                sourceHeight: 200
+            },
             series: allSeries
         });
-    },
-    dayFillColor: function (date) {
-        return this.config.stripeColors[0][date.substr(8,10) % 2]
-    },
-    toDate: function (dateString) {
-        var ymd = dateString.split('-');
-        return new Date(Date.UTC(ymd[0], ymd[1]-1, ymd[2]));
-    },
-    pad: function (s) { return s.length > 1 ? s : '0' + s; },
-    toDateString: function (d) {
-            return [
-                d.getUTCFullYear(),
-                this.pad(String(d.getUTCMonth() + 1)),
-                this.pad(String(d.getUTCDate()))
-            ].join('-');
-    },
-    minMaxX: function (d) {
-        var x = this.x(d.date);
-        return x < this.chartWidth / 2.0 ? x : x - this.config.labelWidth;
-    },
-    labelAnchor: function (d) {
-        var x = this.x(d.date);
-        return x < this.chartWidth / 2.0 ? 'beginning' : 'end';
     },
     clickAbout: function (evt) {
         evt.preventDefault();
@@ -946,9 +904,23 @@ App.HistogramView = Backbone.View.extend({
         $('body').append(this.aboutView.el);
     },
     onSubqueryWordcounts: function () {
+        this.$('.viz .progress').remove();
+        this.$('.viz .subquery-header').remove();
+        var subqueryHeader = $('<div>').addClass('subquery-header');
+        subqueryHeader.append($('<h3>')
+            .css('color', this.collection.subquery.attributes.color)
+            .text(
+            this.collection.subquery.attributes.name+": "+
+            "Words Used on "+
+            this.collection.subquery.attributes.params.get('start')
+        ));
+        subqueryHeader.appendTo(this.$('.viz'));
         this.$('.viz .subquery').remove();
         wordcounts = this.collection.subquery.get('results').get('wordcounts');
-        subqueryView = new App.WordCountResultView({collection:wordcounts});
+        subqueryView = new App.WordCountResultView({collection:wordcounts,
+            color: this.collection.subquery.attributes.color,
+            name: this.collection.subquery.attributes.name
+        });
         subqueryView.$el.addClass('subquery').appendTo(this.$('.viz'));
     }
 });
