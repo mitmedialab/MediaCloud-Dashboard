@@ -181,8 +181,6 @@ App.WordCountView = App.NestedView.extend({
                 that.renderWordCountResults(that.collection.at(0));
             }
             // add in data download links
-            App.debug("!!!");
-            App.debug(that.collection);
             var downloadInfo = that.collection.map(function(m) { 
                 return {
                     'url':m.get('results').get('wordcounts').csvUrl(),
@@ -822,7 +820,8 @@ App.HistogramView = Backbone.View.extend({
                 color: that.collection.at(idx).getColor(),
                 data: _.map(item, function(d){ return d.numFound / intervalDays; }),
                 pointStart: item[0].dateObj.getTime(),
-                pointInterval: intervalMs
+                pointInterval: intervalMs,
+                cursor: 'pointer'
             });
         });
         var showLineMarkers = (allSeries[0].data.length < 30);   // don't show dots on line if more than N data points
@@ -834,7 +833,16 @@ App.HistogramView = Backbone.View.extend({
             chart: {
                 type: 'spline',
                 height: '180',
-                zoomType: 'x'
+                zoomType: 'x',
+                events: {
+                    selection: function(evt){
+                        evt.preventDefault();   // don't zoom
+                        that.collection.refine.trigger('mm:refine',{
+                            start: Highcharts.dateFormat('%Y-%m-%d', evt.xAxis[0].min),
+                            end: Highcharts.dateFormat('%Y-%m-%d', evt.xAxis[0].max)
+                        });
+                    }
+                }
             },
             plotOptions: {
                 series: {
@@ -892,6 +900,18 @@ App.HistogramView = Backbone.View.extend({
                 scale: 3,
                 sourceWidth: 1150,
                 sourceHeight: 200
+            },
+            tooltip: {
+                formatter: function() {
+                    var s = [];
+                    s.push('<i>'+Highcharts.dateFormat('%m/%d/%Y',this.x)+'</i>');
+                    $.each(this.points, function(i, point) {
+                        s.push('<span style="color:'+point.series.color+';">'+ point.series.name +'</span>: '
+                            + '<b>' + Math.round(point.y) +'</b>');
+                    });
+                return s.join('<br />');
+                },
+                shared: true
             },
             series: allSeries
         });
