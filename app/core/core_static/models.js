@@ -702,15 +702,22 @@ App.QueryCollection = Backbone.Collection.extend({
         // Unlisten when we remove
         this.resources.unlisten(model.get('results'));
     },
-    onRefine: function (options) {  // options has one member, the 'term'
-        this.each(function(m){
-            var newKeywords = m.get('params').get('keywords');
-            if(newKeywords.trim().length>0){
-                newKeywords = '(' + newKeywords + ') AND ';
-            }
-            newKeywords = newKeywords + options.term;
-            m.get('params').set('keywords', newKeywords);
-        });
+    onRefine: function (options) {
+        if('term' in options){
+            this.each(function(m){
+                var newKeywords = m.get('params').get('keywords');
+                if(newKeywords.trim().length>0){
+                    newKeywords = '(' + newKeywords + ') AND ';
+                }
+                newKeywords = newKeywords + options.term;
+                m.get('params').set('keywords', newKeywords);
+            });
+        } else if( ('start' in options) && ('end' in options) ){
+            this.each(function(m){
+                m.get('params').set('start', options.start);
+                m.get('params').set('end', options.end);
+            });            
+        }
         this.execute();
     },
     onSubquery: function (options) {
