@@ -150,3 +150,11 @@ and render it on the page.
 ### Available Backbone Mixins ###
 
 TODO
+
+### Object Model ###
+
+[Object model diagram](docs/object_model.jpg)
+
+### Authentication flow ###
+
+[Authentication flow diagram](docs/authentication_flow.jpg)
