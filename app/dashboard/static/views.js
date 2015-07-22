@@ -722,9 +722,7 @@ App.WordCountComparisonView = Backbone.View.extend({
     },
     listCloudLayout: function (words, width, extent, sizeRange) {
         App.debug('App.WordCountComparisonView()');
-        App.debug(extent);
-        App.debug(sizeRange);
-        App.debug(words);
+        //App.debug(extent); App.debug(sizeRange); App.debug(words);
         var that = this;
         var x = 0;
         if (typeof(words) === 'undefined') {
@@ -846,6 +844,10 @@ App.HistogramView = Backbone.View.extend({
                     point: {
                         events: {
                             click: function (event) {
+                                that.$('.viz .subquery-header').remove();
+                                that.$('.viz .subquery').remove();
+                                var progress = _.template($('#tpl-progress').html());
+                                that.$('.viz').append(progress);
                                 var date =Highcharts.dateFormat(
                                     '%Y-%m-%d'
                                     , this.x
@@ -902,6 +904,17 @@ App.HistogramView = Backbone.View.extend({
         $('body').append(this.aboutView.el);
     },
     onSubqueryWordcounts: function () {
+        this.$('.viz .progress').remove();
+        this.$('.viz .subquery-header').remove();
+        var subqueryHeader = $('<div>').addClass('subquery-header');
+        subqueryHeader.append($('<h3>')
+            .css('color', this.collection.subquery.attributes.color)
+            .text(
+            this.collection.subquery.attributes.name+": "+
+            "Words Used on "+
+            this.collection.subquery.attributes.params.get('start')
+        ));
+        subqueryHeader.appendTo(this.$('.viz'));
         this.$('.viz .subquery').remove();
         wordcounts = this.collection.subquery.get('results').get('wordcounts');
         subqueryView = new App.WordCountResultView({collection:wordcounts,
