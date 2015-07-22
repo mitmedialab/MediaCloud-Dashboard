@@ -181,8 +181,6 @@ App.WordCountView = App.NestedView.extend({
                 that.renderWordCountResults(that.collection.at(0));
             }
             // add in data download links
-            App.debug("!!!");
-            App.debug(that.collection);
             var downloadInfo = that.collection.map(function(m) { 
                 return {
                     'url':m.get('results').get('wordcounts').csvUrl(),
@@ -835,7 +833,16 @@ App.HistogramView = Backbone.View.extend({
             chart: {
                 type: 'spline',
                 height: '180',
-                zoomType: 'x'
+                zoomType: 'x',
+                events: {
+                    selection: function(evt){
+                        evt.preventDefault();   // don't zoom
+                        that.collection.refine.trigger('mm:refine',{
+                            start: Highcharts.dateFormat('%Y-%m-%d', evt.xAxis[0].min),
+                            end: Highcharts.dateFormat('%Y-%m-%d', evt.xAxis[0].max)
+                        });
+                    }
+                }
             },
             plotOptions: {
                 series: {
@@ -897,9 +904,7 @@ App.HistogramView = Backbone.View.extend({
             tooltip: {
                 formatter: function() {
                     var s = [];
-                    var d = new Date(this.x);
-                    var dateString = d.getUTCFullYear() +"/"+ (d.getUTCMonth()+1) +"/"+ d.getUTCDate();
-                    s.push('<i>'+dateString+'</i>');
+                    s.push('<i>'+Highcharts.dateFormat('%m/%d/%Y',this.x)+'</i>');
                     $.each(this.points, function(i, point) {
                         s.push('<span style="color:'+point.series.color+';">'+ point.series.name +'</span>: '
                             + '<b>' + Math.round(point.y) +'</b>');
@@ -908,7 +913,6 @@ App.HistogramView = Backbone.View.extend({
                 },
                 shared: true
             },
-    
             series: allSeries
         });
     },
