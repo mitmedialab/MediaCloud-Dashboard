@@ -822,7 +822,8 @@ App.HistogramView = Backbone.View.extend({
                 color: that.collection.at(idx).getColor(),
                 data: _.map(item, function(d){ return d.numFound / intervalDays; }),
                 pointStart: item[0].dateObj.getTime(),
-                pointInterval: intervalMs
+                pointInterval: intervalMs,
+                cursor: 'pointer'
             });
         });
         var showLineMarkers = (allSeries[0].data.length < 30);   // don't show dots on line if more than N data points
@@ -893,6 +894,21 @@ App.HistogramView = Backbone.View.extend({
                 sourceWidth: 1150,
                 sourceHeight: 200
             },
+            tooltip: {
+                formatter: function() {
+                    var s = [];
+                    var d = new Date(this.x);
+                    var dateString = d.getUTCFullYear() +"/"+ (d.getUTCMonth()+1) +"/"+ d.getUTCDate();
+                    s.push('<i>'+dateString+'</i>');
+                    $.each(this.points, function(i, point) {
+                        s.push('<span style="color:'+point.series.color+';">'+ point.series.name +'</span>: '
+                            + '<b>' + point.y +'</b>');
+                    });
+                return s.join('<br />');
+                },
+                shared: true
+            },
+    
             series: allSeries
         });
     },
