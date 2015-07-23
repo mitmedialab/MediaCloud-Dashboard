@@ -155,6 +155,25 @@ TODO
 
 [Object model diagram](docs/object_model.jpg)
 
+### Custom Classes ###
+
+#### NestedModel ####
+
+Models extended from `App.NestedModel` can have `Model` objects as properties. When a subclass of `NestedModel` is defined,
+any properties that have `Model` or `Collection` objects for their value are specified using the `attributeModels` object.
+The object's keys are the property names while the values are the constructors for their respective `Model` or `Collection`:
+
+    App.MediaModel = App.NestedModel.extend({
+        attributeModels: {
+            "sources": App.MediaSourceCollection
+            , "tags": App.SimpleTagCollection
+        },
+        ...
+    });
+
+When a subclass of `NestedModel` is loaded (and the `parse` parameter is `true`),
+for each JSON key matching one of the `attributeModel` keys, the value will be passed to the associated constructor.
+
 ### Authentication ###
 
 [Authentication flow diagram](docs/authentication_flow.jpg)
