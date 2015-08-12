@@ -2,7 +2,7 @@ App.SentenceView = Backbone.View.extend({
     name: 'SentenceView',
     template: _.template($('#tpl-sentence-view').html()),
     sentenceTemplate: _.template($('#tpl-one-sentence-view').html()),
-    queryHeaderTemplate: _.template('<h3 id="<%=domId%>" style="color:<%=color%>;"><%=title%> (<%=sentenceCount%> found)</h3>'),
+    queryHeaderTemplate: _.template('<h3 id="<%=domId%>" style="color:<%=color%>;"><%=title%> (<%=sentenceCount%> sentences match)</h3>'),
     events: {
         'click li.action-about > a': 'clickAbout'
     },
@@ -109,9 +109,9 @@ App.StoryView = Backbone.View.extend({
             var query1Stories = that.collection.models[0].get('results').get('stories');
             if (that.collection.length >= 2) {
                 // had main and comparison queries
-                $el.append('<h3 class="first-query">'+that.collection.at(0).get('params').get('keywords')+'</h3>');
+                $el.append('<h3 class="first-query">'+that.collection.at(0).get('params').get('keywords')+': A sampling of stories</h3>');
                 that.addStories(query1Stories.last(10),that.storyTemplate,$el);
-                $el.append('<h3 class="second-query">'+that.collection.at(1).get('params').get('keywords')+'</h3>');
+                $el.append('<h3 class="second-query">'+that.collection.at(1).get('params').get('keywords')+': A sampling of stories</h3>');
                 var query2Stories = that.collection.models[1].get('results').get('stories');
                 that.addStories(query2Stories.last(10),that.storyTemplate,$el);
             } else {
