@@ -155,6 +155,59 @@ TODO
 
 [Object model diagram](docs/object_model.jpg)
 
-### Authentication flow ###
+### Custom Classes ###
+
+#### NestedModel ####
+
+Models extended from `App.NestedModel` can have `Model` objects as properties. When a subclass of `NestedModel` is defined,
+any properties that have `Model` or `Collection` objects for their value are specified using the `attributeModels` object.
+The object's keys are the property names while the values are the constructors for their respective `Model` or `Collection`:
+
+    App.MediaModel = App.NestedModel.extend({
+        attributeModels: {
+            "sources": App.MediaSourceCollection
+            , "tags": App.SimpleTagCollection
+        },
+        ...
+    });
+
+When a subclass of `NestedModel` is loaded (and the `parse` parameter is `true`),
+for each JSON key matching one of the `attributeModel` keys, the value will be passed to the associated constructor.
+
+### Authentication ###
 
 [Authentication flow diagram](docs/authentication_flow.jpg)
+
+Authentication takes place primarily in `App.Controller` and `App.UserModel`. The `initialize()` functions of each class set up listeners for authentication events.
+
+#### Authentication: UserModel ####
+
+**Listens to**: `sync`, `error` 
+**Throws**: `signin`, `signout`, `unauthorized`
+
+To sign a user in using a key or password:
+
+    var user = new UserModel();
+    // Sign in with cookies
+    user.signIn({});
+    // Sign in with username and password
+    user.signIn({
+        "username": "foo"
+        "password": "bar"
+    });
+
+`UserModel` provides an `authenticate` attribute.
+This attribute is a [jQuery Deferred](https://api.jquery.com/jquery.deferred/) that resolves when a server response is received after a login request. It provides the following convenient pattern to wait until the user's authentication state is known:
+
+    user.signIn({});
+    user.authenticate.then(function () {
+        if (user.get('authenticated')) {
+            // User is authenticated
+        } else {
+            // User is unathenticated
+        }
+    });
+
+#### Authentication: Controller ####
+
+**Listens to**: `signin`, `signout`, `unauthorized`
