@@ -178,7 +178,7 @@ for each JSON key matching one of the `attributeModel` keys, the value will be p
 
 [Authentication flow diagram](docs/authentication_flow.jpg)
 
-Authentication takes place primarily in `App.Controller` and `App.UserModel`. The `initialize()` functions of each class set up listeners for authentication events.
+Authentication takes place primarily in `App.Controller` and `App.UserModel`. The `initialize()` functions of each class set up listeners for authentication events. The email address and key are stored in cookies on the client, rather than in the flask session to allow the same login to be used across different tools, which will have different urls and sessions.
 
 #### Authentication: UserModel ####
 
