@@ -459,9 +459,6 @@ def _sentences_allowed(key):
     app.core.logger.debug("_sentences_allowed check: sentenceList %s for key %s " % (allowed, key) )
     return allowed
 
-def csv_escape(s):  # TODO: do this better and in one place
-    return u"\"%s\"" % s.replace('"', '""').strip()
-
 def assemble_csv_response(results,properties,column_names,filename):
     app.core.logger.debug("assemble_csv_response with "+str(len(results))+" results")
     app.core.logger.debug("  cols: "+' '.join(column_names))
@@ -471,7 +468,16 @@ def assemble_csv_response(results,properties,column_names,filename):
         yield ','.join(names) + '\n'
         for row in data:
             try:
-                attributes = [ csv_escape(str(row[p])) for p in props]
+                attributes = []
+                for p in props:
+                    value = row[p]
+                    cleaned_value = value
+                    if isinstance( value, ( int, long ) ):
+                        cleaned_value = str(row[p])
+                    else:
+                        cleaned_value = '"'+value.encode('utf-8').replace('"','""')+'"'
+                    attributes.append(cleaned_value)
+                #attributes = [ csv_escape(str(row[p])) for p in props]
                 yield ','.join(attributes) + '\n'
             except Exception as e:
                 app.core.logger.error("Couldn't process a CSV row: "+str(e))
