@@ -1003,7 +1003,6 @@ App.CountryMapView = App.NestedView.extend({
                     .precision(.1);
         this.mapInfo.path = d3.geo.path()
                     .projection(this.mapInfo.projection);
-        this.mapInfo.colors = ['rgb(241,233,187)', 'rgb(207,97,35)'];
         this.mapInfo.disabledColor = 'rgb(220,220,200)';
         // note: right now this normalizes to max of ALL queries
         var maxCounts = this.collection.map(function(queryModel){
@@ -1011,9 +1010,15 @@ App.CountryMapView = App.NestedView.extend({
             return d3.max(tagCountModels, function (tagCountModel) { return tagCountModel.get('count') });
         });
         this.mapInfo.maxCount = d3.max(maxCounts);
-        this.mapInfo.colorScale = d3.scale.linear()
-                .range(this.mapInfo.colors)
-                .domain([0, this.mapInfo.maxCount]);
+        // complicated scale setup to make log chloropleth work
+        this.mapInfo.scale1 = d3.scale.linear()
+            .domain([0, this.mapInfo.maxCount]).range([1,100]);
+        this.mapInfo.scale2 = d3.scale.log() 
+            .domain([1,100]).range([0.1,0.9]);
+        this.mapInfo.scale3 = d3.scale.linear()
+            .domain([0, 0.17, 0.34, 0.51, 0.68, 0.85, 1]) 
+            .range(colorbrewer.Oranges[7]); 
+        // set up the polygon lookups
         this.mapInfo.countryPaths = topojson.feature(App.worldMap, App.worldMap.objects.countries).features;
         this.mapInfo.countryAlpha3ToPath = {};
         $.each(this.mapInfo.countryPaths, function (i, element) {
@@ -1074,7 +1079,10 @@ App.CountryMapView = App.NestedView.extend({
             g.attr("stroke-width", "1")
                 .attr("stroke", "rgb(255,255,255)")
             g.transition()
-                .attr("fill", function(tagCountModel) { return that.mapInfo.colorScale(tagCountModel.get('count'));} )
+                .attr("fill", function(tagCountModel) { 
+                    return that.mapInfo.scale3(that.mapInfo.scale2(
+                        that.mapInfo.scale1(tagCountModel.get('count'))));
+                } )
                 .attr("stroke", "rgb(255,255,255)")
                 .style("opacity", "1");
         });
