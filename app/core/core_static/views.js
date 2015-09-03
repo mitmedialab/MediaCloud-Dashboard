@@ -1215,7 +1215,7 @@ App.ActionedViewMixin = {
     showActionMenu: function(){
         this.$('.panel-heading button').show();
     },
-    addDownloadMenuItems: function(downloadInfo,title,cssClass){
+    resetDownloadMenuItems: function(downloadInfo,title,cssClass){
         if(App.con.userModel.get('authenticated')==false){ // public users can't download
             return;
         }
@@ -1228,9 +1228,12 @@ App.ActionedViewMixin = {
             } else {
                 text = title;
             }
-            var element = this._downloadUrlTemplate({url:downloadInfo[idx].url,'text':text,'cssClass':cssClass});
-            this.$('.panel-action-list').append(element);  
+            this.appendDownloadMenuItem(downloadInfo[idx].url, text, cssClass);
         }
+    },
+    appendDownloadMenuItem: function(downloadUrl, text, cssClass){
+        var element = this._downloadUrlTemplate({'url':downloadUrl,'text':text,'cssClass':cssClass});
+        this.$('.panel-action-list').append(element);  
     }
 };
 
