@@ -60,7 +60,7 @@ App.SentenceView = Backbone.View.extend({
                 };
             });
             // clean up and prep for display
-            that.addDownloadMenuItems(downloadInfo);
+            that.resetDownloadMenuItems(downloadInfo);
             that.delegateEvents();
             that.showActionMenu();
         });
@@ -125,7 +125,7 @@ App.StoryView = Backbone.View.extend({
                     'name':m.getName()
                 };
             });
-            that.addDownloadMenuItems(downloadInfo);
+            that.resetDownloadMenuItems(downloadInfo);
             // clean up and prep for display
             that.delegateEvents();
             that.showActionMenu();
@@ -187,9 +187,9 @@ App.WordCountView = App.NestedView.extend({
                     'name':m.getName()
                 };
             });
-            that.addDownloadMenuItems(downloadInfo);
+            that.resetDownloadMenuItems(downloadInfo);
             // Add download SVG option
-            that.addDownloadMenuItems([''], 'Download as SVG', 'svg-download');
+            that.appendDownloadMenuItem(null, 'Download as SVG', 'svg-download');
             that.$('a.svg-download').on('click', that.clickSvg);
             // and clean up and prep the UI
             that.delegateEvents();
@@ -790,7 +790,7 @@ App.HistogramView = Backbone.View.extend({
                 'name':m.getName()
             };
         });
-        this.addDownloadMenuItems(downloadInfo);
+        this.resetDownloadMenuItems(downloadInfo);
         // register an about click handler
         this.delegateEvents();  // gotta run this to register the events again
         this.showActionMenu();
@@ -1095,7 +1095,7 @@ App.CountryMapView = App.NestedView.extend({
                 'name':tagCountModel.getName()
             };
         });
-        this.addDownloadMenuItems(downloadInfo);
+        this.resetDownloadMenuItems(downloadInfo);
         this.delegateEvents();
         this.showActionMenu();
     },
