@@ -1082,8 +1082,14 @@ App.DemoResultModel = App.ResultModel.extend({
     }
 });
 
+App.SavedSearch = Backbone.Model.extend({
+  idAttribute: 'timestamp',
+  urlRoot : '/api/queries'
+});
+
 App.SavedSearchCollection = Backbone.Collection.extend({
   url: '/api/queries/list',
+  model: App.SavedSearch,
   initialize: function(){
   }
 });
