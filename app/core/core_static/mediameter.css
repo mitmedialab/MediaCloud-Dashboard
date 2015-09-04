@@ -367,8 +367,24 @@ input.qcolor {
     border-bottom: solid 1px #ccc;
     margin-bottom: 20px;
 }
-.query-list-controls {
-    text-align: center;
+.query-list-controls .form-group{
+    padding-left: 30px;
+    padding-right: 30px;
+}
+.saved-search-item {
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eeeeee;
+}
+.saved-search-item h3 {
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+.load-saved-search-dialog .modal-dialog{
+    width: 800px;
+}
+.saved-search-item small {
+    display: block;
+    color: #999999;
 }
 .query-list-controls button {
     margin-left: 10px;

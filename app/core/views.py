@@ -115,6 +115,16 @@ def save_query():
     )
     return json.dumps({'status':'success'})
 
+@flapp.route('/api/queries/list')
+@flask_login.login_required
+def list_saved_queries():
+    db_user = authentication.load_from_db_by_username(flask_login.current_user.name)
+    queries = []
+    if 'saved_queries' in db_user:
+        queries = db_user['saved_queries']
+    queries.sort(key=itemgetter("timestamp"), reverse=True) # return most recent first on list
+    return json.dumps(queries)
+
 # -----------------------------------------------------------------------------------------
 # MEDIA -----------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------

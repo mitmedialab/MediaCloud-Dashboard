@@ -1,9 +1,9 @@
-import json, flask_login, datetime
+import json, flask_login, datetime, time
 
 import flask
 
 import mediacloud.api as mcapi
-from app.core import flapp, mc_key, mc
+from app.core import flapp, mc_key, mc, db
 import app.core.views
 
 _sentence_export_props = ['date','numFound']
