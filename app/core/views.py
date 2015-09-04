@@ -11,7 +11,7 @@ import pymongo
 
 from app.core import config, flapp, login_manager, mc, mc_key
 import app.core.util
-from user import User, authenticate_user, authenticate_user_key
+import authentication
 from forms import *
 
 @flapp.route('/')
@@ -49,17 +49,18 @@ def login():
         username = flask.request.form['username']
         password = flask.request.form['password']
         app.core.logger.debug("login: user "+username+" trying to login")
-        user = authenticate_user(username, password)
+        user = authentication.authenticate_by_password(username, password)
     except KeyError:
         try:
             username = flask.request.form['username']
             key = flask.request.form['key']
-            user = authenticate_user_key(username, key)
+            user = authentication.authenticate_by_key(username, key)
         except KeyError:
             pass
     if not user.is_authenticated():
         flask.abort(401)
     flask_login.login_user(user)
+    user.create_in_db_if_needed()
     response = {
         'username': username
         , 'authenticated': True
@@ -67,6 +68,7 @@ def login():
         , 'key': user.get_id()
         , 'sentencesAllowed': _sentences_allowed(user.get_id())
     }
+    app.core.logger.debug("login: successful login for %s" % user.name)
     return json.dumps(response)
 
 @flapp.route('/api/user', methods=['POST'])
@@ -98,7 +100,7 @@ def logout():
 # Callback for flask-login
 @login_manager.user_loader
 def load_user(userid):
-    return User.get(userid)
+    return authentication.User.get(userid)
 
 # -----------------------------------------------------------------------------------------
 # MEDIA -----------------------------------------------------------------------------------
