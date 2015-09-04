@@ -743,6 +743,10 @@ App.QueryCollection = Backbone.Collection.extend({
         App.debug('Trigger App.QueryCollection:execute');
         this.trigger('execute', this);
     },
+    getNameList: function() {
+        var allNames = this.map(function(m) { return m.getName(); });
+        return allNames;
+    },
     keywords: function () {
         var allKeywords = this.map(
             function(m) {
