@@ -32,7 +32,7 @@ class User(UserMixin):
         db.users.insert({'username':self.name})
 
     def exists_in_db(self):
-        return db.users.find({'username':self.name}).count() > 0
+        return db.users.find_one({'username':self.name}) is not None
     
     @classmethod
     def get(cls, userid):
@@ -42,6 +42,9 @@ class User(UserMixin):
             return None
 
 User.cached = {}
+
+def load_from_db_by_username(username):
+    return db.users.find_one({'username':username})
 
 def authenticate_by_key(username, key):
     user_mc = mcapi.MediaCloud(key)

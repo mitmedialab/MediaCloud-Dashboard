@@ -1081,3 +1081,9 @@ App.DemoResultModel = App.ResultModel.extend({
         }, this);
     }
 });
+
+App.SavedSearchCollection = Backbone.Collection.extend({
+  url: '/api/queries/list',
+  initialize: function(){
+  }
+});

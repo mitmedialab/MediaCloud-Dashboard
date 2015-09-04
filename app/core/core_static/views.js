@@ -471,7 +471,6 @@ App.DemoQueryView = App.NestedView.extend({
     }
 });
 
-
 App.QueryListView = App.NestedView.extend({
     name:'QueryListView',
     id:'query-builder',
@@ -482,7 +481,8 @@ App.QueryListView = App.NestedView.extend({
         "click .query-pager.left": 'onPagerLeft',
         "click .query-pager.right": 'onPagerRight',
         "click .add-query": 'onAddQuery',
-        "click .save-search": 'onSaveSearch'
+        "click .save-search": 'onSaveSearch',
+        "click .load-saved-search": 'onLoadSavedSearch'
     },
     initialize: function (options) {
         App.debug('App.QueryListView.initialize()');
@@ -543,11 +543,11 @@ App.QueryListView = App.NestedView.extend({
         $('body').append(this.saveSearchView.el);
         var that = this;
         _.defer(function () {
-            $(that.saveSearchView.el).find('input').val(that.collection.getNameList().join(', '));
-            $(that.saveSearchView.el).find('input').focus();
+            that.saveSearchView.$el.find('input').val(that.collection.getNameList().join(', '));
+            that.saveSearchView.$el.find('input').focus();
         });
-        $(this.saveSearchView.el).find('.btn-primary').on('click', this.onSaveSearchSubmit);
-        $(this.saveSearchView.el).find('input').on('keypress', function (evt) {
+        this.saveSearchView.$el.find('.btn-primary').on('click', this.onSaveSearchSubmit);
+        this.saveSearchView.$el.find('input').on('keypress', function (evt) {
             if (evt.which == 13) {
                 that.onSaveSearchSubmit(evt);
             }
@@ -572,6 +572,11 @@ App.QueryListView = App.NestedView.extend({
         });
         App.debug('save search submitted! '+queryNickname+"=>"+queryUrl);
         this.saveSearchView.hide();
+    },
+    onLoadSavedSearch: function(evt){
+        evt.preventDefault();
+        var view = new App.LoadSavedSearchView();
+        $('body').append(view.el);
     },
     /*
      * Carousel-related methods
@@ -1273,6 +1278,49 @@ App.ActionedViewMixin = {
         this.$('.panel-action-list').append(element);  
     }
 };
+
+App.LoadSavedSearchView = Backbone.View.extend({
+    name: 'LoadSavedSearchView',
+    template: _.template($('#tpl-load-saved-search-view').html()),
+    itemTemplate: _.template($('#tpl-saved-search-item').html()),
+    initialize: function(options){
+        this.options = options;
+        _.bindAll(this, 'onClickLoadSavedSearch');
+        this.collection = new App.SavedSearchCollection();
+        var that = this;
+        this.collection.on('sync', function() {
+            that.renderQueryList();
+        });
+        this.collection.fetch();
+        this.render();
+    },
+    render: function(){
+        this.$el.html(this.template());
+        this.$('.modal').modal('show');
+        this.$('.saved-search-list').html(_.template($('#tpl-progress').html()));
+    },
+    renderQueryList: function(){
+        App.debug('need to render results');
+        var that = this;
+        this.$('.saved-search-list').html('');
+        _.each(this.collection.models, function(m){
+            var savedDate = new Date(m.get('timestamp')*1000);
+            var item = that.itemTemplate({url:_.escape(m.get('url')), date: savedDate, name:m.get('name')});
+            that.$('.saved-search-list').append(item);
+        });
+        this.$('.saved-search-list button').on('click',this.onClickLoadSavedSearch);
+    },
+    hide: function(){
+        this.$('.modal').modal('hide');
+    },
+    onClickLoadSavedSearch: function(evt){
+        evt.preventDefault();
+        var el = $(evt.target);
+        var queryUrl = el.attr('data-url');
+        App.con.router.navigate(queryUrl, true);
+        this.hide();
+    }
+});
 
 App.SaveSearchView = Backbone.View.extend({
     name: 'SaveSearchView',
