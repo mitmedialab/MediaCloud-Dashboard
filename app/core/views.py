@@ -102,6 +102,19 @@ def logout():
 def load_user(userid):
     return authentication.User.get(userid)
 
+@flapp.route('/api/queries/save', methods=['POST'])
+@flask_login.login_required
+def save_query():
+    query_nickname = flask.request.form['name']
+    query_url = flask.request.form['url']
+    db.users.update(
+        { 'username': flask_login.current_user.name },
+        { '$push': { 
+            'saved_queries': {'timestamp': int(time.time()),'name':query_nickname, 'url':query_url}
+        } }
+    )
+    return json.dumps({'status':'success'})
+
 # -----------------------------------------------------------------------------------------
 # MEDIA -----------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------

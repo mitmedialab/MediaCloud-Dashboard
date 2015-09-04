@@ -481,11 +481,12 @@ App.QueryListView = App.NestedView.extend({
         "click .btn-primary": 'onQuery',
         "click .query-pager.left": 'onPagerLeft',
         "click .query-pager.right": 'onPagerRight',
-        "click .add-query": 'onAddQuery'
+        "click .add-query": 'onAddQuery',
+        "click .save-search": 'onSaveSearch'
     },
     initialize: function (options) {
         App.debug('App.QueryListView.initialize()');
-        _.bindAll(this, 'onAdd');
+        _.bindAll(this, 'onAdd', 'onSaveSearchSubmit');
         this.mediaSources = options.mediaSources;
         this.collection.on('add', this.onAdd, this);
         this.collection.on('remove', this.onRemove, this);
@@ -535,6 +536,42 @@ App.QueryListView = App.NestedView.extend({
     },
     onRemove: function (model, collection, options) {
         this.updateCarouselOnRemove(model.removedFromIndex);
+    },
+    onSaveSearch: function(evt){
+        evt.preventDefault();
+        this.saveSearchView = new App.SaveSearchView();
+        $('body').append(this.saveSearchView.el);
+        var that = this;
+        _.defer(function () {
+            $(that.saveSearchView.el).find('input').val(that.collection.getNameList().join(', '));
+            $(that.saveSearchView.el).find('input').focus();
+        });
+        $(this.saveSearchView.el).find('.btn-primary').on('click', this.onSaveSearchSubmit);
+        $(this.saveSearchView.el).find('input').on('keypress', function (evt) {
+            if (evt.which == 13) {
+                that.onSaveSearchSubmit(evt);
+            }
+        });
+    },
+    onSaveSearchSubmit: function(evt){
+        evt.preventDefault();
+        var errorBox = $(this.saveSearchView.el).find('#save-search-error');
+        errorBox.hide();
+        queryUrl = this.collection.dashboardUrl();
+        queryNickname = $(this.saveSearchView.el).find('input').val();
+        if(queryNickname.length==0){    // bail if no nickname entered
+            errorBox.show();
+            return;
+        }
+        data = { 'name':queryNickname, 'url':queryUrl }
+        $.post( "/api/queries/save", data, function( data ) {
+            // TODO: provide positive user feedback
+        }).fail(function() {
+            var error = new Backbone.Model({"message": "We couldn't save your search, sorry!"});
+            App.con.getErrorCollection().add(error);
+        });
+        App.debug('save search submitted! '+queryNickname+"=>"+queryUrl);
+        this.saveSearchView.hide();
     },
     /*
      * Carousel-related methods
@@ -1236,6 +1273,22 @@ App.ActionedViewMixin = {
         this.$('.panel-action-list').append(element);  
     }
 };
+
+App.SaveSearchView = Backbone.View.extend({
+    name: 'SaveSearchView',
+    template: _.template($('#tpl-save-search-view').html()),
+    initialize: function(options){
+        this.options = options;
+        this.render();
+    },
+    render: function(){
+        this.$el.html(this.template());
+        this.$('.modal').modal('show');
+    },
+    hide: function(){
+        this.$('.modal').modal('hide');
+    }
+});
 
 App.AboutView = Backbone.View.extend({
     name: 'AboutView',
