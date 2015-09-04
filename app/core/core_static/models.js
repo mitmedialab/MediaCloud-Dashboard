@@ -512,6 +512,9 @@ App.QueryModel = Backbone.Model.extend({
             if (info.name) {
                 this.set('name', info.name);
             }
+            if (info.color) {
+                this.set('color', '#'+info.color);
+            }
         }
         this.set('results', new this.ResultModel({}, opts));
         this.set('queryUid', App.QueryModel.getUid());
@@ -594,6 +597,7 @@ App.QueryModel = Backbone.Model.extend({
         if (this.get('name')) {
             info.name = this.get('name');
         }
+        info.color = this.getColor().substr(1);
         return info;
     },
     isGeoTagged: function(){
@@ -744,7 +748,13 @@ App.QueryCollection = Backbone.Collection.extend({
         this.trigger('execute', this);
     },
     getNameList: function() {
-        var allNames = this.map(function(m) { return m.getName(); });
+        var allNames = this.map(function(m) { 
+            if(m.get('name')){
+                return m.getName();
+            } else {
+                return m.get('params').get('keywords');;
+            }
+        });
         return allNames;
     },
     keywords: function () {
