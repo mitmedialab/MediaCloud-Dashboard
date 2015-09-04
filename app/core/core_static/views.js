@@ -563,13 +563,13 @@ App.QueryListView = App.NestedView.extend({
             errorBox.show();
             return;
         }
-        data = { 'name':queryNickname, 'url':queryUrl }
-        $.post( "/api/queries/save", data, function( data ) {
-            // TODO: provide positive user feedback
-        }).fail(function() {
+        var savedSearch = new App.SavedSearch(
+            { 'name':queryNickname, 'url':queryUrl, 'timestamp': Date.now() }
+        );
+        savedSearch.save({'error': function(model, response, options) {
             var error = new Backbone.Model({"message": "We couldn't save your search, sorry!"});
             App.con.getErrorCollection().add(error);
-        });
+        }});
         App.debug('save search submitted! '+queryNickname+"=>"+queryUrl);
         this.saveSearchView.hide();
     },
@@ -1285,10 +1285,13 @@ App.LoadSavedSearchView = Backbone.View.extend({
     itemTemplate: _.template($('#tpl-saved-search-item').html()),
     initialize: function(options){
         this.options = options;
-        _.bindAll(this, 'onClickLoadSavedSearch');
+        _.bindAll(this, 'onLoad', 'onDelete');
         this.collection = new App.SavedSearchCollection();
         var that = this;
-        this.collection.on('sync', function() {
+        this.collection.on('sync', function() { // render the list when it is fetched from the server
+            that.renderQueryList();
+        });
+        this.collection.on('remove', function(){    // when a search is deleted rerender the list
             that.renderQueryList();
         });
         this.collection.fetch();
@@ -1303,21 +1306,33 @@ App.LoadSavedSearchView = Backbone.View.extend({
         App.debug('need to render results');
         var that = this;
         this.$('.saved-search-list').html('');
-        _.each(this.collection.models, function(m){
+        this.collection.forEach(function(m){
             var savedDate = new Date(m.get('timestamp')*1000);
-            var item = that.itemTemplate({url:_.escape(m.get('url')), date: savedDate, name:m.get('name')});
+            var item = that.itemTemplate({id: m.get('timestamp'), url:_.escape(m.get('url')), 
+                date: savedDate, name:m.get('name')});
             that.$('.saved-search-list').append(item);
         });
-        this.$('.saved-search-list button').on('click',this.onClickLoadSavedSearch);
+        this.$('.saved-search-list button.load').on('click',this.onLoad);
+        this.$('.saved-search-list button.delete').on('click',this.onDelete);
     },
     hide: function(){
         this.$('.modal').modal('hide');
     },
-    onClickLoadSavedSearch: function(evt){
+    onDelete: function(evt){
         evt.preventDefault();
         var el = $(evt.target);
-        var queryUrl = el.attr('data-url');
-        App.con.router.navigate(queryUrl, true);
+        var savedSearchId = el.attr('data-id');
+        var savedSearch = this.collection.get(savedSearchId);
+        App.debug(savedSearchId);
+        App.debug(savedSearch);
+        savedSearch.destroy({wait:true});
+    },
+    onLoad: function(evt){
+        evt.preventDefault();
+        var el = $(evt.target);
+        var savedSearchId = el.attr('data-id');
+        var savedSearch = this.collection.get(savedSearchId);
+        App.con.router.navigate(savedSearch.get('url'), true);
         this.hide();
     }
 });

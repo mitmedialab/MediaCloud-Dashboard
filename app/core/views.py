@@ -1,4 +1,4 @@
-import datetime, json, logging, traceback, sys, time
+import datetime, json, logging, traceback, sys
 from random import randint
 from operator import itemgetter
 
@@ -102,18 +102,44 @@ def logout():
 def load_user(userid):
     return authentication.User.get(userid)
 
-@flapp.route('/api/queries/save', methods=['POST'])
+@flapp.route('/api/queries/<query_timestamp>', methods=['PUT','DELETE'])
 @flask_login.login_required
-def save_query():
-    query_nickname = flask.request.form['name']
-    query_url = flask.request.form['url']
-    db.users.update(
-        { 'username': flask_login.current_user.name },
-        { '$push': { 
-            'saved_queries': {'timestamp': int(time.time()),'name':query_nickname, 'url':query_url}
-        } }
-    )
-    return json.dumps({'status':'success'})
+def manage_query(query_timestamp):
+    if flask.request.method == 'PUT':
+        data = flask.request.get_json()
+        db.users.update(
+            { 'username': flask_login.current_user.name },
+            { '$push': { 'saved_queries': data } }
+        )
+        app.core.logger.debug("saved query with timestamp %s" % query_timestamp)
+        return json.dumps({'status':'success'})
+    elif flask.request.method == 'DELETE':
+        # for some reason this doesn't work
+        #db.users.update(
+        #    { 'username': flask_login.current_user.name },
+        #    { '$pull': { 
+        #        'saved_queries': {'timestamp': query_timestamp}
+        #    } }
+        #)
+        # HACK:
+        db_user = authentication.load_from_db_by_username(flask_login.current_user.name)
+        if 'saved_queries' in db_user:
+            idx = None
+            i = 0
+            for q in db_user['saved_queries']:
+                app.core.logger.debug(q['timestamp'])
+                if str(q['timestamp']) == query_timestamp:
+                    idx = i
+                i = i + 1
+            app.core.logger.debug(idx)
+            if idx is not None:
+                del db_user['saved_queries'][idx]
+                db.users.save(db_user)
+                return json.dumps({'status':'success'})
+            else: 
+                return json.dumps({'error':'saved search not found'}), 400
+    else:
+        return json.dumps({'error':'unsupported http method'}), 400
 
 @flapp.route('/api/queries/list')
 @flask_login.login_required

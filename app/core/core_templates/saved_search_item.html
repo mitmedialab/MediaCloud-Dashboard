@@ -1,7 +1,8 @@
 <script id="tpl-saved-search-item" type="text/template">
-<div class="saved-search-item">
+<div class="saved-search-item" id="saved-search-<%=id%>">
     <div class="pull-right">
-        <button class="btn btn-default" type="submit" data-url="<%= url %>">Load</button>
+		<button type="button" class="btn btn-link delete" data-id="<%= id %>">Delete</button>
+        <button type="button" class="btn btn-default load" data-id="<%= id %>">Load</button>
     </div>
     <h3 class="name"><%= name %></h3>
     <small class="date">saved at <%= date %></small>
