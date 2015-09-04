@@ -9,7 +9,7 @@ import mediacloud.api as mcapi
 import mediacloud.error as mcerror
 import pymongo
 
-from app.core import config, flapp, login_manager, mc, mc_key
+from app.core import config, flapp, login_manager, mc, mc_key, db
 import app.core.util
 import authentication
 from forms import *
