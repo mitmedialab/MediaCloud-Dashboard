@@ -283,7 +283,6 @@ input.form-control, select.form-control, textarea.form-control {
 }
 
 input.qcolor {
-    max-width: 6em;
 }
 
 /* Bootstrap typeahead customization ******************************************/
@@ -461,4 +460,12 @@ li .query-title {
 }
 .sources-color {
     background-color: rgb(85,134,138);
+}
+
+/* Spectrum Palette ***************************************************/
+
+.sp-replacer,
+.sp-container {
+    background-color: #ffffff;
+    border: 1px solid #333333;
 }
