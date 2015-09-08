@@ -1328,6 +1328,11 @@ App.LoadSavedSearchView = Backbone.View.extend({
                 date: savedDate, name:m.get('name')});
             that.$('.saved-search-list').append(item);
         });
+        if(this.collection.length == 0){
+            this.$('.no-results').show();
+        } else {
+            this.$('.no-results').hide();
+        }
         this.$('.saved-search-list button.load').on('click',this.onLoad);
         this.$('.saved-search-list button.delete').on('click',this.onDelete);
     },
