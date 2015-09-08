@@ -522,6 +522,9 @@ App.QueryListView = App.NestedView.extend({
                 that.onAdd(m, that.collection)
             });
             _.defer(function () { that.initializeCarousel(); });
+            if(App.con.userModel.get('authenticated')){
+                that.$("#saved-search-controls").show();
+            }
         });
     },
     onQuery: function (ev) {
