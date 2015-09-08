@@ -953,6 +953,18 @@ App.TagCountCollection = App.QueryParamDrivenCollection.extend({
         return '/api/geotagcount/' + this.getQueryParamUrl() + '.csv';
     }
 });
+App.DemoTagCountCollection = App.TagCountCollection.extend({
+    url: function () {
+        return ['/api', 'demo', 'geotagcount'
+            , encodeURIComponent(this._getKeywords())
+        ].join('/')
+    },
+    csvUrl: function(){
+        return ['/api', 'demo', 'geotagcount'
+            , encodeURIComponent(this._getKeywords())
+        ].join('/') + ".csv"
+    }
+});
 
 App.DemoWordCountCollection = App.WordCountCollection.extend({
     url: function () {
@@ -1018,10 +1030,6 @@ App.ResultModel = Backbone.Model.extend({
             , "type": App.DateCountCollection
         },
         {
-            "name": "stories"
-            , "type": App.StoryCollection
-        },
-        {
             "name": "tagcounts"
             , "type": App.TagCountCollection
         }
@@ -1070,6 +1078,10 @@ App.DemoResultModel = App.ResultModel.extend({
         {
             "name": "datecounts"
             , "type": App.DemoDateCountCollection
+        },
+        {
+            "name": "tagcounts"
+            , "type": App.DemoTagCountCollection
         }
     ],
     initialize: function (attributes, options) {

@@ -449,12 +449,9 @@ def _geotagcount(api, keywords, media, start, end):
         r['count'] = (float(r['count'])/float(GEO_SAMPLE_SIZE))    # WTF: why is the API returning this as a string and not a number?
     return res
 
-@flapp.route('/api/geotagcount/<keywords>/<media>/<start>/<end>')
-@flask_login.login_required
-def geotagcount(keywords, media, start, end):
-    user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
+def _geotagcount_handler(api, keywords, media, start, end):
     try:
-        results = _geotagcount(user_mc, keywords, media, start, end)
+        results = _geotagcount(api, keywords, media, start, end)
         return json.dumps(results, separators=(',',':'))
     except mcerror.MCException as exception:
         app.core.logger.error("Query failed: "+str(exception))
@@ -465,12 +462,20 @@ def geotagcount(keywords, media, start, end):
         app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
 
-@flapp.route('/api/geotagcount/<keywords>/<media>/<start>/<end>.csv')
+@flapp.route('/api/geotagcount/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
-def geotagcount_csv(keywords, media, start, end):
+def geotagcount(keywords, media, start, end):
     user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
+    return _geotagcount_handler(user_mc, keywords, media, start, end)
+
+@flapp.route('/api/demo/geotagcount/<keywords>')
+def demo_geotagcount(keywords):
+    media, start, end = demo_params()
+    return _geotagcount_handler(mc, keywords, media, start, end)
+
+def geotagcount_handler_csv(api, keywords, media, start, end):
     try:
-        results = _geotagcount(user_mc, keywords, media, start, end)
+        results = _geotagcount(api, keywords, media, start, end)
         return assemble_csv_response(results,
             ['alpha3','label','tags_id','geonamesId','count'],
             ['country-alpha3','country-name','mediacloud-tags-id','geonames-id','sampled-count'],
@@ -482,7 +487,18 @@ def geotagcount_csv(keywords, media, start, end):
         return content, status_code
     except Exception as exception:
         app.core.logger.error("Query failed: "+str(exception))
-        return json.dumps({'error':str(exception)}, separators=(',',':')), 400
+        return json.dumps({'error':str(exception)}, separators=(',',':')), 400    
+
+@flapp.route('/api/geotagcount/<keywords>/<media>/<start>/<end>.csv')
+@flask_login.login_required
+def geotagcount_csv(keywords, media, start, end):
+    user_mc = mcapi.MediaCloud(flask_login.current_user.get_id())
+    return geotagcount_handler_csv(user_mc,keywords, media, start, end)
+
+@flapp.route('/api/demo/geotagcount/<keywords>.csv')
+def demo_geotagcount_csv(keywords):
+    media, start, end = demo_params()
+    return geotagcount_handler_csv(mc, keywords, media, start, end)
 
 # -----------------------------------------------------------------------------------------
 # HELPERS ---------------------------------------------------------------------------------
@@ -523,7 +539,7 @@ def assemble_csv_response(results,properties,column_names,filename):
                 for p in props:
                     value = row[p]
                     cleaned_value = value
-                    if isinstance( value, ( int, long ) ):
+                    if isinstance( value, ( int, long, float ) ):
                         cleaned_value = str(row[p])
                     else:
                         cleaned_value = '"'+value.encode('utf-8').replace('"','""')+'"'
