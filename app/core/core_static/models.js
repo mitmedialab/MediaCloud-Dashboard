@@ -1030,6 +1030,10 @@ App.ResultModel = Backbone.Model.extend({
             , "type": App.DateCountCollection
         },
         {
+            "name": "stories"
+            , "type": App.StoryCollection
+        },
+        {
             "name": "tagcounts"
             , "type": App.TagCountCollection
         }
