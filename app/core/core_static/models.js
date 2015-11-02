@@ -936,8 +936,14 @@ App.WordCountCollection = App.QueryParamDrivenCollection.extend({
 
 App.TagCountModel = Backbone.Model.extend({
     initialize: function(attributes, options){
-        this.set({'id':ISO3166.getIdFromAlpha3(attributes['alpha3'])});
-        this.set({'centroid':Centroid.fromAlpha3(attributes['alpha3'])});
+        countryCode = ISO3166.getIdFromAlpha3(attributes['alpha3']);
+        if(typeof(countryCode)!=null){ // safety against new countries
+            this.set({'id':countryCode});
+        }
+        centroid = Centroid.fromAlpha3(attributes['alpha3']);
+        if(typeof(centroid)!=null){ // safety against new countries
+            this.set({'centroid':centroid});
+        }
     }
 });
 App.TagCountCollection = App.QueryParamDrivenCollection.extend({
