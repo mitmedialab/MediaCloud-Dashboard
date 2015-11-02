@@ -51,13 +51,18 @@ var ISO3166 = {
 
 	getInfoFromAlpha3: function(countryAlpha3){
 		if(!(countryAlpha3.toLowerCase() in ISO3166.alpha3Lookup)){
-			console.log("unable to find country named "+countryAlpha3.toLowerCase());
+			console.log("unable to find country with ISO3166-alpha3 "+countryAlpha3.toLowerCase());
+			return null;
 		}
 		return ISO3166.alpha3Lookup[countryAlpha3.toLowerCase()];
 	},
 
 	getIdFromAlpha3: function(countryAlpha3){
 		var countryInfo = ISO3166.getInfoFromAlpha3(countryAlpha3.toLowerCase());
+		if(countryInfo == null){
+			console.log("unable to find country with ISO3166-alpha3 "+countryAlpha3);
+			return null;
+		}
 		return parseInt(countryInfo['country-code']);
 	}
 
