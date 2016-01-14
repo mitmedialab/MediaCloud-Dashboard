@@ -307,6 +307,9 @@ input.qcolor {
     position: relative;
     top: 3px !important;
 }
+.query-controls {
+    font-size: 12px;
+}
 .query-controls div {
     text-align: right;
 }

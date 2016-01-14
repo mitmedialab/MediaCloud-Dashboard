@@ -194,6 +194,12 @@ def media_search_tags(query):
 # SENTENCES -------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------
 
+@flapp.route('/api/query/solr/<keywords>/<media>/<start>/<end>')
+@flask_login.login_required
+def solr_query(keywords, media, start, end):
+    solr_query = app.core.util.solr_query(keywords, media, start, end)
+    return json.dumps({'queryText':solr_query})
+
 @flapp.route('/api/sentences/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def sentences(keywords, media, start, end):

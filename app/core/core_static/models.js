@@ -17,12 +17,9 @@ App.NestedModel = Backbone.Model.extend({
         App.debug(response);
         return response;
     }
-})
+});
 
-/**
- * If you model queries the server with query params, use this base class
- */
-App.QueryParamDrivenCollection = Backbone.Collection.extend({
+App.QueryParamMixin = {
 
     _getWildcardedParam: function(paramName){
         var raw = this.params.get(paramName);
@@ -59,7 +56,12 @@ App.QueryParamDrivenCollection = Backbone.Collection.extend({
         return urlParts.join('/');
     }
 
-});
+};
+
+/**
+ * If you model queries the server with query params, use this base class
+ */
+App.QueryParamDrivenCollection = Backbone.Collection.extend(App.QueryParamMixin);
 
 /* Mix in to a Collection to add:
  * getDeferred(id, [context])
@@ -481,6 +483,7 @@ App.MediaModel = App.NestedModel.extend({
  * This also handles results.
  */
 App.QueryModel = Backbone.Model.extend({
+    name: 'App.QueryModel',
     initialize: function (attributes, options) {
         App.debug('App.QueryModel.initialize()');
         var that = this;
@@ -611,7 +614,7 @@ App.QueryModel = Backbone.Model.extend({
         return sourcesOk && datesOk;
     }
 });
-_.extend(App.QueryModel, App.UidMixin);
+_.extend(App.QueryModel, App.UidMixin, App.QueryParamMixin);
 
 /**
  * Holds a set of queries, each specifying criteria that are part of the search.
@@ -862,6 +865,14 @@ App.SentenceModel = Backbone.Model.extend({
     }
 });
 App.SentenceModel = App.SentenceModel.extend(App.DatedModelMixin);
+
+App.SolrQueryModel = Backbone.Model.extend({
+    initialize: function(attributes, options) {
+    },
+    url: function() {
+        return '/api/query/solr/' + this.get('queryText');
+    },
+});
 
 App.SentenceCollection = App.QueryParamDrivenCollection.extend({
     resourceType: 'sentence',

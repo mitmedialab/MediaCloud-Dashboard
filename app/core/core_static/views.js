@@ -253,7 +253,8 @@ App.QueryView = App.NestedView.extend({
     template: _.template($('#tpl-query-view').html()),
     events: {
         'click a.duplicate': 'onCopyInput',
-        'click a.remove': 'onRemoveInput'
+        'click a.remove': 'onRemoveInput',
+        'click a.export': 'onExportInput'
     },
     initialize: function (options) {
         App.debug('App.QueryView.initialize()');
@@ -344,6 +345,10 @@ App.QueryView = App.NestedView.extend({
                 $(".query-controls a.remove").show();
             });
             that.$('.query-color').css('color', that.model.getColor());
+            // show the export if logged in
+            if(App.con.userModel.get('authenticated')){
+                that.$(".authenticated-only").show();
+            }
         });
     },
     updateTitle: function () {
@@ -374,6 +379,16 @@ App.QueryView = App.NestedView.extend({
         if (collection.length === 1) {
             $(".query-controls a.remove").hide()
         }
+    },
+    onExportInput: function(evt) {
+        evt.preventDefault();
+        // for some reason I can't call this.model.getQueryParamUrl(), even though this.model is a QueryModel
+        // so I present to you a crazy solution
+        var crazyModel = {'params':this.model.get('params')};
+        _.extend(crazyModel, App.QueryParamMixin);
+        solrQueryModel = new App.SolrQueryModel({'queryText': crazyModel.getQueryParamUrl()});
+        var view = new App.ExportForSolrView({model:solrQueryModel});
+        $('body').append(view.el);
     }
 });
 
@@ -1294,6 +1309,35 @@ App.ActionedViewMixin = {
         this.$('.panel-action-list').append(element);  
     }
 };
+
+App.ExportForSolrView = Backbone.View.extend({
+    name: 'ExportForSolrView',
+    template: _.template($('#tpl-export-for-solr-view').html()),
+    initialize: function(options){
+        this.options = options;
+        var that = this;
+        this.model.on('sync', function() {
+            that.renderResuls();
+        });
+        this.model.fetch();
+        this.render();
+    },
+    render: function(){
+        this.$el.html(this.template());
+        this.$('.modal').modal('show');
+        this.$('.solr-query').html(_.template($('#tpl-progress').html()));
+    },
+    renderResuls: function(){
+        App.debug('need to render results');
+        var that = this;
+        this.$('.solr-query').html('');
+        this.$('.solr-query').html("<blockquote>"+this.model.get('queryText')+"</blockquote>");
+    },
+    hide: function(){
+        this.$('.modal').modal('hide');
+    }
+});
+
 
 App.LoadSavedSearchView = Backbone.View.extend({
     name: 'LoadSavedSearchView',
