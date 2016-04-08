@@ -12,14 +12,14 @@
     {% assets output="gen/mm-dashboard.js",
                         "core/lib/highcharts-4.1.7/highcharts.js",
                         "core/lib/highcharts-4.1.7/exporting.js",
+                        "core/lib/d3.geo.projection/d3.geo.projection.v0.min.js",
+                        "core/lib/topojson/topojson-v1.6.19.min.js",
+                        "core/lib/maps/world-110m.json",
+                        "core/lib/colorbrewer/colorbrewer.js",
                         "dashboard/views.js",
                         "dashboard/controller.js",
                         "dashboard/routes.js",
-                        "dashboard/script.js",
-                        "dashboard/lib/d3.geo.projection/d3.geo.projection.v0.min.js",
-                        "dashboard/lib/topojson/topojson-v1.6.19.min.js",
-                        "dashboard/lib/maps/world-110m.json",
-                        "dashboard/lib/colorbrewer/colorbrewer.js"
+                        "dashboard/script.js"
                          %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
