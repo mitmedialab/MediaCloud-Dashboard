@@ -2,7 +2,7 @@ App.SentenceView = Backbone.View.extend({
     name: 'SentenceView',
     template: _.template($('#tpl-sentence-view').html()),
     sentenceTemplate: _.template($('#tpl-one-sentence-view').html()),
-    queryHeaderTemplate: _.template('<h3 id="<%=domId%>" style="color:<%=color%>;"><%=title%> (<%=sentenceCount%> sentences match)</h3>'),
+    queryHeaderTemplate: _.template('<h3 id="<%=domId%>" style="color:<%=color%>;"><%=title%> <small>(<%=sentenceCount%> sentences match in <%=storyCount%> stories)</small></h3>'),
     events: {
         'click li.action-about > a': 'clickAbout'
     },
@@ -31,14 +31,17 @@ App.SentenceView = Backbone.View.extend({
                     $queryWrapperDiv = $('<div>');
                     $queryWrapperDiv.addClass('query-sentences').appendTo($el);
                     querySentences = that.collection.at(i).get('results').get('sentences');
-                    var totalSentences = 0;
-                    if (querySentences.length > 0) {
+                    var totalSentences = that.collection.at(i).get('results').get('sentences').totalSentences;
+                    var totalStories = that.collection.at(i).get('results').get('sentences').totalStories;
+/*                    if (querySentences.length > 0) {
                         totalSentences = querySentences.last().get('totalSentences');
                     }
+*/
                     var $title = that.queryHeaderTemplate({
                         'domId':that.collection.at(i).getName(),
                         'color':that.collection.at(i).getColor(),
                         'sentenceCount':that.formatNumber(totalSentences),
+                        'storyCount': that.formatNumber(totalStories),
                         'title':that.collection.at(i).getName()});
                     $queryWrapperDiv.append($title);
                     that.addSentences(querySentences.last(10), that.sentenceTemplate, $queryWrapperDiv);
@@ -47,8 +50,10 @@ App.SentenceView = Backbone.View.extend({
             } else {
                 var sentences = that.collection.at(0).get('results').get('sentences');
                 // figure out the total sentence count
-                totalSentences = sentences.last(1)[0].get('totalSentences');
-                that.$('.count').html('(' + that.formatNumber(totalSentences) + ' found)');
+                totalSentences = sentences.totalSentences;
+                totalStories = sentences.totalStories;
+                //totalSentences = sentences.last(1)[0].get('totalSentences');
+                that.$('.count').html('(' + that.formatNumber(totalSentences) + ' sentences found in '+that.formatNumber(totalStories)+' stories)');
                 // now list some of the sentences
                 that.addSentences(sentences.last(10),that.sentenceTemplate,$el);                
             }
@@ -100,6 +105,7 @@ App.StoryView = Backbone.View.extend({
         App.debug('App.StoryView.render()');
         this.$el.html(this.template());
         this.hideActionMenu();
+        this.$el.find('.panel-title .count').html('');
         var $el = this.$('.story-view .copy');
         progress = _.template($('#tpl-progress').html());
         $el.html(progress());
@@ -108,14 +114,17 @@ App.StoryView = Backbone.View.extend({
             $el.html('');
             var query1Stories = that.collection.models[0].get('results').get('stories');
             if (that.collection.length >= 2) {
-                // had main and comparison queries
-                $el.append('<h3 class="first-query">'+that.collection.at(0).get('params').get('keywords')+': A sampling of stories</h3>');
+                // add main and comparison queries
+                $el.append('<h3 class="first-query">'+that.collection.at(0).get('params').get('keywords')+': '+
+                    'A sampling of stories ('+query1Stories.totalStories+' total)</h3>');
                 that.addStories(query1Stories.last(10),that.storyTemplate,$el);
-                $el.append('<h3 class="second-query">'+that.collection.at(1).get('params').get('keywords')+': A sampling of stories</h3>');
                 var query2Stories = that.collection.models[1].get('results').get('stories');
+                $el.append('<h3 class="second-query">'+that.collection.at(1).get('params').get('keywords')+': '+
+                    'A sampling of stories ('+query2Stories.totalStories+' total)</h3>');
                 that.addStories(query2Stories.last(10),that.storyTemplate,$el);
             } else {
                 // had just a main query
+                this.$el.find('.panel-title .count').html('( '+query1Stories.totalStories+' total )');
                 that.addStories(query1Stories.last(10),that.storyTemplate,$el);
             }
             // now that the query collection is filled in, add the download data links
