@@ -883,6 +883,12 @@ App.SentenceCollection = App.QueryParamDrivenCollection.extend({
         this.waitForLoad = $.Deferred();
         this.on('sync', function () { this.waitForLoad.resolve(); }, this);
     },
+    parse : function(response){     // a bit of a hack to save metadata
+        this.totalSentences = response.total;
+        this.totalStories = response.totalStories;
+        App.debug("Parse sentenceCollection - "+this.totalSentences+" total");
+        return response.sentences;  
+    },    
     url: function () {
         return '/api/sentences/docs/' + this.getQueryParamUrl();
     },
@@ -914,6 +920,11 @@ App.StoryCollection = App.QueryParamDrivenCollection.extend({
         this.waitForLoad = $.Deferred();
         this.on('sync', function () { this.waitForLoad.resolve(); }, this);
     },
+    parse : function(response){     // a bit of a hack to save metadata
+        this.totalStories = response.total;
+        App.debug("Parse storyCollection - "+this.totalStories+" total");
+        return response.stories;  
+    },    
     url: function () {
         return '/api/stories/public/docs/' + this.getQueryParamUrl();
     },

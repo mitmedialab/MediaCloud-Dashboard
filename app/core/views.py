@@ -200,23 +200,6 @@ def solr_query(keywords, media, start, end):
     solr_query = app.core.util.solr_query(keywords, media, start, end)
     return json.dumps({'queryText':solr_query})
 
-@flapp.route('/api/sentences/<keywords>/<media>/<start>/<end>')
-@flask_login.login_required
-def sentences(keywords, media, start, end):
-    query = app.core.util.solr_query(keywords, media, start, end)
-    app.core.logger.debug("query: sentences %s" % query)
-    try:
-        res = mc.sentenceList(query, '', 0, 10)
-        return json.dumps(res, separators=(',',':'))
-    except mcerror.MCException as exception:
-        app.core.logger.error("Query failed: "+str(exception))
-        content = json.dumps({'error':str(exception)}, separators=(',',':'))
-        status_code = exception.status_code
-        return content, status_code
-    except Exception as exception:
-        app.core.logger.error("Query failed: "+str(exception))
-        return json.dumps({'error':str(exception)}, separators=(',',':')), 400
-
 def _sentence_docs(api, keywords, media, start, end, count=10, sort=mcapi.MediaCloud.SORT_RANDOM):
     query = app.core.util.solr_query(keywords, media, start, end)
     app.core.logger.debug("query: _sentence_docs %s" % query)
@@ -232,10 +215,13 @@ def _sentence_docs(api, keywords, media, start, end, count=10, sort=mcapi.MediaC
         except Exception as exception:
             start_index = 0
     res = api.sentenceList(query, '', start_index, count, sort=sort)
-    sentences = res['response']['docs']
-    for s in sentences:
-        s['totalSentences'] = res['response']['numFound'] # hack to get total sentences count to Backbone.js
-    return json.dumps(sentences, separators=(',',':'))
+    storyCount = api.storyCount(query)
+    results = {
+        'sentences': res['response']['docs'],
+        'total': res['response']['numFound'],
+        'totalStories': storyCount['count']
+    }
+    return json.dumps(results, separators=(',',':'))
 
 @flapp.route('/api/sentences/docs/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
@@ -333,10 +319,14 @@ def _story_public_docs(api, keywords, media, start, end, count=10):
     query = app.core.util.solr_query(keywords, media, start, end)
     app.core.logger.debug("query: _story_docs %s" % query)
     stories = api.storyPublicList(query,rows=count)
-    # now add in the titles by calling the private API
-    for s in stories:
-        s['title']=mc.story(s['stories_id'])['title']
-    return json.dumps(stories, separators=(',',':'))
+    storyCount = api.storyCount(query)
+    smallerStories = [ {'media_url': s['media_url'], 'media_name': s['media_name'], 
+        'publish_date':s['publish_date'], 'url':s['url'], 'title':s['title']} for s in stories]
+    results = {
+        'total': storyCount['count'],
+        'stories': smallerStories
+    }
+    return json.dumps(results, separators=(',',':'))
     
 @flapp.route('/api/stories/public/docs/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
