@@ -1,14 +1,13 @@
 App = {
     
     config: {
-        debug: true
+        debug: false
         , datepickerOptions: {
             format: 'yyyy-mm-dd'
         },
         persistHeader: true,
         cookieOpts: {
             'path': '/',
-//            'domain': 'mediameter.org',
             'domain': 'www.localhost',
             'expires': 1
         }

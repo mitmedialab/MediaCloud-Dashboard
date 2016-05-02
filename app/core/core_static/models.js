@@ -1138,7 +1138,10 @@ App.DemoResultModel = App.ResultModel.extend({
 
 App.SavedSearch = Backbone.Model.extend({
   idAttribute: 'timestamp',
-  urlRoot : '/api/queries'
+  urlRoot : '/api/queries',
+  getShortUrl: function(){
+    return window.location.protocol+"//"+window.location.host+"/q/"+this.get('shortcode');
+  }
 });
 
 App.SavedSearchCollection = Backbone.Collection.extend({

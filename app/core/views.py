@@ -151,6 +151,16 @@ def list_saved_queries():
     queries.sort(key=itemgetter("timestamp"), reverse=True) # return most recent first on list
     return json.dumps(queries)
 
+@flapp.route('/q/<query_shortcode>')
+@flask_login.login_required
+def run_query_by_shortcode(query_shortcode):
+    cursor = db.users.find({"saved_queries.shortcode":query_shortcode})
+    for user_doc in cursor:
+        for query in user_doc['saved_queries']:
+            if query['shortcode']==query_shortcode:
+                return flask.redirect('#'+query['url'])
+    flask.abort(400)
+
 # -----------------------------------------------------------------------------------------
 # MEDIA -----------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------
