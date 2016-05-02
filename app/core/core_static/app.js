@@ -8,7 +8,7 @@ App = {
         persistHeader: true,
         cookieOpts: {
             'path': '/',
-            'domain': 'mediameter.media.mit.edu',
+            'domain': 'www.localhost',
             'expires': 1
         }
     },
