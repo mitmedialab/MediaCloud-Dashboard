@@ -278,7 +278,6 @@ App.WordCountOrderedView = Backbone.View.extend({
     },
     render: function () {
         var that = this;
-        console.log(this.model.getColor());
         this.updateStats();
         this.$el.html(this.template());
         this.$('.content-text').hide();
