@@ -88,7 +88,7 @@ def story_docs_csv(keywords, media, start, end):
                 more_stories = True
             else:
                 more_stories = False
-        props = ['stories_id','language','title','publish_date','url']
+        props = ['stories_id','language','title','publish_date','bitly_click_count','url']
         return app.core.views.assemble_csv_response(all_stories,props,props,'stories')
     except Exception as exception:
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400    
