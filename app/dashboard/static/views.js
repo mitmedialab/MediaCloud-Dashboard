@@ -819,13 +819,15 @@ App.HistogramView = Backbone.View.extend({
         var dates = _.map(datasets[0], function(item){ return item.dateObj; });
         // generate the series
         var allSeries = [];
+        var intervalMs = 0;
         _.each(datasets, function(item,idx){
-            var intervalMs = item[1].dateObj.getTime() - item[0].dateObj.getTime();
+            intervalMs = item[1].dateObj.getTime() - item[0].dateObj.getTime();
             var intervalDays = intervalMs / (1000 * 60 * 60 * 24);
             allSeries.push({
                 id: idx, 
                 name: that.collection.at(idx).getName(),
                 color: that.collection.at(idx).getColor(),
+                // turning variable time unit into days
                 data: _.map(item, function(d){ return d.numFound / intervalDays; }),
                 pointStart: item[0].dateObj.getTime(),
                 pointInterval: intervalMs,
@@ -912,10 +914,12 @@ App.HistogramView = Backbone.View.extend({
             tooltip: {
                 formatter: function() {
                     var s = [];
-                    s.push('<i>'+Highcharts.dateFormat('%m/%d/%Y',this.x)+'</i>');
+                    var endDate = this.x+intervalMs
+                    s.push('<i>'+Highcharts.dateFormat('%m/%d/%Y',this.x)+' to '+
+                        Highcharts.dateFormat('%m/%d/%Y',endDate)+'</i>');
                     $.each(this.points, function(i, point) {
                         s.push('<span style="color:'+point.series.color+';">'+ point.series.name +'</span>: '
-                            + '<b>' + Math.round(point.y) +'</b>');
+                            + '<b>' + Math.round(point.y) +' sentences/day</b>');
                     });
                 return s.join('<br />');
                 },
