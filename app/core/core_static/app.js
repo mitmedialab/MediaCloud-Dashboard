@@ -10,7 +10,7 @@ App = {
             'path': '/',
 //            'domain': 'mediameter.org',
             'domain': 'www.localhost',
-            'expires': 1
+            'expires': 14
         }
     },
     
