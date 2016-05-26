@@ -378,7 +378,8 @@ App.WordCountOrderedView = Backbone.View.extend({
         var that = this;
         var x = 0;
         words.attr('x', function (d) {
-            var textLength = this.getComputedTextLength();
+            var bbox = this.getBBox();
+            var textLength = bbox.width; // Hack for this.getComputedTextLength(); not working in IE
             var fs = that.fontSize(d, extent, sizeRange);
             var lastX = x;
             if (x + textLength + that.config.padding > width) {
@@ -735,7 +736,8 @@ App.WordCountComparisonView = Backbone.View.extend({
             return 0;
         }
         words.attr('x', function (d) {
-            var textLength = this.getComputedTextLength();
+            var bbox = this.getBBox();
+            var textLength = bbox.width; // Hack for this.getComputedTextLength(); not working in IE
             var fs = that.fontSize(d, extent, sizeRange);
             var lastX = x;
             if (x + textLength + that.config.padding > width) {
