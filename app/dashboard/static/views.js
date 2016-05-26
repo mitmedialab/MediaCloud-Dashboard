@@ -377,10 +377,13 @@ App.WordCountOrderedView = Backbone.View.extend({
     listCloudLayout: function (words, width, extent, sizeRange) {
         var that = this;
         var x = 0;
+        var canvas = App.canvas;
+        var canvasContext2d = canvas.getContext("2d");
         words.attr('x', function (d) {
-            var bbox = this.getBBox();
-            var textLength = bbox.width; // Hack for this.getComputedTextLength(); not working in IE
             var fs = that.fontSize(d, extent, sizeRange);
+            canvasContext2d.font = "bold "+fs+"px Lato";    // crazy hack for IE compat, instead of simply this.getComputedTextLength()
+            var metrics = canvasContext2d.measureText(d.term);
+            textLength = metrics.width;
             var lastX = x;
             if (x + textLength + that.config.padding > width) {
                 lastX = 0;
@@ -728,7 +731,9 @@ App.WordCountComparisonView = Backbone.View.extend({
         this.collection.refine.trigger('mm:refine', {term: d.term} );
     },
     listCloudLayout: function (words, width, extent, sizeRange) {
-        App.debug('App.WordCountComparisonView()');
+        App.debug('App.WordCountComparisonView.listCloudLayout');
+        var canvas = App.canvas;
+        var canvasContext2d = canvas.getContext("2d");
         //App.debug(extent); App.debug(sizeRange); App.debug(words);
         var that = this;
         var x = 0;
@@ -736,9 +741,10 @@ App.WordCountComparisonView = Backbone.View.extend({
             return 0;
         }
         words.attr('x', function (d) {
-            var bbox = this.getBBox();
-            var textLength = bbox.width; // Hack for this.getComputedTextLength(); not working in IE
             var fs = that.fontSize(d, extent, sizeRange);
+            canvasContext2d.font = "bold "+fs+"px Lato";    // crazy hack for IE compat, instead of simply this.getComputedTextLength()
+            var metrics = canvasContext2d.measureText(d.term);
+            textLength = metrics.width;
             var lastX = x;
             if (x + textLength + that.config.padding > width) {
                 lastX = 0;
