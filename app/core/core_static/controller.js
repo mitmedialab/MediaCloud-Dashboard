@@ -6,6 +6,8 @@ App.con = App.Controller = {
         // Set up error handling
         // Get initial fragment
         App.con.fragment = window.location.hash.substring(1);
+        // Set up utility canvas for drawing things (like the word cloud)
+        App.canvas = document.createElement("canvas");
         // Set up colors
         PrimeColor.setSeed(225, 76, 17);
         // Prep util lib
@@ -91,7 +93,7 @@ App.con = App.Controller = {
     },
     
     onDemoQuery: function (queryCollection) {
-        App.debug('App.Controller.onQuery()');
+        App.debug('App.Controller.onDemoQuery()');
         App.debug(queryCollection);
         var path = queryCollection.dashboardDemoUrl();
         App.debug('Path: ' + path);
