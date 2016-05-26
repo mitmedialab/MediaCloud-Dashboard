@@ -157,8 +157,8 @@ App.UserModel = Backbone.Model.extend({
         _.bindAll(this, 'signOut');
         this.on('sync', this.onSync);
         this.on('error', this.onSignInError);
-        this.set('key', $.cookie('mediameter_user_key'));
-        this.set('username', $.cookie('mediameter_user_username'));
+        this.set('key', Cookies.get('mediameter_user_key'));
+        this.set('username', Cookies.get('mediameter_user_username'));
         this.authenticate = $.Deferred();
     },
     
@@ -177,8 +177,8 @@ App.UserModel = Backbone.Model.extend({
     
     onSignIn: function () {
         App.debug('App.UserModel.onSignIn()');
-        $.cookie('mediameter_user_key', this.get('key'), App.config.cookieOpts);
-        $.cookie('mediameter_user_username', this.get('username'), App.config.cookieOpts);
+        Cookies.set('mediameter_user_key', this.get('key'), App.config.cookieOpts);
+        Cookies.set('mediameter_user_username', this.get('username'), App.config.cookieOpts);
         this.authenticate.resolve();
         this.trigger('signin');
     },
@@ -233,8 +233,8 @@ App.UserModel = Backbone.Model.extend({
     signOut: function () {
         App.debug('App.UserModel.signOut()')
         var that = this;
-        $.removeCookie('mediameter_user_key', App.config.cookieOpts);
-        $.removeCookie('mediameter_user_username', App.config.cookieOpts);
+        Cookies.remove('mediameter_user_key', App.config.cookieOpts);
+        Cookies.remove('mediameter_user_username', App.config.cookieOpts);
         this.set('id', 'logout');
         this.fetch({
             type: 'post'
