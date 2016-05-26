@@ -107,10 +107,25 @@ App.con = App.Controller = {
         App.debug('Route: login');
         App.con.queryCollection.reset([]);
         App.con.loginView = App.con.vm.getView(App.LoginView, { model: App.con.userModel });
-        App.con.vm.showView(App.con.loginView);
+        App.con.errorListView = App.con.queryVm.getView(
+            App.ErrorListView
+            , { collection: App.con.getErrorCollection() }
+        );
+        App.con.checkIfBrowserOk();
+        App.con.vm.showViews([App.con.errorListView, App.con.loginView]);
         App.con.queryVm.showViews([]);
     },
     
+    checkIfBrowserOk: function () {
+        var browserName = $.browser.name;
+        if ( !((browserName=="safari") || (browserName=="chrome")) ) {
+            var error = new Backbone.Model({"message": "Sorry, but you're using a web browser we don't fully support. While we work on that, please use Safari of Chrome to avoid some annoying bugs."});
+            App.con.getErrorCollection().add(error);
+            return false;
+        }
+        return true;
+    },
+
     routeHome: function () {
         App.debug('Route: home');
         App.con.userModel.authenticate.then(function () {
@@ -148,6 +163,7 @@ App.con = App.Controller = {
                 App.ErrorListView
                 , { collection: App.con.getErrorCollection() }
             );
+            App.con.checkIfBrowserOk();
             App.con.queryCollection.reset();
             App.QueryModel.nextUid = 1;
             App.con.queryModel = new App.QueryModel(attributes, options);
@@ -236,6 +252,7 @@ App.con = App.Controller = {
             App.ErrorListView
             , { collection: App.con.getErrorCollection() }
         );
+        App.con.checkIfBrowserOk();
         App.con.queryVm.showViews([
             App.con.errorListView
             , App.con.queryListView
