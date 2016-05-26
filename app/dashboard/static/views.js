@@ -593,6 +593,7 @@ App.WordCountComparisonView = Backbone.View.extend({
         var that = this;
         var container = d3.select(this.el).select('.content-viz');
         var width = this.$('.content-viz').width();
+        if($.browser.name=="msie") width = 1138;    // HACK: this is terrible, but for IE, which computes width as zero :-(
         var innerWidth = (width - 8*this.config.padding)/3.0;
         var svg = container.append('svg')
             .attr('height', this.config.height)
@@ -731,7 +732,7 @@ App.WordCountComparisonView = Backbone.View.extend({
         this.collection.refine.trigger('mm:refine', {term: d.term} );
     },
     listCloudLayout: function (words, width, extent, sizeRange) {
-        App.debug('App.WordCountComparisonView.listCloudLayout');
+        App.debug('App.WordCountComparisonView.listCloudLayout - width'+width);
         var canvas = App.canvas;
         var canvasContext2d = canvas.getContext("2d");
         //App.debug(extent); App.debug(sizeRange); App.debug(words);
@@ -756,8 +757,9 @@ App.WordCountComparisonView = Backbone.View.extend({
         var lastAdded = 0;
         words.attr('y', function (d) {
             if (d3.select(this).attr('x') == 0) {
-                y += 1.5 * that.fontSize(d, extent, sizeRange);
-                lastAdded = 1.5 * that.fontSize(d, extent, sizeRange);
+                height = 1.5 * that.fontSize(d, extent, sizeRange);
+                y += height;
+                lastAdded = height;
             }
             return y;
         });
