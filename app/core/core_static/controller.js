@@ -194,6 +194,10 @@ App.con = App.Controller = {
     
     routeDemo: function () {
         App.debug('Route: demo');
+        if (App.con.userModel.get('authenticated')) {  // if they are logged in take the home
+            App.con.router.navigate('/', true);
+            return;
+        }
         // Defaults media
         App.con.mediaSources = new App.MediaModel();
         App.debug('Setting media sources from hardcoded data');
@@ -264,6 +268,10 @@ App.con = App.Controller = {
     
     routeDemoQuery: function (keywords, media, start, end, qinfo) {
         App.debug('Route: demoQuery ------------------------------------------------------------------------------------------------------------------------');
+        if (App.con.userModel.get('authenticated')) {  // if they are logged in take the home
+            App.con.router.navigate('/', true);
+            return;
+        }
     },
     
     routeQuery: function (keywords, media, start, end, qinfo) {
