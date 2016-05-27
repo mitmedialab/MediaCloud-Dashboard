@@ -26,6 +26,10 @@ _.extend(App.Controller, {
     
     routeDemoQuery: function (keywords, media, start, end, qinfo) {
         App.debug('Route: demoQuery ------------------------------------------------------------------------------------------------------------------------');
+        if (App.con.userModel.get('authenticated')) {  // if they are logged in take the home
+            App.con.router.navigate('/', true);
+            return;
+        }
         // Defaults media
         App.con.mediaSources = new App.MediaModel();
         App.con.mediaSources.set(
