@@ -121,7 +121,7 @@ App.con = App.Controller = {
     checkIfBrowserOk: function () {
         var browserName = $.browser.name;
         if ( !((browserName=="safari") || (browserName=="chrome")) ) {
-            var error = new Backbone.Model({"message": "Sorry, but you're using a web browser we don't fully support. While we work on that, please use Safari of Chrome to avoid some annoying bugs."});
+            var error = new Backbone.Model({"message": "Sorry, but you're using a web browser we don't fully support. While we work on that, please use Safari or Chrome to avoid some annoying bugs."});
             App.con.getErrorCollection().add(error);
             return false;
         }
