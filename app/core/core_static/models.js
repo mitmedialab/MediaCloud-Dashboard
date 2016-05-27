@@ -188,6 +188,7 @@ App.UserModel = Backbone.Model.extend({
         this.set('error', 'Invalid username/password');
         this.authenticate.resolve();
         if (response.status == 401) {
+            this.removeCookies();
             this.trigger('unauthorized', 'Invalid username/password');
         }
     },
@@ -230,11 +231,15 @@ App.UserModel = Backbone.Model.extend({
         }
     },
     
+    removeCookies: function () {
+        Cookies.remove('mediameter_user_key', App.config.cookieOpts);
+        Cookies.remove('mediameter_user_username', App.config.cookieOpts);
+    },
+
     signOut: function () {
         App.debug('App.UserModel.signOut()')
         var that = this;
-        Cookies.remove('mediameter_user_key', App.config.cookieOpts);
-        Cookies.remove('mediameter_user_username', App.config.cookieOpts);
+        this.removeCookies();
         this.set('id', 'logout');
         this.fetch({
             type: 'post'
