@@ -20,7 +20,7 @@ App = {
     },
 
     getSourcesUrl: function(type,id){
-      // type = [media,media-tag]
+      // type = [ media-source | media-tag ]
       return 'https://sources.mediameter.org/#'+type+'/'+id+'/details';
     },
 
