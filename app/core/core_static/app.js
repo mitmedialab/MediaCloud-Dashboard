@@ -19,6 +19,11 @@ App = {
       return 'https://'+tool+'.'+App.config.cookieOpts['domain']+'/#'+App.con.queryCollection.dashboardUrl();
     },
 
+    getSourcesUrl: function(type,id){
+      // type = [ media-source | media-tag ]
+      return 'https://sources.mediameter.org/#'+type+'/'+id+'/details';
+    },
+
     // Take a Collection and return a map using the specified key
     makeMap: function (col, key) {
         dataMap = {};
