@@ -922,24 +922,7 @@ App.MediaSelectView = App.NestedView.extend({
         this.listenTo(this.model.get('tags'), 'all', this.updateVisibility);
         // Set deferred callbacks
         var that = this;
-        _.bindAll(this, 'onTextEntered');
         that.render();
-        if (!that.disabled) {
-            App.debug('Creating typeahead');
-            that.$('.media-input input').typeahead(null, {
-                name: 'Tags',
-                displayKey: function (d) { return d.tag_set_label + ': ' + d.label; },
-                source: that.mediaSources.get('tags').getRemoteSuggestionEngine().ttAdapter()
-            }, {
-                name: 'Sources',
-                displayKey: 'name',
-                source: that.mediaSources.get('sources').getRemoteSuggestionEngine().ttAdapter(),
-            });
-            // Listen to custom typeahead events
-            that.$('.media-input').bind(
-                'typeahead:selected',
-                function (event, suggestion) { that.onTextEntered(event, suggestion); });
-        }
     },
     updateVisibility: function () {
         App.debug('App.MediaSelectView.updateVisibility()')
@@ -949,9 +932,7 @@ App.MediaSelectView = App.NestedView.extend({
             this.$('.add-more a').text("add media");
         }
         this.$('.add-more').css('display', 'none');
-        this.$('.media-input').css('display', 'none');
         if (this.isOpen) {
-            this.$('.media-input').css('display', 'block');
         } else {
             this.$('.add-more').css('display', 'block');
         }
@@ -961,30 +942,14 @@ App.MediaSelectView = App.NestedView.extend({
         this.$el.html(this.template());
         this.updateVisibility();
         if (this.disabled) {
-            this.$('.media-input').attr('disabled', 'disabled');
             this.$('button').attr('disabled', 'disabled');
-        }
-    },
-    onTextEntered: function (event, suggestion) {
-        App.debug('App.MediaSelectView.textEntered()');
-        var that = this;
-        if (event) { event.preventDefault(); }
-        $('.media-input .tt-input', this.$el).typeahead('val', '');
-        var $el = this.$el;
-        if (suggestion.tags_id) {
-            that.model.get('tags').add(suggestion);
-        } else {
-            that.model.get('sources').add(suggestion);
         }
     },
     onAddMore: function (event) {
         var that = this;
         event.preventDefault();
-        this.$('.add-more').hide();
-        this.$('.media-input').show();
-        _.defer(function () {
-            that.$('.media-input .tt-input').focus();
-        });
+        var view = new App.MediaDiscoverView({model:this.model});
+        $('body').append(view.el);
     }
 });
 
@@ -993,16 +958,19 @@ App.ItemView = Backbone.View.extend({
     tagName: 'li',
     template: _.template($('#tpl-item-view').html()),
     events: {
-        'click .remove': 'onClickRemove'
+        'click .remove': 'onClickRemove',
+        'click .select': 'onClickSelect'
     },
     initialize: function (options) {
         this.display = options.display;
+        this.removable = options.hasOwnProperty('removable') ? options.removable : true;
+        this.selectable = options.hasOwnProperty('selectable') ? options.selectable : false;
         this.render();
-        _.bindAll(this, 'onClickRemove');
+        _.bindAll(this, 'onClickRemove', 'onClickSelect');
     },
     render: function () {
         this.$el.addClass('list-group-item');
-        var data = {}
+        var data = { removable: this.removable, selectable: this.selectable }
         if (this.display && typeof(this.display) === 'function') {
             data.name = this.display(this.model);
         } else if (this.dispaly) {
@@ -1016,6 +984,10 @@ App.ItemView = Backbone.View.extend({
         event.preventDefault();
         this.trigger('removeClick', this.model);
         this.remove();
+    },
+    onClickSelect: function (event) {
+        event.preventDefault();
+        this.trigger('selectClick', this.model);
     }
 });
 
@@ -1351,6 +1323,105 @@ App.ExportForSolrView = Backbone.View.extend({
     }
 });
 
+App.MediaDiscoverView = Backbone.View.extend({
+    name: 'MediaDiscoverView',
+    template: _.template($('#tpl-media-discover-view').html()),
+    initialize: function(options){
+        _.bindAll(this,'onSelectClick','hide','onTextEntered');
+        this.options = options;
+        // init the commonly used sets
+        this.tagModels = [
+            new App.TagModel({"tags_id": 8875027, "label": "U.S. Mainstream Media", "tag_set_label": "Collections",
+                               "description":"Top U.S. mainstream media according Google Ad Planner's measure of unique monthly users."}),
+            new App.TagModel({"tags_id": 2453107, "label": "U.S. Regional Mainstream Media", "tag_set_label": "Collections",
+                              "description": "Large list of regional TC and newspapers sites, collected by Pew in 2010."}),
+            new App.TagModel({"tags_id": 8876474, "label": "Europe Media Monitor", "tag_set_label": "Collections",
+                              "description": 'Large list of all sites collected by the <a href-"http://emm.newsbrief.eu">Europe Media Monitor project</a>.  Includes anywhere from five to dozens of sources from almost every country.  This is our main set for broad coverage of international mainstream media.'}),
+            new App.TagModel({"tags_id": 8876987, "label": "Global Voices Cited Sources", "tag_set_label": "Collections",
+                              "description": 'List of all sources cited by <a href="http://globalvoicesonline.org">Global Voices Online</a> from 2010 - 2012.  Includes mostly politically, internationally focused blogs.  This is our main media set for broad coverage of international blogs.'}),
+            new App.TagModel({"tags_id": 8878332, "label": "Sexual and Reproductive Health and Rights", "tag_set_label": "Collections",
+                              "description": 'manually curated list of sites relating to sexual and reproductive health, collected in 2014'}),
+            new App.TagModel({"tags_id": 9201395, "label": "India - English Language", "tag_set_label": "Collections",
+                              "description": 'Manually curated set of English Language Indian sources.'}),
+            new App.TagModel({"tags_id": 8877968, "label": "Brazil Media", "tag_set_label": "Collections",
+                              "description": 'About 1200 sources from Brazil, manually selected in January 2013 from Alexa\'s list of the most visited sites in Brazil.'}),
+            new App.TagModel({"tags_id": 9094533, "label": "Mexico", "tag_set_label": "Collections",
+                              "description": 'Manually curated list of Mexican sources.  Added 2015-07-06.'}),
+            new App.TagModel({"tags_id": 9173065, "label": "Nigeria", "tag_set_label": "Collections",
+                              "description": 'A composite of various lists we have made over time for Nigeria media sources.  Some began collecting 2014-10-17, others were add 2016-03-21.'}),
+            new App.TagModel({"tags_id": 9139487, "label": "U.S. Top Online News", "tag_set_label": "Collections",
+                              "description": "Top 50 online news sites according to Pew / Comscore as of 2015."}),
+            new App.TagModel({"tags_id": 9139458, "label": "U.S. Top Digital Native News", "tag_set_label": "Collections",
+                              "description": "Top 50 digital native news sites according to Pew / Comscore as of 2015."}),
+            new App.TagModel({"tags_id": 8875108, "label": "U.S. Political Blogs", "tag_set_label": "Collections",
+                              "description": "Most influential U.S. political blogs according to technorati in 2010-07, manually verified for focus on politics."}),
+            new App.TagModel({"tags_id": 8875109, "label": "U.S. Political Blogs - Liberal", "tag_set_label": "Collections",
+                              "description": "Most influential liberal U.S. political blogs according to technorati in 2010-07, manually verified for focus on politics and coded as liberal."}),
+            new App.TagModel({"tags_id": 8875111, "label": "U.S. Political Blogs - Conservative", "tag_set_label": "Collections",
+                              "description": "Top U.S. mainstream media according Google Ad Planner's measure of unique monthly users."}),
+            new App.TagModel({"tags_id": 8878294, "label": "U.S. Partisan Sources 2012 - Libertarian", "tag_set_label": "Collections",
+                              "description": "List of sites generated by clustering and manually sites discussion the 2012 U.S. presidential election.  This set includes only sources coded as clearly libertarian."})
+        ];
+        this.render();
+        // set up the typeahead
+        var that = this;
+        App.debug('Creating typeahead');
+        this.$('.media-input input').typeahead(null, {
+            name: 'Tags',
+            displayKey: function (d) { return d.tag_set_label + ': ' + d.label; },
+            source: that.model.get('tags').getRemoteSuggestionEngine().ttAdapter()
+        }, {
+            name: 'Sources',
+            displayKey: 'name',
+            source: that.model.get('sources').getRemoteSuggestionEngine().ttAdapter(),
+        });
+        // Listen to custom typeahead events
+        that.$('.media-input').bind(
+            'typeahead:selected',
+            function (event, suggestion) { that.onTextEntered(event, suggestion); });
+        _.defer(function () {
+            that.$('.media-input .tt-input').focus();
+        });
+    },
+    render: function(){
+        this.$el.html(this.template());
+        var that = this;
+        this.$('.media-list-view-content').html('');
+        this.tagModels.forEach(function(tagModel){
+            var itemView = new App.ItemView({ model: tagModel
+                , display: function (m) { return '<b>' + m.get('label') + '</b>' +
+                    '<br /><small style="line-height:80%">'+m.get('description')+
+                    ' <a target=_new href="https://sources.mediameter.org/#media-tag/'+m.get('tags_id')+'/details">"'+
+                    'See our coverage on the Sources tool.</a>'+
+                    '</small>'; }
+                , removable: false
+                , selectable: true
+            });
+            itemView.on('selectClick', that.onSelectClick);
+            that.$('.media-list-view-content').append(itemView.el);
+        });
+        this.$('.modal').modal('show');
+    },
+    hide: function(){
+        this.$('.modal').modal('hide');
+    },
+    onSelectClick: function (tagModel) {
+        App.debug('App.MediaDiscoverView.onSelectClick()');
+        this.model.get('tags').add(tagModel);
+        this.hide();
+    },
+    onTextEntered: function (event, suggestion) {
+        App.debug('App.MediaDiscoverView.textEntered()');
+        if (event) { event.preventDefault(); }
+        $('.media-input .tt-input', this.$el).typeahead('val', '');
+        if (suggestion.tags_id) {
+            this.model.get('tags').add(suggestion);
+        } else {
+            this.model.get('sources').add(suggestion);
+        }
+        this.hide();
+    },
+});
 
 App.LoadSavedSearchView = Backbone.View.extend({
     name: 'LoadSavedSearchView',

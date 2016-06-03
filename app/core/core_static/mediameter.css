@@ -300,9 +300,6 @@ input.qcolor {
 
 /* Common MediaMeter styles ***************************************************/
 
-.media-list-view a.remove {
-    color: #333;
-}
 .media-list-item-view .glyphicon {
     position: relative;
     top: 3px !important;
@@ -426,8 +423,9 @@ li .query-title {
     position: relative;
     padding-right: 45px;
 }
-.media-list-view a.remove {
+.media-list-view-content a.control {
     position: absolute;
+    color: #333;
     top: 10px;
     right: 15px;
 }
