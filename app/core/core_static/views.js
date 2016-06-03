@@ -1416,7 +1416,7 @@ App.MediaDiscoverView = Backbone.View.extend({
                     var txt = '<b>' + m.get('label') + '</b>' +
                         '<br /><small style="line-height:80%">'+m.get('description');
                     if(m.get('tags_id').constructor!==Array){
-                        txt += ' <a target=_new href="https://sources.mediameter.org/#media-tag/'+m.get('tags_id')+'/details">'+
+                        txt += ' <a target=_new href="'+App.getSourcesUrl('media-tag',m.get('tags_id'))+'">'+
                         'See our coverage on the Sources tool.</a>';
                     }
                     txt += '</small>';
