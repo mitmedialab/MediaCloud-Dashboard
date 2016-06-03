@@ -1033,9 +1033,11 @@ App.MediaListView = App.NestedView.extend({
             model: model,
             display: function (model) {
                 if (model.get("name")) {
-                    return model.get("name");
+                    return '<a target=_new href="'+App.getSourcesUrl('media-source',model.get('media_id'))+'">'
+                        +model.get("name")+'</a>';
                 } else {
-                    return model.tag_set_label + ': ' + model.label;
+                    return '<a target=_new href="'+App.getSourcesUrl('media-tag',model.get('tags_id'))+'">'
+                        +model.tag_set_label + ': ' + model.label+'</a>';
                 }
             }
         });
@@ -1053,7 +1055,10 @@ App.MediaListView = App.NestedView.extend({
         App.debug('App.MediaListView.onAdd()');
         var itemView = new App.ItemView({
             model: model
-            , display: function (m) { return m.get('tag_set_label') + ': ' + m.get('label'); }
+            , display: function (m) { 
+                return '<a target=_new href="'+App.getSourcesUrl('media-tag',model.get('tags_id'))+'">'
+                    +m.get('tag_set_label') + ': ' + m.get('label')+'</a>';
+                }
         });
         if (typeof(this.disabled) === 'undefined' || this.disabled === false) {
             itemView.on('removeClick', this.onRemoveClick);
