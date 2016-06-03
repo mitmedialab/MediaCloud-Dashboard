@@ -1,5 +1,10 @@
 <script id="tpl-item-view" type="text/template">
     <%= name %>
     &nbsp;
-    <a tabindex="-1" class="remove" href=""><span class="glyphicon glyphicon-remove-circle"></span></a>
+    <% if (removable) { %>
+    	<a tabindex="-1" class="control remove" href=""><span class="glyphicon glyphicon-remove-circle"></span></a>
+    <% } %>
+    <% if (selectable) { %>
+    	<a tabindex="-1" class="control select" href="" title="add this media"><span class="glyphicon glyphicon-plus"></span></a>
+    <% } %>
 </script>
