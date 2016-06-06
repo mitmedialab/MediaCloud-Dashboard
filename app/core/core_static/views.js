@@ -1337,7 +1337,7 @@ App.MediaDiscoverView = Backbone.View.extend({
         // init the commonly used sets
         this.tagModels = [
             new App.TagModel({
-                tags_id: [8875027,2453107,9139487,9139458,8875108,8875109,8875111,8878294],
+                tags_id: [8875027,2453107,9139487,9139458,8875108,8878293,8878292,8878294],
                 label: 'U.S. Media',
                 description: 'A combination of our '
                     +'<a target=_new href="'+App.getSourcesUrl('media-tag',8875027)+'">Mainstream Media</a>'
