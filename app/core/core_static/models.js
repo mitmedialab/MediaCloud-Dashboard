@@ -241,6 +241,9 @@ App.UserModel = Backbone.Model.extend({
         var that = this;
         this.removeCookies();
         this.set('id', 'logout');
+        this.set('username', '');
+        this.set('authenticated', false);
+        this.set('key', '');
         this.fetch({
             type: 'post'
             , error: function () {
