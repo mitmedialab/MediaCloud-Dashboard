@@ -1440,6 +1440,9 @@ App.MediaDiscoverView = Backbone.View.extend({
     },
     onSelectClick: function (tagModel) {
         App.debug('App.MediaDiscoverView.onSelectClick()');
+        if(this.model.isDefault()){  // if using default media, reset to what they picked (ie. remove default)
+            this.model.get('tags').remove(this.model.get('tags').at(0));
+        }
         if(tagModel.get('tags_id').constructor!==Array){
             this.model.get('tags').add(tagModel);
         } else {
