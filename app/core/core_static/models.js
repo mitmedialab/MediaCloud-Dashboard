@@ -303,21 +303,6 @@ App.MediaSourceCollection = Backbone.Collection.extend({
 });
 App.MediaSourceCollection = App.MediaSourceCollection.extend(App.DeferredCollectionMixin);
 
-App.TagModel = Backbone.Model.extend({
-    url: '/api/media/tags/single',
-    idAttribute: 'tags_id',
-    initialize: function (options) {},
-    clone: function () {
-        var cloneModel = new App.TagModel();
-        cloneModel.set('tag', this.get('tag'));
-        cloneModel.set('label', this.get('label'));
-        return cloneModel;
-    },
-    getLabel: function(){
-        return (this.get('label')!=null) ? this.get('label') : this.get('tag');
-    }
-});
-
 App.SimpleTagModel = Backbone.Model.extend({
     urlRoot: '/api/media/tags/single',
     idAttribute: 'tags_id',
