@@ -1608,7 +1608,7 @@ App.WordCountResultView = Backbone.View.extend({
         // get list of all words and sizes
         wordList = [];
         _.each(topWords, function (m) {
-                wordList.push({text: m['term'], size: slope * Math.log(m['count'])});
+                wordList.push({text: m['term'], size: slope * Math.log(m['count']), stem: m['stem']});
             }
         );
         // create wordcloud
@@ -1652,7 +1652,7 @@ App.WordCountResultView = Backbone.View.extend({
                 })
                 .on('click', function (d) {
                     that.trigger('mm:refine', {
-                        term: d.text
+                        term: d.stem+'*'
                     });
                 });
         }
