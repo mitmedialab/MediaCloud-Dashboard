@@ -8,14 +8,14 @@
             </div>
             <div class="modal-body">
 <p>
-Frequency gives you a better sense of "how" your query was talked about.  It shows you a word cloud, where words mentioned more often are shown larger.  The word cloud is built on a <b>sample</b> of 1000 sentences, which we have found is very representative of the entire set of sentences.  We do this for performance reasons.  You can also download a CSV for each query - but rememeber the counts are from the sample.
+Frequency gives you a better sense of "how" your query was talked about.  It shows you a word cloud, where words mentioned more often are shown larger.  The word cloud is built on a <b>sample</b> of 1000 sentences, which we have found is very representative of the entire set of sentences.  We do this for performance reasons.  You can also download a CSV for each query - but rememeber the counts are from the sample.  The word shown in the word cloud is the most-used instance of the stemmed word.
 </p>
 <p>
 If you have just one query, it shows you a standard word cloud.  Click on a word to refine your query.
 </p>
 <p>
 If you have two queries, it shows you a visualization helps you find the most important words in the <span class="first-query
-">main</span>, <span class="second-query">comparison</span>, and combined queries.  The left and right columns show the top 100 words from the <span class="first-query">main</span> and <span class="second-query">comparison</span> queries.  Words the two have in common only show up in the center column.  Each column is normalized independently to the (currently, estimated) total number of unique words in the query. Columns are normalized independently, so this is not helpful for figuring out how large one query is versus another, or how skewed a word is towards one query of the other.  You can click on any word to refine the query.
+">main</span>, <span class="second-query">comparison</span>, and combined queries.  The left and right columns show the top 100 words from the <span class="first-query">main</span> and <span class="second-query">comparison</span> queries.  Words the two have in common only show up in the center column.  Each column is normalized independently to the (currently, estimated) total number of unique words in the query. Columns are normalized independently, so this is not helpful for figuring out how large one query is versus another, or how skewed a word is towards one query of the other.  You can click on any word to refine the query (it will run a new search with the stem of the word you clicked on).
 </p>
 <p>
 The comparative visualization is our implementation of the "<a href="https://github.com/Coppersmith/vennclouds">vennclouds</a>" layout demostrated in this paper:

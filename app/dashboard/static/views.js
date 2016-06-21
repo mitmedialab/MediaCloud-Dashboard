@@ -372,7 +372,7 @@ App.WordCountOrderedView = Backbone.View.extend({
             .on('click', this.refineBothQueries);
     },
     refineBothQueries: function(d){
-        this.refine.trigger('mm:refine',{term:d.term});
+        this.refine.trigger('mm:refine',{term:d.stem+'*'});
     },
     listCloudLayout: function (words, width, extent, sizeRange) {
         var that = this;
@@ -729,7 +729,7 @@ App.WordCountComparisonView = Backbone.View.extend({
             .on('click', this.refineBothQueries);
     },
     refineBothQueries: function(d){
-        this.collection.refine.trigger('mm:refine', {term: d.term} );
+        this.collection.refine.trigger('mm:refine', {term: d.stem+'*'} );
     },
     listCloudLayout: function (words, width, extent, sizeRange) {
         App.debug('App.WordCountComparisonView.listCloudLayout - width'+width);
