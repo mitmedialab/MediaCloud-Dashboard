@@ -155,7 +155,7 @@ App.con = App.Controller = {
                 start: start.getFullYear() + '-' + (start.getMonth()+1) + '-' + start.getDate()
                 , end: end.getFullYear() + '-' + (end.getMonth()+1) + '-' + end.getDate()
                 , mediaModel: App.con.mediaModel
-                , keywords: 'truth'
+                , keywords: 'health'
             };
             var options = {
                 mediaSources: App.con.mediaSources
@@ -170,7 +170,7 @@ App.con = App.Controller = {
             App.QueryModel.nextUid = 1;
             App.con.queryModel = new App.QueryModel(attributes, options);
             App.con.queryCollection.add(App.con.queryModel);
-            attributes.keywords = 'beauty';
+            attributes.keywords = 'gender';
             attributes.mediaModel = App.con.comparisonMediaModel;
             var comparison = new App.QueryModel(attributes, options);
             App.con.queryCollection.add(comparison);
@@ -232,7 +232,7 @@ App.con = App.Controller = {
             start: start.getFullYear() + '-' + (start.getMonth()+1) + '-' + start.getDate()
             , end: end.getFullYear() + '-' + (end.getMonth()+1) + '-' + end.getDate()
             , mediaModel: mediaModel1
-            , keywords: 'truth'
+            , keywords: 'health'
         };
         var options = {
             mediaSources: App.con.mediaSources
@@ -241,7 +241,7 @@ App.con = App.Controller = {
         };
         App.con.queryModel = new App.QueryModel(attributes, options);
         App.con.queryCollection.add(App.con.queryModel, {ResultModel: App.DemoResultModel});
-        attributes.keywords = 'beauty';
+        attributes.keywords = 'gender';
         attributes.mediaModel = mediaModel2;
         var comparison = new App.QueryModel(attributes, options);
         App.con.queryCollection.add(comparison);
