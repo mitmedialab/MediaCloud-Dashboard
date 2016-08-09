@@ -263,10 +263,6 @@ App.QueryView = App.NestedView.extend({
         _.bindAll(this, 'onRemoveInput');
         _.bindAll(this, 'onNameModalSubmit');
         this.mediaSources = options.mediaSources;
-        this.mediaSelectView = new App.MediaSelectView({
-            model: this.model.get('params').get('mediaModel')
-            , mediaSources: this.mediaSources
-        });
         this.mediaListView = new App.MediaListView({
             model: this.model.get('params').get('mediaModel')
         });
@@ -279,7 +275,6 @@ App.QueryView = App.NestedView.extend({
         this.listenTo(this.dateRangeView, 'mm:copyToAll:dateRange', function (model) {
             this.trigger('mm:copyToAll:dateRange', model);
         });
-        this.addSubView(this.mediaSelectView);
         this.addSubView(this.mediaListView);
         this.addSubView(this.dateRangeView);
         this.addSubView(this.controlsView);
@@ -302,7 +297,6 @@ App.QueryView = App.NestedView.extend({
             that.$('.query-view-content')
                 .append(that.keywordView.el)
                 .append(that.mediaListView.el)
-                .append(that.mediaSelectView.el)
                 .append(that.dateRangeView.el);
             that.updateTitle();
             that.listenTo(that.model, 'mm:namechange', that.updateTitle);
@@ -906,53 +900,6 @@ App.SimpleTagListView = App.NestedView.extend({
     }
 });
 
-App.MediaSelectView = App.NestedView.extend({
-    name: 'MediaSelectView',
-    template: _.template($('#tpl-media-select-view').html()),
-    events: {
-        'click .add': 'onTextEntered'
-        , 'click .add-more a': 'onAddMore'
-    },
-    initialize: function (options) {
-        App.debug('App.MediaSelectView.initialize()');
-        App.debug(options);
-        this.mediaSources = options.mediaSources;
-        this.disabled = options.disabled;
-        this.listenTo(this.model.get('sources'), 'all', this.updateVisibility);
-        this.listenTo(this.model.get('tags'), 'all', this.updateVisibility);
-        // Set deferred callbacks
-        var that = this;
-        that.render();
-    },
-    updateVisibility: function () {
-        App.debug('App.MediaSelectView.updateVisibility()')
-        if (this.model.get('tags').length == 0 && this.model.get('sources').length == 0) {
-            this.$('.add-more a').text("select media");
-        } else {
-            this.$('.add-more a').text("add media");
-        }
-        this.$('.add-more').css('display', 'none');
-        if (this.isOpen) {
-        } else {
-            this.$('.add-more').css('display', 'block');
-        }
-    },
-    render: function () {
-        App.debug('App.MediaSelectView.render()');
-        this.$el.html(this.template());
-        this.updateVisibility();
-        if (this.disabled) {
-            this.$('button').attr('disabled', 'disabled');
-        }
-    },
-    onAddMore: function (event) {
-        var that = this;
-        event.preventDefault();
-        var view = new App.MediaDiscoverView({model:this.model});
-        $('body').append(view.el);
-    }
-});
-
 App.ItemView = Backbone.View.extend({
     name:'ItemView',
     tagName: 'li',
@@ -995,7 +942,9 @@ App.MediaListView = App.NestedView.extend({
     name:'MediaListView',
     template: _.template($('#tpl-media-list-view').html()),
     events: {
-        "click .copy-to-all": "onCopyToAllClick"
+        "click .copy-to-all": "onCopyToAllClick",
+        "click .add-more": "onAddMore",
+        "click .select-media": "onAddMore"
     },
     initialize: function (options) {
         App.debug('App.MediaListView.initialize()');
@@ -1003,6 +952,7 @@ App.MediaListView = App.NestedView.extend({
         _.bindAll(this, 'onAdd');
         _.bindAll(this, 'onRemoveClick');
         _.bindAll(this, 'onCopyToAllClick');
+        _.bindAll(this, 'onAddMore');
         this.disabled = options.disabled;
         this.render();
         // Add listeners
@@ -1016,6 +966,7 @@ App.MediaListView = App.NestedView.extend({
         this.$el.html(this.template());
         if (this.disabled) {
             this.$el.addClass('disabled');
+            this.$el.find('li.add-more').hide();
         }
         this.model.get('sources').each(function (m) {
             that.onAdd(m, that.model.get('sources'), {});
@@ -1050,6 +1001,7 @@ App.MediaListView = App.NestedView.extend({
                 itemView.remove();
             }
         });
+        this.$('.add-more').remove().appendTo(this.$('.media-list-view-content'));
     },
     onAddTag: function (model, collection, options) {
         App.debug('App.MediaListView.onAdd()');
@@ -1071,6 +1023,7 @@ App.MediaListView = App.NestedView.extend({
                 itemView.remove();
             }
         });
+        this.$('.add-more').remove().appendTo(this.$('.media-list-view-content'));
     },
     onRemoveClick: function (model) {
         App.debug('App.MediaListView.onRemoveClick()');
@@ -1080,6 +1033,7 @@ App.MediaListView = App.NestedView.extend({
         // no harm in removing from both.
         this.model.get('sources').remove(model);
         this.model.get('tags').remove(model);
+        this.onChange();
     },
     onCopyToAllClick: function (event) {
         event.preventDefault();
@@ -1093,6 +1047,12 @@ App.MediaListView = App.NestedView.extend({
             this.$('.all-media').hide();
             this.$('.media-list-view-content').show();
         }
+    },
+    onAddMore: function (event) {
+        var that = this;
+        event.preventDefault();
+        var view = new App.MediaDiscoverView({model:this.model});
+        $('body').append(view.el);
     }
 });
 

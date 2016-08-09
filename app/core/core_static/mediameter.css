@@ -412,8 +412,7 @@ li .query-title {
     font-style: italic;
 }
 .query-view .add-more {
-    margin-top: -20px;
-    padding-bottom: 6px;
+    padding-right: 15px !important;
 }
 .keyword-view label {
     display: block;
@@ -426,11 +425,18 @@ li .query-title {
     position: relative;
     padding-right: 45px;
 }
+.media-list-view .all-media .select-media {
+    text-align: center;
+    padding-right: 15px !important;
+}
 .media-list-view-content a.control {
     position: absolute;
     color: #333;
     top: 10px;
     right: 15px;
+}
+.media-list-view li.add-more {
+    text-align: center;
 }
 .disabled .label {
     background: #eee;
