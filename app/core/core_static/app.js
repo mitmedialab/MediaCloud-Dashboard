@@ -8,7 +8,7 @@ App = {
         persistHeader: true,
         cookieOpts: {
             'path': '/',
-//            'domain': 'mediameter.org',
+//            'domain': 'mediacloud.org',
             'domain': 'www.localhost',
             'expires': 14
         }
@@ -21,7 +21,7 @@ App = {
 
     getSourcesUrl: function(type,id){
       // type = [ media-source | media-tag ]
-      return 'https://sources.mediameter.org/#'+type+'/'+id+'/details';
+      return 'https://sources.mediacloud.org/#'+type+'/'+id+'/details';
     },
 
     // Take a Collection and return a map using the specified key
