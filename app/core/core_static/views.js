@@ -298,6 +298,8 @@ App.QueryView = App.NestedView.extend({
                 .append(that.keywordView.el)
                 .append(that.mediaListView.el)
                 .append(that.dateRangeView.el);
+            // Enable tooltips
+            that.$('a').tooltip();
             that.updateTitle();
             that.listenTo(that.model, 'mm:namechange', that.updateTitle);
             that.listenTo(that.model, 'mm:colorchange', that.updateColor);
@@ -436,6 +438,8 @@ App.DemoQueryView = App.NestedView.extend({
                 .append(that.keywordView.el)
                 .append(that.mediaListView.el)
                 .append(that.dateRangeView.el);
+            // Enable tooltips
+            that.$('a').tooltip();
             that.updateTitle();
             that.listenTo(that.model, 'mm:namechange', that.updateTitle);
             that.listenTo(that.model, 'mm:colorchange', that.updateColor);
