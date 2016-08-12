@@ -1184,6 +1184,7 @@ App.ResultModel = Backbone.Model.extend({
         this.trigger('request', model_or_controller, request, options);
     },
     onError: function (model_or_controller, request, options) {
+        options.resultModel = this;
         this.trigger('error', model_or_controller, request, options);
     },
     onSync: function (model_or_controller, request, options) {

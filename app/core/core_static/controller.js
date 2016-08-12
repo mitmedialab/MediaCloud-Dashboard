@@ -38,14 +38,37 @@ App.con = App.Controller = {
         _.bindAll(this, 'onSignIn');
         _.bindAll(this, 'onSignOut');
         // Listener for events
-        App.con.queryCollection.resources.on('error', function (model_or_controller, request) {
+        App.con.queryCollection.resources.on('error', function (model_or_controller, request, options) {
             App.debug('Received error: ' + request.status);
             if (request.status == 401 || request.status == 403) {
                 App.con.userModel.signOut();
             } else {
+                var queryModel;
+                App.con.queryCollection.each(function(model) {
+                    if (model.get('results') == options.resultModel) {
+                        queryModel = model;
+                    }
+                });
                 var content = JSON.parse(request.responseText);
+                var humanReadable = "You've run into an error. Please contact support@mediacloud.org if this happens over and over.";
+                if (content.error.toLowerCase().indexOf("syntaxerror") != -1) {
+                    humanReadable = "You have a syntax error in your query (" +
+                            queryModel.getName() +
+                        "). Please change it and try again.";
+                } else if (content.error.toLowerCase().indexOf("quota") != -1) {
+                    humanReadable = "You have reached your API quota. Please contact support@mediacloud.org to let us know why you might need a higher quota of queries.";
+                }
+                // Kludge alert: we don't want duplicate errors so we use the
+                // query model's cid as the error model's id, so only one
+                // error shows up per query.
+                var modelId = 'global';
+                if (typeof(queryModel) !== 'undefined') {
+                    modelId = queryModel.cid;
+                }
                 var error = new Backbone.Model({
-                    "message": content.error
+                    "id": modelId,
+                    "message": humanReadable,
+                    "developerMessage": content.error
                 });
                 App.con.getErrorCollection().add(error);
             }

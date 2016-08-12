@@ -75,6 +75,18 @@ App.ErrorView = Backbone.View.extend({
     },
     render: function () {
         this.$el.html(this.model.get('message'));
+        var $devMsg = (
+            $('<p>').appendTo(this.$el)
+            .text(this.model.get('developerMessage'))
+            .hide() );
+        var $more = (
+            $('<span>').appendTo(this.$el)
+            .html(' (<a href="">more</a>)'));
+        $('a', $more).on('click', function (e) {
+            $more.hide();
+            $devMsg.show();
+            e.preventDefault();
+        });
     }
 })
 
