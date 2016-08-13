@@ -872,10 +872,13 @@ App.HistogramView = Backbone.View.extend({
                     point: {
                         events: {
                             click: function (event) {
-                                that.$('.viz .subquery-header').remove();
-                                that.$('.viz .subquery').remove();
+                                that.$('.subquery .wordcounts').html('');
+                                that.$('.subquery .sentences').html('');
                                 var progress = _.template($('#tpl-progress').html());
-                                that.$('.viz').append(progress);
+                                that.$('.subquery .wordcounts').append(progress);
+                                progress = _.template($('#tpl-progress').html());
+                                that.$('.subquery .sentences').append(progress);
+                                that.$('.subquery').show();
                                 var date =Highcharts.dateFormat(
                                     '%Y-%m-%d'
                                     , this.x
@@ -946,8 +949,8 @@ App.HistogramView = Backbone.View.extend({
         $('body').append(this.aboutView.el);
     },
     onSubqueryWordcounts: function () {
-        this.$('.viz .progress').remove();
-        this.$('.viz .subquery-header').remove();
+        this.$('.subquery .wordcounts .progress').remove();
+        this.$('.subquery .wordcounts .subquery-header').remove();
         var subqueryHeader = $('<div>').addClass('subquery-header');
         subqueryHeader.append($('<h3>')
             .css('color', this.collection.subquery.attributes.color)
@@ -956,14 +959,14 @@ App.HistogramView = Backbone.View.extend({
             "Words Used on "+
             this.collection.subquery.attributes.params.get('start')
         ));
-        subqueryHeader.appendTo(this.$('.viz'));
-        this.$('.viz .subquery').remove();
+        this.$('.subquery .wordcounts').html('');
+        this.$('.subquery').show();
+        subqueryHeader.appendTo(this.$('.subquery .wordcounts'));
         wordcounts = this.collection.subquery.get('results').get('wordcounts');
-        subqueryView = new App.WordCountResultView({collection:wordcounts,
-            color: this.collection.subquery.attributes.color,
-            name: this.collection.subquery.attributes.name
+        subqueryView = new App.WordCountOrderedView({
+            'model':this.collection.subquery
         });
-        subqueryView.$el.addClass('subquery').appendTo(this.$('.viz'));
+        subqueryView.$el.addClass('subquery').appendTo(this.$('.subquery .wordcounts'));
     }
 });
 App.HistogramView = App.HistogramView.extend(App.ActionedViewMixin);
