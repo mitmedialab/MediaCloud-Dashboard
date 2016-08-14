@@ -26,6 +26,7 @@
                         <div class="form-group">
                             <div class="pull-right">
                                 <span id="saved-search-controls" style="display:none">
+                                    <button type="button" class="btn load-example btn-default" data-toggle="modal" data-target="#example-list">Load Example...</button>
                                     <button type="button" class="btn load-saved-search btn-default">Load Saved Search...</button>
                                     <button type="button" class="btn save-search btn-default">Save Search...</button>
                                 </span>
@@ -37,5 +38,32 @@
                 </div>
             </form>
         </div>
+    </div>
+    <div class="modal fade" id="example-list" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Example Searches</h4>
+          </div>
+          <div class="modal-body">
+            <p>
+                <a href="https://dashboard.mediameter.org/q/f0a5-vfkbbt">Example 1</a>:
+                Comparison of the Orlando-shooting coverage in US regional vs. mainstream news sources.
+            </p>
+            <p>
+                <a href="https://dashboard.mediameter.org/q/2ed5-m1bs0x">Example 2</a>:
+                Family planning discussions in Indian news.
+            </p>
+            <p>
+                <a href="https://dashboard.mediameter.org/q/7d4caw4hj9">Example 3</a>:
+                Conversations around Female Genital Mutilation (FGM) in different types of US news sources.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
     </div>
 </script>

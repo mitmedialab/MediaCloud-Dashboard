@@ -546,6 +546,8 @@ App.QueryListView = App.NestedView.extend({
         var that = this;
         this.mediaSources.deferred.done(function () {
             that.$el.html(that.template());
+            // Move modal into body
+            that.$('#example-list').remove().appendTo($('body'));
             // Replace loading with queries
             that.collection.each(function (m) {
                 that.onAdd(m, that.collection)
