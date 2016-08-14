@@ -1,7 +1,25 @@
+App.SentenceVizView = Backbone.View.extend({
+    name: 'SentenceVizView',
+    sentenceTemplate: _.template($('#tpl-one-sentence-view').html()),
+    initialize: function (options) {
+        this.render();
+    },
+    render: function () {
+        this.$el.addClass('query-sentences');
+        var totalSentences = this.collection.totalSentences;
+        var totalStories = this.collection.totalStories;
+        this.addSentences(this.collection.last(10), this.sentenceTemplate, this.$el);
+    },
+    addSentences: function(sentences,templateToRender,element){
+        _.each(sentences, function (m) {
+            element.append( templateToRender({'sentence':m}) );
+        }, this);
+    },
+});
+
 App.SentenceView = Backbone.View.extend({
     name: 'SentenceView',
     template: _.template($('#tpl-sentence-view').html()),
-    sentenceTemplate: _.template($('#tpl-one-sentence-view').html()),
     queryHeaderTemplate: _.template('<h3 id="<%=domId%>" style="color:<%=color%>;"><%=title%> <small>(<%=sentenceCount%> sentences match in <%=storyCount%> stories)</small></h3>'),
     events: {
         'click li.action-about > a': 'clickAbout'
@@ -26,25 +44,22 @@ App.SentenceView = Backbone.View.extend({
             $el.html('');
             var queryCount = that.collection.length;
             App.debug("App.SentenceView.render with "+queryCount+" query results to show");
+            var viz;
             if (queryCount >= 2) {
                 for (i = 0; i < queryCount; i++) {
-                    $queryWrapperDiv = $('<div>');
-                    $queryWrapperDiv.addClass('query-sentences').appendTo($el);
-                    querySentences = that.collection.at(i).get('results').get('sentences');
                     var totalSentences = that.collection.at(i).get('results').get('sentences').totalSentences;
                     var totalStories = that.collection.at(i).get('results').get('sentences').totalStories;
-/*                    if (querySentences.length > 0) {
-                        totalSentences = querySentences.last().get('totalSentences');
-                    }
-*/
                     var $title = that.queryHeaderTemplate({
                         'domId':that.collection.at(i).getName(),
                         'color':that.collection.at(i).getColor(),
                         'sentenceCount':that.formatNumber(totalSentences),
                         'storyCount': that.formatNumber(totalStories),
                         'title':that.collection.at(i).getName()});
-                    $queryWrapperDiv.append($title);
-                    that.addSentences(querySentences.last(10), that.sentenceTemplate, $queryWrapperDiv);
+                    $el.append($title);
+                    viz = new App.SentenceVizView({
+                        collection: that.collection.at(i).get('results').get('sentences')
+                    });
+                    $el.append(viz.$el);
                 }
                 that.$('.count').html('');
             } else {
@@ -55,7 +70,10 @@ App.SentenceView = Backbone.View.extend({
                 //totalSentences = sentences.last(1)[0].get('totalSentences');
                 that.$('.count').html('(' + that.formatNumber(totalSentences) + ' sentences found in '+that.formatNumber(totalStories)+' stories)');
                 // now list some of the sentences
-                that.addSentences(sentences.last(10),that.sentenceTemplate,$el);                
+                viz = new App.SentenceVizView({
+                    collection: that.collection.at(0).get('results').get('sentences')
+                });
+                $el.append(viz.$el);
             }
             // now that the query collection is filled in, add the download data links
             var downloadInfo = that.collection.map(function(m) { 
@@ -76,11 +94,6 @@ App.SentenceView = Backbone.View.extend({
         this.listenTo(this.collection, 'mm:colorchange', function(model) {
             $('h3#'+ model.getName()).css('color', model.getColor());
         });
-    },
-    addSentences: function(sentences,templateToRender,element){
-        _.each(sentences, function (m) {
-            element.append( templateToRender({'sentence':m}) );
-        }, this);
     },
     clickAbout: function (evt) {
         evt.preventDefault();
@@ -795,11 +808,17 @@ App.HistogramView = Backbone.View.extend({
             'resource:complete:wordcount',
             this.onSubqueryWordcounts
         );
+        this.listenTo(
+            this.collection.subqueryResources,
+            'resource:complete:sentence',
+            this.onSubqueryStories
+        );
         this.listenTo(this.collection, 'mm:colorchange', this.renderViz);
     },
     renderViz: function () {
         App.debug('App.HistogramView.renderViz');
         // draw the chart
+        this.$('.subquery').hide();
         this.renderHighChart();
         // now that the query collection is filled in, add the download data links
         var downloadInfo = this.collection.map(function(m) { 
@@ -967,6 +986,32 @@ App.HistogramView = Backbone.View.extend({
             'model':this.collection.subquery
         });
         subqueryView.$el.addClass('subquery').appendTo(this.$('.subquery .wordcounts'));
+    },
+    onSubqueryStories: function () {
+    	  console.log('stories loaded');
+        this.$('.subquery .sentences .progress').remove();
+        this.$('.subquery .sentences .subquery-header').remove();
+        var subqueryHeader = $('<div>').addClass('subquery-header');
+        subqueryHeader.append($('<h3>')
+            .css('color', this.collection.subquery.attributes.color)
+            .text(
+            this.collection.subquery.attributes.name+": "+
+            "Stories on "+
+            this.collection.subquery.attributes.params.get('start')
+        ));
+        this.$('.subquery .sentences').html('');
+        this.$('.subquery').show();
+        subqueryHeader.appendTo(this.$('.subquery .sentences'));
+        options = {
+            'collection':this.collection.subquery.get('results').get('sentences')
+        };
+        var subqueryView;
+        if(App.con.userModel.canListSentences()){
+            subqueryView = new App.SentenceVizView(options);
+        } else {
+            subqueryView = new App.StoryView(options);
+        }
+        subqueryView.$el.addClass('subquery').appendTo(this.$('.subquery .sentences'));
     }
 });
 App.HistogramView = App.HistogramView.extend(App.ActionedViewMixin);
