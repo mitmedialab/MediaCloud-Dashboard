@@ -1079,7 +1079,10 @@ App.DateRangeView = Backbone.View.extend({
     template: _.template($('#tpl-date-range-view').html()),
     events: {
         "change input": "onContentChange",
-        "click .copy-to-all": "onClickCopyToAll"
+        "click .copy-to-all": "onClickCopyToAll",
+        "click .week": "onClickWeek",
+        "click .month": "onClickMonth",
+        "click .year": "onClickYear"
     },
     initialize: function (options) {
         App.debug('App.DateRangeView.initialize()');
@@ -1136,8 +1139,43 @@ App.DateRangeView = Backbone.View.extend({
     onClickCopyToAll: function (event) {
         event.preventDefault();
         this.trigger('mm:copyToAll:dateRange', this.model);
+    },
+    onClickWeek: function (event) {
+        event.preventDefault();
+        var yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        var lastWeek = new Date();
+        lastWeek.setDate(lastWeek.getDate() - 7);
+        var endStr = yesterday.toISOString().substring(0,10);
+        var startStr = lastWeek.toISOString().substring(0,10);
+        this.model.get('params').set('start', startStr);
+        this.model.get('params').set('end', endStr);
+    },
+    onClickMonth: function (event) {
+        event.preventDefault();
+        var start = new Date();
+        start.setMonth(start.getMonth() - 1);
+        var end = new Date(start);
+        end.setMonth(end.getMonth() + 1);
+        end.setDate(end.getDate() - 1);
+        var startStr = start.toISOString().substring(0,10);
+        var endStr = end.toISOString().substring(0,10);
+        this.model.get('params').set('start', startStr);
+        this.model.get('params').set('end', endStr);
+    },
+    onClickYear: function (event) {
+        event.preventDefault();
+        var start = new Date();
+        start.setFullYear(start.getFullYear() - 1);
+        var end = new Date(start);
+        end.setFullYear(end.getFullYear() + 1);
+        end.setDate(end.getDate() - 1);
+        var startStr = start.toISOString().substring(0,10);
+        var endStr = end.toISOString().substring(0,10);
+        this.model.get('params').set('start', startStr);
+        this.model.get('params').set('end', endStr);
     }
-});
+ });
 
 App.KeywordView = Backbone.View.extend({
     name: 'KeywordView',
