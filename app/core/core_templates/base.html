@@ -167,6 +167,10 @@
         {% endassets %}
 
         {% block scripts %}{% endblock %}
+        <script src="https://cdn.ravenjs.com/3.4.1/raven.min.js"></script>
+        <script type="text/javascript">
+            Raven.config('https://793ffceba9304a6cad3d381c4d0db51b@app.getsentry.com/91699').install();
+        </script>
         <script type="text/javascript">$(function(){ App.Controller.initialize(); });</script>
         {% if google_analytics_id is defined %}
             <script>
