@@ -1,3 +1,53 @@
+App.SummaryContentView = Backbone.View.extend({
+    name: 'SummaryContentView',
+//    template: _.template('<span style="color:<%=color%>"><%=name%></span>: <%=sentenceCount%> sentences found across <%=storyCount=> stories in <%=sourceCount%> source(s) and <%=tagCount%> collection(s)'),
+    template: _.template('<strong><span style="color:<%=color%>"><%=name%></span></strong>: <%=sentenceCount%> sentences found across <%=storyCount%> stories in <%=sourceCount%> source(s) and <%=tagCount%> collection(s).'),
+    initialize: function (options) {
+        this.render();
+    },
+    render: function () {
+        $content = this.template({
+            color: this.model.getColor(),
+            name: this.model.getName(),
+            sentenceCount: this.model.get('results').get('sentences').totalSentences,
+            storyCount: this.model.get('results').get('sentences').totalStories,
+            sourceCount: this.model.get('params').get('mediaModel').get('sources').length,
+            tagCount: this.model.get('params').get('mediaModel').get('tags').length
+        });
+        this.$el.append($content);
+    }
+});
+
+App.SummaryView = Backbone.View.extend({
+    name: 'SummaryView',
+    template: _.template($('#tpl-summary-view').html()),
+    events: {
+    },
+    initialize: function (options) {
+        this.render();
+    },
+    render: function () {
+        var that = this;
+        App.debug('App.SummaryView.render()');
+        this.$el.html(this.template());
+        var $el = this.$('.panel-body');
+        progress = _.template($('#tpl-progress').html());
+        $el.html(progress());
+        this.listenTo(this.collection.resources, 'resource:allComplete', function () {
+            $el.html('');
+            var queryCount = that.collection.length;
+            App.debug("App.SummaryView.render");
+            that.collection.each(function (queryModel) {
+                var content = new App.SummaryContentView({
+                    model: queryModel
+                });
+                $el.append(content.$el);
+            })
+        });
+    }
+});
+App.SummaryView = App.SummaryView.extend(App.ActionedViewMixin);
+
 App.SentenceVizView = Backbone.View.extend({
     name: 'SentenceVizView',
     sentenceTemplate: _.template($('#tpl-one-sentence-view').html()),
@@ -1206,6 +1256,7 @@ App.QueryResultView = App.NestedView.extend({
     id: 'query-results',
     initialize: function (options) {
         App.debug('App.QueryResultView.initialize():' + this.cid);
+        this.summaryView = new App.SummaryView(options);
         this.histogramView = new App.HistogramView(options);
         this.wordCountView = new App.WordCountView(options);
         if(App.con.userModel.canListSentences()){
@@ -1214,6 +1265,7 @@ App.QueryResultView = App.NestedView.extend({
             this.mentionsView = new App.StoryView(options);
         }
         this.countryMapView = new App.CountryMapView(options);
+        this.addSubView(this.summaryView);
         this.addSubView(this.histogramView);
         this.addSubView(this.wordCountView);
         this.addSubView(this.mentionsView);
@@ -1223,6 +1275,7 @@ App.QueryResultView = App.NestedView.extend({
     render: function () {
         // Reset and render views
         this.$el.html('');
+        this.$el.append(this.summaryView.$el);
         this.$el.append(this.histogramView.$el);
         this.$el.append(this.wordCountView.$el);
         this.$el.append(this.mentionsView.$el);
