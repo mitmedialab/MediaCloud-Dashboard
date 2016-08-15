@@ -147,6 +147,7 @@ App.SentenceView = Backbone.View.extend({
     },
     clickAbout: function (evt) {
         evt.preventDefault();
+        ga('send', 'event', 'about', 'view', 'mentions:sentences', '');
         this.aboutView = new App.AboutView({template: '#tpl-about-sentences-view'});
         $('body').append(this.aboutView.el);
     }
@@ -214,6 +215,7 @@ App.StoryView = Backbone.View.extend({
     },
     clickAbout: function (evt) {
         evt.preventDefault();
+        ga('send', 'event', 'about', 'view', 'mentions:stories', '');
         this.aboutView = new App.AboutView({
             template: '#tpl-about-stories-view'
         });
@@ -293,6 +295,7 @@ App.WordCountView = App.NestedView.extend({
 
     clickAbout: function (evt) {
         evt.preventDefault();
+        ga('send', 'event', 'about', 'view', 'frequency', '');
         this.aboutView = new App.AboutView({
             template: '#tpl-about-wordcount-view'
         });
@@ -435,6 +438,7 @@ App.WordCountOrderedView = Backbone.View.extend({
             .on('click', this.refineBothQueries);
     },
     refineBothQueries: function(d){
+        ga('send', 'event', 'query', 'refine', 'frequncy', '');
         this.refine.trigger('mm:refine',{term:d.stem+'*'});
     },
     listCloudLayout: function (words, width, extent, sizeRange) {
@@ -792,6 +796,7 @@ App.WordCountComparisonView = Backbone.View.extend({
             .on('click', this.refineBothQueries);
     },
     refineBothQueries: function(d){
+        ga('send', 'event', 'query', 'refine', 'frequency', '');
         this.collection.refine.trigger('mm:refine', {term: d.stem+'*'} );
     },
     listCloudLayout: function (words, width, extent, sizeRange) {
@@ -926,6 +931,7 @@ App.HistogramView = Backbone.View.extend({
                 events: {
                     selection: function(evt){
                         evt.preventDefault();   // don't zoom
+                        ga('send', 'event', 'query', 'refine', 'pulse', '');
                         that.collection.refine.trigger('mm:refine',{
                             start: Highcharts.dateFormat('%Y-%m-%d', evt.xAxis[0].min),
                             end: Highcharts.dateFormat('%Y-%m-%d', evt.xAxis[0].max)
@@ -941,6 +947,12 @@ App.HistogramView = Backbone.View.extend({
                     point: {
                         events: {
                             click: function (event) {
+                                var date =Highcharts.dateFormat(
+                                    '%Y-%m-%d'
+                                    , this.x
+                                );
+                                var result = that.collection.at(this.series._i);
+                                ga('send', 'event', 'pulse', 'click', result.getName() + ":" + date, '');
                                 that.$('.subquery .wordcounts').html('');
                                 that.$('.subquery .sentences').html('');
                                 var progress = _.template($('#tpl-progress').html());
@@ -948,11 +960,6 @@ App.HistogramView = Backbone.View.extend({
                                 progress = _.template($('#tpl-progress').html());
                                 that.$('.subquery .sentences').append(progress);
                                 that.$('.subquery').show();
-                                var date =Highcharts.dateFormat(
-                                    '%Y-%m-%d'
-                                    , this.x
-                                );
-                                var result = that.collection.at(this.series._i);
                                 var attributes = {
                                     start: date
                                     , end: date
@@ -1012,6 +1019,7 @@ App.HistogramView = Backbone.View.extend({
     },
     clickAbout: function (evt) {
         evt.preventDefault();
+        ga('send', 'event', 'about', 'view', 'pulse', '');
         this.aboutView = new App.AboutView({
             template: '#tpl-about-histogram-view'
         });
@@ -1223,6 +1231,7 @@ App.CountryMapView = App.NestedView.extend({
         App.debug("Clicked on invalid country!");
     },
     handleCountryClick: function(tagCountModel){
+        ga('send', 'event', 'query', 'refine', 'geography', '');
         this.collection.refine.trigger('mm:refine',{ term: "(tags_id_story_sentences:"+tagCountModel.get('tags_id')+")" });
     },
     handleMouseOver: function(tagCountModel){
@@ -1242,6 +1251,7 @@ App.CountryMapView = App.NestedView.extend({
     },
     clickAbout: function (evt) {
         evt.preventDefault();
+        ga('send', 'event', 'about', 'view', 'geographic', '');
         this.aboutView = new App.AboutView({
             template: '#tpl-about-country-map-view'
         });

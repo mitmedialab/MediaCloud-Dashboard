@@ -524,7 +524,8 @@ App.QueryListView = App.NestedView.extend({
         "click .query-pager.right": 'onPagerRight',
         "click .add-query": 'onAddQuery',
         "click .save-search": 'onSaveSearch',
-        "click .load-saved-search": 'onLoadSavedSearch'
+        "click .load-saved-search": 'onLoadSavedSearch',
+        "click .load-example": 'onLoadExample'
     },
     initialize: function (options) {
         App.debug('App.QueryListView.initialize()');
@@ -560,6 +561,7 @@ App.QueryListView = App.NestedView.extend({
     },
     onQuery: function (ev) {
         ev.preventDefault();
+        ga('send', 'event', 'search', 'begin', '', this.collection.length);
         // try to be smart about names if there are defaults set
         this.collection.autoNameQueries();
         this.collection.execute();
@@ -588,6 +590,7 @@ App.QueryListView = App.NestedView.extend({
     },
     onSaveSearch: function(evt){
         evt.preventDefault();
+        ga('send', 'event', 'search', 'save', '', '');
         this.saveSearchView = new App.SaveSearchView();
         $('body').append(this.saveSearchView.el);
         var that = this;
@@ -631,8 +634,12 @@ App.QueryListView = App.NestedView.extend({
     },
     onLoadSavedSearch: function(evt){
         evt.preventDefault();
+        ga('send', 'event', 'search', 'load', '', '');
         var view = new App.LoadSavedSearchView();
         $('body').append(view.el);
+    },
+    onLoadExample: function(evt){
+        ga('send', 'event', 'search', 'example', '', '');
     },
     /*
      * Carousel-related methods
@@ -1307,12 +1314,15 @@ App.ActionedViewMixin = {
             } else {
                 text = title;
             }
-            this.appendDownloadMenuItem(downloadInfo[idx].url, text, cssClass);
+            this.appendDownloadMenuItem(downloadInfo[idx], text, cssClass);
         }
     },
-    appendDownloadMenuItem: function(downloadUrl, text, cssClass){
-        var element = this._downloadUrlTemplate({'url':downloadUrl,'text':text,'cssClass':cssClass});
-        this.$('.panel-action-list').append(element);  
+    appendDownloadMenuItem: function(downloadInfo, text, cssClass){
+        var element = this._downloadUrlTemplate({'url':downloadInfo.url,'text':text,'cssClass':cssClass});
+        this.$('.panel-action-list').append(element);
+        $(element).on('click', function () {
+            ga('send', 'event', 'data', 'download', downloadInfo.name, '');
+        });
     }
 };
 
