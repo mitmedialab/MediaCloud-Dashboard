@@ -992,6 +992,7 @@ App.MediaListView = App.NestedView.extend({
         if (this.disabled) {
             this.$el.addClass('disabled');
             this.$el.find('li.add-more').hide();
+            this.$el.find('li.select-media').hide();
         }
         this.model.get('sources').each(function (m) {
             that.onAdd(m, that.model.get('sources'), {});
