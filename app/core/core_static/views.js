@@ -1132,6 +1132,9 @@ App.DateRangeView = Backbone.View.extend({
         } else {
             this.$('.date-range-start').attr('disabled', 'disabled');
             this.$('.date-range-end').attr('disabled', 'disabled');
+            this.$('.week').hide();
+            this.$('.year').hide();
+            this.$('.month').hide();
         }
     },
     onModelChange: function () {
