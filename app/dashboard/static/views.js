@@ -1,18 +1,48 @@
 App.SummaryContentView = Backbone.View.extend({
     name: 'SummaryContentView',
-//    template: _.template('<span style="color:<%=color%>"><%=name%></span>: <%=sentenceCount%> sentences found across <%=storyCount=> stories in <%=sourceCount%> source(s) and <%=tagCount%> collection(s)'),
-    template: _.template('<strong><span style="color:<%=color%>"><%=name%></span></strong>: <%=sentenceCount%> sentences found across <%=storyCount%> stories in <%=sourceCount%> source(s) and <%=tagCount%> collection(s).'),
+    sentenceTemplate: _.template('<strong><span style="color:<%=color%>"><%=name%></span></strong>: <%=sentenceCount%> sentences found across <%=across%>.'),
+    storyTemplate: _.template('<strong><span style="color:<%=color%>"><%=name%></span></strong>: <%=storyCount%> stories found across <%=across%>.'),
     initialize: function (options) {
         this.render();
     },
     render: function () {
-        $content = this.template({
+        if(App.con.userModel.canListSentences()){
+            var template = this.sentenceTemplate;
+            var storyCount = this.model.get('results').get('sentences').totalStories;
+            var sentenceCount = this.model.get('results').get('sentences').totalSentences;
+        } else {
+            var template = this.storyTemplate;
+            var storyCount = this.model.get('results').get('stories').totalStories;
+            var sentenceCount = this.model.get('results').get('stories').totalSentences;
+        }
+        sourceCount = this.model.get('params').get('mediaModel').get('sources').length;
+        tagCount = this.model.get('params').get('mediaModel').get('tags').length;
+        if (sourceCount === 0 && tagCount === 0) {
+            var across = "all sources";
+        } else {
+            var across = "";
+            if (sourceCount > 0) {
+                across += sourceCount + " source";
+                if (soureCount > 1) {
+                    across += "s";
+                }
+                if (tagCount > 0) {
+                    across += " and ";
+                }
+            }
+            if (tagCount > 0) {
+                across += tagCount + " collection";
+                if (tagCount > 1) {
+                    across += "s";
+                }
+            }
+        }
+        $content = template({
             color: this.model.getColor(),
             name: this.model.getName(),
-            sentenceCount: this.model.get('results').get('sentences').totalSentences,
-            storyCount: this.model.get('results').get('sentences').totalStories,
-            sourceCount: this.model.get('params').get('mediaModel').get('sources').length,
-            tagCount: this.model.get('params').get('mediaModel').get('tags').length
+            sentenceCount: sentenceCount,
+            storyCount: storyCount,
+            across: across
         });
         this.$el.append($content);
     }
