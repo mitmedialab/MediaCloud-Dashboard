@@ -16,3 +16,6 @@ num_threads = 0
 
 [analytics]
 google_analytics_id =
+
+[sentry]
+dsn = https://<key>:<secret>@app.getsentry.com/<project>

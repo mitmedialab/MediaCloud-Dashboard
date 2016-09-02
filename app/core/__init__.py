@@ -12,6 +12,10 @@ import logging, logging.handlers
 
 import os.path
 
+from raven.conf import setup_logging
+from raven.contrib.flask import Sentry
+from raven.handlers.logging import SentryHandler
+
 # Load configuration
 config = ConfigParser.ConfigParser()
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -21,27 +25,18 @@ config.read(os.path.join(base_dir, 'app.config'))
 logger = logging.getLogger(__name__)	# the mediameter logger
 
 # setup logging
+sentry = Sentry(dsn=config.get('sentry', 'dsn'))
+handler = SentryHandler(config.get('sentry', 'dsn'))
+setup_logging(handler)
 logging.basicConfig(level=logging.INFO)
-log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-log_handler = logging.handlers.RotatingFileHandler(
-	os.path.join(base_dir,'log','mediameter.log'), 'a', 10485760, 10) # 10MB
-log_handler.setFormatter(log_formatter)
-# set up mediacloud logging to the file
 mc_logger = logging.getLogger('mediacloud')
-mc_logger.propagate = False
-mc_logger.addHandler(log_handler)
-# set up requests logging to the file
 requests_logger = logging.getLogger('requests')
-requests_logger.propagate = False
-requests_logger.addHandler(log_handler)
-# set up mediameter logging the same way
-logger.propagate = False
-logger.addHandler(log_handler)
 
 logger.info("---------------------------------------------------------------------------------------")
 
 # Flask app
 flapp = flask.Flask(__name__)
+sentry.init_app(flapp)
 flapp.secret_key = 'put secret key here'
 assets = Environment(flapp)
 
