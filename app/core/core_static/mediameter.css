@@ -43,6 +43,10 @@ svg {
     display: block !important;
 }
 
+.tooltip-inner {
+    white-space: nowrap;
+}
+
 /* Brand Style ****************************************************************/
 
 .brand-toolbar {
