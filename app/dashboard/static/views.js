@@ -351,9 +351,9 @@ App.WordCountOrderedView = Backbone.View.extend({
             that.renderSvg();
         });
         this.listenTo(this.model, 'mm:colorchange', function() {
-           $('g.intersect-group circle').attr('fill', this.model.getColor());
-            d3.selectAll('.word')
-                .attr('fill', this.model.getColor());
+           that.$('g.intersect-group circle').attr('fill', that.model.getColor());
+            d3.select(that.el).selectAll('.word')
+                .attr('fill', that.model.getColor());
        });
     },
     sizeRange: function () {
@@ -410,7 +410,7 @@ App.WordCountOrderedView = Backbone.View.extend({
             intersectWords
                 .attr('font-size', function (d) {
                     return that.fontSize(d, that.fullExtent, sizeRange); });
-            d3.selectAll('.word')
+            d3.select(that.el).selectAll('.word')
                 .text(function (d) { return d.term; })
                 .attr('font-weight', 'bold')
                 .attr('fill', this.model.getColor());
@@ -424,7 +424,7 @@ App.WordCountOrderedView = Backbone.View.extend({
         if (y < this.config.height) {
             svg.attr('height', y + 1.5*this.config.labelSize);
         }
-        d3.selectAll('.word')
+        d3.select(that.el).selectAll('.word')
             .on('mouseover', function () {
                 d3.select(this).attr('fill', that.config.linkColor)
                 .attr('cursor','pointer');
@@ -434,7 +434,7 @@ App.WordCountOrderedView = Backbone.View.extend({
                 d3.select(this).attr('fill', color)
                 .attr('cursor','default');
             });
-        d3.selectAll('.intersect.word')
+        d3.select(that.el).selectAll('.intersect.word')
             .on('click', this.refineBothQueries);
     },
     refineBothQueries: function(d){
@@ -565,12 +565,12 @@ App.WordCountComparisonView = Backbone.View.extend({
             that.renderSvg();
         });
         this.listenTo(this.collection, 'mm:colorchange', function() {
-           $('g.left-group circle').attr('fill', this.leftModel.getColor());
-           $('g.right-group circle').attr('fill', this.rightModel.getColor());
-            d3.selectAll('.left.word')
-                .attr('fill', this.leftModel.getColor());
-            d3.selectAll('.right.word')
-                .attr('fill', this.rightModel.getColor());
+           that.$('g.left-group circle').attr('fill', that.leftModel.getColor());
+           that.$('g.right-group circle').attr('fill', that.rightModel.getColor());
+            d3.select(that.el).selectAll('.left.word')
+                .attr('fill', that.leftModel.getColor());
+            d3.select(that.el).selectAll('.right.word')
+                .attr('fill', that.rightModel.getColor());
        });
     },
     changeQuery: function(ev) {
