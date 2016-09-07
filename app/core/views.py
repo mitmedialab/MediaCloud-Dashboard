@@ -45,6 +45,7 @@ def login():
     username = ''
     password = ''
     key = ''
+    user = None
     try:
         username = flask.request.form['username']
         password = flask.request.form['password']
@@ -57,7 +58,7 @@ def login():
             user = authentication.authenticate_by_key(username, key)
         except KeyError:
             pass
-    if not user.is_authenticated():
+    if (user is None) or (not user.is_authenticated()):
         flask.abort(401)
     flask_login.login_user(user)
     user.create_in_db_if_needed()
@@ -72,7 +73,7 @@ def login():
     return json.dumps(response)
 
 @flapp.route('/api/user', methods=['POST'])
-def user():
+def user_info():
     if flask_login.current_user.is_authenticated():
         # User is already logged in, confirm by sending user object
         response = {
@@ -102,14 +103,14 @@ def logout():
 def load_user(userid):
     return authentication.User.get(userid)
 
-@flapp.route('/api/queries/<query_timestamp>', methods=['PUT','DELETE'])
+@flapp.route('/api/queries/<query_timestamp>', methods=['PUT', 'DELETE'])
 @flask_login.login_required
 def manage_query(query_timestamp):
     if flask.request.method == 'PUT':
         data = flask.request.get_json()
         db.users.update(
-            { 'username': flask_login.current_user.name },
-            { '$push': { 'saved_queries': data } }
+            {'username': flask_login.current_user.name},
+            {'$push': {'saved_queries': data}}
         )
         app.core.logger.debug("saved query with timestamp %s" % query_timestamp)
         return json.dumps({'status':'success'})
@@ -136,7 +137,7 @@ def manage_query(query_timestamp):
                 del db_user['saved_queries'][idx]
                 db.users.save(db_user)
                 return json.dumps({'status':'success'})
-            else: 
+            else:
                 return json.dumps({'error':'saved search not found'}), 400
     else:
         return json.dumps({'error':'unsupported http method'}), 400
@@ -157,7 +158,7 @@ def run_query_by_shortcode(query_shortcode):
     cursor = db.users.find({"saved_queries.shortcode":query_shortcode})
     for user_doc in cursor:
         for query in user_doc['saved_queries']:
-            if query['shortcode']==query_shortcode:
+            if query['shortcode'] == query_shortcode:
                 return flask.redirect('#'+query['url'])
     flask.abort(400)
 
@@ -168,22 +169,22 @@ def run_query_by_shortcode(query_shortcode):
 @flapp.route('/api/media')
 @flask_login.login_required
 def media():
-    return json.dumps({'sets':app.core.util.all_media_sets()}, separators=(',',':'));
+    return json.dumps({'sets':app.core.util.all_media_sets()}, separators=(',', ':'))
 
 @flapp.route('/api/media/sources/search/<str>')
 @flask_login.login_required
-def media_search(str):
-    return json.dumps(mc.mediaList(name_like=str))
+def media_search(search_str):
+    return json.dumps(mc.mediaList(name_like=search_str))
 
 @flapp.route('/api/media/sources')
 @flask_login.login_required
 def media_sources():
-    return json.dumps(list(app.core.util.all_media_sources()), separators=(',',':'))
+    return json.dumps(list(app.core.util.all_media_sources()), separators=(',', ':'))
 
 @flapp.route('/api/media/sets')
 @flask_login.login_required
 def media_sets():
-    return json.dumps(list(app.core.util.all_media_sets()), separators=(',',':'))
+    return json.dumps(list(app.core.util.all_media_sets()), separators=(',', ':'))
 
 @flapp.route('/api/media/sources/single/<media_id>')
 @flask_login.login_required
@@ -198,7 +199,7 @@ def media_single_tags(tags_id):
 @flapp.route('/api/media/tags/search/<query>')
 @flask_login.login_required
 def media_search_tags(query):
-    return json.dumps(mc.tagList(name_like=query,public_only=True))
+    return json.dumps(mc.tagList(name_like=query, public_only=True))
 
 # -----------------------------------------------------------------------------------------
 # SENTENCES -------------------------------------------------------------------------------
