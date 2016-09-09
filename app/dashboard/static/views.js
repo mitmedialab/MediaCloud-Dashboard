@@ -184,9 +184,26 @@ App.SentenceView = Backbone.View.extend({
 });
 App.SentenceView = App.SentenceView.extend(App.ActionedViewMixin);
 
+App.StoryVizView = Backbone.View.extend({
+    name: 'StoryVizView',
+    storyTemplate: _.template($('#tpl-one-story-view').html()),
+    initialize: function (options) {
+        this.render();
+    },
+    render: function () {
+        this.$el.addClass('query-stories');
+        var totalStories = this.collection.length;
+        this.addStories(this.collection.last(10), this.storyTemplate, this.$el);
+    },
+    addStories: function(stories,templateToRender,element){
+        _.each(stories, function (m) {
+            element.append( templateToRender({'story':m}) );
+        }, this);
+    },
+});
+
 App.StoryView = Backbone.View.extend({
     name: 'StoryView',
-    storyTemplate: _.template($('#tpl-one-story-view').html()),
     template: _.template($('#tpl-story-view').html()),
     events: {
         'click li.action-about > a': 'clickAbout'
@@ -207,19 +224,28 @@ App.StoryView = Backbone.View.extend({
         this.listenTo(this.collection.resources, 'resource:complete:story', function () {
             $el.html('');
             var query1Stories = that.collection.models[0].get('results').get('stories');
+            var viz;
             if (that.collection.length >= 2) {
+                var query2Stories = that.collection.models[1].get('results').get('stories');
                 // add main and comparison queries
                 $el.append('<h3 class="first-query">'+that.collection.at(0).get('params').get('keywords')+': '+
                     'A sampling of stories ('+query1Stories.totalStories+' total)</h3>');
-                that.addStories(query1Stories.last(10),that.storyTemplate,$el);
-                var query2Stories = that.collection.models[1].get('results').get('stories');
+                viz = new App.StoryVizView({
+                    collection: that.collection.at(0).get('results').get('stories')
+                });
+                $el.append(viz.$el);
                 $el.append('<h3 class="second-query">'+that.collection.at(1).get('params').get('keywords')+': '+
                     'A sampling of stories ('+query2Stories.totalStories+' total)</h3>');
-                that.addStories(query2Stories.last(10),that.storyTemplate,$el);
+                viz = new App.StoryVizView({
+                    collection: that.collection.at(0).get('results').get('stories')
+                });
+                $el.append(viz.$el);
             } else {
                 // had just a main query
-                this.$el.find('.panel-title .count').html('( '+query1Stories.totalStories+' total )');
-                that.addStories(query1Stories.last(10),that.storyTemplate,$el);
+                viz = new App.StoryVizView({
+                    collection: that.collection.at(0).get('results').get('stories')
+                });
+                $el.append(viz.$el);
             }
             // now that the query collection is filled in, add the download data links
             var downloadInfo = that.collection.map(function(m) { 
@@ -237,11 +263,6 @@ App.StoryView = Backbone.View.extend({
             $el.html(progress());
         });
         this.delegateEvents();
-    },
-    addStories: function(stories,template,element){
-        _.each(stories, function (m) {
-            element.append( template({'story':m}) );
-        }, this);
     },
     clickAbout: function (evt) {
         evt.preventDefault();
@@ -898,6 +919,11 @@ App.HistogramView = Backbone.View.extend({
             'resource:complete:sentence',
             this.onSubqueryStories
         );
+        this.listenTo(
+            this.collection.subqueryResources,
+            'resource:complete:story',
+            this.onSubqueryStories
+        );
         this.listenTo(this.collection, 'mm:colorchange', this.renderViz);
     },
     renderViz: function () {
@@ -1076,7 +1102,6 @@ App.HistogramView = Backbone.View.extend({
         subqueryView.$el.addClass('subquery').appendTo(this.$('.subquery .wordcounts'));
     },
     onSubqueryStories: function () {
-    	  console.log('stories loaded');
         this.$('.subquery .sentences .progress').remove();
         this.$('.subquery .sentences .subquery-header').remove();
         var subqueryHeader = $('<div>').addClass('subquery-header');
@@ -1090,14 +1115,17 @@ App.HistogramView = Backbone.View.extend({
         this.$('.subquery .sentences').html('');
         this.$('.subquery').show();
         subqueryHeader.appendTo(this.$('.subquery .sentences'));
-        options = {
-            'collection':this.collection.subquery.get('results').get('sentences')
-        };
         var subqueryView;
         if(App.con.userModel.canListSentences()){
+            options = {
+                'collection':this.collection.subquery.get('results').get('sentences')
+            };
             subqueryView = new App.SentenceVizView(options);
         } else {
-            subqueryView = new App.StoryView(options);
+            options = {
+                'collection':this.collection.subquery.get('results').get('stories')
+            };
+            subqueryView = new App.StoryVizView(options);
         }
         subqueryView.$el.addClass('subquery').appendTo(this.$('.subquery .sentences'));
     }

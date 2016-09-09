@@ -773,7 +773,12 @@ App.QueryCollection = Backbone.Collection.extend({
         var q = this.get(options.queryCid);
         var subParams = q.get('params').toJSON();
         _.extend(subParams, options.attributes);
-        this.subquery = new App.QueryModel(subParams, { mediaSources: q.mediaSources, parse: true });
+        if(App.con.userModel.canListSentences()){
+            var ResultModel = App.ResultModel;
+        } else {
+            var ResultModel = App.DemoResultModel;
+        }
+        this.subquery = new App.QueryModel(subParams, { mediaSources: q.mediaSources, ResultModel: ResultModel, parse: true });
         this.subqueryResources.listen(this.subquery.get('results'));
         this.subquery.execute();
     },
