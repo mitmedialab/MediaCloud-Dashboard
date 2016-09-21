@@ -1,6 +1,6 @@
-# MediaMeter Dashboard
+# MediaCloud Dashboard
 
-MediaMeter is a suite of tools built on top of the MediaCloud online news database. A 
+MediaCloud is a suite of tools built on top of the MediaCloud online news database. A 
 number of tools make up the suite, all driven by a query you author to specify media 
 sources, a date range, and some keywords.
 

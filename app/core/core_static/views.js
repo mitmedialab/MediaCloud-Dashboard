@@ -1271,21 +1271,14 @@ App.ToolListView = Backbone.View.extend({
         this.$el.append(
             $('<li class="dashboard-color">').append(
                 $('<a>')
-                    .attr('href', 'https://dashboard.mediameter.org/' + path)
+                    .attr('href', 'https://dashboard.mediacloud.org/' + path)
                     .text('Dashboard')
                 )
             );
-/*        this.$el.append(
-            $('<li class="mentions-color">').append(
-                $('<a>')
-                    .attr('href', 'https://mentions.mediameter.org/' + path)
-                    .text('Mentions')
-                )
-            );
-*/        this.$el.append(
+        this.$el.append(
             $('<li class="sources-color">').append(
                 $('<a>')
-                    .attr('href', 'https://sources.mediameter.org/' + path)
+                    .attr('href', 'https://sources.mediacloud.org/' + path)
                     .text('Sources')
                 )
             );
