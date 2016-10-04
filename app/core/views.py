@@ -171,7 +171,7 @@ def run_query_by_shortcode(query_shortcode):
 def media():
     return json.dumps({'sets':app.core.util.all_media_sets()}, separators=(',', ':'))
 
-@flapp.route('/api/media/sources/search/<str>')
+@flapp.route('/api/media/sources/search/<search_str>')
 @flask_login.login_required
 def media_search(search_str):
     return json.dumps(mc.mediaList(name_like=search_str))
