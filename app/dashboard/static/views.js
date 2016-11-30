@@ -23,7 +23,7 @@ App.SummaryContentView = Backbone.View.extend({
             var across = "";
             if (sourceCount > 0) {
                 across += sourceCount + " source";
-                if (soureCount > 1) {
+                if (sourceCount > 1) {
                     across += "s";
                 }
                 if (tagCount > 0) {
