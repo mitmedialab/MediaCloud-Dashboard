@@ -1313,7 +1313,9 @@ App.ActionedViewMixin = {
         }
     },
     appendDownloadMenuItem: function(downloadInfo, text, cssClass){
-        var element = this._downloadUrlTemplate({'url':downloadInfo.url,'text':text,'cssClass':cssClass});
+        info = {'text':text, 'cssClass':cssClass};
+        info.url = (downloadInfo != null) ? downloadInfo.url : '';  // for special onClick responses this can be null
+        var element = this._downloadUrlTemplate(info);
         this.$('.panel-action-list').append(element);
         $(element).on('click', function () {
             ga('send', 'event', 'data', 'download', downloadInfo.name, '');
