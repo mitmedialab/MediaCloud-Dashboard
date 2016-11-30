@@ -1010,10 +1010,10 @@ App.MediaListView = App.NestedView.extend({
             model: model,
             display: function (model) {
                 if (model.get("name")) {
-                    return '<a target=_new href="'+App.getSourcesUrl('media-source',model.get('media_id'))+'">'
+                    return '<a target=_new href="'+App.getSourcesUrl('sources',model.get('media_id'))+'">'
                         +model.get("name")+'</a>';
                 } else {
-                    return '<a target=_new href="'+App.getSourcesUrl('media-tag',model.get('tags_id'))+'">'
+                    return '<a target=_new href="'+App.getSourcesUrl('collections',model.get('tags_id'))+'">'
                         +model.tag_set_label + ': ' + model.label+'</a>';
                 }
             }
@@ -1034,7 +1034,7 @@ App.MediaListView = App.NestedView.extend({
         var itemView = new App.ItemView({
             model: model
             , display: function (m) { 
-                return '<a target=_new href="'+App.getSourcesUrl('media-tag',model.get('tags_id'))+'">'
+                return '<a target=_new href="'+App.getSourcesUrl('collections',model.get('tags_id'))+'">'
                     +m.get('tag_set_label') + ': ' + m.get('label')+'</a>';
                 }
         });
@@ -1361,14 +1361,14 @@ App.MediaDiscoverView = Backbone.View.extend({
                 tags_id: [8875027,2453107,9139487,9139458,8875108,8878293,8878292,8878294],
                 label: 'U.S. Media',
                 description: 'A combination of our '
-                    +'<a target=_new href="'+App.getSourcesUrl('media-tag',8875027)+'">Mainstream Media</a>'
-                    +" , "+'<a target=_new href="'+App.getSourcesUrl('media-tag',2453107)+'">Regional Mainstream Media</a>'
-                    +" , "+'<a target=_new href="'+App.getSourcesUrl('media-tag',9139487)+'">Top Online</a>'
-                    +" , "+'<a target=_new href="'+App.getSourcesUrl('media-tag',9139458)+'">Top Digital Native</a>'
-                    +" , "+'<a target=_new href="'+App.getSourcesUrl('media-tag',8875108)+'">Political Blogs</a>'
-                    +" , "+'<a target=_new href="'+App.getSourcesUrl('media-tag',8878293)+'">Liberal Partisan Sources</a>'
-                    +" , "+'<a target=_new href="'+App.getSourcesUrl('media-tag',8878292)+'">Conservative Partisan Sources</a>'
-                    +" , and "+'<a target=_new href="'+App.getSourcesUrl('media-tag',8878294)+'">Libertarian Partisan Sources</a> collections.',
+                    +'<a target=_new href="'+App.getSourcesUrl('collections',8875027)+'">Mainstream Media</a>'
+                    +" , "+'<a target=_new href="'+App.getSourcesUrl('collections',2453107)+'">Regional Mainstream Media</a>'
+                    +" , "+'<a target=_new href="'+App.getSourcesUrl('collections',9139487)+'">Top Online</a>'
+                    +" , "+'<a target=_new href="'+App.getSourcesUrl('collections',9139458)+'">Top Digital Native</a>'
+                    +" , "+'<a target=_new href="'+App.getSourcesUrl('collections',8875108)+'">Political Blogs</a>'
+                    +" , "+'<a target=_new href="'+App.getSourcesUrl('collections',8878293)+'">Liberal Partisan Sources</a>'
+                    +" , "+'<a target=_new href="'+App.getSourcesUrl('collections',8878292)+'">Conservative Partisan Sources</a>'
+                    +" , and "+'<a target=_new href="'+App.getSourcesUrl('collections',8878294)+'">Libertarian Partisan Sources</a> collections.',
                 "tags": [
                     new App.SimpleTagModel({"tags_id": 8875027, "label": "U.S. Mainstream Media", "tag_set_label": "Collections", "tag_set_name": "collection", "tag_sets_id": 5, 
                                        "description":"Top U.S. mainstream media according Google Ad Planner's measure of unique monthly users."}),
@@ -1391,8 +1391,8 @@ App.MediaDiscoverView = Backbone.View.extend({
             new App.SimpleTagModel({
                 "tags_id": [8876474,8876987], "label": "Global Media", 
                 "description": 'A combination of our '
-                    +'<a target=_new href="'+App.getSourcesUrl('media-tag',8876474)+'">Europe Media Monitor</a>'
-                    +" and "+'<a target=_new href="'+App.getSourcesUrl('media-tag',8876987)+'">Global Voices Cited</a> collections.',
+                    +'<a target=_new href="'+App.getSourcesUrl('collections',8876474)+'">Europe Media Monitor</a>'
+                    +" and "+'<a target=_new href="'+App.getSourcesUrl('collections',8876987)+'">Global Voices Cited</a> collections.',
                 "tags": [
                     new App.SimpleTagModel({"tags_id": 8876474, "label": "Europe Media Monitor", "tag_set_label": "Collections", "tag_set_name": "collection", "tag_sets_id": 5, 
                         "description": 'Large list of all sites collected by the <a href-"http://emm.newsbrief.eu">Europe Media Monitor project</a>.  Includes anywhere from five to dozens of sources from almost every country.  This is our main set for broad coverage of international mainstream media.'}),
@@ -1442,7 +1442,7 @@ App.MediaDiscoverView = Backbone.View.extend({
                     var txt = '<b>' + m.get('label') + '</b>' +
                         '<br /><small style="line-height:80%">'+m.get('description');
                     if(m.get('tags_id').constructor!==Array){
-                        txt += ' <a target=_new href="'+App.getSourcesUrl('media-tag',m.get('tags_id'))+'">'+
+                        txt += ' <a target=_new href="'+App.getSourcesUrl('collections',m.get('tags_id'))+'">'+
                         'See our coverage on the Sources tool.</a>';
                     }
                     txt += '</small>';

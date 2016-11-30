@@ -20,7 +20,7 @@ App = {
     },
 
     getSourcesUrl: function(type,id){
-      // type = [ media-source | media-tag ]
+      // type = [ sources | collections ]
       return 'https://sources.mediacloud.org/#'+type+'/'+id+'/details';
     },
 
