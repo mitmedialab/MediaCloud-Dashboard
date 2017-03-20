@@ -28,19 +28,22 @@ def index():
 # USER MGMT -------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------
 
+def _get_user_info():
+    current_user = flask_login.current_user
+    user_info = {
+       'username': current_user.name
+       , 'authenticated': True
+       , 'anonymous': False
+       , 'key': current_user.get_id()
+       , 'sentencesAllowed': 'admin' in current_user.profile['auth_roles']
+    }
+    return user_info
+
 @flapp.route('/api/login', methods=['POST'])
 def login():
     if flask_login.current_user.is_authenticated():
         app.core.logger.debug("login: user logged in already")
-        # User is already logged in, confirm by sending user object
-        response = {
-            'username': flask_login.current_user.name
-            , 'authenticated': True
-            , 'anonymous': False
-            , 'key': flask_login.current_user.get_id()
-            , 'sentencesAllowed': _sentences_allowed(flask_login.current_user.get_id())
-        }
-        return json.dumps(response)
+        return json.dumps(_get_user_info())
     # User is attempting new login, authenticate
     username = ''
     password = ''
@@ -67,7 +70,7 @@ def login():
         , 'authenticated': True
         , 'anonymous': False
         , 'key': user.get_id()
-        , 'sentencesAllowed': _sentences_allowed(user.get_id())
+        , 'sentencesAllowed': 'admin' in user.profile['auth_roles']
     }
     app.core.logger.debug("login: successful login for %s" % user.name)
     return json.dumps(response)
@@ -75,15 +78,7 @@ def login():
 @flapp.route('/api/user', methods=['POST'])
 def user_info():
     if flask_login.current_user.is_authenticated():
-        # User is already logged in, confirm by sending user object
-        response = {
-            'username': flask_login.current_user.name
-            , 'authenticated': True
-            , 'anonymous': False
-            , 'key': flask_login.current_user.get_id()
-            , 'sentencesAllowed': _sentences_allowed(flask_login.current_user.get_id())
-        }
-        return json.dumps(response)
+        return json.dumps(_get_user_info())
     flask.abort(401)
 
 @flapp.route('/api/logout', methods=['POST'])
@@ -510,28 +505,6 @@ def demo_geotagcount_csv(keywords):
 # -----------------------------------------------------------------------------------------
 # HELPERS ---------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------
-
-def _sentences_allowed(key):
-    '''
-    This method tells you whether the key passed in is allowed to call sentenceList or not.
-    Public authenticated users are not allowed to call sentenceList (it throws a 403).
-    '''
-    media, start, end = demo_params()
-    user_mc = mcapi.AdminMediaCloud(flask_login.current_user.get_id())
-    query = app.core.util.solr_query('*', media, start, end)
-    allowed = None
-    try:
-        res = user_mc.sentenceList(query, '', 0, 0)
-        allowed = True
-    except mcerror.MCException as exception:
-        app.core.logger.error("Query failed: "+str(exception))
-        content = json.dumps({'error':str(exception)}, separators=(',',':'))
-        status_code = exception.status_code
-        return content, status_code
-    except Exception as exception:
-        allowed = False
-    app.core.logger.debug("_sentences_allowed check: sentenceList %s for key %s " % (allowed, key) )
-    return allowed
 
 def assemble_csv_response(results,properties,column_names,filename):
     app.core.logger.debug("assemble_csv_response with "+str(len(results))+" results")

@@ -7,13 +7,15 @@ import mediacloud as mcapi
 import app
 from app.core import db, mc
 
+
 # User class
 class User(UserMixin):
-    def __init__(self, username, key, active=True):
+    def __init__(self, username, key, active=True, profile=None):
         self.name = username
         self.id = key
         self.active = active
         self.created = datetime.datetime.now()
+        self.profile = profile
         
     def is_active(self):
         return self.active
@@ -43,21 +45,27 @@ class User(UserMixin):
 
 User.cached = {}
 
+
 def load_from_db_by_username(username):
-    return db.users.find_one({'username':username})
+    return db.users.find_one({'username': username})
+
 
 def authenticate_by_key(username, key):
     user_mc = mcapi.MediaCloud(key)
     if user_mc.verifyAuthToken():
-        user = User(username, key)
+        profile = user_mc.userProfile()
+        user = User(username, key, profile=profile)
         User.cached[user.id] = user
         return user
     return AnonymousUserMixin()
 
+
 def authenticate_by_password(username, password):
     try:
         key = mc.userAuthToken(username, password)
-        user = User(username, key)
+        user_mc = mcapi.MediaCloud(key)
+        profile = user_mc.userProfile()
+        user = User(username, key, profile=profile)
         User.cached[user.id] = user
         return user
     except Exception:
