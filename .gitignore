@@ -9,3 +9,4 @@ tmp/restart.txt
 app/static/.webassets-cache
 app/static/gen/*.js
 .idea
+tmp/*.csv
