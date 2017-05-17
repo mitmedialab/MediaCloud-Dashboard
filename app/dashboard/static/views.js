@@ -237,7 +237,7 @@ App.StoryView = Backbone.View.extend({
                 $el.append('<h3 class="second-query">'+that.collection.at(1).get('params').get('keywords')+': '+
                     'A sampling of stories ('+query2Stories.totalStories+' total)</h3>');
                 viz = new App.StoryVizView({
-                    collection: that.collection.at(0).get('results').get('stories')
+                    collection: that.collection.at(1).get('results').get('stories')
                 });
                 $el.append(viz.$el);
             } else {
