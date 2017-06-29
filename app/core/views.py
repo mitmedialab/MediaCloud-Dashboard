@@ -448,7 +448,7 @@ def _geotagcount(api, keywords, media, start, end):
             continue
         r['geonamesId'] = geonamesId    # TODO: move this to JS?
         r['alpha3'] = COUNTRY_GEONAMES_ID_TO_APLHA3[geonamesId]
-        r['count'] = (float(r['count'])/float(GEO_SAMPLE_SIZE))    # WTF: why is the API returning this as a string and not a number?
+        r['count'] = (float(r['count'])/float(GEO_SAMPLE_SIZE))
     return res
 
 def _geotagcount_handler(api, keywords, media, start, end):
