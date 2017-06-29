@@ -25,10 +25,10 @@ config.read(os.path.join(base_dir, 'app.config'))
 logger = logging.getLogger(__name__)	# the mediameter logger
 
 # setup logging
-sentry = Sentry(dsn=config.get('sentry', 'dsn'))
-handler = SentryHandler(config.get('sentry', 'dsn'))
-setup_logging(handler)
-logging.basicConfig(level=logging.INFO)
+#sentry = Sentry(dsn=config.get('sentry', 'dsn'))
+#handler = SentryHandler(config.get('sentry', 'dsn'))
+#setup_logging(handler)
+logging.basicConfig(level=logging.DEBUG)
 mc_logger = logging.getLogger('mediacloud')
 requests_logger = logging.getLogger('requests')
 
@@ -36,7 +36,7 @@ logger.info("-------------------------------------------------------------------
 
 # Flask app
 flapp = flask.Flask(__name__)
-sentry.init_app(flapp)
+#sentry.init_app(flapp)
 flapp.secret_key = 'put secret key here'
 assets = Environment(flapp)
 
@@ -44,7 +44,7 @@ assets = Environment(flapp)
 mc_key = config.get('mediacloud','key')
 mc = mcapi.AdminMediaCloud(mc_key)
 logger.info("Connected to MediaCloud with default key %s" % (mc_key))
-#logging.getLogger('MediaCloud').setLevel(logging.DEBUG)
+logging.getLogger('MediaCloud').setLevel(logging.DEBUG)
 
 # Create user login manager
 login_manager = flask_login.LoginManager()

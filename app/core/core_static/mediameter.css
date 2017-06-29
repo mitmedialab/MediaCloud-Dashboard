@@ -187,6 +187,10 @@ body {
     float: left;
     padding-left: 1em;
     padding-right: 1em;
+    padding-top: 6px;
+    height: 40px;
+    font-size: 14px;
+    line-height: 2.1em;
 }
 .controls ul li {
     display: block;
@@ -466,12 +470,18 @@ li .query-title {
 .dashboard-color {
     background-color: #e14c11;
 }
-.mentions-color {
-    background-color: #005826;
-}
 .sources-color {
     background-color: rgb(85,134,138);
 }
+.tools-color {
+    background-color: #616161;
+}
+.topics-color {
+    background-color: #47c4ac;
+}
+.blog-color {
+}
+
 
 /* Spectrum Palette ***************************************************/
 

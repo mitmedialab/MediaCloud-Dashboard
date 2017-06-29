@@ -1269,20 +1269,40 @@ App.ToolListView = Backbone.View.extend({
         }
         this.$el.html('');
         this.$el.append(
-            $('<li class="dashboard-color">').append(
+            $('<li class="tool-item tools-color">').append(
+                $('<a>')
+                    .attr('href', 'https://tools.mediacloud.org/')
+                    .text('Tools')
+                )
+            );
+        this.$el.append(
+            $('<li class="tool-item dashboard-color">').append(
                 $('<a>')
                     .attr('href', 'https://dashboard.mediacloud.org/' + path)
                     .text('Dashboard')
                 )
             );
         this.$el.append(
-            $('<li class="sources-color">').append(
+            $('<li class="tool-item topics-color">').append(
                 $('<a>')
-                    .attr('href', 'https://sources.mediacloud.org/' + path)
-                    .text('Sources')
+                    .attr('href', 'https://topics.mediacloud.org/')
+                    .text('Topic Mapper')
                 )
             );
-
+        this.$el.append(
+            $('<li class="tool-item sources-color">').append(
+                $('<a>')
+                    .attr('href', 'https://sources.mediacloud.org/')
+                    .text('Sources Manager')
+                )
+            );
+        this.$el.append(
+            $('<li class="tool-item blog-color">').append(
+                $('<a>')
+                    .attr('href', 'https://mediacloud.org/')
+                    .text('Blog')
+                )
+            );
     }
 });
 
