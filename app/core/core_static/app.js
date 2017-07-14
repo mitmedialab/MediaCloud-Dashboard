@@ -21,7 +21,7 @@ App = {
 
     getSourcesUrl: function(type,id){
       // type = [ sources | collections ]
-      return 'https://sources.mediacloud.org/#'+type+'/'+id+'/details';
+      return 'https://sources.mediacloud.org/#'+type+'/'+id;
     },
 
     // Take a Collection and return a map using the specified key

@@ -1380,10 +1380,12 @@ App.MediaDiscoverView = Backbone.View.extend({
         // init the commonly used sets
         this.tagModels = [
             new App.SimpleTagModel({
-                tags_id: [8875027,2453107,9139487,9139458,8875108,8878293,8878292,8878294],
+                tags_id: [9139487,9139458,8875027,2453107,9139487,9139458,8875108,8878293,8878292,8878294],
                 label: 'U.S. Media',
                 description: 'A combination of our '
-                    +'<a target=_new href="'+App.getSourcesUrl('collections',8875027)+'">Mainstream Media</a>'
+                    +'<a target=_new href="'+App.getSourcesUrl('collections',9139487)+'">U.S. Top Online</a>'
+                    +', <a target=_new href="'+App.getSourcesUrl('collections',9139458)+'">U.S. Top Digital Native</a>'
+                    +', <a target=_new href="'+App.getSourcesUrl('collections',8875027)+'">Mainstream Media</a>'
                     +" , "+'<a target=_new href="'+App.getSourcesUrl('collections',2453107)+'">Regional Mainstream Media</a>'
                     +" , "+'<a target=_new href="'+App.getSourcesUrl('collections',9139487)+'">Top Online</a>'
                     +" , "+'<a target=_new href="'+App.getSourcesUrl('collections',9139458)+'">Top Digital Native</a>'
@@ -1392,6 +1394,10 @@ App.MediaDiscoverView = Backbone.View.extend({
                     +" , "+'<a target=_new href="'+App.getSourcesUrl('collections',8878292)+'">Conservative Partisan Sources</a>'
                     +" , and "+'<a target=_new href="'+App.getSourcesUrl('collections',8878294)+'">Libertarian Partisan Sources</a> collections.',
                 "tags": [
+                    new App.SimpleTagModel({"tags_id": 9139487, "label": "U.S. Top Online News", "tag_set_label": "Collections", "tag_set_name": "collection", "tag_sets_id": 5, 
+                                       "description":"Top 50 online news sites according to Pew / Comscore as of 2015."}),
+                    new App.SimpleTagModel({"tags_id": 9139458, "label": "U.S. Top Digital Native", "tag_set_label": "Collections", "tag_set_name": "collection", "tag_sets_id": 5, 
+                                       "description":"Top 50 digital native news sites according to Pew / Comscore as of 2015."}),
                     new App.SimpleTagModel({"tags_id": 8875027, "label": "U.S. Mainstream Media", "tag_set_label": "Collections", "tag_set_name": "collection", "tag_sets_id": 5, 
                                        "description":"Top U.S. mainstream media according Google Ad Planner's measure of unique monthly users."}),
                     new App.SimpleTagModel({"tags_id": 2453107, "label": "U.S. Regional Mainstream Media", "tag_set_label": "Collections", "tag_set_name": "collection", "tag_sets_id": 5, 

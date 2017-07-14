@@ -473,7 +473,7 @@ App.MediaModel = App.NestedModel.extend({
         var sets = this.get('tags');
         if(sets.length!=1) return false;
         var setIds = sets.pluck('tags_id');
-        return (setIds[0]==8875027);
+        return (setIds[0]==9139458);
     },
     isGeoTagged: function() {
         return (this.get('sources').isGeoTagged() && this.get('tags').isGeoTagged());

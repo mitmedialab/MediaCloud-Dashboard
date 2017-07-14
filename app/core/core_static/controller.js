@@ -162,10 +162,10 @@ App.con = App.Controller = {
             // Defaults media
             App.con.mediaModel = new App.MediaModel();
             App.con.comparisonMediaModel = new App.MediaModel();
-            App.con.mediaSources.get('tags').getDeferred(8875027).then(function (m) {
+            App.con.mediaSources.get('tags').getDeferred(9139487).then(function (m) {
                 App.con.mediaModel.get('tags').add(m);
             });
-            App.con.mediaSources.get('tags').getDeferred(8875027).then(function (m) {
+            App.con.mediaSources.get('tags').getDeferred(9139487).then(function (m) {
                 App.con.comparisonMediaModel.get('tags').add(m);
             });
             // Default tags
@@ -228,17 +228,19 @@ App.con = App.Controller = {
             'sources': [{"media_id":1,"url":"http://nytimes.com","name":"New York Times"},{"media_id":2,"url":"http://washingtonpost.com","name":"Washington Post"},{"media_id":4,"url":"http://www.usatoday.com","name":"USA Today"},{"media_id":6,"url":"http://www.latimes.com/","name":"LA Times"},{"media_id":7,"url":"http://www.nypost.com/","name":"The New York Post"},{"media_id":8,"url":"http://www.nydailynews.com/","name":"The Daily News New York"},{"media_id":14,"url":"http://www.sfgate.com/","name":"San Francisco Chronicle"},{"media_id":314,"url":"http://www.huffingtonpost.com/","name":"The Huffington Post"},{"media_id":1089,"url":"http://www.reuters.com/","name":"Reuters"},{"media_id":1092,"url":"http://www.foxnews.com/","name":"FOX News"},{"media_id":1094,"url":"http://www.bbc.co.uk/?ok","name":"BBC"},{"media_id":1095,"url":"http://www.cnn.com/","name":"CNN"},{"media_id":1098,"url":"http://www.newsweek.com/","name":"Newsweek "},{"media_id":1104,"url":"http://www.forbes.com/","name":"Forbes"},{"media_id":1149,"url":"http://www.msnbc.msn.com/","name":"MSNBC"},{"media_id":1747,"url":"http://www.dailymail.co.uk/home/index.html","name":"Daily Mail"},{"media_id":1750,"url":"http://www.telegraph.co.uk/","name":"Daily Telegraph"},{"media_id":1751,"url":"http://www.guardian.co.uk/","name":"Guardian"},{"media_id":1752,"url":"http://www.cbsnews.com/","name":"CBS News"},{"media_id":4415,"url":"http://cnet.com","name":"CNET"},{"media_id":4418,"url":"http://examiner.com","name":"Examiner.com"},{"media_id":4419,"url":"http://time.com","name":"TIME.com"}]
             , 'tags' : [{
                 "tag_set_name": "collection"
-                , "tags_id": 8875027
-                , "description": "Top U.S. mainstream media according Google Ad Planner's measure of unique monthly users.", "tag": "ap_english_us_top25_20100110", "show_on_media": 1, "label": "U.S. Mainstream Media", "tag_set_description": "Curated collections of media sources.  This is our primary way of organizing our media sources -- almost every media source in our system is a member of one or more of these curated collections.  Some collections are manually curated, and others are generated using quantitative metrics."
+                , "tags_id": 9139487
+                , "label": "U.S. Top Online"
+                , "description": "Top 50 online news sites according to Pew / Comscore as of 2015."
                 , "tag_set_label": "Collections"
                 , "show_on_stories": null
                 , "tag_sets_id": 5
             }]
         });
+        console.log(attributes);
         App.con.mediaSources.set(attributes);
         App.con.mediaSources.trigger('sync');
-        var mediaModel1 = App.con.mediaSources.subset({"sets":[8875027]});
-        var mediaModel2 = App.con.mediaSources.subset({"sets":[8875027]});
+        var mediaModel1 = App.con.mediaSources.subset({"sets":[9139487]});
+        var mediaModel2 = App.con.mediaSources.subset({"sets":[9139487]});
         // Initialize collection
         if (!App.con.queryCollection) {
             App.con.queryCollection = new App.QueryCollection();

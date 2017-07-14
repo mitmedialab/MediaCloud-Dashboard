@@ -537,7 +537,7 @@ def assemble_csv_response(results,properties,column_names,filename):
                 headers={"Content-Disposition":"attachment;filename="+download_filename})
 
 def demo_params():
-    media = '{"sets":[8875027]}'
+    media = '{"sets":[9139487]}'
     start_date = datetime.date.today() - datetime.timedelta(days=15)
     end_date = datetime.date.today() - datetime.timedelta(days = 1)
     start = start_date.strftime("%Y-%m-%d")

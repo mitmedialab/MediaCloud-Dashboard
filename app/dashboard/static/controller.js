@@ -43,10 +43,10 @@ _.extend(App.Controller, {
                         , "tags": [
                             {
                                 "tag_sets_id":5
-                                ,"label":"U.S. Mainstream Media"
-                                ,"tag":"ap_english_us_top25_20100110"
-                                ,"tags_id":8875027
-                                ,"description":"Top U.S. mainstream media according Google Ad Planner's measure of unique monthly users."
+                                ,"label":"U.S. Top Online News"
+                                ,"tag":"pew_top_50_news_20160225"
+                                ,"tags_id":9139487
+                                ,"description":"Top 50 online news sites according to Pew / Comscore as of 2015."
                             }
                         ]
                     }
