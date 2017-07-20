@@ -34,7 +34,7 @@ def _get_user_info():
        'username': current_user.name
        , 'authenticated': True
        , 'anonymous': False
-       , 'key': current_user.get_id()
+       , 'key': current_user.get_key()
        , 'sentencesAllowed': 'admin' in current_user.profile['auth_roles']
     }
     return user_info
@@ -69,7 +69,7 @@ def login():
         'username': username
         , 'authenticated': True
         , 'anonymous': False
-        , 'key': user.get_id()
+        , 'key': user.get_key()
         , 'sentencesAllowed': 'admin' in user.profile['auth_roles']
     }
     app.core.logger.debug("login: successful login for %s" % user.name)
@@ -184,12 +184,12 @@ def media_sets():
 @flapp.route('/api/media/sources/single/<media_id>')
 @flask_login.login_required
 def media_single_source(media_id):
-    return json.dumps(cached_media(flask_login.current_user.get_id(), media_id))
+    return json.dumps(cached_media(flask_login.current_user.get_key(), media_id))
 
 @flapp.route('/api/media/tags/single/<tags_id>')
 @flask_login.login_required
 def media_single_tags(tags_id):
-    return json.dumps(cached_tag(flask_login.current_user.get_id(), tags_id))
+    return json.dumps(cached_tag(flask_login.current_user.get_key(), tags_id))
 
 @flapp.route('/api/media/tags/search/<query>')
 @flask_login.login_required
@@ -233,7 +233,7 @@ def _cached_sentence_docs(api_key, keywords, media, start, end, count=10, sort=m
 @flask_login.login_required
 def sentence_docs(keywords, media, start, end):
     try:
-        return _cached_sentence_docs(flask_login.current_user.get_id(), keywords, media, start, end)
+        return _cached_sentence_docs(flask_login.current_user.get_key(), keywords, media, start, end)
     except mcerror.MCException as exception:
         app.core.logger.error("Query failed: "+str(exception))
         content = json.dumps({'error':str(exception)}, separators=(',',':'))
@@ -276,10 +276,9 @@ def _sentence_numfound(api_key, keywords, media, start, end):
 @flapp.route('/api/sentences/numfound/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def sentence_numfound(keywords, media, start, end):
-    api_key = flask_login.current_user.get_id()
     app.core.logger.debug("request: /api/sentences/numfound/")
     try:
-        return _sentence_numfound(api_key, keywords, media, start, end)
+        return _sentence_numfound(flask_login.current_user.get_key(), keywords, media, start, end)
     except mcerror.MCException as exception:
         app.core.logger.error("Query failed: "+str(exception))
         content = json.dumps({'error':str(exception)}, separators=(',',':'))
@@ -325,7 +324,7 @@ def _cached_story_public_docs(api_key, keywords, media, start, end, count=10):
 @flask_login.login_required
 def story_public_docs(keywords, media, start, end):
     try:
-        return _cached_story_public_docs(flask_login.current_user.get_id(), keywords, media, start, end)
+        return _cached_story_public_docs(flask_login.current_user.get_key(), keywords, media, start, end)
     except mcerror.MCException as exception:
         app.core.logger.error("Query failed: "+str(exception))
         content = json.dumps({'error':str(exception)}, separators=(',',':'))
@@ -353,7 +352,7 @@ def demo_story_docs(keywords):
 # WORD COUNTS -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------
 
-def _cached_wordcount(api_key, keywords, media, start, end):
+def cached_wordcount(api_key, keywords, media, start, end):
     query = app.core.util.solr_query(keywords, media, start, end)
     app.core.logger.debug("query: _wordcount: %s" % query)
     res = cached_word_count(api_key, query)
@@ -363,7 +362,7 @@ def _cached_wordcount(api_key, keywords, media, start, end):
 @flask_login.login_required
 def wordcount(keywords, media, start, end):
     try:
-        return _cached_wordcount(flask_login.current_user.get_id(), keywords, media, start, end)
+        return cached_wordcount(flask_login.current_user.get_key(), keywords, media, start, end)
     except mcerror.MCException as exception:
         app.core.logger.error("Query failed: "+str(exception))
         content = json.dumps({'error':str(exception)}, separators=(',',':'))
@@ -377,7 +376,7 @@ def wordcount(keywords, media, start, end):
 def demo_wordcount(keywords):
     media, start, end = demo_params()
     try:
-        return _cached_wordcount(app_mc_key, keywords, media, start, end)
+        return cached_wordcount(app_mc_key, keywords, media, start, end)
     except mcerror.MCException as exception:
         app.core.logger.error("Query failed: "+str(exception))
         content = json.dumps({'error':str(exception)}, separators=(',',':'))
@@ -387,14 +386,14 @@ def demo_wordcount(keywords):
         app.core.logger.error("Query failed: "+str(exception))
         return json.dumps({'error':str(exception)}, separators=(',',':')), 400
 
-_wordcount_export_props = ['term','stem','count']   # pass these into _assemble_csv_response as the properties arg
+WORDCOUNT_EXPORT_PROPS = ['term', 'stem', 'count']   # pass these into _assemble_csv_response as the properties arg
 
 @flapp.route('/api/wordcount/<keywords>/<media>/<start>/<end>/csv')
 @flask_login.login_required
 def wordcount_csv(keywords, media, start, end):
     try:
-        results = json.loads(_cached_wordcount(flask_login.current_user.get_id(), keywords, media, start, end))
-        return assemble_csv_response(results,_wordcount_export_props,_wordcount_export_props,'wordcount')
+        results = json.loads(cached_wordcount(flask_login.current_user.get_key(), keywords, media, start, end))
+        return assemble_csv_response(results, WORDCOUNT_EXPORT_PROPS, WORDCOUNT_EXPORT_PROPS, 'wordcount')
     except mcerror.MCException as exception:
         app.core.logger.error("Query failed: "+str(exception))
         content = json.dumps({'error':str(exception)}, separators=(',',':'))
@@ -449,7 +448,7 @@ def _geotagcount_handler(api_key, keywords, media, start, end):
 @flapp.route('/api/geotagcount/<keywords>/<media>/<start>/<end>')
 @flask_login.login_required
 def geotagcount(keywords, media, start, end):
-    return _geotagcount_handler(flask_login.current_user.get_id(), keywords, media, start, end)
+    return _geotagcount_handler(flask_login.current_user.get_key(), keywords, media, start, end)
 
 @flapp.route('/api/demo/geotagcount/<keywords>')
 def demo_geotagcount(keywords):
@@ -475,7 +474,7 @@ def geotagcount_handler_csv(api_key, keywords, media, start, end):
 @flapp.route('/api/geotagcount/<keywords>/<media>/<start>/<end>.csv')
 @flask_login.login_required
 def geotagcount_csv(keywords, media, start, end):
-    return geotagcount_handler_csv(flask_login.current_user.get_id(),keywords, media, start, end)
+    return geotagcount_handler_csv(flask_login.current_user.get_key(),keywords, media, start, end)
 
 @flapp.route('/api/demo/geotagcount/<keywords>.csv')
 def demo_geotagcount_csv(keywords):

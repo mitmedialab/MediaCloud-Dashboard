@@ -13,6 +13,7 @@ class User(UserMixin):
     def __init__(self, username, key, active=True, profile=None):
         self.name = username
         self.id = key
+        self.key = key
         self.active = active
         self.created = datetime.datetime.now()
         self.profile = profile
@@ -25,7 +26,10 @@ class User(UserMixin):
     
     def is_authenticated(self):
         return True
-    
+
+    def get_key(self):
+        return self.key
+
     def create_in_db_if_needed(self):
         if self.exists_in_db():
             app.core.logger.debug("  user %s already in db" % self.name)

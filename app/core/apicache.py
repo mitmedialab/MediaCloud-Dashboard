@@ -17,6 +17,11 @@ def cached_story_public_list(api_key, q, fq='', last_processed_stories_id=0, row
 
 
 @cache
+def cached_story_list(api_key, q, fq='', last_processed_stories_id=0, rows=1000):
+    user_mc = _get_user_mc(api_key)
+    return user_mc.storyList(q, fq, last_processed_stories_id, rows)
+
+@cache
 def cached_story_count(api_key, q):
     user_mc = _get_user_mc(api_key)
     return user_mc.storyCount(q)
