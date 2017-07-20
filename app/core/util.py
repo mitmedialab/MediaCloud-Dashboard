@@ -113,34 +113,3 @@ def all_media_sources():
 
 def all_media_sets():
     return _media_info.get('tag_sets', [])
-
-class NumFound:
-    def __init__(self, mc_key, keywords, media, start, end):
-        self.mc_key = mc_key
-        self.to_query = []
-        queries = solr_date_queries(media_to_solr(media), start, end)
-        for q in queries:
-            date, query = q
-            #self.to_query.append((self, keywords, date, query))
-            self.to_query.append((mc_key, keywords, date, query))
-            
-    def results(self):
-        if int(config.get('threading', 'num_threads')) > 0:
-            return NumFound.thread_pool.map(num_found_worker, self.to_query)
-        return [num_found_worker(arg) for arg in self.to_query]
-
-# This should be an instancemethod of NumFound, but Pool.map() requires it
-# to be pickle-able, so this is a quick hack to work around that.
-def num_found_worker(arg):
-    mc_key, keywords, date, filter_query = arg
-    mc = mcapi.MediaCloud(mc_key)
-    query = "%s AND (%s)" % (keywords_to_solr(keywords), filter_query)
-    logger.debug("query: sentenceList: %s" % query)
-    res = mc.sentenceList(query, '', 0, 0)
-    return {
-        'date': date
-        , 'numFound': res['response']['numFound']
-    }
-
-if int(config.get('threading', 'num_threads')) > 0:
-    NumFound.thread_pool = multiprocessing.Pool(processes=int(config.get('threading', 'num_threads')))

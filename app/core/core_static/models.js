@@ -992,14 +992,6 @@ App.SentenceCollection = App.QueryParamDrivenCollection.extend({
     }
 });
 
-App.DemoSentenceCollection = App.SentenceCollection.extend({
-    url: function () {
-        var url = '/api/demo/sentences/docs/';
-        url += encodeURIComponent(this._getKeywords());
-        return url;
-    }
-});
-
 App.StoryModel = Backbone.Model.extend({
     initialize: function (attributes, options) {
     },
@@ -1214,11 +1206,7 @@ App.DemoResultModel = App.ResultModel.extend({
     ],
     initialize: function (attributes, options) {
         App.debug('App.DemoResultModel.initialize()');
-        if(App.con.userModel.canListSentences()){
-            this.children.push({"name": "sentences", "type": App.DemoSentenceCollection});
-        } else {
-            this.children.push({"name": "stories", "type": App.DemoStoryCollection});
-        }
+        this.children.push({"name": "stories", "type": App.DemoStoryCollection});
         // Create children collections
         _.each(this.children, function (c) {
             this.set(c.name, new c.type([], options));

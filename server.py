@@ -1,3 +1,7 @@
 #!/usr/bin/python
+from werkzeug.serving import run_simple
+
 from app import flapp
-flapp.run(debug=True, host='0.0.0.0')
+
+if __name__ == '__main__':
+    run_simple('localhost', 5000, flapp, use_reloader=True, use_debugger=True)

@@ -41,9 +41,9 @@ flapp.secret_key = 'put secret key here'
 assets = Environment(flapp)
 
 # Create media cloud api
-mc_key = config.get('mediacloud','key')
-mc = mcapi.AdminMediaCloud(mc_key)
-logger.info("Connected to MediaCloud with default key %s" % (mc_key))
+app_mc_key = config.get('mediacloud', 'key')
+mc = mcapi.AdminMediaCloud(app_mc_key)
+logger.info("Connected to MediaCloud with default key %s" % (app_mc_key))
 logging.getLogger('MediaCloud').setLevel(logging.DEBUG)
 
 # Create user login manager
