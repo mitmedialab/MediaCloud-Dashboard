@@ -52,7 +52,7 @@
                 <div class="container">
                     {% block branding %}
                     <h1>
-                        {% block logo %}<img src="/static/core/img/mm-logo-65-orange.png" />{% endblock %}
+                        {% block logo %}<img src="{{ url_for('static', filename='core/img/mm-logo-65-orange.png') }}" />{% endblock %}
                         <strong>Media Cloud</strong>
                         {{ self.branding_tool_name() }}
                         <small class="pull-right">Powered by <a href="http://mediacloud.org">Media Cloud</a></small>
@@ -133,8 +133,8 @@
     </p>
                         </div>
                         <div class="col-sm-4 col-sm-offset-1">
-                            <h3><a href="http://civic.mit.edu"><img class="img-responsive" src="static/core/img/civic.png"/></a></h3>
-                            <h3><a href="http://cyber.law.harvard.edu"><img class="img-responsive" src="static/core/img/berkman.png"/></a></h3>
+                            <h3><a href="http://civic.mit.edu"><img class="img-responsive" src="{{ url_for('static', filename='core/img/civic.png') }}"/></a></h3>
+                            <h3><a href="http://cyber.law.harvard.edu"><img class="img-responsive" src="{{ url_for('static', filename='core/img/berkman.png') }}"/></a></h3>
                         </div>
                     </div>
                     {% endblock %}
