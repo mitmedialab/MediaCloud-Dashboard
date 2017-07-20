@@ -164,7 +164,7 @@
                             "core/views.js",
                             "core/controller.js",
                             "core/routes.js" %}
-            <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+            <script type="text/javascript" src="{{ url_for('static', filename=ASSET_URL.replace('/static/', '')) | replace('%', '?') }}"></script>
         {% endassets %}
 
         {% block scripts %}{% endblock %}

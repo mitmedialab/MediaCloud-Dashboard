@@ -2,10 +2,14 @@
 
 {% block branding_tool_name %}Dashboard{% endblock %}
 
-{% block logo %}<a href="http://dashboard.mediacloud.org/"><img src="/static/core/img/mm-logo-65-orange.png" /></a>{% endblock %}
+{% block logo %}
+    <a href="http://dashboard.mediacloud.org/">
+        <img src="{{ url_for('static', filename='core/img/mm-logo-65-orange.png') }}" />
+    </a>
+{% endblock %}
 
 {% block stylesheets %}
-    <link rel="stylesheet" type="text/css" href="static/dashboard/style.css"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='dashboard/style.css') }}"/>
 {% endblock %}
 
 {% block scripts %}
@@ -22,7 +26,7 @@
                         "dashboard/routes.js",
                         "dashboard/script.js"
                          %}
-        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename=ASSET_URL.replace('/static/', '')) | replace('%', '?') }}"></script>
     {% endassets %}
 {% endblock %}
 
