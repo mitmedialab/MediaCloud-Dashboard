@@ -1,7 +1,7 @@
 Flask==0.10.1
 Flask-Login==0.2.11
 Flask-WTF==0.11
-Flask-Assets==0.10
+git+git://github.com/miracle2k/flask-assets.git@6ec476f8a91a4272915da3875c49676bd2baddcb#flask-assets
 Jinja2==2.7.3
 MarkupSafe==0.23
 PyPubSub==3.3.0
