@@ -24,3 +24,4 @@ raven==5.26.0
 blinker==1.4
 HermesCache==0.6.0
 redis==2.10.5
+flask-cdn==1.5.3

@@ -5,6 +5,7 @@ import importlib
 import flask
 from flask.ext.assets import Environment, Bundle
 import flask_login
+from flask_cdn import CDN
 import mediacloud
 import mediacloud.api as mcapi
 import pymongo
@@ -37,8 +38,13 @@ logger.info("-------------------------------------------------------------------
 # Flask app
 flapp = flask.Flask(__name__)
 #sentry.init_app(flapp)
+if config.get('custom', 'use_cdn') == 'true':
+    flapp.config['CDN_DOMAIN'] = 'd31f66kh11e0nw.cloudfront.net'
+    CDN(flapp)
+    flapp.config['FLASK_ASSETS_USE_CDN'] = True
 flapp.secret_key = 'put secret key here'
 assets = Environment(flapp)
+
 
 # Create media cloud api
 app_mc_key = config.get('mediacloud', 'key')
