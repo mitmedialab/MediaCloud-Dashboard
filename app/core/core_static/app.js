@@ -1,17 +1,14 @@
 App = {
     
     config: {
-        debug: false
-        , datepickerOptions: {
-            format: 'yyyy-mm-dd'
-        },
-        persistHeader: true,
-        cookieOpts: {
-            'path': '/',
-//            'domain': 'mediacloud.org',
-            'domain': 'www.localhost',
-            'expires': 14
-        }
+      debug: false,
+      datepickerOptions: {
+        format: 'yyyy-mm-dd'
+      },
+      persistHeader: true,
+      cookieOpts: {
+        'expires': 14
+      }
     },
     
     // get the url to a tool
