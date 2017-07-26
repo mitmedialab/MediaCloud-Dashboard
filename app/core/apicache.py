@@ -4,7 +4,7 @@ from app.core import app_mc_key
 from app.core.cache import cache
 
 
-def _get_user_mc(api_key, force_admin=True):
+def _get_user_mc(api_key, force_admin=False):
     if force_admin or (api_key == app_mc_key):
         return mcapi.AdminMediaCloud(api_key)
     return mcapi.MediaCloud(api_key)
