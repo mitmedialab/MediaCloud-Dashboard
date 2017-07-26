@@ -28,8 +28,8 @@ def cached_story_count(api_key, q):
 
 
 @cache
-def cached_sentence_list(api_key, q, fq='', start_index=0, rows=1000, sort=mcapi.MediaCloud.SORT_PUBLISH_DATE_ASC):
-    user_mc = _get_user_mc(api_key)
+def cached_admin_sentence_list(api_key, q, fq='', start_index=0, rows=1000, sort=mcapi.MediaCloud.SORT_PUBLISH_DATE_ASC):
+    user_mc = _get_user_mc(api_key, True)
     return user_mc.sentenceList(q, fq, start=start_index, rows=rows, sort=sort)
 
 

@@ -10,7 +10,7 @@ from forms import *
 from app.core import config, flapp, login_manager, mc, app_mc_key, db
 import app.core.util
 import authentication
-from app.core.apicache import cached_story_public_list, cached_story_count, cached_sentence_list, cached_word_count, \
+from app.core.apicache import cached_story_public_list, cached_story_count, cached_admin_sentence_list, cached_word_count, \
     cached_sentence_field_count, cached_split_sentence_count, cached_media, cached_tag
 
 
@@ -220,7 +220,7 @@ def _cached_sentence_docs(api_key, keywords, media, start, end, count=10, sort=m
             start_index = randint(0,sentence_total-count)
         except Exception as exception:
             start_index = 0
-    res = cached_sentence_list(api_key, query, '', start_index, count, sort=sort)
+    res = cached_admin_sentence_list(api_key, query, '', start_index, count, sort=sort)
     story_count = cached_story_count(api_key, query)
     results = {
         'sentences': res['response']['docs'],
