@@ -49,6 +49,7 @@ if config.get('custom', 'use_cdn') == 'true':
     CDN(flapp)
     flapp.config['FLASK_ASSETS_USE_CDN'] = True
 flapp.secret_key = 'put secret key here'
+flapp.config['SEND_FILE_MAX_AGE_DEFAULT'] = 7 * 24 * 60 * 60
 assets = Environment(flapp)
 
 
