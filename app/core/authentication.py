@@ -66,9 +66,11 @@ def authenticate_by_key(username, key):
 
 def authenticate_by_password(username, password):
     try:
-        key = mc.userAuthToken(username, password)
-        user_mc = mcapi.MediaCloud(key)
-        profile = user_mc.userProfile()
+        results = mc.authLogin(username, password)
+        if 'error' in results:
+            return AnonymousUserMixin()
+        profile = results['profile']
+        key = profile['api_key']
         user = User(username, key, profile=profile)
         User.cached[user.id] = user
         return user
