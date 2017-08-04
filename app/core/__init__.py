@@ -25,19 +25,25 @@ config.read(os.path.join(base_dir, 'app.config'))
 
 logger = logging.getLogger(__name__)	# the mediameter logger
 
+flapp = flask.Flask(__name__)
+
 # setup logging
-#sentry = Sentry(dsn=config.get('sentry', 'dsn'))
-#handler = SentryHandler(config.get('sentry', 'dsn'))
-#setup_logging(handler)
+try:
+    sentry_dsn = config.get('sentry', 'dsn')
+    handler = SentryHandler(sentry_dsn)
+    handler.setLevel(logging.ERROR)
+    setup_logging(handler)
+    Sentry(flapp, dsn=sentry_dsn)
+except Exception as e:
+    logger.info("no sentry logging")
+    logger.error(e)
 logging.basicConfig(level=logging.DEBUG)
 mc_logger = logging.getLogger('mediacloud')
 requests_logger = logging.getLogger('requests')
 
 logger.info("---------------------------------------------------------------------------------------")
 
-# Flask app
-flapp = flask.Flask(__name__)
-#sentry.init_app(flapp)
+# Flask app config
 if config.get('custom', 'use_cdn') == 'true':
     flapp.config['CDN_DOMAIN'] = 'd31f66kh11e0nw.cloudfront.net'
     CDN(flapp)
