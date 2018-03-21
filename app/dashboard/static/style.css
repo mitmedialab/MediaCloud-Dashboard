@@ -59,3 +59,19 @@
     text-align: center;
     margin: 5px;
 }
+
+.explorer-invite {
+    text-align:center;
+    padding: 20px;
+}
+
+.explorer-invite a {
+    background-color: #8f3387;
+    margin-right: 10px;
+    padding: 10px;
+    display: inline-block;    
+    font-weight: bold;
+    font-size: 14px;
+    color: white;
+    box-shadow: 2px 2px 2px 0px #b4b4b4;
+}
